@@ -11,6 +11,10 @@ export async function getPageIdBySlugOrDomain(slug: string, domain: string) {
     }
   );
 
+  if (res.status !== 200) {
+    return null;
+  }
+
   const data = await res.json();
 
   return data;
