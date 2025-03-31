@@ -55,7 +55,9 @@
       "env": [
         "NEXT_PUBLIC_API_URL",
         "NEXT_PUBLIC_APP_URL",
-        "NEXT_PUBLIC_BASE_URL"
+        "NEXT_PUBLIC_BASE_URL",
+        "HYGRAPH_TOKEN",
+        "HYGRAPH_ENDPOINT"
       ],
       "inputs": ["$TURBO_DEFAULT$", ".env"],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"]

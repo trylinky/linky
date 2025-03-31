@@ -1,10 +1,5 @@
 import { MarketingContainer } from '@/components/marketing-container';
-import { ArticleMetadata } from '@/types/mdx';
-
-interface Props {
-  children: React.ReactNode;
-  meta: ArticleMetadata;
-}
+import { getBlogPost } from '@/lib/cms/get-blog-post-by-slug';
 
 type Author = {
   id: 'alex' | 'jack';
@@ -39,13 +34,18 @@ export const authors: Author[] = [
   },
 ];
 
-export function ArticleTemplate({ children, meta }: Props) {
-  const author = authors.find((author) => author.id === meta.author);
+export default async function BlogPostPage({
+  params,
+}: {
+  params: { blogPostSlug: string };
+}) {
+  const blogPost = await getBlogPost(params.blogPostSlug);
+  const author = authors.find((author) => author.id === blogPost.author);
 
   const articleJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
-    headline: meta.title,
+    headline: blogPost.title,
     author: {
       '@type': 'Person',
       name: author?.name,
@@ -59,8 +59,8 @@ export function ArticleTemplate({ children, meta }: Props) {
         url: 'https://lin.ky/assets/logo.png',
       },
     },
-    datePublished: meta.publishDate,
-    dateModified: meta.publishDate,
+    datePublished: blogPost.displayedPublishedAt,
+    dateModified: blogPost.displayedPublishedAt,
   };
 
   return (
@@ -70,26 +70,31 @@ export function ArticleTemplate({ children, meta }: Props) {
           <MarketingContainer>
             <header className="flex max-w-2xl flex-col pt-16 pb-16">
               <h1 className="text-pretty text-5xl lg:text-6xl font-black text-slate-900 tracking-tight">
-                {meta.title}
+                {blogPost.title}
               </h1>
               <p className="mt-6 text-sm font-semibold text-stone-800">
                 by {author?.name} on{' '}
                 <time
-                  dateTime={meta.publishDate}
+                  dateTime={blogPost.displayedPublishedAt}
                   className="order-first text-sm text-stone-800 mb-3"
                 >
                   {Intl.DateTimeFormat('en-US', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
-                  }).format(new Date(meta.publishDate))}
+                  }).format(new Date(blogPost.displayedPublishedAt))}
                 </time>
               </p>
             </header>
           </MarketingContainer>
         </div>
         <MarketingContainer>
-          <div className="prose prose-lg max-w-3xl pt-16">{children}</div>
+          <div
+            className="prose prose-lg max-w-3xl pt-16"
+            dangerouslySetInnerHTML={{
+              __html: blogPost.content.html,
+            }}
+          />
         </MarketingContainer>
       </article>
       <script

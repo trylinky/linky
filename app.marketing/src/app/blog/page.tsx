@@ -1,6 +1,6 @@
-import { authors } from './post-template';
-import { getArticles } from './utils';
 import { MarketingContainer } from '@/components/marketing-container';
+import { authors } from '@/lib/cms/authors';
+import { getBlogPosts } from '@/lib/cms/get-blog-posts';
 import { Button } from '@trylinky/ui';
 import { Metadata } from 'next';
 import Image from 'next/image';
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ArticlesLandingPage() {
-  const articles = await getArticles();
+  const blogPosts = await getBlogPosts();
 
   return (
     <main>
@@ -37,29 +37,29 @@ export default async function ArticlesLandingPage() {
       <MarketingContainer className="py-16">
         <div className="mx-auto max-w-2xl lg:max-w-none">
           <div className="space-y-16">
-            {articles.map((article) => {
+            {blogPosts.map((post) => {
               const author = authors.find(
-                (author) => author.id === article.author
+                (author) => author.id === post.author
               );
               return (
-                <div key={article.slug}>
+                <div key={post.slug}>
                   <article>
                     <div className="relative lg:-mx-4 lg:flex lg:justify-end">
                       <div className="pt-10 lg:w-2/3 lg:flex-none lg:px-4 lg:pt-0">
                         <h2 className="font-serf text-2xl font-bold text-slate-800">
-                          <Link href={`/i/blog/${article.slug}`}>
-                            {article.title}
+                          <Link href={`/i/blog/${post.slug}`}>
+                            {post.title}
                           </Link>
                         </h2>
                         <dl className="lg:absolute lg:left-0 lg:top-0 lg:w-1/3 lg:px-4">
                           <dt className="sr-only">Published</dt>
                           <dd className="absolute left-0 top-0 text-sm text-slate-800 lg:static">
-                            <time dateTime={article.publishDate}>
+                            <time dateTime={post.displayedPublishedAt}>
                               {Intl.DateTimeFormat('en-US', {
                                 year: 'numeric',
                                 month: 'long',
                                 day: 'numeric',
-                              }).format(new Date(article.publishDate))}
+                              }).format(new Date(post.displayedPublishedAt))}
                             </time>
                           </dd>
                           <dt className="sr-only">Author</dt>
@@ -91,7 +91,7 @@ export default async function ArticlesLandingPage() {
                           </dd>
                         </dl>
                         <p className="mt-6 max-w-2xl text-base text-neutral-600">
-                          {article.description}
+                          {post.description}
                         </p>
                         <Button
                           asChild
@@ -99,9 +99,7 @@ export default async function ArticlesLandingPage() {
                           size="lg"
                           className="mt-4"
                         >
-                          <Link href={`/i/blog/${article.slug}`}>
-                            Read more
-                          </Link>
+                          <Link href={`/i/blog/${post.slug}`}>Read more</Link>
                         </Button>
                       </div>
                     </div>
