@@ -1,5 +1,5 @@
-import { getArticles } from '@/app/blog/utils';
 import { getLearnPosts } from '@/app/learn/utils';
+import { getBlogPosts } from '@/lib/cms/get-blog-posts';
 import { MetadataRoute } from 'next';
 
 const baseUrl = `https://lin.ky`;
@@ -54,11 +54,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 }
 
 const generateBlogSitemap = async (baseUrl: string) => {
-  const blogPosts = await getArticles();
+  const blogPosts = await getBlogPosts();
 
   const blogSitemap = blogPosts.map((post) => ({
     url: `${baseUrl}/i/blog/${post.slug}`,
-    lastModified: new Date(post.publishDate),
+    lastModified: new Date(post.displayedPublishedAt),
     changeFrequency: 'monthly',
     priority: 0.5,
   }));
