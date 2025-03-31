@@ -61,7 +61,7 @@ export default async function BlogPostPage({
         </div>
         <MarketingContainer>
           <div
-            className="prose prose-lg max-w-3xl pt-16"
+            className="prose prose-lg max-w-3xl py-16"
             dangerouslySetInnerHTML={{
               __html: blogPost.content.html,
             }}
