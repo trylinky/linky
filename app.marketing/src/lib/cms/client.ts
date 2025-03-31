@@ -4,7 +4,7 @@ const HYGRAPH_ENDPOINT = process.env.HYGRAPH_ENDPOINT;
 const HYGRAPH_TOKEN = process.env.HYGRAPH_TOKEN;
 
 if (!HYGRAPH_ENDPOINT) {
-  throw new Error('NEXT_PUBLIC_HYGRAPH_ENDPOINT is not defined');
+  throw new Error('HYGRAPH_ENDPOINT is not defined');
 }
 
 if (!HYGRAPH_TOKEN) {
