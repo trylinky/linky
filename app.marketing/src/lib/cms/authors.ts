@@ -1,12 +1,4 @@
-export type Author = {
-  id: 'alex' | 'jack';
-  name: string;
-  position: string;
-  avatar: string;
-  link: string;
-  linkyUsername: string;
-  linkyLink: string;
-};
+import { Author } from '@/lib/cms/types';
 
 export const authors: Author[] = [
   {
@@ -28,5 +20,15 @@ export const authors: Author[] = [
     link: 'https://x.com/trylinky',
     linkyUsername: 'jack',
     linkyLink: 'https://lin.ky/jack',
+  },
+  {
+    id: 'hana',
+    name: 'Hana',
+    position: 'Writer',
+    avatar:
+      'https://cdn.lin.ky/block-ff6eea95-d511-4a8d-a428-998dacb63330/45da882f-bab8-4f86-8a82-33c00ca95989.webp',
+    link: 'https://lin.ky/hana',
+    linkyUsername: 'hana',
+    linkyLink: 'https://lin.ky/hana',
   },
 ];
