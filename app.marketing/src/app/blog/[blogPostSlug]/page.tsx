@@ -34,6 +34,8 @@ export const authors: Author[] = [
   },
 ];
 
+export const revalidate = 300;
+
 export default async function BlogPostPage({
   params,
 }: {

@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   title: 'Blog | Linky',
 };
 
+export const revalidate = 300;
+
 export default async function ArticlesLandingPage() {
   const blogPosts = await getBlogPosts();
 
