@@ -6,6 +6,7 @@ import {
   sendMagicLinkEmail,
   sendOrganizationInvitationEmail,
   sendWelcomeEmail,
+  sendWelcomeFollowUpEmail,
 } from '@/modules/notifications/service';
 import { sendNewUserSlackMessage } from '@/modules/slack/service';
 import { betterAuth } from 'better-auth';
@@ -76,6 +77,7 @@ export const auth = betterAuth({
           if (user.email) {
             await createContact(user.email);
             await sendWelcomeEmail(user.email);
+            await sendWelcomeFollowUpEmail(user.email);
           }
           await sendNewUserSlackMessage(user);
         },

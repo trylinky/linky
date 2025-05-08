@@ -17,13 +17,17 @@ export async function sendEmail({
   subject,
   from = 'Linky <team@notifications.lin.ky>',
   react,
+  text,
   replyTo = 'team@lin.ky',
+  scheduledAt,
 }: {
   email: string;
   subject: string;
   from?: string;
   replyTo?: string;
-  react: React.ReactNode;
+  react?: React.ReactNode;
+  text?: string;
+  scheduledAt?: Date;
 }) {
   const resend = createResendClient();
 
@@ -46,6 +50,8 @@ export async function sendEmail({
       replyTo,
       subject,
       react,
+      text,
+      scheduledAt,
     });
 
     if (error) {
@@ -103,11 +109,24 @@ export async function sendOrganizationInvitationEmail({
 
 export async function sendWelcomeEmail(email: string) {
   return await sendEmail({
-    from: 'Alex from Linky <alex@notifications.lin.ky>',
+    from: 'Alex from Linky<alex@notifications.lin.ky>',
     replyTo: 'alex@lin.ky',
     email,
     subject: 'Welcome to Linky',
     react: <WelcomeEmail />,
+  });
+}
+
+export async function sendWelcomeFollowUpEmail(email: string) {
+  const twentyThreeHoursFromNow = new Date(Date.now() + 23 * 60 * 60 * 1000);
+
+  return await sendEmail({
+    from: 'Alex<alex@notifications.lin.ky>',
+    replyTo: 'alex@lin.ky',
+    email,
+    subject: 'Re: Welcome to Linky',
+    scheduledAt: twentyThreeHoursFromNow,
+    text: "Hey,\n\nI'm Alex, the founder of Linky. Welcome!\n\nI wanted to reach out to see how you're finding using Linky so far?\n\nAs someone who has been creating content online for the past 15 years, I built Linky as a tool to make it easier to start building your presence online.\n\nIf you're looking for inspiration, we've also recently launched the explore gallery (lin.ky/i/explore), where you can find some of our favorite pages from the community.\n\nIf you have any questions or have any issues using the platform, feel free to respond to this email (I respond to every email personally).\n\nAlex",
   });
 }
 
