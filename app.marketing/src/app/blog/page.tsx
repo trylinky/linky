@@ -44,7 +44,7 @@ export default async function ArticlesLandingPage() {
           <div className="mx-auto max-w-6xl mb-20 px-4">
             <div className="rounded-3xl bg-white shadow-xl p-0 md:p-8 flex flex-col md:flex-row gap-0 md:gap-8 items-stretch overflow-hidden">
               <div className="w-full min-h-[280px] md:w-1/2 flex-shrink-0 flex items-center justify-center bg-slate-100 relative rounded-xl overflow-hidden">
-                {featuredPost.featuredImage?.url ? (
+                {featuredPost.featuredImage?.url && (
                   <Image
                     src={featuredPost.featuredImage.url}
                     alt={featuredPost.title}
@@ -52,16 +52,6 @@ export default async function ArticlesLandingPage() {
                     fill
                     priority
                   />
-                ) : (
-                  featuredAuthor?.avatar && (
-                    <Image
-                      width={120}
-                      height={120}
-                      src={featuredAuthor.avatar}
-                      className="h-24 w-24 md:h-32 md:w-32 rounded-2xl object-cover border-4 border-slate-100 shadow m-8"
-                      alt={featuredAuthor.name}
-                    />
-                  )
                 )}
               </div>
               <div className="flex-1 w-full p-8 flex flex-col justify-center">
@@ -110,6 +100,16 @@ export default async function ArticlesLandingPage() {
                   key={post.slug}
                   className="rounded-2xl bg-white shadow-md hover:shadow-xl transition-shadow p-6 flex flex-col h-full"
                 >
+                  {post.featuredImage?.url && (
+                    <div className="relative w-full h-48 mb-4 rounded-xl overflow-hidden">
+                      <Image
+                        src={post.featuredImage.url}
+                        alt={post.title}
+                        className="object-cover"
+                        fill
+                      />
+                    </div>
+                  )}
                   <h3 className="text-xl font-bold text-slate-900 mb-2">
                     <Link href={`/i/blog/${post.slug}`}>{post.title}</Link>
                   </h3>
