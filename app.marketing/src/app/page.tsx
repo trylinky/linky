@@ -8,7 +8,6 @@ import logoX from '@/assets/landing-page/logo-x.svg';
 import logoYoutube from '@/assets/landing-page/logo-youtube.svg';
 import { CallToActionBlock } from '@/components/landing-page/CallToActionBlock';
 import { FrequentlyAskedQuestions } from '@/components/landing-page/Faq';
-import { GlowBanner } from '@/components/landing-page/GlowBanner';
 import styles from '@/components/landing-page/styles.module.scss';
 import { SpotifyPlayingNowMockup } from '@/components/landing-page/ui-mockups';
 import { MarketingContainer } from '@/components/marketing-container';
@@ -38,7 +37,6 @@ export default async function LandingPage() {
 
   return (
     <div className="min-h-screen overflow-x-hidden">
-      <GlowBanner />
       <section className="pt-48 pb-16 bg-gradient-to-b from-[#f9f9f8] to-[#f5f3ea]">
         <MarketingContainer>
           <div className="flex justify-center items-center">
