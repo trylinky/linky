@@ -12,11 +12,15 @@ const GET_POST_QUERY = `
       author
       content {
         html
+        raw
       }
       author
       slug
       displayedPublishedAt
       description
+      featuredImage {
+        url
+      }
     }
   }
 `;

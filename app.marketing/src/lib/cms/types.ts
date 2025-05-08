@@ -1,3 +1,5 @@
+import { RichTextContent } from '@graphcms/rich-text-types';
+
 export type AuthorIds = 'alex' | 'jack' | 'hana';
 
 export type Author = {
@@ -14,6 +16,7 @@ export interface BlogPost {
   title: string;
   content: {
     html: string;
+    raw: RichTextContent;
   };
   slug: string;
   author: AuthorIds;

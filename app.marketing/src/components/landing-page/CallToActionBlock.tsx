@@ -115,7 +115,7 @@ export function CallToActionBlock() {
             </div>
           </div>
         </div>
-        <div className="flex-1 w-full h-[600px] relative overflow-hidden bg-[#e3dfd2]">
+        <div className="flex-1 w-full h-[400px] relative overflow-hidden bg-[#e3dfd2]">
           <div className="absolute inset-0 -left-8 flex gap-2 rotate-45">
             <ScrollingColumn delay={0} />
             <ScrollingColumn delay={1} reverse />

@@ -10,10 +10,12 @@
     "vercel:build": "next build"
   },
   "dependencies": {
+    "@graphcms/rich-text-react-renderer": "^0.6.2",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.1.5",
     "@mdx-js/loader": "^3.1.0",
     "@next/mdx": "^15.1.7",
+    "@sindresorhus/slugify": "^2.2.1",
     "@trylinky/common": "*",
     "@trylinky/ui": "*",
     "@vercel/analytics": "^1.5.0",
@@ -26,6 +28,7 @@
     "sass": "^1.85.0"
   },
   "devDependencies": {
+    "@graphcms/rich-text-types": "^0.5.1",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "autoprefixer": "^10.4.20",
