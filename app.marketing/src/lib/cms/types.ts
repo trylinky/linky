@@ -19,4 +19,7 @@ export interface BlogPost {
   author: AuthorIds;
   displayedPublishedAt: string;
   description: string;
+  featuredImage?: {
+    url: string;
+  };
 }

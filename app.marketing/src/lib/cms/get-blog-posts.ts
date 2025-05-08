@@ -13,6 +13,9 @@ const GET_POST_QUERY = `
       author
       displayedPublishedAt
       description
+      featuredImage {
+        url
+      }
       slug
     }
   }

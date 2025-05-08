@@ -14,6 +14,12 @@ export const revalidate = 300;
 
 export default async function ArticlesLandingPage() {
   const blogPosts = await getBlogPosts();
+  if (!blogPosts.length) return null;
+
+  const [featuredPost, ...otherPosts] = blogPosts;
+  const featuredAuthor = authors.find(
+    (author) => author.id === featuredPost.author
+  );
 
   return (
     <main>
@@ -34,78 +40,106 @@ export default async function ArticlesLandingPage() {
               </div>
             </div>
           </div>
+          {/* Featured Post */}
+          <div className="mx-auto max-w-6xl mb-20 px-4">
+            <div className="rounded-3xl bg-white shadow-xl p-0 md:p-8 flex flex-col md:flex-row gap-0 md:gap-8 items-stretch overflow-hidden">
+              <div className="w-full min-h-[280px] md:w-1/2 flex-shrink-0 flex items-center justify-center bg-slate-100 relative rounded-xl overflow-hidden">
+                {featuredPost.featuredImage?.url ? (
+                  <Image
+                    src={featuredPost.featuredImage.url}
+                    alt={featuredPost.title}
+                    className="object-cover w-full object-center absolute top-0 left-0"
+                    fill
+                    priority
+                  />
+                ) : (
+                  featuredAuthor?.avatar && (
+                    <Image
+                      width={120}
+                      height={120}
+                      src={featuredAuthor.avatar}
+                      className="h-24 w-24 md:h-32 md:w-32 rounded-2xl object-cover border-4 border-slate-100 shadow m-8"
+                      alt={featuredAuthor.name}
+                    />
+                  )
+                )}
+              </div>
+              <div className="flex-1 w-full p-8 flex flex-col justify-center">
+                <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
+                  <Link href={`/i/blog/${featuredPost.slug}`}>
+                    {featuredPost.title}
+                  </Link>
+                </h2>
+                <div className="flex items-center gap-2 md:gap-4 mb-2 flex-wrap text-base md:text-lg">
+                  <span className="text-slate-700 font-semibold">
+                    {featuredAuthor?.name}
+                  </span>
+                  <span className="text-slate-400">·</span>
+                  <time
+                    className="text-slate-500"
+                    dateTime={featuredPost.displayedPublishedAt}
+                  >
+                    {Intl.DateTimeFormat('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    }).format(new Date(featuredPost.displayedPublishedAt))}
+                  </time>
+                </div>
+                <p className="text-base md:text-lg text-slate-700 mb-4 max-w-2xl">
+                  {featuredPost.description}
+                </p>
+                <Button asChild variant="default" size="lg">
+                  <Link href={`/i/blog/${featuredPost.slug}`}>Read more</Link>
+                </Button>
+              </div>
+            </div>
+          </div>
         </MarketingContainer>
       </div>
+      {/* Grid of Other Posts */}
       <MarketingContainer className="py-16">
-        <div className="mx-auto max-w-2xl lg:max-w-none">
-          <div className="space-y-16">
-            {blogPosts.map((post) => {
+        <div className="mx-auto max-w-6xl">
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+            {otherPosts.map((post) => {
               const author = authors.find(
                 (author) => author.id === post.author
               );
               return (
-                <div key={post.slug}>
-                  <article>
-                    <div className="relative lg:-mx-4 lg:flex lg:justify-end">
-                      <div className="pt-10 lg:w-2/3 lg:flex-none lg:px-4 lg:pt-0">
-                        <h2 className="font-serf text-2xl font-bold text-slate-800">
-                          <Link href={`/i/blog/${post.slug}`}>
-                            {post.title}
-                          </Link>
-                        </h2>
-                        <dl className="lg:absolute lg:left-0 lg:top-0 lg:w-1/3 lg:px-4">
-                          <dt className="sr-only">Published</dt>
-                          <dd className="absolute left-0 top-0 text-sm text-slate-800 lg:static">
-                            <time dateTime={post.displayedPublishedAt}>
-                              {Intl.DateTimeFormat('en-US', {
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric',
-                              }).format(new Date(post.displayedPublishedAt))}
-                            </time>
-                          </dd>
-                          <dt className="sr-only">Author</dt>
-                          <dd className="mt-6 flex gap-x-4">
-                            <div className="flex-none overflow-hidden rounded-xl bg-slate-100">
-                              {author?.avatar && (
-                                <Image
-                                  width={48}
-                                  height={48}
-                                  src={author.avatar}
-                                  className="h-12 w-12 object-cover"
-                                  alt={author.name}
-                                />
-                              )}
-                            </div>
-                            <div className="text-sm text-slate-700">
-                              <div className="font-semibold">
-                                {author?.name}
-                              </div>
-                              {author?.linkyLink && (
-                                <Link
-                                  href={author.linkyLink}
-                                  className="text-slate-500"
-                                >
-                                  lin.ky/{author.linkyUsername}
-                                </Link>
-                              )}
-                            </div>
-                          </dd>
-                        </dl>
-                        <p className="mt-6 max-w-2xl text-base text-neutral-600">
-                          {post.description}
-                        </p>
-                        <Button
-                          asChild
-                          variant="outline"
-                          size="lg"
-                          className="mt-4"
-                        >
-                          <Link href={`/i/blog/${post.slug}`}>Read more</Link>
-                        </Button>
-                      </div>
-                    </div>
-                  </article>
+                <div
+                  key={post.slug}
+                  className="rounded-2xl bg-white shadow-md hover:shadow-xl transition-shadow p-6 flex flex-col h-full"
+                >
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">
+                    <Link href={`/i/blog/${post.slug}`}>{post.title}</Link>
+                  </h3>
+                  <div className="mb-1">
+                    <span className="font-semibold text-sm text-slate-800">
+                      {author?.name}
+                    </span>{' '}
+                    <time
+                      className="text-xs text-slate-500 mb-2"
+                      dateTime={post.displayedPublishedAt}
+                    >
+                      on{' '}
+                      {Intl.DateTimeFormat('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      }).format(new Date(post.displayedPublishedAt))}
+                    </time>
+                  </div>
+                  <p className="text-base text-slate-600 mb-4 flex-1">
+                    {post.description}
+                  </p>
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="sm"
+                    className="mt-auto"
+                  >
+                    <Link href={`/i/blog/${post.slug}`}>Read more</Link>
+                  </Button>
                 </div>
               );
             })}

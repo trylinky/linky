@@ -50,6 +50,11 @@ const nextConfig: NextConfig = {
         hostname: 'lin.ky',
         port: '',
       },
+      {
+        protocol: 'https',
+        hostname: 'eu-west-2.graphassets.com',
+        port: '',
+      },
       ...(process.env.NODE_ENV === 'development'
         ? [
             {
