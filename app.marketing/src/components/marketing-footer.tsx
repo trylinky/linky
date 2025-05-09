@@ -1,3 +1,5 @@
+'use client';
+
 import { MarketingContainer } from '@/components/marketing-container';
 import Link from 'next/link';
 
@@ -114,86 +116,147 @@ const socialLinks = [
 
 export default function MarketingFooter() {
   return (
-    <footer className="bg-[#181817] pt-24">
-      <MarketingContainer>
-        <div className="pb-16">
-          <div className="grid grid-cols-2 gap-y-10 pb-6 lg:grid-cols-6 lg:gap-8">
-            <div className="col-span-3 flex">
-              <div className="space-y-6">
-                <Link className="block max-w-fit" href="/">
-                  <div className="flex items-center gap-2 text-white">
-                    <BrandLogo />
+    <footer className="relative bg-gradient-to-b from-[#19191a] via-[#181817] to-[#131313] pt-0 text-white overflow-hidden">
+      {/* Radial glow behind logo */}
+      <div className="pointer-events-none absolute left-1/2 top-0 z-0 h-72 w-96 -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#fff2] via-[#fff1] to-transparent blur-2xl opacity-40" />
+      {/* Top: Brand, tagline, CTA */}
+      <div className="relative z-10 flex flex-col items-center justify-center py-16 space-y-6">
+        <div className="flex flex-col items-center space-y-3">
+          <span className="scale-150 drop-shadow-lg">
+            <BrandLogo />
+          </span>
+          <span className="font-extrabold text-3xl tracking-tight text-white drop-shadow">
+            Linky
+          </span>
+        </div>
+        <p className="max-w-xl text-center text-lg text-white/80 font-medium">
+          The ultimate link-in-bio platform for creators. <br />
+          <span className="text-white/60">
+            Delightfully simple, delightfully fast.
+          </span>
+        </p>
+        <Link
+          href="/i/auth/signup"
+          className="mt-2 rounded-full bg-gradient-to-r from-[#fff] to-[#eaeaea] px-8 py-3 text-base font-bold text-gray-900 shadow-lg transition-all hover:scale-105 hover:from-[#f3f3f3] hover:to-[#fff] focus:outline-none focus:ring-2 focus:ring-white/40"
+        >
+          Get Started Free
+        </Link>
+      </div>
 
-                    <span className="font-medium">Linky</span>
-                  </div>
-                </Link>
-                <p className="max-w-xs text-sm text-gray-200">
-                  The ultimate open source link-in-bio platform that lets
-                  creators create.
-                </p>
-                <p className="text-sm leading-5 text-white/50">
-                  © 2023 - {new Date().getFullYear()} Linky - Hyperdusk Ltd
-                </p>
-                <div className="flex items-center space-x-3">
-                  {socialLinks.map((link) => (
-                    <Link
-                      key={link.label}
-                      href={link.href}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="group rounded-full border border-white/20 p-2 transition-colors hover:border-white/20"
-                    >
-                      <span className="sr-only">{link.label}</span>
-                      {link.icon()}
-                    </Link>
-                  ))}
-                </div>
-                <Link
-                  target="_blank"
-                  className="group flex max-w-fit items-center space-x-2 rounded-lg border border-gray-200 bg-white px-3 py-2 transition-colors hover:bg-gray-100"
-                  href="https://github.com/trylinky/linky"
-                >
-                  <OpenSourceLogo />
-                  <p className="text-xs font-semibold text-gray-800">
-                    Proudly open source
-                  </p>
-                </Link>
+      <div className="relative z-10 border-t border-white/10 bg-transparent">
+        <MarketingContainer>
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center py-10 gap-10 lg:gap-0">
+            {/* Sitemap */}
+            <nav className="flex-1 flex flex-col items-center lg:items-start gap-6 lg:gap-2">
+              <ul className="flex flex-col lg:flex-row gap-6 lg:gap-10 text-base font-medium">
+                <li>
+                  <Link
+                    href="/"
+                    className="transition-colors hover:text-white/90"
+                  >
+                    Features
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/i/pricing"
+                    className="transition-colors hover:text-white/90"
+                  >
+                    Pricing
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/i/auth/signup"
+                    className="transition-colors hover:text-white/90"
+                  >
+                    Get started
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/i/learn/what-is-a-link-in-bio"
+                    className="transition-colors hover:text-white/90"
+                  >
+                    What is a link in bio?
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/i/learn/what-is-linky"
+                    className="transition-colors hover:text-white/90"
+                  >
+                    What is Linky?
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/i/blog"
+                    className="transition-colors hover:text-white/90"
+                  >
+                    Blog
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/i/terms"
+                    className="transition-colors hover:text-white/90"
+                  >
+                    Terms
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/i/privacy"
+                    className="transition-colors hover:text-white/90"
+                  >
+                    Privacy
+                  </Link>
+                </li>
+              </ul>
+            </nav>
+            {/* Social icons */}
+            <div className="flex flex-col items-center gap-4">
+              <div className="flex items-center gap-4 rounded-full bg-white/10 px-6 py-2 shadow-inner backdrop-blur-md">
+                {socialLinks.map((link) => (
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group rounded-full p-2 transition-all hover:bg-white/20 hover:scale-110"
+                  >
+                    <span className="sr-only">{link.label}</span>
+                    {link.icon()}
+                  </Link>
+                ))}
               </div>
-            </div>
-            <div className="col-span-2 grid grid-cols-2 gap-x-8 gap-y-12 lg:col-span-3 lg:grid-cols-3 lg:pt-6">
-              <>
-                <div>
-                  <SitemapHeading>Product</SitemapHeading>
-                  <SitemapLinks>
-                    <SitemapLink href="/">Features</SitemapLink>
-                    <SitemapLink href="/i/pricing">Pricing</SitemapLink>
-                    <SitemapLink href="/i/auth/signup">Get started</SitemapLink>
-                  </SitemapLinks>
-                </div>
-                <div>
-                  <SitemapHeading>Learn</SitemapHeading>
-                  <SitemapLinks>
-                    <SitemapLink href="/i/learn/what-is-a-link-in-bio">
-                      What is a link in bio?
-                    </SitemapLink>
-                    <SitemapLink href="/i/learn/what-is-linky">
-                      What is Linky?
-                    </SitemapLink>
-                    <SitemapLink href="/i/blog">Blog</SitemapLink>
-                  </SitemapLinks>
-                </div>
-                <div>
-                  <SitemapHeading>Legal</SitemapHeading>
-                  <SitemapLinks>
-                    <SitemapLink href="/i/terms">Terms of service</SitemapLink>
-                    <SitemapLink href="/i/privacy">Privacy policy</SitemapLink>
-                  </SitemapLinks>
-                </div>
-              </>
+              <span className="text-xs text-white/40">
+                © 2023 - {new Date().getFullYear()} Linky – Hyperdusk Ltd
+              </span>
             </div>
           </div>
-        </div>
-      </MarketingContainer>
+        </MarketingContainer>
+      </div>
+      {/* Responsive tweaks */}
+      <style jsx global>{`
+        @media (max-width: 1024px) {
+          footer .absolute.-top-6.right-6 {
+            position: static !important;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: center;
+          }
+          footer .flex-row.lg\:justify-between.lg\:items-center {
+            flex-direction: column !important;
+            align-items: center !important;
+          }
+          footer nav ul {
+            flex-direction: column !important;
+            align-items: center !important;
+          }
+        }
+      `}</style>
     </footer>
   );
 }
