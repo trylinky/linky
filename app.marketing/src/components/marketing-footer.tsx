@@ -1,26 +1,5 @@
-'use client';
-
 import { MarketingContainer } from '@/components/marketing-container';
 import Link from 'next/link';
-
-function SitemapHeading({ children }: { children: React.ReactNode }) {
-  return <h3 className="text-md font-bold text-white/50">{children}</h3>;
-}
-
-function SitemapLinks({ children }: { children: React.ReactNode }) {
-  return <ul className="mt-6 space-y-4 text-sm/6">{children}</ul>;
-}
-
-function SitemapLink(props: React.ComponentPropsWithoutRef<typeof Link>) {
-  return (
-    <li>
-      <Link
-        {...props}
-        className="font-medium text-white/80 data-[hover]:text-white"
-      />
-    </li>
-  );
-}
 
 const BrandLogo = () => {
   return (
@@ -81,21 +60,6 @@ const InstagramLogo = () => {
   );
 };
 
-const OpenSourceLogo = () => {
-  return (
-    <svg viewBox="0 0 90 87" width={14} fill="none">
-      <path
-        fill="#000"
-        stroke="#000"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="3"
-        d="M50.024 58.941c6.01-2.238 9.146-6.548 9.146-13.966 0-7.418-6.233-13.955-14.02-13.968-8.22-.013-14.419 6.523-14.32 13.968.099 7.445 3.64 12.398 9.306 14.189L30.098 83.93C16.664 80.442 3 64.547 3 44.975 3 21.793 21.572 3 44.85 3 68.13 3 87 21.793 87 44.975 87 64.852 73.466 80.525 59.745 84l-9.72-25.059Z"
-      />
-    </svg>
-  );
-};
-
 const socialLinks = [
   {
     label: 'X / Twitter',
@@ -117,9 +81,8 @@ const socialLinks = [
 export default function MarketingFooter() {
   return (
     <footer className="relative bg-gradient-to-b from-[#19191a] via-[#181817] to-[#131313] pt-0 text-white overflow-hidden">
-      {/* Radial glow behind logo */}
       <div className="pointer-events-none absolute left-1/2 top-0 z-0 h-72 w-96 -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#fff2] via-[#fff1] to-transparent blur-2xl opacity-40" />
-      {/* Top: Brand, tagline, CTA */}
+
       <div className="relative z-10 flex flex-col items-center justify-center py-16 space-y-6">
         <div className="flex flex-col items-center space-y-3">
           <span className="scale-150 drop-shadow-lg">
@@ -142,11 +105,9 @@ export default function MarketingFooter() {
           Get Started Free
         </Link>
       </div>
-
       <div className="relative z-10 border-t border-white/10 bg-transparent">
         <MarketingContainer>
           <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center py-10 gap-10 lg:gap-0">
-            {/* Sitemap */}
             <nav className="flex-1 flex flex-col items-center lg:items-start gap-6 lg:gap-2">
               <ul className="flex flex-col lg:flex-row gap-6 lg:gap-10 text-base font-medium">
                 <li>
@@ -216,7 +177,7 @@ export default function MarketingFooter() {
               </ul>
             </nav>
             {/* Social icons */}
-            <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col items-center gap-4 mt-8 lg:mt-0">
               <div className="flex items-center gap-4 rounded-full bg-white/10 px-6 py-2 shadow-inner backdrop-blur-md">
                 {socialLinks.map((link) => (
                   <Link
@@ -231,32 +192,13 @@ export default function MarketingFooter() {
                   </Link>
                 ))}
               </div>
-              <span className="text-xs text-white/40">
+              <span className="text-xs text-white/40 mt-2">
                 © 2023 - {new Date().getFullYear()} Linky – Hyperdusk Ltd
               </span>
             </div>
           </div>
         </MarketingContainer>
       </div>
-      {/* Responsive tweaks */}
-      <style jsx global>{`
-        @media (max-width: 1024px) {
-          footer .absolute.-top-6.right-6 {
-            position: static !important;
-            margin-bottom: 1.5rem;
-            display: flex;
-            justify-content: center;
-          }
-          footer .flex-row.lg\:justify-between.lg\:items-center {
-            flex-direction: column !important;
-            align-items: center !important;
-          }
-          footer nav ul {
-            flex-direction: column !important;
-            align-items: center !important;
-          }
-        }
-      `}</style>
     </footer>
   );
 }
