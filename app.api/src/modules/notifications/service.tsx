@@ -8,6 +8,7 @@ import {
   SubscriptionUpgradedEmail,
   TrialEndingSoonEmail,
   TrialFinishedEmail,
+  TrialFinishedEmailText,
   WelcomeEmail,
 } from '@trylinky/notifications';
 import React from 'react';
@@ -51,7 +52,7 @@ export async function sendEmail({
       subject,
       react,
       text,
-      scheduledAt,
+      scheduledAt: scheduledAt ? scheduledAt.toISOString() : undefined,
     });
 
     if (error) {
@@ -78,7 +79,7 @@ export async function sendTrialEndedEmail(email: string) {
   return await sendEmail({
     email,
     subject: 'Your Linky Premium trial has ended',
-    react: <TrialFinishedEmail />,
+    text: TrialFinishedEmailText,
   });
 }
 
