@@ -33,7 +33,7 @@ export async function GET(request: Request) {
   });
 
   if (!pages || pages.length === 0) {
-    return redirect('/new');
+    return redirect('/new?freshOnboarding=true');
   }
 
   const params = new URLSearchParams();
