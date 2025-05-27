@@ -22,6 +22,7 @@ export * from './ui/sidebar';
 export * from './ui/skeleton';
 export * from './ui/switch';
 export * from './ui/tabs';
+export * from './ui/text-reveal';
 export * from './ui/toast';
 export * from './ui/toaster';
 export * from './ui/tooltip';

@@ -1,0 +1,12 @@
+.column {
+  animation: scroll-up var(--column-speed) linear infinite;
+}
+
+@keyframes scroll-up {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(calc(var(--column-height) * -1));
+  }
+}

@@ -80,7 +80,7 @@ function ScrollingColumn({
 
 export function CallToActionBlock() {
   return (
-    <div className="bg-[#fff] rounded-xl overflow-hidden">
+    <div className="bg-[#e3dfd2] rounded-xl overflow-hidden">
       <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-8">
         <div className="flex-1 flex flex-col gap-2 col-span-1 max-w-md py-8 md:py-16 px-8">
           <h2 className="text-3xl md:text-4xl font-black tracking-tight">

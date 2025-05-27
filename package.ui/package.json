@@ -29,10 +29,11 @@
     "clsx": "^2.1.1",
     "cmdk": "^0.2.0",
     "lucide-react": "^0.454.0",
+    "motion": "^12.10.5",
     "recharts": "^2.13.0",
     "tailwind-merge": "^2.5.4",
-    "tailwindcss-animate": "^1.0.7",
     "tailwindcss": "^3.4.14",
+    "tailwindcss-animate": "^1.0.7",
     "typescript": "^5"
   },
   "exports": {
