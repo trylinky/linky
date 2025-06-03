@@ -11,6 +11,7 @@ import { RichText } from '@graphcms/rich-text-react-renderer';
 import { ElementNode, RichTextContent } from '@graphcms/rich-text-types';
 import slugify from '@sindresorhus/slugify';
 import { Button } from '@trylinky/ui';
+import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -45,6 +46,31 @@ function buildTocFromRaw(raw: {
 }
 
 export const revalidate = 300;
+
+export const generateMetadata = async ({
+  params,
+}: {
+  params: Promise<{ blogPostSlug: string }>;
+}): Promise<Metadata> => {
+  const { blogPostSlug } = await params;
+  const blogPost = await getBlogPost(blogPostSlug);
+
+  return {
+    title: blogPost.title + ' | Linky - The delightful link in bio',
+    description: blogPost.description,
+    openGraph: {
+      title: blogPost.title,
+      description: blogPost.description,
+      images: [
+        {
+          url: blogPost.featuredImage?.url ?? 'https://lin.ky/assets/og.png',
+          width: 1200,
+          height: 630,
+        },
+      ],
+    },
+  };
+};
 
 export default async function BlogPostPage({
   params,
