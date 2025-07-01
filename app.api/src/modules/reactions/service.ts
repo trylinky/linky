@@ -96,7 +96,7 @@ export async function incrementReaction({
   increment: number;
   ipAddress: string;
 }) {
-  // Helper function to initialize and increment a reaction map
+  // Helper function to initialize and increment a reaction map with better error handling
   async function updateReactionMap({
     sk,
     mapName,
@@ -104,67 +104,60 @@ export async function incrementReaction({
     sk: string;
     mapName: string;
   }) {
-    // Initialize map if it doesn't exist
-    const initParams = {
+    // Combined initialization and increment in a single atomic operation
+    const params = {
       TableName: TABLE_NAME,
       Key: {
         PK: pageId,
         SK: sk,
       },
-      UpdateExpression: `SET #map = if_not_exists(#map, :emptyMap)`,
-      ExpressionAttributeNames: {
-        '#map': mapName,
-      },
-      ExpressionAttributeValues: {
-        ':emptyMap': {},
-      },
-    };
-
-    try {
-      await dynamoDb.send(new UpdateCommand(initParams));
-    } catch (error) {
-      console.error(`Error initializing ${mapName} map:`, error);
-      throw error;
-    }
-
-    // Increment the reaction count
-    const incrementParams = {
-      TableName: TABLE_NAME,
-      Key: {
-        PK: pageId,
-        SK: sk,
-      },
-      UpdateExpression: `SET #map.#type = if_not_exists(#map.#type, :zero) + :increment`,
+      UpdateExpression: `SET #map = if_not_exists(#map, :emptyMap), #map.#type = if_not_exists(#map.#type, :zero) + :increment`,
       ExpressionAttributeNames: {
         '#map': mapName,
         '#type': REACTION_TYPE,
       },
       ExpressionAttributeValues: {
+        ':emptyMap': {},
         ':zero': 0,
         ':increment': increment,
       },
     };
 
     try {
-      await dynamoDb.send(new UpdateCommand(incrementParams));
-      console.log(`Successfully incremented ${mapName} for ${sk}`);
+      await dynamoDb.send(new UpdateCommand(params));
     } catch (error) {
-      console.error(`Error updating ${mapName}:`, error);
+      console.error(`Error updating ${mapName} for ${sk}:`, error);
+      captureException(error);
       throw error;
     }
   }
 
-  // Update individual IP entry
-  await updateReactionMap({
-    sk: `entries#${ipAddress}`,
-    mapName: 'reactions',
-  });
+  // Use Promise.allSettled to handle both operations with proper error handling
+  const results = await Promise.allSettled([
+    updateReactionMap({
+      sk: `entries#${ipAddress}`,
+      mapName: 'reactions',
+    }),
+    updateReactionMap({
+      sk: 'totals',
+      mapName: 'reactionTotals',
+    }),
+  ]);
 
-  // Update totals entry
-  await updateReactionMap({
-    sk: 'totals',
-    mapName: 'reactionTotals',
-  });
+  // Check if any operations failed
+  const failures = results.filter(result => result.status === 'rejected');
+  
+  if (failures.length > 0) {
+    // Log the failures for monitoring but don't attempt complex rollbacks
+    // as they could make the situation worse in a distributed system
+    const failureDetails = failures.map((failure, index) => ({
+      operation: index === 0 ? 'individual entry' : 'totals',
+      error: failure.status === 'rejected' ? failure.reason : 'unknown'
+    }));
+    
+    captureException(new Error(`Reaction update failures: ${JSON.stringify(failureDetails)}`));
+    throw new Error(`Failed to update reactions: ${failures.length} operation(s) failed`);
+  }
 }
 
 export async function reactToResource(

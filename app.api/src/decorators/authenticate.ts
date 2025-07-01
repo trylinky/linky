@@ -28,18 +28,19 @@ export async function authenticateDecorator(
     const user = session?.user;
 
     if (!user) {
-      throw fastify.httpErrors.unauthorized();
+      if (options.throwError) {
+        throw fastify.httpErrors.unauthorized();
+      } else {
+        return null;
+      }
     }
 
-    if (user) {
-      return {
-        user: {
-          id: user.id,
-        },
-        // @ts-ignore
-        activeOrganizationId: session.session.activeOrganizationId,
-      };
-    }
+    return {
+      user: {
+        id: user.id,
+      },
+      activeOrganizationId: (session as any).session?.activeOrganizationId || '',
+    };
   } catch (error) {
     captureException(error);
     if (options.throwError) {
@@ -47,11 +48,5 @@ export async function authenticateDecorator(
     } else {
       return null;
     }
-  }
-
-  if (options.throwError) {
-    throw fastify.httpErrors.unauthorized();
-  } else {
-    return null;
   }
 }
