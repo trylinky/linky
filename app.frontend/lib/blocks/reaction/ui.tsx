@@ -61,6 +61,15 @@ export const Reactions: FunctionComponent<BlockProps> = (props) => {
     }
   }, [data?.total?.love, isSubmitting]);
 
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
+    };
+  }, [debounceTimer]);
+
   const handleClick = () => {
     if (isEditable) {
       return;
