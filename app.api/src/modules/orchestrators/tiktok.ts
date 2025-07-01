@@ -274,23 +274,92 @@ const createTiktokIntegration = async ({
   }
 };
 
-// TODO - Handle refreshing the token if it's expired
-const fetchTikTokProfile = async ({ accessToken }: { accessToken: string }) => {
+const refreshTikTokToken = async (refreshToken: string) => {
+  try {
+    const response = await fetch('https://open.tiktokapis.com/v2/oauth/token/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        client_key: process.env.TIKTOK_CLIENT_KEY!,
+        client_secret: process.env.TIKTOK_CLIENT_SECRET!,
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+      }),
+    });
+
+    const data = await response.json();
+    
+    if (data.error) {
+      captureException(new Error(`TikTok token refresh failed: ${data.error}`));
+      return null;
+    }
+
+    return {
+      accessToken: data.access_token,
+      refreshToken: data.refresh_token,
+    };
+  } catch (error) {
+    captureException(error);
+    return null;
+  }
+};
+
+const fetchTikTokProfile = async ({ 
+  accessToken, 
+  refreshToken,
+  userId 
+}: { 
+  accessToken: string;
+  refreshToken?: string;
+  userId?: string;
+}) => {
   const options = {
     fields: 'avatar_url,display_name,follower_count,username',
   };
 
   const qs = new URLSearchParams(options).toString();
 
-  const req = await fetch(`https://open.tiktokapis.com/v2/user/info/?${qs}`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+  let currentAccessToken = accessToken;
 
-  const { data, error } = await req.json();
+  const makeRequest = async (token: string) => {
+    const req = await fetch(`https://open.tiktokapis.com/v2/user/info/?${qs}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-  if (error.code !== 'ok') {
+    return req.json();
+  };
+
+  let { data, error } = await makeRequest(currentAccessToken);
+
+  // If token expired and we have refresh token, try to refresh
+  if (error && error.code === 'access_token_invalid' && refreshToken && userId) {
+    const newTokens = await refreshTikTokToken(refreshToken);
+    
+    if (newTokens) {
+      // Update the stored tokens in database
+      await prisma.account.updateMany({
+        where: {
+          userId,
+          providerId: 'tiktok',
+        },
+        data: {
+          accessToken: newTokens.accessToken,
+          refreshToken: newTokens.refreshToken,
+        },
+      });
+
+      // Retry with new token
+      const retryResult = await makeRequest(newTokens.accessToken);
+      data = retryResult.data;
+      error = retryResult.error;
+    }
+  }
+
+  if (error && error.code !== 'ok') {
     captureException(error);
     return null;
   }
@@ -568,6 +637,8 @@ export async function orchestrateTikTok({
 
   const tiktokData = await fetchTikTokProfile({
     accessToken: tiktokTokens.accessToken,
+    refreshToken: tiktokTokens.refreshToken,
+    userId,
   });
 
   if (!tiktokData) {
