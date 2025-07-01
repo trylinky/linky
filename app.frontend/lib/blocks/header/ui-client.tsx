@@ -27,7 +27,7 @@ export const Header: FunctionComponent<BlockProps & HeaderBlockConfig> = ({
         {avatar?.src && (
           <Image
             src={avatar.src}
-            alt=""
+            alt="Profile avatar"
             width={80}
             height={80}
             className="mb-6 rounded-lg"
