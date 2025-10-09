@@ -144,10 +144,10 @@ export default function MarketingFooter() {
                 </li>
                 <li>
                   <Link
-                    href="/i/learn/what-is-linky"
+                    href="https://starkie.ai"
                     className="transition-colors hover:text-white/90"
                   >
-                    What is Linky?
+                    AI Headshots
                   </Link>
                 </li>
                 <li>
