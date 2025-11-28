@@ -6,9 +6,9 @@ node_modules
 .pnp.js
 .yarn/install-state.gz
 
-app.frontend/public/assets/tinybird
+apps/frontend/public/assets/tinybird
 
-package.prisma/src/generated
+packages/prisma/src/generated
 
 .tinyb
 .venv
@@ -27,7 +27,7 @@ dist
 # production
 /build
 
-package.prisma/index.js
+packages/prisma/index.js
 
 # misc
 .DS_Store

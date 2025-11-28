@@ -20,9 +20,9 @@
   "scripts": {
     "lint": "turbo lint",
     "dev": "turbo dev",
-    "dev:migrate": "dotenvx run -f .env.local -- prisma migrate dev --config ./package.prisma/prisma.config.ts",
-    "dev:seed": "dotenvx run -f .env.local -- tsx ./package.prisma/prisma/seed.ts",
-    "dev:reset": "dotenvx run -f .env.local -- pnpm prisma db push --force-reset --config ./package.prisma/prisma.config.ts"
+    "dev:migrate": "dotenvx run -f .env.local -- prisma migrate dev --config ./packages/prisma/prisma.config.ts",
+    "dev:seed": "dotenvx run -f .env.local -- tsx ./packages/prisma/prisma/seed.ts",
+    "dev:reset": "dotenvx run -f .env.local -- pnpm prisma db push --force-reset --config ./packages/prisma/prisma.config.ts"
   },
   "pnpm": {
     "overrides": {

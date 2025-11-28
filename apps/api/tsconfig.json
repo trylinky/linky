@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "ES2022", // Target latest stable JavaScript for Node.js
+    "module": "Preserve", // Fastify uses CommonJS module resolution
+    "lib": ["ES2022"], // Use ES2022 features
+    "strict": true, // Enable strict type-checking options
+    "esModuleInterop": true, // Allow interop with CommonJS and ES modules
+    "skipLibCheck": true, // Skip type checking for declaration files
+    "moduleResolution": "bundler", // Use Node.js module resolution
+    "baseUrl": ".", // Base directory for resolving paths
+    "paths": {
+      "@/*": ["./src/*"], // Alias for local imports
+      "local-packages/*": ["packages/*"] // Alias for monorepo local packages
+    },
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "allowSyntheticDefaultImports": true, // Allow default imports for CommonJS modules
+    "resolveJsonModule": true, // Enable importing JSON files
+    "noEmit": true, // Disable emitting compiled JavaScript files
+    "isolatedModules": true, // Ensure each file is treated as a module
+    "types": ["node"], // Include Node.js types
+    "allowJs": true, // Allow JavaScript files in the project
+    "forceConsistentCasingInFileNames": true // Ensure consistent file casing
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "types/**/*.d.ts",
+    "packages/notifications/**/*.ts",
+    "@trylinky/notifications"
+  ], // Include TypeScript files in the src directory
+  "exclude": ["node_modules", "dist", "build"] // Exclude unnecessary directories
+}

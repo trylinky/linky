@@ -109,7 +109,7 @@ npm install
 2. Generate Prisma client:
 
 ```bash
-cd package.prisma
+cd packages/prisma
 npx prisma generate
 ```
 

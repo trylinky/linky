@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2015",
+    "module": "Preserve",
+    "moduleResolution": "bundler",
+    "isolatedModules": true,
+    "strict": true,
+    "esModuleInterop": false,
+    "rootDir": "./",
+    "outDir": "dist"
+  },
+  "include": ["src/**/*"]
+}

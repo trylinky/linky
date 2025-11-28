@@ -1,0 +1,19 @@
+{
+  "name": "@trylinky/common",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "dependencies": {
+    "@trylinky/ui": "workspace:*",
+    "better-auth": "1.4.3",
+    "swr": "^2.3.3",
+    "typescript": "^5",
+    "yup": "^1.4.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  }
+}
