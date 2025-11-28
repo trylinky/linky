@@ -46,7 +46,7 @@ export default async function PageLayout(props: {
 
   if (
     !page.publishedAt &&
-    session?.data?.session.activeOrganizationId !== page.organizationId
+    session?.data?.session.activeOrganizationId !== page?.organizationId
   ) {
     return notFound();
   }
@@ -61,31 +61,35 @@ export default async function PageLayout(props: {
     : [null, null, null];
 
   // Batch fetch core page data
-  const [{ blocks, currentUserIsOwner }, pageLayout, pageTheme] =
-    await Promise.all([
-      getPageBlocks(page.id),
-      getPageLayout(page.id),
-      getPageTheme(page.id),
-    ]);
+  const [pageData, pageLayout, pageTheme] = await Promise.all([
+    getPageBlocks(page.id),
+    getPageLayout(page.id),
+    getPageTheme(page.id),
+  ]);
 
   const initialData: Record<string, any> = {
     [`/pages/${page.id}/layout`]: pageLayout,
     [`/pages/${page.id}/theme`]: pageTheme,
   };
 
-  if (currentUserIsOwner) {
+  if (
+    pageData?.organizationId === session?.data?.session.activeOrganizationId
+  ) {
     initialData['/integrations/me'] = integrations;
     initialData[`/blocks/enabled-blocks`] = enabledBlocks;
     initialData[`/pages/${page.id}/settings`] = pageSettings;
   }
 
-  if (blocks && blocks.length > 0) {
-    blocks.forEach((block: any) => {
+  if (pageData?.blocks && pageData?.blocks.length > 0) {
+    pageData?.blocks.forEach((block: any) => {
       initialData[`/blocks/${block.id}`] = {
         blockData: block.data,
       };
     });
   }
+
+  const currentUserIsOwner =
+    pageData?.organizationId === session?.data?.session.activeOrganizationId;
 
   return (
     <LinkyProviders

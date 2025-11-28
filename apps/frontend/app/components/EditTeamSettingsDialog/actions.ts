@@ -4,7 +4,7 @@ import { FormValues } from './EditTeamSettingsGeneralForm';
 import { TeamInviteFormValues } from './EditTeamSettingsMembersForm';
 import { teamInviteSchema } from './shared';
 import { auth, getSession } from '@/app/lib/auth';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import { headers } from 'next/headers';
 
 export const updateGeneralTeamSettings = async (values: FormValues) => {

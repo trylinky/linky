@@ -1,4 +1,4 @@
-import prisma from './prisma';
+import { prisma } from './prisma';
 import { getSession } from '@/app/lib/auth';
 import { headerBlockDefaults } from '@trylinky/blocks';
 import { track } from '@vercel/analytics/server';

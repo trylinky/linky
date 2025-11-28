@@ -8,7 +8,7 @@ import { CreateEditThemeForm } from '@/app/components/EditPageSettingsDialog/Cre
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { captureException } from '@sentry/nextjs';
 import { internalApiFetcher } from '@trylinky/common';
-import { Theme } from '@trylinky/prisma';
+import { type ThemeModel } from '@trylinky/prisma/types';
 import { Button, DialogFooter, useToast } from '@trylinky/ui';
 import { Form, Formik, FormikHelpers } from 'formik';
 import { withZodSchema } from 'formik-validator-zod';
@@ -34,7 +34,7 @@ export function EditPageSettingsDesign({ initialValues, pageId }: Props) {
   const [showCreateNewTheme, setShowCreateNewTheme] = useState(false);
   const [showEditTheme, setShowEditTheme] = useState(false);
 
-  const { data: currentTeamThemes } = useSWR<Theme[]>(
+  const { data: currentTeamThemes } = useSWR<ThemeModel[]>(
     '/themes/me/team',
     internalApiFetcher
   );

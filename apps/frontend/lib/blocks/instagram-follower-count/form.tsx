@@ -129,7 +129,7 @@ export function EditForm({
 
           <Button asChild className="mt-4">
             <Link
-              href={`${process.env.NEXT_PUBLIC_API_URL}/services/instagram/v2?blockId=${blockId}`}
+              href={`${process.env.NEXT_PUBLIC_APP_URL}/api/services/instagram/v2?blockId=${blockId}`}
               prefetch={false}
               target="_blank"
             >

@@ -5,7 +5,7 @@ import { auth, useSession } from '@/app/lib/auth';
 import { EditTeamSettingsDialog } from '@/components/EditTeamSettingsDialog/EditTeamSettingsDialog';
 import { NewPageDialog } from '@/components/NewPageDialog';
 import { internalApiFetcher } from '@trylinky/common';
-import { Organization } from '@trylinky/prisma';
+import { type OrganizationModel } from '@trylinky/prisma/types';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +23,7 @@ import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 
 interface Props {
-  usersOrganizations?: Partial<Organization>[] | null;
+  usersOrganizations?: Partial<OrganizationModel>[] | null;
 }
 
 type SubscriptionData = {

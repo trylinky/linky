@@ -2,7 +2,7 @@
 
 import { PageThemePreview } from '@/app/components/PageThemePreview';
 import { defaultThemeSeeds, themeColorToCssValue } from '@/lib/theme';
-import { Theme } from '@trylinky/prisma';
+import { type ThemeModel } from '@trylinky/prisma/types';
 
 interface PagePreviewProps {
   pageSlug: string;
@@ -39,7 +39,7 @@ export function PagePreview({
         )}
         {currentStep === 2 && selectedThemeObject && (
           <PageThemePreview
-            themeValues={selectedThemeObject as unknown as Theme}
+            themeValues={selectedThemeObject as unknown as ThemeModel}
           />
         )}
       </div>

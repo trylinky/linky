@@ -1,6 +1,6 @@
 import { getFontFamilyValue } from '@/lib/fonts';
 import { themeColorToCssValue } from '@/lib/theme';
-import { Theme } from '@trylinky/prisma';
+import { type ThemeModel } from '@trylinky/prisma/types';
 
 export type RequiredFields<T, K extends keyof T> = T & Required<Pick<T, K>>;
 
@@ -8,7 +8,7 @@ export function PageThemePreview({
   themeValues,
 }: {
   themeValues: RequiredFields<
-    Theme,
+    Partial<ThemeModel>,
     | 'colorBgBase'
     | 'colorBgPrimary'
     | 'colorBgSecondary'

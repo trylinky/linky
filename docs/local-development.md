@@ -127,10 +127,11 @@ Build all packages and applications:
 turbo dev
 ```
 
-Turbo will start the API and the frontend application on the following ports:
+Turbo will start the frontend application on the following port:
 
 - Frontend: http://localhost:3000
-- API: http://localhost:3001
+
+Note: The API routes are now built into the frontend application at `/api/*` endpoints.
 
 ## Security Considerations
 

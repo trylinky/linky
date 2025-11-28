@@ -1,11 +1,14 @@
-import { apiServerFetch } from '@/app/lib/api-server';
+import 'server-only';
+
+import { getAuthSession } from '@/lib/api/auth';
+import { getIntegrationsForOrganizationId } from '@/lib/api/integrations';
 
 export async function getTeamIntegrations() {
-  const res = await apiServerFetch('/integrations/me', {
-    method: 'GET',
-  });
+  const session = await getAuthSession();
 
-  const data = await res.json();
+  if (!session?.activeOrganizationId) {
+    return [];
+  }
 
-  return data;
+  return getIntegrationsForOrganizationId(session.activeOrganizationId);
 }

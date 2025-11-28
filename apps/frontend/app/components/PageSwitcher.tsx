@@ -6,7 +6,7 @@ import {
   CheckIcon,
   PlusCircledIcon,
 } from '@radix-ui/react-icons';
-import { Page } from '@trylinky/prisma';
+import { type PageModel } from '@trylinky/prisma/types';
 import {
   Avatar,
   AvatarFallback,
@@ -26,7 +26,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 interface Props {
-  teamPages?: Partial<Page>[] | null;
+  teamPages?: Partial<PageModel>[] | null;
 }
 
 export function PageSwitcher({ teamPages }: Props) {

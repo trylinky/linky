@@ -4,7 +4,7 @@ import {
 } from '@/app/components/BlockIntegrationUI';
 import { captureException } from '@sentry/nextjs';
 import { InternalApi, internalApiFetcher } from '@trylinky/common';
-import { Integration } from '@trylinky/prisma';
+import { type IntegrationModel } from '@trylinky/prisma/types';
 import {
   SidebarContentHeader,
   SidebarGroup,
@@ -31,7 +31,7 @@ export function SidebarIntegrations() {
 
   const { data: currentTeamIntegrations, isLoading } = useSWR<
     Partial<
-      Integration & { blocks: { page: { id: string; slug: string } }[] }
+      IntegrationModel & { blocks: { page: { id: string; slug: string } }[] }
     >[]
   >('/integrations/me', internalApiFetcher);
 
@@ -63,7 +63,8 @@ export function SidebarIntegrations() {
   };
 
   const currentlySelectedIntegration = currentTeamIntegrations?.find(
-    (integration) => integration.id === integrationToDisconnect
+    (integration: Partial<IntegrationModel>) =>
+      integration.id === integrationToDisconnect
   );
 
   return (
@@ -162,9 +163,11 @@ export function SidebarIntegrations() {
                   className="text-pretty list-disc list-inside pl-4 my-3"
                   is="ul"
                 >
-                  {currentlySelectedIntegration?.blocks?.map((block) => (
-                    <li key={block.page.id}>/{block.page.slug}</li>
-                  ))}
+                  {currentlySelectedIntegration?.blocks?.map(
+                    (block: { page: { id: string; slug: string } }) => (
+                      <li key={block.page.id}>/{block.page.slug}</li>
+                    )
+                  )}
                 </DialogDescription>
                 <DialogDescription className="text-pretty">
                   Disconnecting will stop those pages from syncing data from{' '}

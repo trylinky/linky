@@ -2,7 +2,7 @@
 
 import { auth, useSession } from '@/app/lib/auth';
 import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons';
-import { Organization } from '@trylinky/prisma';
+import { type OrganizationModel } from '@trylinky/prisma/types';
 import {
   cn,
   Command,
@@ -24,7 +24,7 @@ import { useState } from 'react';
 import { useSWRConfig } from 'swr';
 
 interface Props {
-  usersOrganizations?: Partial<Organization>[] | null;
+  usersOrganizations?: Partial<OrganizationModel>[] | null;
 }
 
 export function TeamSwitcher({ usersOrganizations }: Props) {

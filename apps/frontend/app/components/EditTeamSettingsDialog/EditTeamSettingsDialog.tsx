@@ -4,7 +4,11 @@ import { auth } from '@/app/lib/auth';
 import { EditTeamSettingsGeneral } from '@/components/EditTeamSettingsDialog/EditTeamSettingsGeneralForm';
 import { EditTeamSettingsMembers } from '@/components/EditTeamSettingsDialog/EditTeamSettingsMembersForm';
 import { internalApiFetcher } from '@trylinky/common';
-import { Invitation, Organization, User } from '@trylinky/prisma';
+import {
+  type InvitationModel,
+  type OrganizationModel,
+  type UserModel,
+} from '@trylinky/prisma/types';
 import {
   Dialog,
   DialogContent,
@@ -27,15 +31,15 @@ interface Props {
 
 export function EditTeamSettingsDialog({ open, onOpenChange, onClose }: Props) {
   const [teamSettings, setTeamSettings] =
-    useState<Partial<Organization> | null>(null);
+    useState<Partial<OrganizationModel> | null>(null);
   const [teamMembers, setTeamMembers] = useState<
-    { user: Partial<User>; role: 'owner' | 'admin' | 'member' }[] | null
+    { user: Partial<UserModel>; role: 'owner' | 'admin' | 'member' }[] | null
   >([]);
-  const [teamInvites, setTeamInvites] = useState<Partial<Invitation>[] | null>(
-    []
-  );
+  const [teamInvites, setTeamInvites] = useState<
+    Partial<InvitationModel>[] | null
+  >([]);
 
-  const { data: orgs } = useSWR<Partial<Organization>[]>(
+  const { data: orgs } = useSWR<Partial<OrganizationModel>[]>(
     '/organizations/me',
     internalApiFetcher
   );

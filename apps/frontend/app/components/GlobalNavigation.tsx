@@ -10,7 +10,7 @@ import {
   DevicePhoneMobileIcon,
 } from '@heroicons/react/24/outline';
 import { internalApiFetcher } from '@trylinky/common';
-import { Page } from '@trylinky/prisma';
+import { type PageModel } from '@trylinky/prisma/types';
 import { Button, useSidebar } from '@trylinky/ui';
 import { PlusCircleIcon } from 'lucide-react';
 import Link from 'next/link';
@@ -21,7 +21,7 @@ export function GlobalNavigation({ isEditMode }: { isEditMode: boolean }) {
 
   const { data: usersOrganizations } = auth.useListOrganizations();
 
-  const { data: teamPages } = useSWR<Partial<Page>[]>(
+  const { data: teamPages } = useSWR<Partial<PageModel>[]>(
     '/pages/me',
     internalApiFetcher
   );

@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "scripts": {
-    "build": "tsc index.ts"
-  },
   "dependencies": {
     "typescript": "^5",
     "yup": "^1.4.0"

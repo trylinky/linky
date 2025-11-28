@@ -36,7 +36,6 @@
         "NEXT_PUBLIC_APP_ENV",
         "NEXT_PUBLIC_BASE_URL",
         "NEXT_PUBLIC_ROOT_DOMAIN",
-        "NEXT_PUBLIC_API_URL",
         "NEXT_PUBLIC_APP_URL",
         "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY",
         "NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN",
@@ -47,24 +46,8 @@
         "SPOTIFY_CLIENT_ID",
         "SPOTIFY_CLIENT_SECRET",
 
-        "VERCEL_UNDICI"
-      ],
-      "inputs": ["$TURBO_DEFAULT$", ".env"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
-    },
-    "build:marketing": {
-      "env": [
-        "NEXT_PUBLIC_API_URL",
-        "NEXT_PUBLIC_APP_URL",
-        "NEXT_PUBLIC_BASE_URL",
-        "HYGRAPH_TOKEN",
-        "HYGRAPH_ENDPOINT"
-      ],
-      "inputs": ["$TURBO_DEFAULT$", ".env"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
-    },
-    "build:api": {
-      "env": [
+        "VERCEL_UNDICI",
+
         "API_BASE_URL",
         "APP_ENV",
         "APP_FRONTEND_URL",
@@ -130,7 +113,18 @@
 
         "TINYBIRD_API_KEY"
       ],
-      "inputs": ["$TURBO_DEFAULT$", ".env"]
+      "inputs": ["$TURBO_DEFAULT$", ".env"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+    },
+    "build:marketing": {
+      "env": [
+        "NEXT_PUBLIC_APP_URL",
+        "NEXT_PUBLIC_BASE_URL",
+        "HYGRAPH_TOKEN",
+        "HYGRAPH_ENDPOINT"
+      ],
+      "inputs": ["$TURBO_DEFAULT$", ".env"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
     "start:frontend": {
       "dependsOn": ["build:frontend"],
@@ -138,57 +132,6 @@
     },
     "start:marketing": {
       "dependsOn": ["build:marketing"],
-      "inputs": ["$TURBO_DEFAULT$", ".env"]
-    },
-    "start:api": {
-      "dependsOn": ["build:api"],
-      "env": [
-        "AUTH_GOOGLE_CLIENT_ID",
-        "AUTH_GOOGLE_CLIENT_SECRET",
-        "AUTH_TWITTER_CLIENT_ID",
-        "AUTH_TWITTER_CLIENT_SECRET",
-        "AUTH_TIKTOK_CLIENT_ID",
-        "AUTH_TIKTOK_CLIENT_KEY",
-        "AUTH_TIKTOK_CLIENT_SECRET",
-        "DATABASE_URL",
-        "DIRECT_URL",
-        "AUTH_SECRET",
-        "NODE_ENV",
-        "AUTH_TRUST_HOST",
-        "API_BASE_URL",
-        "AWS_ACCESS_KEY_ID",
-        "AWS_SECRET_ACCESS_KEY",
-        "AWS_REGION",
-        "REACTIONS_TABLE_NAME",
-        "POSTHOG_API_KEY",
-        "STRIPE_API_SECRET_KEY",
-        "RESEND_API_KEY",
-        "RESEND_AUDIENCE_ID",
-        "STRIPE_WEBHOOK_SECRET",
-        "BETTER_AUTH_URL",
-        "INTERNAL_API_KEY",
-        "APP_ENV",
-        "ENCRYPTION_KEY",
-        "APP_FRONTEND_URL",
-        "INSTAGRAM_CALLBACK_URL",
-        "INSTAGRAM_CLIENT_ID",
-        "INSTAGRAM_CLIENT_SECRET",
-        "INSTAGRAM_LEGACY_CALLBACK_URL",
-        "INSTAGRAM_LEGACY_CLIENT_ID",
-        "INSTAGRAM_LEGACY_CLIENT_SECRET",
-        "SPOTIFY_CLIENT_ID",
-        "SPOTIFY_CLIENT_SECRET",
-        "SPOTIFY_REDIRECT_URL",
-        "THREADS_CALLBACK_URL",
-        "THREADS_CLIENT_ID",
-        "THREADS_CLIENT_SECRET",
-        "TIKTOK_CALLBACK_URL",
-        "TIKTOK_CLIENT_KEY",
-        "TIKTOK_CLIENT_SECRET",
-        "TINYBIRD_API_KEY",
-        "SCREENSHOT_API_KEY",
-        "SLACK_TOKEN"
-      ],
       "inputs": ["$TURBO_DEFAULT$", ".env"]
     },
     "prisma:generate": {

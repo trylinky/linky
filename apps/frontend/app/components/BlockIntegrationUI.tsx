@@ -4,7 +4,7 @@ import { ThreadsLogo } from '@/app/components/integration-icons/threads';
 import { TikTokLogo } from '@/app/components/integration-icons/tiktok';
 import { captureException } from '@sentry/nextjs';
 import { InternalApi, internalApiFetcher } from '@trylinky/common';
-import { Integration } from '@trylinky/prisma';
+import { type IntegrationModel } from '@trylinky/prisma/types';
 import {
   Select,
   SelectContent,
@@ -32,22 +32,22 @@ export const integrationUIConfig: Record<
   instagram: {
     name: 'Instagram',
     icon: InstagramLogo,
-    connectUrl: `${process.env.NEXT_PUBLIC_API_URL}/services/instagram/v2`,
+    connectUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/services/instagram/v2`,
   },
   spotify: {
     name: 'Spotify',
     icon: SpotifyLogo,
-    connectUrl: `${process.env.NEXT_PUBLIC_API_URL}/services/spotify`,
+    connectUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/services/spotify`,
   },
   threads: {
     name: 'Threads',
     icon: ThreadsLogo,
-    connectUrl: `${process.env.NEXT_PUBLIC_API_URL}/services/threads`,
+    connectUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/services/threads`,
   },
   tiktok: {
     name: 'TikTok',
     icon: TikTokLogo,
-    connectUrl: `${process.env.NEXT_PUBLIC_API_URL}/services/tiktok`,
+    connectUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/services/tiktok`,
   },
 };
 
@@ -69,7 +69,7 @@ export function BlockIntegrationUI({
   const { mutate } = useSWRConfig();
   const router = useRouter();
 
-  const { data: currentTeamIntegrations } = useSWR<Partial<Integration>[]>(
+  const { data: currentTeamIntegrations } = useSWR<Partial<IntegrationModel>[]>(
     '/integrations/me',
     internalApiFetcher
   );

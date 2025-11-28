@@ -5,7 +5,7 @@ import { hideOnboardingTour } from '@/app/lib/auth-actions';
 import { useTour } from '@reactour/tour';
 import { captureException } from '@sentry/nextjs';
 import { internalApiFetcher } from '@trylinky/common';
-import { UserFlag } from '@trylinky/prisma';
+import { type UserFlagModel } from '@trylinky/prisma/types';
 import {
   Dialog,
   DialogContent,
@@ -25,13 +25,13 @@ export function UserOnboardingDialog() {
   const { setIsOpen } = useTour();
   const isMobile = useIsMobile();
 
-  const { data: userFlags } = useSWR<{ flags: Partial<UserFlag>[] }>(
+  const { data: userFlags } = useSWR<{ flags: Partial<UserFlagModel>[] }>(
     `/flags/me`,
     internalApiFetcher
   );
 
   const showOnboardingTour = userFlags?.flags.find(
-    (flag) => flag.key === 'showOnboardingTour'
+    (flag: Partial<UserFlagModel>) => flag.key === 'showOnboardingTour'
   )?.value;
 
   if (!showOnboardingTour) {

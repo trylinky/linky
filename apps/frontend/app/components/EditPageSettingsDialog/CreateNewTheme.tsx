@@ -7,7 +7,7 @@ import { createTheme, updateTheme } from '@/app/lib/actions/themes';
 import { HSLColor, hslToHex, themeFields } from '@/lib/theme';
 import { ChevronDownIcon } from '@heroicons/react/24/solid';
 import { internalApiFetcher } from '@trylinky/common';
-import { Theme } from '@trylinky/prisma';
+import { type ThemeModel } from '@trylinky/prisma/types';
 import {
   Button,
   Collapsible,
@@ -50,7 +50,7 @@ export function CreateEditThemeForm({
     undefined
   );
 
-  const { data: themes } = useSWR<Theme[]>(
+  const { data: themes } = useSWR<ThemeModel[]>(
     '/themes/me/team',
     internalApiFetcher
   );

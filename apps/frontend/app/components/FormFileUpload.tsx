@@ -60,7 +60,7 @@ export function FormFileUpload({
     body.append('file', firstFile, firstFile.name);
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/assets/upload`,
+      `${process.env.NEXT_PUBLIC_APP_URL}/api/assets/upload`,
       {
         method: 'POST',
         credentials: 'include',

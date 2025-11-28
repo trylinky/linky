@@ -1,7 +1,7 @@
 'use server';
 
 import { getSession } from '@/app/lib/auth';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import { headers } from 'next/headers';
 
 export async function acceptInvite(invitationId: string) {

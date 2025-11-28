@@ -1,4 +1,4 @@
-import Grid, { PageConfig } from './grid';
+import Grid from './grid';
 import {
   getPageIdBySlugOrDomain,
   getPageLayout,
@@ -7,10 +7,11 @@ import {
 import { getSession } from '@/app/lib/auth';
 import { renderBlock } from '@/lib/blocks/ui';
 import { isUserAgentMobile } from '@/lib/user-agent';
-import { Block, Integration } from '@trylinky/prisma';
+import { type BlockModel, type IntegrationModel } from '@trylinky/prisma/types';
 import type { Metadata, ResolvingMetadata } from 'next';
 import { headers } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
+import { Layout } from 'react-grid-layout';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -65,12 +66,11 @@ interface Params {
 }
 
 export type InitialDataUsersIntegrations = Pick<
-  Integration,
+  IntegrationModel,
   'id' | 'createdAt' | 'type'
 >[];
 
 export default async function Page(props: { params: Promise<Params> }) {
-  const startTime = performance.now();
   const params = await props.params;
   const session = await getSession({
     fetchOptions: { headers: await headers() },
@@ -82,22 +82,16 @@ export default async function Page(props: { params: Promise<Params> }) {
 
   const isLoggedIn = !!user;
 
-  // Track core page fetch time
-  const corePageStartTime = performance.now();
   const corePage = await getPageIdBySlugOrDomain(params.slug, params.domain);
-  const corePageTime = performance.now() - corePageStartTime;
 
   if (!corePage) {
     return notFound();
   }
 
-  // Track layout and data fetch time
-  const dataFetchStartTime = performance.now();
   const [layout, page] = await Promise.all([
     getPageLayout(corePage.id),
     getPageLoadData(corePage.id),
   ]);
-  const dataFetchTime = performance.now() - dataFetchStartTime;
 
   if (!page) {
     notFound();
@@ -125,17 +119,15 @@ export default async function Page(props: { params: Promise<Params> }) {
   }
 
   const isMobile = isUserAgentMobile(headersList.get('user-agent'));
-  const pageLayout = layout as unknown as PageConfig;
-  const mergedIds = [...pageLayout.sm, ...pageLayout.xxs].map((item) => item.i);
+  const mergedIds = [
+    ...(layout?.config as unknown as Layout[]),
+    ...(layout?.mobileConfig as unknown as Layout[]),
+  ].map((item) => item.i);
 
-  // Calculate total time
-  const totalTime = performance.now() - startTime;
-
-  // Add Server-Timing headers
-  const responseHeaders = new Headers();
-  responseHeaders.append('Server-Timing', `core-page;dur=${corePageTime}`);
-  responseHeaders.append('Server-Timing', `data-fetch;dur=${dataFetchTime}`);
-  responseHeaders.append('Server-Timing', `total;dur=${totalTime}`);
+  const pageLayout = {
+    sm: (layout?.config as unknown as Layout[]) || [],
+    xxs: (layout?.mobileConfig as unknown as Layout[]) || [],
+  };
 
   return (
     <Grid
@@ -145,8 +137,8 @@ export default async function Page(props: { params: Promise<Params> }) {
       isLoggedIn={isLoggedIn}
     >
       {page.blocks
-        .filter((block: Block) => mergedIds.includes(block.id))
-        .map((block: Block) => {
+        .filter((block: BlockModel) => mergedIds.includes(block.id))
+        .map((block: BlockModel) => {
           return (
             <section
               key={block.id}

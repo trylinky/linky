@@ -1,6 +1,7 @@
 'use server';
 
-import { apiServerFetch } from '@/app/lib/api-server';
+import { getAuthSession } from '@/lib/api/auth';
+import { hideOnboardingTour as hideOnboardingTourService } from '@/lib/api/flags';
 import { captureException } from '@sentry/nextjs';
 import { auth } from '@trylinky/common';
 
@@ -10,21 +11,15 @@ export async function signOut() {
 
 export async function hideOnboardingTour() {
   try {
-    const req = await apiServerFetch('/flags/hide-onboarding-tour', {
-      method: 'POST',
-    });
+    const session = await getAuthSession();
 
-    const res = await req.json();
-
-    if (res.success) {
-      return {
-        success: true,
-      };
+    if (!session?.user) {
+      return { success: false };
     }
 
-    return {
-      success: false,
-    };
+    const result = await hideOnboardingTourService(session.user.id);
+
+    return result;
   } catch (error) {
     captureException(error);
 

@@ -1,6 +1,6 @@
 import { LoggedInAcceptInviteUI, LoggedOutAcceptInviteUI } from './accept-ui';
 import { auth } from '@/app/lib/auth';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import { Avatar, AvatarFallback, AvatarImage } from '@trylinky/ui';
 import { headers } from 'next/headers';
 

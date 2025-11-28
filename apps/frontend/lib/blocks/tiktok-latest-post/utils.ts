@@ -1,7 +1,7 @@
 'use server';
 
 import { decrypt, encrypt } from '@/lib/encrypt';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import { captureException } from '@sentry/nextjs';
 import { TikTokIntegrationConfig } from '@trylinky/blocks';
 

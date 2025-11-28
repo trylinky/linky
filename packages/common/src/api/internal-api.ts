@@ -3,7 +3,7 @@
 export class InternalApi {
   static async post(path: string, body?: any) {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api${path}`, {
         method: 'POST',
         headers: {
           ...(body ? { 'Content-Type': 'application/json' } : {}),
@@ -28,7 +28,7 @@ export class InternalApi {
 
   static async put(path: string, body?: any) {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api${path}`, {
         method: 'PUT',
         headers: {
           ...(body ? { 'Content-Type': 'application/json' } : {}),
@@ -52,7 +52,7 @@ export class InternalApi {
   }
 
   static async get(path: string, body?: any) {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api${path}`, {
       method: 'GET',
       headers: {
         ...(body ? { 'Content-Type': 'application/json' } : {}),
@@ -65,7 +65,7 @@ export class InternalApi {
   }
 
   static async delete(path: string, body?: any) {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api${path}`, {
       method: 'DELETE',
       headers: {
         ...(body ? { 'Content-Type': 'application/json' } : {}),

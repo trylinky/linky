@@ -1,7 +1,7 @@
 'server-only';
 
 import { decrypt, encrypt } from '@/lib/encrypt';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import { captureException, captureMessage } from '@sentry/nextjs';
 import { SpotifyIntegrationConfig } from '@trylinky/blocks';
 import safeAwait from 'safe-await';

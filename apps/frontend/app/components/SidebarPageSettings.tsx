@@ -1,6 +1,6 @@
 import { EditPageSettingsGeneral } from '@/app/components/EditPageSettingsDialog/EditPageSettingsGeneralForm';
 import { internalApiFetcher } from '@trylinky/common';
-import { Page } from '@trylinky/prisma';
+import { type PageModel } from '@trylinky/prisma/types';
 import {
   SidebarContentHeader,
   SidebarGroup,
@@ -13,7 +13,7 @@ export function SidebarPageSettings() {
 
   const pageId = cache.get('pageId');
 
-  const { data: pageSettings } = useSWR<Partial<Page>>(
+  const { data: pageSettings } = useSWR<Partial<PageModel>>(
     `/pages/${pageId}/settings`,
     internalApiFetcher
   );

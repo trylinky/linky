@@ -4,7 +4,7 @@ import { FormValues as DesignPageSettingsFormValues } from './EditPageSettingsDe
 import { FormValues as GeneralPageSettingsFormValues } from './EditPageSettingsGeneralForm';
 import { designPageSettingsSchema, generalPageSettingsSchema } from './shared';
 import { getSession } from '@/app/lib/auth';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import { isForbiddenSlug, isReservedSlug } from '@/lib/slugs';
 import { headers } from 'next/headers';
 

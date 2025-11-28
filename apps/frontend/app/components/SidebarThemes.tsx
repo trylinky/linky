@@ -4,7 +4,7 @@ import { PageThemePreview } from '@/app/components/PageThemePreview';
 import { setPageTheme } from '@/app/lib/actions/themes';
 import { getGoogleFontUrl } from '@/lib/fonts';
 import { internalApiFetcher } from '@trylinky/common';
-import { Theme } from '@trylinky/prisma';
+import { type ThemeModel } from '@trylinky/prisma/types';
 import {
   toast,
   SidebarContentHeader,
@@ -19,7 +19,7 @@ import useSWR, { useSWRConfig } from 'swr';
 
 export function SidebarThemes() {
   const [previewTheme, setPreviewTheme] = useState<string | null>(null);
-  const { data: currentTeamThemes } = useSWR<Theme[]>(
+  const { data: currentTeamThemes } = useSWR<Partial<ThemeModel>[]>(
     '/themes/me/team',
     internalApiFetcher
   );
@@ -112,12 +112,12 @@ export function SidebarThemes() {
                       onClick={() => {
                         setEditThemeId(null);
                         setShowCreateNewTheme(false);
-                        handleSetPageTheme(theme.id);
+                        handleSetPageTheme(theme.id as string);
                       }}
-                      onMouseEnter={() => setPreviewTheme(theme.id)}
+                      onMouseEnter={() => setPreviewTheme(theme.id as string)}
                       onMouseLeave={() => setPreviewTheme(null)}
                     >
-                      <PageThemePreview themeValues={theme} />
+                      <PageThemePreview themeValues={theme as ThemeModel} />
                     </button>
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-medium text-stone-800">
@@ -129,7 +129,7 @@ export function SidebarThemes() {
                           variant="ghost"
                           className="text-xs text-indigo-600 px-0"
                           onClick={() => {
-                            setEditThemeId(theme.id);
+                            setEditThemeId(theme.id as string | null);
                           }}
                         >
                           Edit

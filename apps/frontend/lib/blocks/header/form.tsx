@@ -3,7 +3,7 @@ import { FormField } from '@/app/components/FormField';
 import { FormFileUpload } from '@/components/FormFileUpload';
 import { HeaderBlockConfig, HeaderSchema } from '@trylinky/blocks';
 import { internalApiFetcher } from '@trylinky/common';
-import { Page } from '@trylinky/prisma';
+import { type PageModel } from '@trylinky/prisma/types';
 import {
   Button,
   Checkbox,
@@ -25,7 +25,7 @@ export function EditForm({
 
   const pageId = cache.get('pageId');
 
-  const { data: pageSettings } = useSWR<Partial<Page>>(
+  const { data: pageSettings } = useSWR<Partial<PageModel>>(
     `/pages/${pageId}/settings`,
     internalApiFetcher
   );

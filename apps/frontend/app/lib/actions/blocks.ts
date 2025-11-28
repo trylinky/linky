@@ -1,11 +1,25 @@
-import { apiServerFetch } from '@/app/lib/api-server';
+import 'server-only';
+
+import { getAuthSession } from '@/lib/api/auth';
+import { getEnabledBlocks as getEnabledBlocksService } from '@/lib/api/blocks';
+import { prisma } from '@/lib/prisma';
 
 export async function getEnabledBlocks() {
-  const res = await apiServerFetch('/blocks/enabled-blocks', {
-    method: 'GET',
+  const session = await getAuthSession();
+
+  if (!session?.user) {
+    return [];
+  }
+
+  const dbUser = await prisma.user.findUnique({
+    where: {
+      id: session.user.id,
+    },
   });
 
-  const data = await res.json();
+  if (!dbUser) {
+    return [];
+  }
 
-  return data;
+  return getEnabledBlocksService(dbUser);
 }

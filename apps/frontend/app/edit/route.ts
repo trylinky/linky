@@ -1,5 +1,5 @@
 import { getSession } from '@/app/lib/auth';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 

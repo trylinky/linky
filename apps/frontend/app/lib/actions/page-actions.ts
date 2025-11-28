@@ -1,74 +1,69 @@
-import { apiServerFetch } from '@/app/lib/api-server';
+import {
+  getPageIdBySlugOrDomain as getPageIdBySlugOrDomainService,
+  getPageLoadData as getPageLoadDataService,
+  getPageThemeById,
+  getPageLayoutById,
+  getPageSettings as getPageSettingsService,
+  getPageBlocks as getPageBlocksService,
+} from '@/lib/api/pages';
+import 'server-only';
 
 export async function getPageIdBySlugOrDomain(slug: string, domain: string) {
-  const res = await apiServerFetch(
-    `/pages/internal/slug-or-domain?slug=${slug}&domain=${domain}`,
-    {
-      method: 'GET',
-      headers: {
-        'x-api-key': process.env.INTERNAL_API_KEY as string,
-      },
-    }
+  const pageIdAndPublishedAt = await getPageIdBySlugOrDomainService(
+    slug,
+    domain
   );
 
-  if (res.status !== 200) {
+  if (!pageIdAndPublishedAt) {
     return null;
   }
 
-  const data = await res.json();
-
-  return data;
+  return {
+    id: pageIdAndPublishedAt.id,
+    publishedAt: pageIdAndPublishedAt.publishedAt,
+    organizationId: pageIdAndPublishedAt.organizationId,
+    slug: pageIdAndPublishedAt.slug,
+  };
 }
 
 export async function getPageLoadData(pageId: string) {
-  const res = await apiServerFetch(`/pages/${pageId}/internal/load`, {
-    method: 'GET',
-    headers: {
-      'x-api-key': process.env.INTERNAL_API_KEY as string,
-    },
-  });
-
-  const data = await res.json();
-
-  return data;
+  return getPageLoadDataService(pageId);
 }
 
 export async function getPageTheme(pageId: string) {
-  const res = await apiServerFetch(`/pages/${pageId}/theme`, {
-    method: 'GET',
-  });
+  const page = await getPageThemeById(pageId);
 
-  const data = await res.json();
+  if (!page) {
+    return null;
+  }
 
-  return data;
+  return {
+    theme: page.theme,
+    publishedAt: page.publishedAt,
+    organizationId: page.organizationId,
+    backgroundImage: page.backgroundImage,
+  };
 }
 
 export async function getPageLayout(pageId: string) {
-  const res = await apiServerFetch(`/pages/${pageId}/layout`, {
-    method: 'GET',
-  });
+  const page = await getPageLayoutById(pageId);
 
-  const data = await res.json();
+  if (!page) {
+    return null;
+  }
 
-  return data;
+  return {
+    config: page.config,
+    mobileConfig: page.mobileConfig,
+    publishedAt: page.publishedAt,
+    organizationId: page.organizationId,
+  };
 }
 
 export async function getPageSettings(pageId: string) {
-  const res = await apiServerFetch(`/pages/${pageId}/settings`, {
-    method: 'GET',
-  });
-
-  const data = await res.json();
-
-  return data;
+  return getPageSettingsService(pageId);
 }
 
 export async function getPageBlocks(pageId: string) {
-  const res = await apiServerFetch(`/pages/${pageId}/blocks`, {
-    method: 'GET',
-  });
-
-  const data = await res.json();
-
-  return data;
+  return getPageBlocksService(pageId);
 }

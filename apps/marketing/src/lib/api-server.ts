@@ -9,7 +9,9 @@ export const apiServerFetch = async (
     'Content-Type': 'application/json',
   };
 
-  return fetch(`https://api.lin.ky${path}`, {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://lin.ky';
+
+  return fetch(`${baseUrl}/api${path}`, {
     headers,
     body: requestOptions.body,
     ...requestOptions,

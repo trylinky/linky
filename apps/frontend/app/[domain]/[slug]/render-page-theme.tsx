@@ -3,12 +3,12 @@
 import { getFontFamilyValue, getGoogleFontUrl } from '@/lib/fonts';
 import { defaultThemeSeeds, themeColorToCssValue } from '@/lib/theme';
 import { internalApiFetcher } from '@trylinky/common';
-import { Theme } from '@trylinky/prisma';
+import { type ThemeModel } from '@trylinky/prisma/types';
 import { useEffect } from 'react';
 import useSWR from 'swr';
 
 export function RenderPageTheme({ pageId }: { pageId: string }) {
-  const { data: pageTheme } = useSWR<{ theme: Partial<Theme> }>(
+  const { data: pageTheme } = useSWR<{ theme: Partial<ThemeModel> }>(
     `/pages/${pageId}/theme`,
     internalApiFetcher
   );
@@ -38,7 +38,7 @@ export function RenderThemeStyle({
   theme,
   important,
 }: {
-  theme: Partial<Theme>;
+  theme: Partial<ThemeModel>;
   important?: boolean;
 }) {
   const fontFamily = theme.font ? getFontFamilyValue(theme.font) : null;

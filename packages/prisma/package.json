@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "prisma:generate": "prisma generate --no-hints",
-    "prisma:migrate": "prisma migrate deploy"
+    "prisma:migrate": "prisma migrate deploy",
+    "prisma:seed": "prisma db seed"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.0.1",
     "@prisma/client": "^7.0.0",
     "@sindresorhus/slugify": "^2.2.1",
     "prisma": "^7.0.0",

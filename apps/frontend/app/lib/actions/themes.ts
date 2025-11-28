@@ -2,7 +2,7 @@
 
 import { ThemeData } from '@/app/components/EditPageSettingsDialog/shared';
 import { getSession } from '@/app/lib/auth';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import { captureException } from '@sentry/nextjs';
 import { headers } from 'next/headers';
 
