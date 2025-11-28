@@ -67,7 +67,7 @@ export function makeId(length: number) {
 }
 
 export async function resolveDomainOrSlug(slug: string, domain: string) {
-  const appDomain = new URL(process.env.APP_FRONTEND_URL as string);
+  const appDomain = new URL(process.env.NEXT_PUBLIC_APP_URL as string);
   const rootDomain =
     process.env.NODE_ENV === 'production'
       ? appDomain.hostname

@@ -50,7 +50,6 @@
 
         "API_BASE_URL",
         "APP_ENV",
-        "APP_FRONTEND_URL",
 
         "AUTH_GOOGLE_CLIENT_ID",
         "AUTH_GOOGLE_CLIENT_SECRET",
