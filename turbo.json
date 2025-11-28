@@ -19,7 +19,7 @@
       "outputs": ["apps/frontend/public/assets/tinybird/tracker.js"]
     },
     "build:frontend": {
-      "dependsOn": ["^prisma:generate:no-engine", "^copy-tinybird-tracker"],
+      "dependsOn": ["^prisma:generate", "^copy-tinybird-tracker"],
       "env": [
         "DATABASE_URL",
         "DIRECT_URL",
@@ -135,10 +135,6 @@
       "inputs": ["$TURBO_DEFAULT$", ".env"]
     },
     "prisma:generate": {
-      "cache": false,
-      "env": ["DATABASE_URL", "DIRECT_URL"]
-    },
-    "prisma:generate:no-engine": {
       "cache": false,
       "env": ["DATABASE_URL", "DIRECT_URL"]
     },

@@ -43,6 +43,8 @@
     "lucide-react": "^0.454.0",
     "mapbox-gl": "^3.10.0",
     "next": "16.0",
+    "pg": "^8.16.3",
+    "pg-pool": "^3.10.1",
     "posthog-js": "^1.187.1",
     "posthog-node": "^4.2.2",
     "react": "^19.0.0",
