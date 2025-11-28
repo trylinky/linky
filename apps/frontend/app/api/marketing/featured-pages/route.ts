@@ -30,7 +30,9 @@ export async function GET() {
 
   const result = featuredPages.map((page) => {
     const headerBlock = page.blocks[0];
-    const config = headerBlock?.config as HeaderBlockConfig | undefined;
+    const config = headerBlock?.config as unknown as
+      | HeaderBlockConfig
+      | undefined;
 
     return {
       id: page.id,
