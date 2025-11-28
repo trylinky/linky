@@ -3,17 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "repository": "https://github.com/trylinky/linky.git",
-  "workspaces": [
-    "app.api",
-    "app.frontend",
-    "app.marketing",
-    "package.blocks",
-    "package.common",
-    "package.notifications",
-    "package.prisma",
-    "package.tinybird",
-    "package.ui"
-  ],
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@typescript-eslint/eslint-plugin": "^8.14.0",
@@ -31,9 +20,14 @@
   "scripts": {
     "lint": "turbo lint",
     "dev": "turbo dev",
-    "dev:migrate": "dotenvx run -f .env.local -- prisma migrate dev --schema ./package.prisma/prisma/schema.prisma",
-    "dev:seed": "dotenvx run -f .env.local --ts-node ./package.prisma/prisma/seed.ts",
-    "dev:reset": "dotenvx run -f .env.local -- npx prisma db push --force-reset --schema ./package.prisma/prisma/schema.prisma"
+    "dev:migrate": "dotenvx run -f .env.local -- prisma migrate dev --config ./package.prisma/prisma.config.ts",
+    "dev:seed": "dotenvx run -f .env.local -- tsx ./package.prisma/prisma/seed.ts",
+    "dev:reset": "dotenvx run -f .env.local -- pnpm prisma db push --force-reset --config ./package.prisma/prisma.config.ts"
   },
-  "packageManager": "npm@10.2.0"
+  "pnpm": {
+    "overrides": {
+      "react-is": "^19.0.0-rc-69d4b800-20241021"
+    }
+  },
+  "packageManager": "pnpm@9.15.0"
 }

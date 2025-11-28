@@ -3,31 +3,29 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm run copy-tinybird-tracker && dotenvx run -f ../.env.local -- next dev",
+    "dev": "pnpm run copy-tinybird-tracker && dotenvx run -f ../.env.local -- next dev",
     "copy-tinybird-tracker": "cp ../package.tinybird/dist/tracker.js  public/assets",
     "build:frontend": "next build",
     "start:frontend": "next start",
     "lint": "next lint",
-    "vercel:build": "prisma generate --no-engine && prisma migrate deploy && next build"
-  },
-  "prisma": {
-    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+    "vercel:build": "prisma generate --schema ../package.prisma/prisma/schema.prisma && prisma migrate deploy --schema ../package.prisma/prisma/schema.prisma && next build"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.1.5",
     "@number-flow/react": "^0.4.2",
-    "@prisma/client": "^6.4.0",
-    "@prisma/extension-accelerate": "^1.2.2",
-    "@prisma/extension-optimize": "^1.1.4",
+    "@prisma/adapter-pg": "^7.0.1",
+    "@prisma/client": "^7.0.0",
+    "@prisma/extension-accelerate": "^3.0.0",
+    "@prisma/extension-optimize": "^2.0.1",
     "@react-google-maps/api": "^2.20.3",
     "@reactour/tour": "^3.7.0",
     "@sentry/nextjs": "^9.1.0",
-    "@trylinky/blocks": "*",
-    "@trylinky/common": "*",
-    "@trylinky/prisma": "*",
-    "@trylinky/tinybird": "*",
-    "@trylinky/ui": "*",
+    "@trylinky/blocks": "workspace:*",
+    "@trylinky/common": "workspace:*",
+    "@trylinky/prisma": "workspace:*",
+    "@trylinky/tinybird": "workspace:*",
+    "@trylinky/ui": "workspace:*",
     "@vercel/analytics": "^1.5.0",
     "@vercel/functions": "^2.0.0",
     "better-auth": "^1.2.4",
@@ -64,12 +62,9 @@
     "autoprefixer": "^10.4.20",
     "eslint-config-next": "15.0.2",
     "postcss": "8.4.47",
-    "prisma": "^6.4.0",
+    "prisma": "^7.0.0",
     "tailwindcss": "^3.4.14",
     "ts-node": "^10.9.2",
     "typescript": "5.6.3"
-  },
-  "overrides": {
-    "react-is": "^19.0.0-rc-69d4b800-20241021"
   }
 }

@@ -1,4 +1,4 @@
-import { JsonValue } from '@prisma/client/runtime/library';
+import { JsonValue } from '@trylinky/prisma/types';
 
 export type DefaultThemeNames =
   | 'Default'

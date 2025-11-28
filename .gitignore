@@ -8,6 +8,8 @@ node_modules
 
 app.frontend/public/assets/tinybird
 
+package.prisma/src/generated
+
 .tinyb
 .venv
 

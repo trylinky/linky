@@ -4,17 +4,17 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "prisma:generate": "prisma generate",
-    "prisma:generate:no-engine": "prisma generate --no-engine",
+    "prisma:generate": "prisma generate --no-hints",
     "prisma:migrate": "prisma migrate deploy"
   },
   "dependencies": {
-    "@prisma/client": "^6.4.0",
+    "@prisma/client": "^7.0.0",
     "@sindresorhus/slugify": "^2.2.1",
-    "prisma": "^6.4.0",
+    "prisma": "^7.0.0",
     "typescript": "^5"
   },
   "exports": {
-    ".": "./index.ts"
+    ".": "./index.ts",
+    "./types": "./types.ts"
   }
 }
