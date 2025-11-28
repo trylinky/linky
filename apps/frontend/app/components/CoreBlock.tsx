@@ -1,5 +1,3 @@
-'use client';
-
 import { EditBlockToolbar } from './EditBlockToolbar';
 import { BlockProps } from '@/lib/blocks/ui';
 import { cn } from '@trylinky/ui';

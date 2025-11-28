@@ -1,6 +1,6 @@
 import { BlockProps } from '../ui';
+import { LinkBoxServerUI } from './ui-server';
 import { CoreBlock } from '@/components/CoreBlock';
-import { LinkBoxServerUI } from '@/lib/blocks/link-box/ui-server';
 import { LinkBoxBlockConfig } from '@trylinky/blocks';
 import { cn } from '@trylinky/ui';
 import Link from 'next/link';

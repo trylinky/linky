@@ -1,5 +1,4 @@
 import { PrismaPg } from '@prisma/adapter-pg';
-import { withAccelerate } from '@prisma/extension-accelerate';
 import { PrismaClient } from '@trylinky/prisma';
 import 'server-only';
 
@@ -19,7 +18,6 @@ const prismaClientSingleton = () => {
       },
     },
   });
-  // .$extends(withAccelerate());
 };
 
 export type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>;

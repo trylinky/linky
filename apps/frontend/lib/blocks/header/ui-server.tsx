@@ -1,5 +1,3 @@
-'use server';
-
 import { verifyVerificationStatus } from './utils';
 import {
   Dialog,
