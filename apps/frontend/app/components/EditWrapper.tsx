@@ -51,6 +51,15 @@ export function EditWrapper({ children, layoutProps }: Props) {
   );
 
   const isUpdatingLayout = useRef(false);
+  const hasMounted = useRef(false);
+
+  // Skip layout changes until component has fully mounted
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      hasMounted.current = true;
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const [isPending, startTransition] = useTransition();
 
@@ -154,6 +163,12 @@ export function EditWrapper({ children, layoutProps }: Props) {
     newLayout: Layout[],
     currentLayouts: Layouts
   ) => {
+    // Skip layout changes until component has fully mounted
+    // react-grid-layout fires onLayoutChange on initial render with potentially invalid data
+    if (!hasMounted.current) {
+      return;
+    }
+
     // If we're currently updating, skip to prevent loops
     if (isUpdatingLayout.current) {
       return;
@@ -176,6 +191,12 @@ export function EditWrapper({ children, layoutProps }: Props) {
 
     // If filtering removed items, don't process this update
     if (validNewLayout.length !== newLayout.length) {
+      return;
+    }
+
+    // Safety check: reject if the new layout would remove all items
+    // This prevents accidental data loss from buggy layout updates
+    if (validNewLayout.length === 0 && (currentXxs.length > 0 || currentSm.length > 0)) {
       return;
     }
 
