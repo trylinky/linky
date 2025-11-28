@@ -6,6 +6,7 @@ import { auth } from '../auth/auth';
 import { LoginWidget } from '../auth/login-widget';
 import {
   ArrowTrendingDownIcon,
+  ArrowTrendingUpIcon,
   ArrowUpIcon,
   CheckBadgeIcon,
   CubeIcon,
@@ -15,10 +16,7 @@ import {
   UsersIcon,
   LockClosedIcon,
   GlobeAltIcon,
-  PuzzlePieceIcon,
-  PaintBrushIcon,
 } from '@heroicons/react/24/outline';
-import { ArrowTrendingUpIcon } from '@heroicons/react/24/outline';
 import {
   Alert,
   AlertDescription,
