@@ -164,6 +164,21 @@ export function EditWrapper({ children, layoutProps }: Props) {
       return;
     }
 
+    // Ensure layout arrays exist
+    const currentXxs = layout.xxs ?? [];
+    const currentSm = layout.sm ?? [];
+
+    // Filter out any items with invalid dimensions (0 width or 0 height)
+    // react-grid-layout sometimes sends these during transitions
+    const validNewLayout = newLayout.filter(
+      (item) => item.w > 0 && item.h > 0
+    );
+
+    // If filtering removed items, don't process this update
+    if (validNewLayout.length !== newLayout.length) {
+      return;
+    }
+
     // Helper function to sort and normalize layout for comparison
     // Only compare essential layout properties, ignoring runtime properties added by react-grid-layout
     const essentialKeys = [
@@ -193,11 +208,11 @@ export function EditWrapper({ children, layoutProps }: Props) {
     };
 
     // Stringify sorted layouts for comparison
-    const sortedNewLayout = JSON.stringify(sortAndNormalizeLayout(newLayout));
+    const sortedNewLayout = JSON.stringify(
+      sortAndNormalizeLayout(validNewLayout)
+    );
     const sortedLayout = JSON.stringify(
-      sortAndNormalizeLayout(
-        editLayoutMode === 'mobile' ? layout.xxs : layout.sm
-      )
+      sortAndNormalizeLayout(editLayoutMode === 'mobile' ? currentXxs : currentSm)
     );
 
     // If layouts are the same, no need to update
@@ -206,24 +221,27 @@ export function EditWrapper({ children, layoutProps }: Props) {
     }
 
     // If there's a temporary block, exit early
-    if (newLayout.some((block) => block.i === 'tmp-block')) {
+    if (validNewLayout.some((block) => block.i === 'tmp-block')) {
       return;
     }
 
     // Prepare the next layout based on the edit mode
     const nextLayout = {
-      xxs: editLayoutMode === 'mobile' ? newLayout : layout.xxs,
-      sm: editLayoutMode === 'desktop' ? newLayout : layout.sm,
+      xxs: editLayoutMode === 'mobile' ? validNewLayout : [...currentXxs],
+      sm: editLayoutMode === 'desktop' ? validNewLayout : [...currentSm],
     };
 
     // Handle cases where a new block might have been added
-    if (newLayout.length !== (layout.xxs.length || layout.sm.length)) {
+    const currentLayoutLength =
+      editLayoutMode === 'mobile' ? currentXxs.length : currentSm.length;
+
+    if (validNewLayout.length !== currentLayoutLength) {
       // Find the new block
-      const difference = newLayout.filter((item) => {
+      const difference = validNewLayout.filter((item) => {
         if (editLayoutMode === 'mobile') {
-          return !layout.xxs.some((item2) => item2.i === item.i);
+          return !currentXxs.some((item2) => item2.i === item.i);
         }
-        return !layout.sm.some((item2) => item2.i === item.i);
+        return !currentSm.some((item2) => item2.i === item.i);
       });
 
       // If there's exactly one new block, add it to the other layout
