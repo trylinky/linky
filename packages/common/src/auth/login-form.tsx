@@ -53,7 +53,9 @@ export function LoginForm({
         <Input
           type="email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setEmail(e.target.value)
+          }
           placeholder="Email"
         />
         <Button size="lg" type="submit" className="w-full mt-4">

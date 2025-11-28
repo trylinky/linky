@@ -174,7 +174,7 @@ export function EditPageSettingsGeneral({ initialValues, pageId }: Props) {
                   <Switch
                     id="published"
                     checked={values.published}
-                    onCheckedChange={(newVal) =>
+                    onCheckedChange={(newVal: boolean) =>
                       setFieldValue('published', newVal)
                     }
                   />

@@ -167,7 +167,7 @@ const GoogleMapsAutoCompleteInput = () => {
             <CommandItem
               key={prediction.description}
               value={prediction.description}
-              onSelect={(currentValue) => {
+              onSelect={(currentValue: string) => {
                 handleSelect(prediction.description);
                 setOpen(false);
               }}
