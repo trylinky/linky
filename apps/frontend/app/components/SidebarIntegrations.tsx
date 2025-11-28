@@ -2,8 +2,9 @@ import {
   integrationUIConfig,
   SupportedIntegrations,
 } from '@/app/components/BlockIntegrationUI';
+import { disconnectIntegration } from '@/app/lib/actions/integrations-actions';
 import { captureException } from '@sentry/nextjs';
-import { InternalApi, internalApiFetcher } from '@trylinky/common';
+import { internalApiFetcher } from '@trylinky/common';
 import { type IntegrationModel } from '@trylinky/prisma/types';
 import {
   SidebarContentHeader,
@@ -36,12 +37,12 @@ export function SidebarIntegrations() {
   >('/integrations/me', internalApiFetcher);
 
   const handleDisconnect = async () => {
-    try {
-      const response = await InternalApi.post('/integrations/disconnect', {
-        integrationId: integrationToDisconnect,
-      });
+    if (!integrationToDisconnect) return;
 
-      if (response.error) {
+    try {
+      const response = await disconnectIntegration(integrationToDisconnect);
+
+      if ('error' in response) {
         throw new Error(response.error);
       }
 

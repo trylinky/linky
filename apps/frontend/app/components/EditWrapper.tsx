@@ -2,10 +2,12 @@
 
 import { PageConfig } from '@/app/[domain]/[slug]/grid';
 import { useEditModeContext } from '@/app/contexts/Edit';
+import { addBlock } from '@/app/lib/actions/blocks-actions';
+import { updatePageLayout } from '@/app/lib/actions/pages';
 import { CoreBlock } from '@/components/CoreBlock';
 import { enableDragDropTouch } from '@/lib/polyfills/drag-drop-touch.esm.min.js';
 import { captureException } from '@sentry/nextjs';
-import { InternalApi, internalApiFetcher } from '@trylinky/common';
+import { internalApiFetcher } from '@trylinky/common';
 import { Skeleton, useToast, cn } from '@trylinky/ui';
 import { useParams, useRouter } from 'next/navigation';
 import {
@@ -13,6 +15,7 @@ import {
   useEffect,
   useMemo,
   useOptimistic,
+  useRef,
   useTransition,
 } from 'react';
 import {
@@ -40,12 +43,14 @@ export function EditWrapper({ children, layoutProps }: Props) {
 
   const { cache } = useSWRConfig();
 
-  const pageId = cache.get(`pageId`);
+  const pageId = cache.get(`pageId`) as string;
 
   const { data: layout, mutate: mutateLayout } = useSWR<PageConfig>(
-    `/pages/${pageId}/layout`,
+    pageId ? `/pages/${pageId}/layout` : null,
     internalApiFetcher
   );
+
+  const isUpdatingLayout = useRef(false);
 
   const [isPending, startTransition] = useTransition();
 
@@ -121,15 +126,15 @@ export function EditWrapper({ children, layoutProps }: Props) {
         </div>,
       ]);
 
-      const response = await InternalApi.post('/blocks/add', {
-        block: {
+      const response = await addBlock(
+        {
           id: newItemId,
           type: isMobile ? layoutItem.type : draggingItem.type,
         },
-        pageSlug: params.slug,
-      });
+        params.slug as string
+      );
 
-      if (response.error) {
+      if ('error' in response && response.error) {
         toast({
           variant: 'error',
           title: 'Something went wrong',
@@ -149,23 +154,41 @@ export function EditWrapper({ children, layoutProps }: Props) {
     newLayout: Layout[],
     currentLayouts: Layouts
   ) => {
+    // If we're currently updating, skip to prevent loops
+    if (isUpdatingLayout.current) {
+      return;
+    }
+
     // If the new layout is empty or there's no existing layout, exit early
     if (newLayout.length === 0 || !layout) {
       return;
     }
 
     // Helper function to sort and normalize layout for comparison
-    const sortAndNormalizeLayout = (layout: Layout[]) => {
-      return layout
+    // Only compare essential layout properties, ignoring runtime properties added by react-grid-layout
+    const essentialKeys = [
+      'i',
+      'x',
+      'y',
+      'w',
+      'h',
+      'minW',
+      'minH',
+      'maxW',
+      'maxH',
+    ];
+    const sortAndNormalizeLayout = (layoutItems: Layout[]) => {
+      if (!layoutItems || layoutItems.length === 0) return [];
+      return layoutItems
         .sort((a, b) => a.i.localeCompare(b.i))
         .map((obj) =>
-          Object.keys(obj)
-            .sort()
-            .reduce((result: Layout, key: string) => {
+          essentialKeys.reduce((result: Partial<Layout>, key: string) => {
+            if (key in obj) {
               // @ts-ignore
               result[key] = obj[key];
-              return result;
-            }, {} as Layout)
+            }
+            return result;
+          }, {})
         );
     };
 
@@ -213,13 +236,13 @@ export function EditWrapper({ children, layoutProps }: Props) {
       }
     }
 
+    isUpdatingLayout.current = true;
+
     try {
-      const response = await InternalApi.post(`/pages/${pageId}/layout`, {
-        newLayout: nextLayout,
-      });
+      const response = await updatePageLayout(pageId, nextLayout);
 
       // Handle server-side errors
-      if (response.error) {
+      if ('error' in response && response.error) {
         toast({
           variant: 'error',
           title: 'Something went wrong',
@@ -228,8 +251,8 @@ export function EditWrapper({ children, layoutProps }: Props) {
         return;
       }
 
-      // Update the layout in the client-side cache
-      mutateLayout(nextLayout);
+      // Update the layout in the client-side cache without revalidating
+      mutateLayout(nextLayout, { revalidate: false });
     } catch (error) {
       captureException(error);
       toast({
@@ -237,6 +260,11 @@ export function EditWrapper({ children, layoutProps }: Props) {
         title: 'Something went wrong',
         description: "We couldn't update your page layout",
       });
+    } finally {
+      // Reset the flag after a short delay to allow the re-render to complete
+      setTimeout(() => {
+        isUpdatingLayout.current = false;
+      }, 100);
     }
   };
 

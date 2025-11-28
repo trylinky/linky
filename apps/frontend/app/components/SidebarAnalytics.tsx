@@ -1,4 +1,4 @@
-import { InternalApi } from '@trylinky/common';
+import { getPageAnalytics } from '@/app/lib/actions/analytics-actions';
 import {
   ChartConfig,
   ChartContainer,
@@ -64,17 +64,20 @@ export function SidebarAnalytics() {
   const [isLoading, setIsLoading] = useState(true);
 
   const { cache } = useSWRConfig();
-  const pageId = cache.get('pageId');
+  const pageId = cache.get('pageId') as string;
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!pageId) {
+        setShowPlaceholder(true);
+        return;
+      }
+
       try {
         setIsLoading(true);
-        const responseData = await InternalApi.get(
-          `/analytics/pages/${pageId}`
-        );
+        const responseData = await getPageAnalytics(pageId);
 
-        if (responseData.error?.code) {
+        if ('error' in responseData) {
           setShowPlaceholder(true);
           return;
         }

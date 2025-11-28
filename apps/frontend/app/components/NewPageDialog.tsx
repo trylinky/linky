@@ -3,10 +3,13 @@
 import { HandleStep } from './HandleStep';
 import { PagePreview } from './PagePreview';
 import { ThemeStep } from './ThemeStep';
+import {
+  createPage,
+  checkSlugAvailability,
+} from '@/app/lib/actions/pages';
 import { regexSlug } from '@/lib/slugs';
 import { defaultThemeSeeds } from '@/lib/theme';
 import { captureException } from '@sentry/nextjs';
-import { InternalApi } from '@trylinky/common';
 import {
   Dialog,
   DialogContent,
@@ -175,12 +178,10 @@ export function NewPageDialog({ open, onOpenChange, onClose }: Props) {
   ) => {
     setSubmitting(true);
     try {
-      const { error, slug } = await InternalApi.post('/pages', {
-        slug: values.pageSlug,
-        themeId: values.themeId,
-      });
+      const result = await createPage(values.pageSlug, values.themeId);
 
-      if (error) {
+      if ('error' in result && result.error) {
+        const error = result.error as { message: string; label?: string; field?: string };
         toast({
           variant: 'error',
           title: error.message,
@@ -196,8 +197,8 @@ export function NewPageDialog({ open, onOpenChange, onClose }: Props) {
         return;
       }
 
-      if (slug) {
-        router.push(`/${slug}`);
+      if ('slug' in result && result.slug) {
+        router.push(`/${result.slug}`);
         toast({ title: 'Page created' });
         if (onClose) onClose();
       }
@@ -319,8 +320,8 @@ export function NewPageDialog({ open, onOpenChange, onClose }: Props) {
                           ) {
                             // Check slug availability before proceeding
                             try {
-                              const { isAvailable } = await InternalApi.get(
-                                `/pages/internal/slug-availability?slug=${values.pageSlug}`
+                              const { isAvailable } = await checkSlugAvailability(
+                                values.pageSlug
                               );
                               if (!isAvailable) {
                                 toast({

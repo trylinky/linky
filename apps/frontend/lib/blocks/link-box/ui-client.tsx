@@ -1,5 +1,3 @@
-'use client';
-
 import { BlockProps } from '../ui';
 import { CoreBlock } from '@/components/CoreBlock';
 import { LinkBoxServerUI } from '@/lib/blocks/link-box/ui-server';

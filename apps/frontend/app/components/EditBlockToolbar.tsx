@@ -2,10 +2,11 @@
 
 import { PageConfig } from '@/app/[domain]/[slug]/grid';
 import { useEditModeContext } from '@/app/contexts/Edit';
+import { deleteBlock } from '@/app/lib/actions/blocks-actions';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { captureException } from '@sentry/nextjs';
 import { Blocks } from '@trylinky/blocks';
-import { InternalApi, internalApiFetcher } from '@trylinky/common';
+import { internalApiFetcher } from '@trylinky/common';
 import { useSidebar, useToast } from '@trylinky/ui';
 import { useParams, useRouter } from 'next/navigation';
 import useSWR, { useSWRConfig } from 'swr';
@@ -26,11 +27,11 @@ export function EditBlockToolbar({ blockId, blockType }: Props) {
 
   const { cache } = useSWRConfig();
 
-  const pageId = cache.get(`pageId`);
+  const pageId = cache.get(`pageId`) as string;
 
   const { mutate } = useSWR(`/blocks/${blockId}`, internalApiFetcher);
   const { data: layout, mutate: mutateLayout } = useSWR<PageConfig>(
-    `/pages/${pageId}/layout`,
+    pageId ? `/pages/${pageId}/layout` : null,
     internalApiFetcher
   );
 
@@ -44,9 +45,9 @@ export function EditBlockToolbar({ blockId, blockType }: Props) {
     }
 
     try {
-      const response = await InternalApi.delete(`/blocks/${blockId}`);
+      const response = await deleteBlock(blockId);
 
-      if (response.error) {
+      if ('error' in response && response.error) {
         toast({
           variant: 'error',
           title: 'Something went wrong',

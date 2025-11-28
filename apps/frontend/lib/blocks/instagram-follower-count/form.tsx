@@ -1,7 +1,7 @@
 import { EditFormProps } from '../types';
+import { disconnectIntegration } from '@/app/lib/actions/integrations-actions';
 import { captureException } from '@sentry/nextjs';
 import { InstagramFollowerCountBlockConfig } from '@trylinky/blocks';
-import { InternalApi } from '@trylinky/common';
 import { Button, toast } from '@trylinky/ui';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -85,11 +85,9 @@ export function EditForm({
     }
 
     try {
-      const response = await InternalApi.post('/integrations/disconnect', {
-        integrationId: integration.id,
-      });
+      const response = await disconnectIntegration(integration.id);
 
-      if (response.error) {
+      if ('error' in response) {
         throw new Error(response.error);
       }
 
@@ -97,7 +95,7 @@ export function EditForm({
         title: 'Integration disconnected',
       });
 
-      mutate(`/blocks/${blockId}`);
+      mutate(`block-${blockId}`);
     } catch (error) {
       captureException(error);
       toast({

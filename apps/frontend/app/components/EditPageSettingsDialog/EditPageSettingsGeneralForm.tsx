@@ -3,10 +3,10 @@
 import { FormField } from '../FormField';
 import { updateGeneralPageSettings } from './actions';
 import { generalPageSettingsSchema } from './shared';
+import { deletePage } from '@/app/lib/actions/pages';
 import VerificationRequestDialog from '@/app/components/VerificationRequestDialog';
 import { ChevronDownIcon } from '@radix-ui/react-icons';
 import { captureException } from '@sentry/nextjs';
-import { InternalApi } from '@trylinky/common';
 import {
   Collapsible,
   CollapsibleContent,
@@ -96,7 +96,7 @@ export function EditPageSettingsGeneral({ initialValues, pageId }: Props) {
 
   const handleDeletePage = async () => {
     try {
-      const res = await InternalApi.delete(`/pages/${pageId}`);
+      const res = await deletePage(pageId);
 
       if (res?.error) {
         toast({

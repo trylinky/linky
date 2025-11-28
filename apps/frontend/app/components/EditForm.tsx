@@ -1,7 +1,8 @@
 import { editForms } from '@/lib/blocks/edit';
+import { updateBlockData } from '@/app/lib/actions/blocks-actions';
 import { captureException } from '@sentry/nextjs';
 import { Blocks } from '@trylinky/blocks';
-import { InternalApi, internalApiFetcher } from '@trylinky/common';
+import { internalApiFetcher } from '@trylinky/common';
 import { toast } from '@trylinky/ui';
 import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
@@ -16,22 +17,17 @@ export function EditForm({ onClose, blockId, blockType }: Props) {
   const { data: blockData, mutate } = useSWR<{
     blockData: any;
     integration: any;
-  }>(`/blocks/${blockId}`, internalApiFetcher);
+  } | null>(`/blocks/${blockId}`, internalApiFetcher);
 
   const router = useRouter();
 
   const onSave = async (values: any) => {
     try {
-      const response = await InternalApi.post(
-        `/blocks/${blockId}/update-data`,
-        {
-          newData: values,
-        }
-      );
+      const response = await updateBlockData(blockId, values);
 
-      if (response) {
-        mutate(values, {
-          optimisticData: values,
+      if (!('error' in response)) {
+        mutate({ blockData: values, integration: blockData?.integration }, {
+          optimisticData: { blockData: values, integration: blockData?.integration },
         });
 
         toast({

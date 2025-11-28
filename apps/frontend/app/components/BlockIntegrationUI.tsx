@@ -2,8 +2,12 @@ import { InstagramLogo } from '@/app/components/integration-icons/Instagram';
 import { SpotifyLogo } from '@/app/components/integration-icons/spotify';
 import { ThreadsLogo } from '@/app/components/integration-icons/threads';
 import { TikTokLogo } from '@/app/components/integration-icons/tiktok';
+import {
+  connectBlockToIntegration,
+  disconnectBlockFromIntegration,
+} from '@/app/lib/actions/integrations-actions';
 import { captureException } from '@sentry/nextjs';
-import { InternalApi, internalApiFetcher } from '@trylinky/common';
+import { internalApiFetcher } from '@trylinky/common';
 import { type IntegrationModel } from '@trylinky/prisma/types';
 import {
   Select,
@@ -80,15 +84,9 @@ export function BlockIntegrationUI({
     }
 
     try {
-      const response = await InternalApi.post(
-        '/integrations/disconnect-block',
-        {
-          integrationId: integration.id,
-          blockId,
-        }
-      );
+      const response = await disconnectBlockFromIntegration(blockId);
 
-      if (response.error) {
+      if ('error' in response) {
         throw new Error(response.error);
       }
 
@@ -111,12 +109,9 @@ export function BlockIntegrationUI({
 
   const handleSelectIntegration = async (integrationId: string) => {
     try {
-      const response = await InternalApi.post('/integrations/connect-block', {
-        integrationId,
-        blockId,
-      });
+      const response = await connectBlockToIntegration(integrationId, blockId);
 
-      if (response.error) {
+      if ('error' in response) {
         toast({
           title: 'Error connecting integration',
           description: response.error,

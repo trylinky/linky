@@ -1,9 +1,10 @@
 'use client';
 
 import { CoreBlock } from '@/app/components/CoreBlock';
+import { postReaction } from '@/app/lib/actions/reactions-actions';
 import { BlockProps } from '@/lib/blocks/ui';
 import NumberFlow from '@number-flow/react';
-import { InternalApi, internalApiFetcher } from '@trylinky/common';
+import { internalApiFetcher } from '@trylinky/common';
 import { motion } from 'framer-motion';
 import { FunctionComponent, useEffect, useState, useRef } from 'react';
 import useSWR from 'swr';
@@ -49,7 +50,7 @@ export const Reactions: FunctionComponent<BlockProps> = (props) => {
     total: {
       [reactionType: string]: number;
     };
-  }>(`/reactions?pageId=${pageId}`, internalApiFetcher);
+  }>(`/reactions/${pageId}`, internalApiFetcher);
 
   useEffect(() => {
     pendingClicksRef.current = pendingClicks;
@@ -106,12 +107,9 @@ export const Reactions: FunctionComponent<BlockProps> = (props) => {
           return;
         }
 
-        const response = await InternalApi.post('/reactions', {
-          pageId,
-          increment: incrementAmount,
-        });
+        const response = await postReaction(pageId, incrementAmount);
 
-        if (response.error) {
+        if ('error' in response) {
           throw new Error(response.error);
         }
 
@@ -119,7 +117,7 @@ export const Reactions: FunctionComponent<BlockProps> = (props) => {
         pendingClicksRef.current = 0;
 
         // Update data from server
-        await mutate(response.data);
+        await mutate(response);
 
         setIsSubmitting(false);
       } catch (error) {
