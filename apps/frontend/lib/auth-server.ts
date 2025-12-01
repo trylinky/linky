@@ -19,10 +19,6 @@ import { admin, magicLink, organization } from 'better-auth/plugins';
 
 export const auth = betterAuth({
   baseUrl: process.env.NEXT_PUBLIC_APP_URL,
-  rateLimit: {
-    window: 10, // time window in seconds
-    max: 100, // max requests in the window
-  },
   trustedOrigins,
   database: prismaAdapter(prisma as unknown as PrismaClient, {
     provider: 'postgresql',

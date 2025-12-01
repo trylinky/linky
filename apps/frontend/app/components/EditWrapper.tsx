@@ -12,13 +12,16 @@ import { Skeleton, useToast, cn } from '@trylinky/ui';
 import { useParams, useRouter } from 'next/navigation';
 import {
   ReactNode,
+  useCallback,
   useEffect,
   useMemo,
   useOptimistic,
   useRef,
+  useState,
   useTransition,
 } from 'react';
 import {
+  ItemCallback,
   Layout,
   Layouts,
   Responsive,
@@ -50,8 +53,20 @@ export function EditWrapper({ children, layoutProps }: Props) {
     internalApiFetcher
   );
 
+  // Local working layout state - this is what react-grid-layout uses for rendering
+  // We only sync this to server/SWR when drag/resize ENDS, not during intermediate states
+  const [workingLayout, setWorkingLayout] = useState<PageConfig | null>(null);
+
+  // Sync working layout when SWR data changes (initial load or external updates)
+  useEffect(() => {
+    if (layout) {
+      setWorkingLayout(layout);
+    }
+  }, [layout]);
+
   const isUpdatingLayout = useRef(false);
   const hasMounted = useRef(false);
+  const hasUserInteracted = useRef(false);
 
   // Skip layout changes until component has fully mounted
   useEffect(() => {
@@ -76,7 +91,7 @@ export function EditWrapper({ children, layoutProps }: Props) {
 
     const filteredItems = (optimisticItems as ReactNode[])?.filter(
       (item: any) => {
-        return layout?.sm?.some((layoutItem) => layoutItem.i === item.key);
+        return workingLayout?.sm?.some((layoutItem) => layoutItem.i === item.key);
       }
     );
 
@@ -84,7 +99,7 @@ export function EditWrapper({ children, layoutProps }: Props) {
       setOptimisticItems(filteredItems);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [layout]);
+  }, [workingLayout]);
 
   useEffect(() => {
     if (nextToAddBlock) {
@@ -99,6 +114,9 @@ export function EditWrapper({ children, layoutProps }: Props) {
     _event: Event | null,
     isMobile?: boolean
   ) => {
+    // Mark that user has interacted - allows layout changes to be saved
+    hasUserInteracted.current = true;
+
     // Get the last item from the newLayout
     const lastItem = layoutItem;
 
@@ -135,12 +153,21 @@ export function EditWrapper({ children, layoutProps }: Props) {
         </div>,
       ]);
 
+
       const response = await addBlock(
         {
           id: newItemId,
           type: isMobile ? layoutItem.type : draggingItem.type,
         },
-        params.slug as string
+        params.slug as string,
+        {
+          x: newItemConfig.x,
+          y: newItemConfig.y,
+          w: newItemConfig.w,
+          h: newItemConfig.h,
+          minW: newItemConfig.minW,
+          minH: newItemConfig.minH,
+        }
       );
 
       if ('error' in response && response.error) {
@@ -152,135 +179,54 @@ export function EditWrapper({ children, layoutProps }: Props) {
         return;
       }
 
+      // Update working layout with the new block's position
+      // The server has already saved this atomically with the block creation
+      if (workingLayout) {
+        const updatedLayout = {
+          sm: [...(workingLayout.sm ?? []), newItemConfig],
+          xxs: [...(workingLayout.xxs ?? []), newItemConfig],
+        };
+        setWorkingLayout(updatedLayout);
+        // Also update SWR cache to keep it in sync
+        mutateLayout(updatedLayout, { revalidate: false });
+      }
+
       // Refresh the current route and fetch new data from the server without
       // losing client-side browser or React state.
       router.refresh();
     });
   };
 
-  // Function to handle layout changes
-  const handleLayoutChange = async (
-    newLayout: Layout[],
-    currentLayouts: Layouts
-  ) => {
-    // Skip layout changes until component has fully mounted
-    // react-grid-layout fires onLayoutChange on initial render with potentially invalid data
-    if (!hasMounted.current) {
-      return;
-    }
-
-    // If we're currently updating, skip to prevent loops
-    if (isUpdatingLayout.current) {
-      return;
-    }
-
-    // If the new layout is empty or there's no existing layout, exit early
-    if (newLayout.length === 0 || !layout) {
-      return;
-    }
-
-    // Ensure layout arrays exist
-    const currentXxs = layout.xxs ?? [];
-    const currentSm = layout.sm ?? [];
-
+  // Helper function to validate and filter layout
+  const validateLayout = useCallback((newLayout: Layout[]): Layout[] | null => {
     // Filter out any items with invalid dimensions (0 width or 0 height)
-    // react-grid-layout sometimes sends these during transitions
-    const validNewLayout = newLayout.filter(
-      (item) => item.w > 0 && item.h > 0
+    // Also filter out items with suspiciously small dimensions (w < minW or h < minH)
+    const validLayout = newLayout.filter(
+      (item) => item.w >= (item.minW ?? 1) && item.h >= (item.minH ?? 1)
     );
 
-    // If filtering removed items, don't process this update
-    if (validNewLayout.length !== newLayout.length) {
-      return;
+    // If filtering removed items, the layout is invalid
+    if (validLayout.length !== newLayout.length) {
+      return null;
     }
 
-    // Safety check: reject if the new layout would remove all items
-    // This prevents accidental data loss from buggy layout updates
-    if (validNewLayout.length === 0 && (currentXxs.length > 0 || currentSm.length > 0)) {
-      return;
+    // If there's a temporary block, layout is not ready
+    if (validLayout.some((block) => block.i === 'tmp-block')) {
+      return null;
     }
 
-    // Helper function to sort and normalize layout for comparison
-    // Only compare essential layout properties, ignoring runtime properties added by react-grid-layout
-    const essentialKeys = [
-      'i',
-      'x',
-      'y',
-      'w',
-      'h',
-      'minW',
-      'minH',
-      'maxW',
-      'maxH',
-    ];
-    const sortAndNormalizeLayout = (layoutItems: Layout[]) => {
-      if (!layoutItems || layoutItems.length === 0) return [];
-      return layoutItems
-        .sort((a, b) => a.i.localeCompare(b.i))
-        .map((obj) =>
-          essentialKeys.reduce((result: Partial<Layout>, key: string) => {
-            if (key in obj) {
-              // @ts-ignore
-              result[key] = obj[key];
-            }
-            return result;
-          }, {})
-        );
-    };
+    return validLayout;
+  }, []);
 
-    // Stringify sorted layouts for comparison
-    const sortedNewLayout = JSON.stringify(
-      sortAndNormalizeLayout(validNewLayout)
-    );
-    const sortedLayout = JSON.stringify(
-      sortAndNormalizeLayout(editLayoutMode === 'mobile' ? currentXxs : currentSm)
-    );
-
-    // If layouts are the same, no need to update
-    if (sortedNewLayout === sortedLayout) {
-      return;
-    }
-
-    // If there's a temporary block, exit early
-    if (validNewLayout.some((block) => block.i === 'tmp-block')) {
-      return;
-    }
-
-    // Prepare the next layout based on the edit mode
-    const nextLayout = {
-      xxs: editLayoutMode === 'mobile' ? validNewLayout : [...currentXxs],
-      sm: editLayoutMode === 'desktop' ? validNewLayout : [...currentSm],
-    };
-
-    // Handle cases where a new block might have been added
-    const currentLayoutLength =
-      editLayoutMode === 'mobile' ? currentXxs.length : currentSm.length;
-
-    if (validNewLayout.length !== currentLayoutLength) {
-      // Find the new block
-      const difference = validNewLayout.filter((item) => {
-        if (editLayoutMode === 'mobile') {
-          return !currentXxs.some((item2) => item2.i === item.i);
-        }
-        return !currentSm.some((item2) => item2.i === item.i);
-      });
-
-      // If there's exactly one new block, add it to the other layout
-      if (difference.length === 1) {
-        if (editLayoutMode === 'mobile') {
-          nextLayout.sm.push(difference[0]);
-        } else {
-          nextLayout.xxs.push(difference[0]);
-        }
-      }
-    }
+  // Function to save layout to server - only called on drag/resize END
+  const saveLayoutToServer = useCallback(async (nextLayout: PageConfig) => {
+    if (isUpdatingLayout.current) return;
 
     isUpdatingLayout.current = true;
 
     try {
       const response = await updatePageLayout(pageId, nextLayout);
 
-      // Handle server-side errors
       if ('error' in response && response.error) {
         toast({
           variant: 'error',
@@ -290,7 +236,7 @@ export function EditWrapper({ children, layoutProps }: Props) {
         return;
       }
 
-      // Update the layout in the client-side cache without revalidating
+      // Update SWR cache to keep it in sync
       mutateLayout(nextLayout, { revalidate: false });
     } catch (error) {
       captureException(error);
@@ -300,17 +246,107 @@ export function EditWrapper({ children, layoutProps }: Props) {
         description: "We couldn't update your page layout",
       });
     } finally {
-      // Reset the flag after a short delay to allow the re-render to complete
-      setTimeout(() => {
-        isUpdatingLayout.current = false;
-      }, 100);
+      isUpdatingLayout.current = false;
     }
+  }, [pageId, mutateLayout, toast]);
+
+  // Handle layout changes during drag/resize - only updates local state for visual feedback
+  // Does NOT save to server - that happens in onDragStop/onResizeStop
+  const handleLayoutChange = useCallback((
+    newLayout: Layout[],
+    _currentLayouts: Layouts
+  ) => {
+    // Skip until mounted or user has interacted
+    if (!hasMounted.current && !hasUserInteracted.current) {
+      return;
+    }
+
+    // Skip if we're in the middle of a server update
+    if (isUpdatingLayout.current) {
+      return;
+    }
+
+    if (newLayout.length === 0 || !workingLayout) {
+      return;
+    }
+
+    const validLayout = validateLayout(newLayout);
+    if (!validLayout) {
+      return;
+    }
+
+    // Update local working state for immediate visual feedback
+    const nextWorkingLayout = {
+      xxs: editLayoutMode === 'mobile' ? validLayout : workingLayout.xxs,
+      sm: editLayoutMode === 'desktop' ? validLayout : workingLayout.sm,
+    };
+
+    setWorkingLayout(nextWorkingLayout);
+  }, [workingLayout, editLayoutMode, validateLayout]);
+
+  // Handle drag/resize END - this is when we actually save to server
+  const handleDragStop: ItemCallback = useCallback((newLayout, _oldItem, _newItem) => {
+    if (!workingLayout) return;
+
+    const validLayout = validateLayout(newLayout);
+    if (!validLayout) return;
+
+    const currentLayout = editLayoutMode === 'mobile' ? workingLayout.xxs : workingLayout.sm;
+
+    // Check if layout actually changed
+    const hasChanged = JSON.stringify(validLayout.map(l => ({ i: l.i, x: l.x, y: l.y, w: l.w, h: l.h }))) !==
+      JSON.stringify(currentLayout.map(l => ({ i: l.i, x: l.x, y: l.y, w: l.w, h: l.h })));
+
+    if (!hasChanged) return;
+
+    const nextLayout = {
+      xxs: editLayoutMode === 'mobile' ? validLayout : workingLayout.xxs,
+      sm: editLayoutMode === 'desktop' ? validLayout : workingLayout.sm,
+    };
+
+    setWorkingLayout(nextLayout);
+    saveLayoutToServer(nextLayout);
+  }, [workingLayout, editLayoutMode, validateLayout, saveLayoutToServer]);
+
+  const handleResizeStop: ItemCallback = useCallback((newLayout, _oldItem, _newItem) => {
+    if (!workingLayout) return;
+
+    const validLayout = validateLayout(newLayout);
+    if (!validLayout) return;
+
+    const currentLayout = editLayoutMode === 'mobile' ? workingLayout.xxs : workingLayout.sm;
+
+    // Check if layout actually changed
+    const hasChanged = JSON.stringify(validLayout.map(l => ({ i: l.i, x: l.x, y: l.y, w: l.w, h: l.h }))) !==
+      JSON.stringify(currentLayout.map(l => ({ i: l.i, x: l.x, y: l.y, w: l.w, h: l.h })));
+
+    if (!hasChanged) return;
+
+    const nextLayout = {
+      xxs: editLayoutMode === 'mobile' ? validLayout : workingLayout.xxs,
+      sm: editLayoutMode === 'desktop' ? validLayout : workingLayout.sm,
+    };
+
+    setWorkingLayout(nextLayout);
+    saveLayoutToServer(nextLayout);
+  }, [workingLayout, editLayoutMode, validateLayout, saveLayoutToServer]);
+
+  const handleDragStart = () => {
+    hasUserInteracted.current = true;
+  };
+
+  const handleResizeStart = () => {
+    hasUserInteracted.current = true;
   };
 
   const editableLayoutProps: ResponsiveProps = {
     ...layoutProps,
     onDrop: handleAddNewBlock,
     onLayoutChange: handleLayoutChange,
+    onDragStart: handleDragStart,
+    onDragStop: handleDragStop,
+    onResizeStart: handleResizeStart,
+    onResizeStop: handleResizeStop,
     droppingItem: draggingItem,
     draggableCancel: '.noDrag',
     useCSSTransforms: true,
@@ -329,11 +365,11 @@ export function EditWrapper({ children, layoutProps }: Props) {
           {...editableLayoutProps}
           className="!overflow-auto w-full min-h-[100vh]"
           layouts={{
-            lg: layout?.sm ?? [],
-            md: layout?.sm ?? [],
-            sm: layout?.sm ?? [],
-            xs: layout?.sm ?? [],
-            xxs: layout?.xxs ?? [],
+            lg: workingLayout?.sm ?? [],
+            md: workingLayout?.sm ?? [],
+            sm: workingLayout?.sm ?? [],
+            xs: workingLayout?.sm ?? [],
+            xxs: workingLayout?.xxs ?? [],
           }}
         >
           {optimisticItems}

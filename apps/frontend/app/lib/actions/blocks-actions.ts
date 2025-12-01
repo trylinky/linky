@@ -14,7 +14,8 @@ import { headers } from 'next/headers';
 
 export async function addBlock(
   block: { type: string; id: string },
-  pageSlug: string
+  pageSlug: string,
+  layoutConfig?: { x: number; y: number; w: number; h: number; minW?: number; minH?: number }
 ) {
   const session = await getSession({
     fetchOptions: { headers: await headers() },
@@ -63,7 +64,7 @@ export async function addBlock(
     };
   }
 
-  const newBlock = await createBlockService(block, pageSlug);
+  const newBlock = await createBlockService(block, pageSlug, layoutConfig);
 
   posthog?.capture({
     distinctId: user.id,

@@ -33,22 +33,60 @@ export async function getBlockById(blockId: string) {
 
 export async function createBlock(
   block: { type: string; id: string },
-  pageSlug: string
+  pageSlug: string,
+  layoutConfig?: { x: number; y: number; w: number; h: number; minW?: number; minH?: number }
 ) {
   const defaultData = blocks[block.type as Blocks].defaults;
 
-  const newBlock = await prisma.block.create({
-    data: {
-      type: block.type,
-      id: block.id,
-      config: {},
-      data: defaultData,
-      page: {
-        connect: {
-          slug: pageSlug,
+  // Use a transaction to atomically create the block and update the page layout
+  const newBlock = await prisma.$transaction(async (tx) => {
+    // Create the block
+    const createdBlock = await tx.block.create({
+      data: {
+        type: block.type,
+        id: block.id,
+        config: {},
+        data: defaultData,
+        page: {
+          connect: {
+            slug: pageSlug,
+          },
         },
       },
-    },
+    });
+
+    // If layout config is provided, update the page's layout
+    if (layoutConfig) {
+      const page = await tx.page.findUnique({
+        where: { slug: pageSlug },
+        select: { config: true, mobileConfig: true },
+      });
+
+      if (page) {
+        const newLayoutItem = {
+          i: block.id,
+          x: layoutConfig.x,
+          y: layoutConfig.y,
+          w: layoutConfig.w,
+          h: layoutConfig.h,
+          minW: layoutConfig.minW ?? 4,
+          minH: layoutConfig.minH ?? 2,
+        };
+
+        const currentConfig = (page.config as JsonValue[]) ?? [];
+        const currentMobileConfig = (page.mobileConfig as JsonValue[]) ?? [];
+
+        await tx.page.update({
+          where: { slug: pageSlug },
+          data: {
+            config: [...currentConfig, newLayoutItem],
+            mobileConfig: [...currentMobileConfig, newLayoutItem],
+          },
+        });
+      }
+    }
+
+    return createdBlock;
   });
 
   return newBlock;
