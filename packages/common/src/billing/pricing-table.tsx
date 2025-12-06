@@ -31,24 +31,24 @@ import useSWR from 'swr';
 
 const tiers = [
   // {
-  //   name: 'Free',
+  //   name: 'Kostenlos',
   //   id: 'free',
-  //   description: 'The best way to get started',
+  //   description: 'Der beste Start',
   //   priceMonthly: '0',
-  //   billingPeriod: 'free forever',
+  //   billingPeriod: 'immer kostenlos',
   //   highlights: [
-  //     { description: 'Your own page', icon: GlobeAltIcon },
-  //     { description: 'Add up to 5 blocks', icon: CubeIcon },
+  //     { description: 'Deine eigene Seite', icon: GlobeAltIcon },
+  //     { description: 'Bis zu 5 Blöcke', icon: CubeIcon },
   //     {
-  //       description: 'Instagram integration',
+  //       description: 'Instagram Integration',
   //       icon: PuzzlePieceIcon,
   //     },
   //     {
-  //       description: 'Spotify integration',
+  //       description: 'Spotify Integration',
   //       icon: PuzzlePieceIcon,
   //     },
   //     {
-  //       description: 'Custom themes',
+  //       description: 'Eigene Designs',
   //       icon: PaintBrushIcon,
   //     },
   //   ],
@@ -56,34 +56,34 @@ const tiers = [
   {
     name: 'Premium',
     id: 'premium',
-    badge: 'Popular',
-    description: 'For creators and creatives',
+    badge: 'Beliebt',
+    description: 'Für Tagesmütter und Väter',
     priceMonthly: '4',
-    billingPeriod: 'per month',
+    billingPeriod: 'pro Monat',
     highlights: [
-      { description: 'Custom domains', icon: GlobeAltIcon },
-      { description: 'Unlimited pages', icon: CubeTransparentIcon },
-      { description: 'Unlimited blocks', icon: CubeIcon },
-      { description: 'Verification badge', icon: CheckBadgeIcon },
-      { description: 'Private pages', icon: LockClosedIcon },
-      { description: 'Analytics', icon: ArrowTrendingUpIcon },
+      { description: 'Eigene Webadresse', icon: GlobeAltIcon },
+      { description: 'Unbegrenzte Seiten', icon: CubeTransparentIcon },
+      { description: 'Unbegrenzte Inhalte', icon: CubeIcon },
+      { description: 'Verifizierungs-Abzeichen', icon: CheckBadgeIcon },
+      { description: 'Passwortgeschützte Seiten', icon: LockClosedIcon },
+      { description: 'Besucher-Statistik', icon: ArrowTrendingUpIcon },
     ],
   },
   {
     name: 'Team',
     id: 'team',
-    description: 'For teams & agencies',
+    description: 'Für Großtagespflege & Teams',
     priceMonthly: '14',
-    billingPeriod: 'per month',
+    billingPeriod: 'pro Monat',
     highlights: [
-      { description: 'All Premium features', icon: ArrowUpIcon },
-      { description: 'A separate team space', icon: UsersIcon },
-      { description: 'Invite up to 5 team members', icon: UserPlusIcon },
+      { description: 'Alle Premium-Funktionen', icon: ArrowUpIcon },
+      { description: 'Separater Team-Bereich', icon: UsersIcon },
+      { description: 'Bis zu 5 Mitglieder einladen', icon: UserPlusIcon },
       {
-        description: 'Google Analytics integration',
+        description: 'Google Analytics Integration',
         icon: ArrowTrendingDownIcon,
       },
-      { description: 'Facebook Pixel integration', icon: HandThumbUpIcon },
+      { description: 'Facebook Pixel Integration', icon: HandThumbUpIcon },
     ],
   },
 ];
@@ -243,7 +243,7 @@ export function PricingTable({
             disabled={true}
             className="w-full rounded-full bg-black text-white hover:bg-gray-800"
           >
-            Unable to downgrade
+            Downgrade nicht möglich
           </Button>
         );
       }
@@ -257,7 +257,7 @@ export function PricingTable({
             onClick={handleAddPaymentMethod}
             disabled={isLoading}
           >
-            {isLoading ? 'Loading' : 'Add Payment Method'}
+            {isLoading ? 'Laden...' : 'Zahlungsmethode hinzufügen'}
           </Button>
         );
       }
@@ -274,7 +274,7 @@ export function PricingTable({
             disabled={upgradeEligibility?.currentPlan !== tier.id || isLoading}
             className="w-full rounded-full bg-black text-white hover:bg-gray-800"
           >
-            {isLoading ? 'Loading' : 'Complete Trial'}
+            {isLoading ? 'Laden...' : 'Testphase abschließen'}
           </Button>
         );
       }
@@ -288,7 +288,7 @@ export function PricingTable({
           className="w-full rounded-full bg-black text-white hover:bg-gray-800"
           onClick={() => handleUpgrade(tier.id)}
         >
-          Upgrade to {tier.name}
+          Upgrade auf {tier.name}
         </Button>
       );
     }
@@ -304,7 +304,7 @@ export function PricingTable({
           disabled={true}
           className="w-full rounded-full bg-black text-white hover:bg-gray-800"
         >
-          No upgrade available
+          Kein Upgrade verfügbar
         </Button>
       );
     }
@@ -317,7 +317,7 @@ export function PricingTable({
           disabled={true}
           className="w-full rounded-full bg-black text-white hover:bg-gray-800"
         >
-          No upgrade available
+          Kein Upgrade verfügbar
         </Button>
       );
     }
@@ -330,7 +330,7 @@ export function PricingTable({
           disabled={true}
           className="w-full rounded-full"
         >
-          Your Current Plan
+          Dein aktueller Plan
         </Button>
       );
     }
@@ -343,7 +343,7 @@ export function PricingTable({
           disabled={true}
           className="w-full rounded-full"
         >
-          Your Current Plan
+          Dein aktueller Plan
         </Button>
       );
     }
@@ -356,7 +356,7 @@ export function PricingTable({
           className="w-full rounded-full bg-black text-white hover:bg-gray-800"
           onClick={() => handleUpgrade(tier.id)}
         >
-          {isLoading ? 'Loading' : 'Upgrade to Team'}
+          {isLoading ? 'Laden...' : 'Upgrade auf Team'}
         </Button>
       );
     }
@@ -367,32 +367,31 @@ export function PricingTable({
       {subscriptionData?.periodEnd && (
         <Alert className="rounded-2xl border-none shadow-sm ring-1 ring-gray-200 mb-8">
           <AlertTitle className="text-lg font-medium">
-            Subscription ending soon
+            Abo endet bald
           </AlertTitle>
           <AlertDescription>
-            Your subscription has been cancelled and is scheduled to end on{' '}
-            {new Date(subscriptionData.periodEnd).toLocaleDateString()}
+            Dein Abo wurde gekündigt und endet am{' '}
+            {new Date(subscriptionData.periodEnd).toLocaleDateString('de-DE')}
           </AlertDescription>
         </Alert>
       )}
       {upgradeEligibility?.nextStep === 'completeTrial' && (
         <Alert className="rounded-2xl border-none shadow-sm ring-1 ring-gray-200 mb-8">
           <AlertTitle className="text-lg font-medium">
-            You have an active trial
+            Du hast eine aktive Testphase
           </AlertTitle>
           <AlertDescription>
-            Clicking "Complete Trial" will upgrade your account.
+            Klicke auf "Testphase abschließen", um dein Konto upzugraden.
           </AlertDescription>
         </Alert>
       )}
       {upgradeEligibility?.nextStep === 'addPaymentMethod' && (
         <Alert className="rounded-2xl border-none shadow-sm ring-1 ring-gray-200 mb-8">
           <AlertTitle className="text-lg font-medium">
-            You are currently on a free trial
+            Du bist aktuell im kostenlosen Testzeitraum
           </AlertTitle>
           <AlertDescription>
-            If you would like to upgrade, please add a payment method first by
-            clicking below.
+            Wenn du upgraden möchtest, füge bitte zuerst unten eine Zahlungsmethode hinzu.
           </AlertDescription>
         </Alert>
       )}
@@ -400,12 +399,11 @@ export function PricingTable({
         subscriptionData?.isTeamPremium && (
           <Alert className="rounded-2xl border-none shadow-sm ring-1 ring-gray-200 mb-8">
             <AlertTitle className="text-lg font-medium">
-              Your premium subscription is managed by your team
+              Dein Premium-Abo wird vom Team verwaltet
             </AlertTitle>
             <AlertDescription>
-              Your personal team has a premium subscription due to being
-              associated with a team on the Linky Team plan. There are no
-              further upgrades available for your personal team!
+              Dein Account hat Premium-Status durch eine Kiko-Mitgliedschaft. 
+              Keine weiteren Upgrades verfügbar!
             </AlertDescription>
           </Alert>
         )}
@@ -454,7 +452,7 @@ export function PricingTable({
                           size="lg"
                           className="w-full rounded-full bg-black text-white hover:bg-gray-800"
                         >
-                          Get started
+                          Jetzt starten
                         </Button>
                       }
                     />
@@ -484,18 +482,18 @@ export function PricingTable({
         subscriptionData?.plan !== 'freeLegacy' && (
           <Alert className="rounded-2xl border-none shadow-sm ring-1 ring-gray-200 mt-4">
             <AlertTitle className="text-base font-medium">
-              Cancel Subscription
+              Abo kündigen
             </AlertTitle>
             <AlertDescription className="text-sm">
-              Looking to cancel your subscription?{' '}
+              Möchtest du dein Abo kündigen?{' '}
               <Button
                 variant="link"
                 className="px-0"
                 onClick={handleCancelSubscription}
               >
-                Click here
+                Klicke hier
               </Button>{' '}
-              to manage it via Stripe.
+              , um es über Stripe zu verwalten.
             </AlertDescription>
           </Alert>
         )}

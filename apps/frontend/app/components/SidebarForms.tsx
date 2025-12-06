@@ -1,3 +1,4 @@
+import { DraggableBlockButton } from '@/app/components/DraggableBlockButton';
 import {
   SidebarContentHeader,
   SidebarGroup,
@@ -7,15 +8,16 @@ import {
 export function SidebarForms() {
   return (
     <>
-      <SidebarContentHeader title="Forms"></SidebarContentHeader>
+      <SidebarContentHeader title="Forms" />
 
       <SidebarGroup>
         <SidebarGroupContent>
-          <div className="w-full aspect-square bg-stone-200 rounded-lg flex items-center justify-center">
-            <span className="text-muted-foreground text-sm text-center px-8 text-pretty">
-              Build forms to collect data from your users! Send an email to
-              team@lin.ky to request access
-            </span>
+          <div className="flex flex-col gap-4">
+            <p className="text-sm text-muted-foreground px-2">
+              Use a form to collect email addresses from your visitors. Currently,
+              we support <strong>getwaitlist.com</strong> integration.
+            </p>
+            <DraggableBlockButton type="waitlist-email" />
           </div>
         </SidebarGroupContent>
       </SidebarGroup>
