@@ -80,24 +80,23 @@ function ScrollingColumn({
 
 export function CallToActionBlock() {
   return (
-    <div className="bg-[#e3dfd2] rounded-xl overflow-hidden">
-      <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-8">
-        <div className="flex-1 flex flex-col gap-2 col-span-1 max-w-md py-8 md:py-16 px-8">
-          <h2 className="text-3xl md:text-4xl font-black tracking-tight">
-            Let&apos;s build your page
+    <div className="bg-[#e3dfd2] rounded-3xl overflow-hidden shadow-2xl">
+      <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-0">
+        <div className="flex-1 flex flex-col gap-6 col-span-1 py-12 px-8 md:p-16 relative z-10 bg-[#e3dfd2]/90 backdrop-blur-sm lg:bg-transparent">
+          <h2 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900">
+            Hol dir deine Freiheit zurück.
           </h2>
-          <p className="text-base md:text-xl">
-            Creating your first page and getting it live takes a matter of
-            minutes. Let&apos;s start with your username.
+          <p className="text-lg md:text-xl text-slate-700 leading-relaxed">
+            Erstelle in unter 30 Minuten eine professionelle Kiko-Seite direkt von deinem Handy, mit der du freie Plätze füllst, digitale Angebote verkaufst und strukturierte Anfragen erhältst – ohne Technikstress.
           </p>
 
-          <div className="mt-6">
-            <div className="w-full md:w-auto inline-flex flex-row items-center rounded-full bg-white pl-4 border border-slate-200 shadow-sm">
-              <span className="text-slate-600 font-medium">lin.ky/</span>
+          <div className="mt-4">
+            <div className="w-full inline-flex flex-row items-center rounded-full bg-white pl-4 border border-slate-200 shadow-lg p-1">
+              <span className="text-slate-500 font-medium pl-2 hidden sm:inline">kiko/</span>
               <input
                 type="text"
-                placeholder="name"
-                className="bg-transparent border-0 px-0 focus:outline-none focus:ring-0 rounded-full w-full"
+                placeholder="dein-name"
+                className="bg-transparent border-0 px-2 focus:outline-none focus:ring-0 rounded-full w-full text-slate-900 placeholder:text-slate-400"
               />
               <LoginWidget
                 isSignup
@@ -105,24 +104,28 @@ export function CallToActionBlock() {
                   <Button
                     variant="default"
                     size="xl"
-                    className="font-bold flex group rounded-full px-6 md:px-10"
+                    className="font-bold flex group rounded-full px-6 md:px-8 py-6 text-lg shrink-0"
                   >
-                    Claim Page
-                    <ArrowRightIcon className="w-5 h-5 ml-2 -mr-6 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 group-hover:-mr-4 transition-all ease-in-out duration-200" />
+                    Jetzt Profil erstellen
+                    <ArrowRightIcon className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 }
               />
             </div>
+             <p className="text-xs text-slate-500 mt-4 leading-normal opacity-80 max-w-md">
+                <strong className="font-semibold">100% Zufriedenheits-Garantie:</strong> Wenn deine Seite nach 30 Tagen nicht online ist und du keine einzige Anfrage über Kiko erhalten hast, erhältst du dein Geld zurück.
+             </p>
           </div>
         </div>
-        <div className="flex-1 w-full h-[400px] relative overflow-hidden bg-[#e3dfd2]">
-          <div className="absolute inset-0 -left-8 flex gap-2 rotate-45">
+        <div className="flex-1 w-full h-[300px] lg:h-[600px] relative overflow-hidden bg-[#e3dfd2]">
+          <div className="absolute inset-0 -left-16 -top-16 w-[150%] h-[150%] flex gap-4 rotate-12 opacity-80 lg:opacity-100">
             <ScrollingColumn delay={0} />
             <ScrollingColumn delay={1} reverse />
             <ScrollingColumn delay={2} />
             <ScrollingColumn delay={3} reverse />
             <ScrollingColumn delay={4} />
           </div>
+           {/* Fade overlay for mobile text readability if needed, though split layout handles it */}
         </div>
       </div>
     </div>

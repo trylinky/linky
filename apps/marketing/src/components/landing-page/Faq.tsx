@@ -9,52 +9,52 @@ import {
 
 const landingPageQuestions = [
   {
-    question: 'What is Linky?',
+    question: 'Brauche ich technisches Wissen?',
     answer:
-      "Linky is a single link that you can use to house all the links to your social media profiles, websites, and other content. It's a great way to share all your content in one place, whether it be your favourite songs on Spotify, or a link to your latest products.",
+      'Nein, überhaupt nicht. Kiko ist so einfach wie WhatsApp. Du wirst Schritt für Schritt durchgeleitet.',
   },
   {
-    question: 'What does link in bio mean?',
+    question: 'Was kostet Kiko?',
     answer:
-      "A link in bio is a single link that you can use to house all of the links that you want to share with your audience. Whether you're a creator sharing links to your social media profiles, or a business sharing links to your products and services, a link in bio is a great way to share all your content in one place.",
+      'Du kannst mit einer kostenlosen Basis-Version starten. Für erweiterte Funktionen (wie den Verkauf von Produkten) gibt es faire Abo-Modelle.',
   },
   {
-    question: 'Why do I need Linky?',
+    question: 'Was passiert mit meinen Daten?',
     answer:
-      'Linky is a singular link solution designed to bridge your audience to every aspect of your digital presence—encompassing who you are, what you do, and what matters to you. It simplifies the sharing process by consolidating multiple links into one, ensuring that your followers, visitors, and customers can effortlessly access all they need in a single location.',
+      'Deine Daten und die der Kinder sind sicher. Wir hosten auf deutschen Servern und sind 100% DSGVO-konform.',
   },
   {
-    question: 'Is it free?',
+    question: 'Können Eltern mich einfach so buchen?',
     answer:
-      'We stopped offering free pages earlier this year, however our pricing starts from only $4 per month.',
+      'Nein. Eltern stellen eine Anfrage. Du entscheidest immer selbst, wen du kennenlernen und aufnehmen möchtest.',
   },
   {
-    question: 'Can I use my own domain?',
+    question: 'Ist die Suche für Eltern kostenlos?',
     answer:
-      "We're currently rolling out custom domains to a select group of users. If you're interested in trying it out, please reach out to us.",
+      'Ja, Eltern können Kiko komplett kostenlos nutzen, um Betreuungsplätze zu finden.',
   },
 ];
 
 const pricingQuestions = [
   {
-    question: 'What is Linky?',
+    question: 'Was ist Kiko?',
     answer:
-      "Linky is a single link that you can use to house all the links to your social media profiles, websites, and other content. It's a great way to share all your content in one place, whether it be your favourite songs on Spotify, or a link to your latest products.",
+      "Kiko ist deine digitale Visitenkarte und Organisationshilfe. Hier kannst du dich präsentieren, freie Plätze ausschreiben und Anfragen verwalten – alles einfach per Handy.",
   },
   {
-    question: 'Do you offer yearly pricing?',
+    question: 'Gibt es eine jährliche Abrechnung?',
     answer:
-      'For teams that require a more tailored solution, we are happy to offer a more custom billing solution. Please reach out to us to discuss your needs.',
+      'Ja, wir bieten attraktive Rabatte, wenn du dich für eine jährliche Zahlung entscheidest.',
   },
   {
-    question: 'I am an agency, can I use Linky for my clients?',
+    question: 'Kann ich Kiko als Großtagespflege nutzen?',
     answer:
-      "Yes, you can use Linky for your clients. You would be best suited for the team plan where you can invite your teammates to manage your clients' pages. We also offer the ability to create separate team spaces for each of your clients, where you can manage their pages. Please reach out to us to discuss your needs.",
+      "Ja, absolut. Kiko eignet sich hervorragend für Zusammenschlüsse. Ihr könnt euch gemeinsam präsentieren oder separate Profile erstellen.",
   },
   {
-    question: 'What methods of payment do you support?',
+    question: 'Welche Zahlungsmethoden werden akzeptiert?',
     answer:
-      'We use Stripe as our payment processor. They support all major credit cards, as well as a number of other country specific payment methods.',
+      'Wir nutzen sicherere Zahlungsanbieter und akzeptieren alle gängigen Kreditkarten, PayPal und Lastschrift.',
   },
 ];
 

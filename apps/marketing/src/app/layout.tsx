@@ -15,28 +15,28 @@ const seasonFont = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'Linky - A delightfully rich link-in-bio.',
+  title: 'Kiko - Die kreative Lösung für Tagesmütter und Väter',
   description:
-    'Create your own dynamic link in bio page effortlessly with Linky, the personal page builder designed to help you stand out and connect with your audience.',
-  metadataBase: new URL('https://lin.ky'),
+    'Erstelle deine eigene professionelle Seite in Minuten. Kiko hilft dir, dich zu präsentieren, Anfragen zu verwalten und mehr Zeit für die Kinder zu haben.',
+  metadataBase: new URL('https://kiko.app'),
   openGraph: {
     images: [
       {
-        url: 'https://lin.ky/assets/og.png',
+        url: 'https://kiko.app/assets/og.png',
       },
     ],
     type: 'website',
-    url: 'https://lin.ky',
-    title: 'Linky',
+    url: 'https://kiko.app',
+    title: 'Kiko',
     description:
-      'Create your own dynamic link in bio page effortlessly with Linky, the personal page builder designed to help you stand out and connect with your audience.',
-    siteName: 'Linky',
+      'Erstelle deine eigene professionelle Seite in Minuten. Kiko hilft dir, dich zu präsentieren, Anfragen zu verwalten und mehr Zeit für die Kinder zu haben.',
+    siteName: 'Kiko',
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@trylinky',
-    creator: '@trylinky',
-    images: 'https://lin.ky/assets/og.png',
+    site: '@kiko',
+    creator: '@kiko',
+    images: 'https://kiko.app/assets/og.png',
   },
 };
 
@@ -46,7 +46,7 @@ export default async function RootLayout({
   children: ReactNode;
 }) {
   return (
-    <html lang="en" className={seasonFont.className}>
+    <html lang="de" className={seasonFont.className} suppressHydrationWarning>
       <head>
         {process.env.NODE_ENV === 'production' && (
           <Script
@@ -62,14 +62,14 @@ export default async function RootLayout({
             <LoginWidget
               trigger={
                 <Button variant="ghost" className="block rounded-full">
-                  Log in
+                  Anmelden
                 </Button>
               }
             />
             <LoginWidget
               isSignup
               trigger={
-                <Button className="block rounded-full">Get started</Button>
+                <Button className="block rounded-full">Kostenlos starten</Button>
               }
             />
           </>
