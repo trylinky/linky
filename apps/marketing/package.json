@@ -20,6 +20,7 @@
     "@trylinky/ui": "workspace:*",
     "@vercel/analytics": "^1.5.0",
     "better-auth": "^1.4.3",
+    "framer-motion": "^12.0.0-alpha.1",
     "graphql-request": "^7.1.2",
     "next": "16.0",
     "react": "^19.0.0",
@@ -29,6 +30,8 @@
   },
   "devDependencies": {
     "@graphcms/rich-text-types": "^0.5.1",
+    "@trylinky/prisma": "workspace:*",
+    "@types/mdx": "^2.0.13",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "autoprefixer": "^10.4.20",

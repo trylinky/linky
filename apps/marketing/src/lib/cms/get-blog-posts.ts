@@ -1,4 +1,4 @@
-import { client } from '@/lib/cms/client';
+import { client, isCmsEnabled } from '@/lib/cms/client';
 import { BlogPost } from '@/lib/cms/types';
 
 interface BlogPostResponse {
@@ -9,7 +9,6 @@ const GET_POST_QUERY = `
   query GetBlogPosts {
     blogPosts(orderBy: displayedPublishedAt_DESC, first: 50) {
       title
-      author
       author
       displayedPublishedAt
       description
@@ -22,6 +21,10 @@ const GET_POST_QUERY = `
 `;
 
 export async function getBlogPosts(): Promise<BlogPost[]> {
+  if (!isCmsEnabled) {
+    console.warn('CMS is disabled. Returning empty blog posts.');
+    return [];
+  }
   try {
     const response = await client.request<BlogPostResponse>(GET_POST_QUERY);
 

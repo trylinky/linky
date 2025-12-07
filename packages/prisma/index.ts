@@ -1,6 +1,6 @@
-export { PrismaClient } from './src/generated/client.ts';
-export type { Prisma } from './src/generated/client.ts';
+export { PrismaClient } from './src/generated/client.js';
+export type { Prisma } from './src/generated/client.js';
 export {
   OrchestrationType,
   VerificationRequestStatus,
-} from './src/generated/enums.ts';
+} from './src/generated/enums.js';

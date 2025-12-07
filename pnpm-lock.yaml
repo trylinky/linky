@@ -234,7 +234,7 @@ importers:
         version: 10.4.22(postcss@8.4.47)
       eslint-config-next:
         specifier: 15.0.2
-        version: 15.0.2(eslint@9.39.1(jiti@1.21.7))(typescript@5.6.3)
+        version: 15.0.2(eslint@9.39.1(jiti@2.6.1))(typescript@5.6.3)
       postcss:
         specifier: 8.4.47
         version: 8.4.47
@@ -283,6 +283,9 @@ importers:
       better-auth:
         specifier: ^1.4.3
         version: 1.4.3(next@16.0.5(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.2))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      framer-motion:
+        specifier: ^12.0.0-alpha.1
+        version: 12.23.24(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       graphql-request:
         specifier: ^7.1.2
         version: 7.3.5(graphql@16.12.0)
@@ -305,6 +308,12 @@ importers:
       '@graphcms/rich-text-types':
         specifier: ^0.5.1
         version: 0.5.1
+      '@trylinky/prisma':
+        specifier: workspace:*
+        version: link:../../packages/prisma
+      '@types/mdx':
+        specifier: ^2.0.13
+        version: 2.0.13
       '@types/react':
         specifier: ^19.0.10
         version: 19.0.10
@@ -316,7 +325,7 @@ importers:
         version: 10.4.22(postcss@8.4.47)
       eslint-config-next:
         specifier: 15.0.2
-        version: 15.0.2(eslint@9.39.1(jiti@2.6.1))(typescript@5.6.3)
+        version: 15.0.2(eslint@9.39.1(jiti@1.21.7))(typescript@5.6.3)
       postcss:
         specifier: 8.4.47
         version: 8.4.47
@@ -5995,6 +6004,7 @@ packages:
   next@15.1.2:
     resolution: {integrity: sha512-nLJDV7peNy+0oHlmY2JZjzMfJ8Aj0/dd3jCwSZS8ZiO5nkQfcZRqDrRN3U5rJtqVTQneIOGZzb6LCNrk7trMCQ==}
     engines: {node: ^18.18.0 || ^19.8.0 || >= 20.0.0}
+    deprecated: This version has a security vulnerability. Please upgrade to a patched version. See https://nextjs.org/blog/CVE-2025-66478 for more details.
     hasBin: true
     peerDependencies:
       '@opentelemetry/api': ^1.1.0
@@ -6016,6 +6026,7 @@ packages:
   next@16.0.5:
     resolution: {integrity: sha512-XUPsFqSqu/NDdPfn/cju9yfIedkDI7ytDoALD9todaSMxk1Z5e3WcbUjfI9xsanFTys7xz62lnRWNFqJordzkQ==}
     engines: {node: '>=20.9.0'}
+    deprecated: This version has a security vulnerability. Please upgrade to a patched version. See https://nextjs.org/blog/CVE-2025-66478 for more details.
     hasBin: true
     peerDependencies:
       '@opentelemetry/api': ^1.1.0

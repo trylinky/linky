@@ -7,7 +7,7 @@ import {
   StackMockup,
 } from '@/components/landing-page/ui-mockups';
 import { MarketingContainer } from '@/components/marketing-container';
-import { JsonValue } from '@prisma/client/runtime/library';
+import { Prisma } from '@trylinky/prisma';
 
 export type HSLColor = {
   h: number;
@@ -78,7 +78,7 @@ export const defaultThemeSeeds: Record<string, any> = {
   },
 };
 
-export const themeColorToCssValue = (color?: JsonValue): string => {
+export const themeColorToCssValue = (color?: Prisma.JsonValue): string => {
   if (!color) return '';
   const colorAsHsl = color as HSLColor;
   return `${colorAsHsl.h}deg ${colorAsHsl.s * 100}% ${colorAsHsl.l * 100}%`;
