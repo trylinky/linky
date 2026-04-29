@@ -157,9 +157,9 @@ export const updatePageLayoutSchema = {
     200: {
       type: 'object',
       properties: {
-        id: {
-          type: 'string',
-        },
+        id: { type: 'string' },
+        sm: {},
+        xxs: {},
       },
     },
   },

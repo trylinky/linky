@@ -142,10 +142,16 @@ export async function updatePageLayout(
     },
     select: {
       id: true,
+      config: true,
+      mobileConfig: true,
     },
   });
 
-  return updatedPage;
+  return {
+    id: updatedPage.id,
+    sm: updatedPage.config,
+    xxs: updatedPage.mobileConfig,
+  };
 }
 
 export async function checkUserHasAccessToPage(pageId: string, userId: string) {

@@ -216,7 +216,10 @@ export function EditWrapper({ children, layoutProps }: Props) {
           return;
         }
 
-        mutateLayout(nextLayout, { revalidate: false });
+        mutateLayout(
+          { sm: response.sm, xxs: response.xxs },
+          { revalidate: false }
+        );
       } catch (error) {
         captureException(error);
         toast({
