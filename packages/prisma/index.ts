@@ -1,4 +1,35 @@
 export { PrismaClient } from './src/generated/client.ts';
 export type { Prisma } from './src/generated/client.ts';
-export * from './src/generated/models.ts';
 export * from './src/generated/enums.ts';
+
+import type { AccountModel } from './src/generated/models/Account.ts';
+import type { BlockModel } from './src/generated/models/Block.ts';
+import type { IntegrationModel } from './src/generated/models/Integration.ts';
+import type { InvitationModel } from './src/generated/models/Invitation.ts';
+import type { MemberModel } from './src/generated/models/Member.ts';
+import type { OrchestrationModel } from './src/generated/models/Orchestration.ts';
+import type { OrganizationModel } from './src/generated/models/Organization.ts';
+import type { PageModel } from './src/generated/models/Page.ts';
+import type { SessionModel } from './src/generated/models/Session.ts';
+import type { SubscriptionModel } from './src/generated/models/Subscription.ts';
+import type { ThemeModel } from './src/generated/models/Theme.ts';
+import type { UserModel } from './src/generated/models/User.ts';
+import type { UserFlagModel } from './src/generated/models/UserFlag.ts';
+import type { VerificationModel } from './src/generated/models/Verification.ts';
+import type { VerificationRequestModel } from './src/generated/models/VerificationRequest.ts';
+
+export type Account = AccountModel;
+export type Block = BlockModel;
+export type Integration = IntegrationModel;
+export type Invitation = InvitationModel;
+export type Member = MemberModel;
+export type Orchestration = OrchestrationModel;
+export type Organization = OrganizationModel;
+export type Page = PageModel;
+export type Session = SessionModel;
+export type Subscription = SubscriptionModel;
+export type Theme = ThemeModel;
+export type User = UserModel;
+export type UserFlag = UserFlagModel;
+export type Verification = VerificationModel;
+export type VerificationRequest = VerificationRequestModel;
