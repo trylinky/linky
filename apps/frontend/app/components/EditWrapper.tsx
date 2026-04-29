@@ -200,6 +200,11 @@ export function EditWrapper({ children, layoutProps }: Props) {
       }
     }
 
+    // Update the cache immediately so react-grid-layout keeps the user's
+    // new positions on the next render and doesn't snap back while we wait
+    // to save.
+    mutateLayout(nextLayout, { revalidate: false });
+
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(async () => {
       try {
@@ -216,8 +221,14 @@ export function EditWrapper({ children, layoutProps }: Props) {
           return;
         }
 
+        // Reconcile with the server's canonical layout, but keep the
+        // existing values if the response is missing them so we don't
+        // clobber the optimistic update with undefined.
         mutateLayout(
-          { sm: response.sm, xxs: response.xxs },
+          (current) => ({
+            sm: response.sm ?? current?.sm ?? nextLayout.sm,
+            xxs: response.xxs ?? current?.xxs ?? nextLayout.xxs,
+          }),
           { revalidate: false }
         );
       } catch (error) {
