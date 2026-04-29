@@ -13,6 +13,7 @@ import {
   useEffect,
   useMemo,
   useOptimistic,
+  useRef,
   useTransition,
 } from 'react';
 import {
@@ -142,17 +143,18 @@ export function EditWrapper({ children, layoutProps }: Props) {
     });
   };
 
-  // Function to handle layout changes
-  const handleLayoutChange = async (
-    newLayout: Layout[],
-    currentLayouts: Layouts
-  ) => {
-    // If the new layout is empty or there's no existing layout, exit early
-    if (newLayout.length === 0 || !layout) {
-      return;
-    }
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    // Helper function to sort and normalize layout for comparison
+  useEffect(() => {
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  }, []);
+
+  const handleLayoutChange = (newLayout: Layout[], _currentLayouts: Layouts) => {
+    if (newLayout.length === 0 || !layout) return;
+    if (newLayout.some((block) => block.i === 'tmp-block')) return;
+
     const sortAndNormalizeLayout = (layout: Layout[]) => {
       return layout
         .sort((a, b) => a.i.localeCompare(b.i))
@@ -167,7 +169,6 @@ export function EditWrapper({ children, layoutProps }: Props) {
         );
     };
 
-    // Stringify sorted layouts for comparison
     const sortedNewLayout = JSON.stringify(sortAndNormalizeLayout(newLayout));
     const sortedLayout = JSON.stringify(
       sortAndNormalizeLayout(
@@ -175,25 +176,14 @@ export function EditWrapper({ children, layoutProps }: Props) {
       )
     );
 
-    // If layouts are the same, no need to update
-    if (sortedNewLayout === sortedLayout) {
-      return;
-    }
+    if (sortedNewLayout === sortedLayout) return;
 
-    // If there's a temporary block, exit early
-    if (newLayout.some((block) => block.i === 'tmp-block')) {
-      return;
-    }
-
-    // Prepare the next layout based on the edit mode
     const nextLayout = {
       xxs: editLayoutMode === 'mobile' ? newLayout : layout.xxs,
       sm: editLayoutMode === 'desktop' ? newLayout : layout.sm,
     };
 
-    // Handle cases where a new block might have been added
     if (newLayout.length !== (layout.xxs.length || layout.sm.length)) {
-      // Find the new block
       const difference = newLayout.filter((item) => {
         if (editLayoutMode === 'mobile') {
           return !layout.xxs.some((item2) => item2.i === item.i);
@@ -201,7 +191,6 @@ export function EditWrapper({ children, layoutProps }: Props) {
         return !layout.sm.some((item2) => item2.i === item.i);
       });
 
-      // If there's exactly one new block, add it to the other layout
       if (difference.length === 1) {
         if (editLayoutMode === 'mobile') {
           nextLayout.sm.push(difference[0]);
@@ -211,33 +200,32 @@ export function EditWrapper({ children, layoutProps }: Props) {
       }
     }
 
-    try {
-      const response = await InternalApi.post(`/pages/${pageId}/layout`, {
-        newLayout: nextLayout,
-      });
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(async () => {
+      try {
+        const response = await InternalApi.post(`/pages/${pageId}/layout`, {
+          newLayout: nextLayout,
+        });
 
-      // Handle server-side errors
-      if (response.error) {
+        if (response.error) {
+          toast({
+            variant: 'error',
+            title: 'Something went wrong',
+            description: response.error.message,
+          });
+          return;
+        }
+
+        mutateLayout(nextLayout, { revalidate: false });
+      } catch (error) {
+        captureException(error);
         toast({
           variant: 'error',
           title: 'Something went wrong',
-          description: response.error.message,
+          description: "We couldn't update your page layout",
         });
-        return;
       }
-
-      // The POST returned the authoritative state; skip the auto-revalidate
-      // so a stale GET can't clobber what we just saved and re-trigger
-      // onLayoutChange in react-grid-layout.
-      mutateLayout(nextLayout, { revalidate: false });
-    } catch (error) {
-      captureException(error);
-      toast({
-        variant: 'error',
-        title: 'Something went wrong',
-        description: "We couldn't update your page layout",
-      });
-    }
+    }, 500);
   };
 
   const editableLayoutProps: ResponsiveProps = {
