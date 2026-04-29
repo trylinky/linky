@@ -79,25 +79,43 @@ export function EditWrapper({ children, layoutProps }: Props) {
   }, [nextToAddBlock]);
 
   const handleAddNewBlock = async (
-    newLayout: Layout[],
+    _newLayout: Layout[],
     layoutItem: any,
     _event: Event | null,
     isMobile?: boolean
   ) => {
-    // Get the last item from the newLayout
-    const lastItem = layoutItem;
+    if (!layout || !pageId) return;
 
     const newItemId = uuidv4();
+    const blockType = isMobile ? layoutItem.type : draggingItem.type;
 
     const newItemConfig: Layout = {
       h: isMobile ? layoutItem.h : draggingItem.h,
       i: newItemId,
       w: isMobile ? layoutItem.w : draggingItem.w,
-      x: isMobile ? 0 : lastItem.x,
-      y: isMobile ? 0 : lastItem.y - 1,
+      x: isMobile ? 0 : layoutItem.x,
+      y: isMobile ? 0 : layoutItem.y - 1,
       minW: 4,
       minH: 2,
     };
+
+    // Build the post-add layout for both breakpoints up front so the
+    // server save and the optimistic cache stay in lockstep.
+    const layoutWithNewBlock = {
+      sm: [...layout.sm, newItemConfig],
+      xxs: [...layout.xxs, newItemConfig],
+    };
+
+    // Cancel any pending resize-debounce save — the drop save below is
+    // authoritative for the layout while the drop is in flight.
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = null;
+    }
+
+    // Optimistically place the block in the SWR cache so the grid renders
+    // it immediately at the dropped position.
+    mutateLayout(layoutWithNewBlock, { revalidate: false });
 
     startTransition(async () => {
       setOptimisticItems([
@@ -120,25 +138,47 @@ export function EditWrapper({ children, layoutProps }: Props) {
         </div>,
       ]);
 
-      const response = await InternalApi.post('/blocks/add', {
-        block: {
-          id: newItemId,
-          type: isMobile ? layoutItem.type : draggingItem.type,
-        },
+      const blockResponse = await InternalApi.post('/blocks/add', {
+        block: { id: newItemId, type: blockType },
         pageSlug: params.slug,
       });
 
-      if (response.error) {
+      if (blockResponse.error) {
         toast({
           variant: 'error',
           title: 'Something went wrong',
-          description: response.error.message,
+          description: blockResponse.error.message,
+        });
+        // Roll back the optimistic layout so the ghost block doesn't linger.
+        mutateLayout(layout, { revalidate: false });
+        return;
+      }
+
+      // Persist the layout with the new block BEFORE router.refresh() so
+      // the server-rendered children and the saved layout agree about
+      // which blocks exist on this page.
+      const layoutResponse = await InternalApi.post(
+        `/pages/${pageId}/layout`,
+        { newLayout: layoutWithNewBlock }
+      );
+
+      if (layoutResponse.error) {
+        toast({
+          variant: 'error',
+          title: 'Something went wrong',
+          description: layoutResponse.error.message,
         });
         return;
       }
 
-      // Refresh the current route and fetch new data from the server without
-      // losing client-side browser or React state.
+      mutateLayout(
+        (current) => ({
+          sm: layoutResponse.sm ?? current?.sm ?? layoutWithNewBlock.sm,
+          xxs: layoutResponse.xxs ?? current?.xxs ?? layoutWithNewBlock.xxs,
+        }),
+        { revalidate: false }
+      );
+
       router.refresh();
     });
   };
