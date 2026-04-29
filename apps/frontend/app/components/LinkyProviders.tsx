@@ -5,7 +5,7 @@ import { StepType, TourProvider, useTour } from '@reactour/tour';
 import { captureException } from '@sentry/nextjs';
 import { fetcher } from '@trylinky/common';
 import { SidebarProvider, Button } from '@trylinky/ui';
-import { ReactNode } from 'react';
+import { ReactNode, useMemo, useState } from 'react';
 import { SWRConfig, SWRConfiguration } from 'swr';
 
 interface Props {
@@ -141,11 +141,16 @@ export const LinkyProviders = ({
   currentUserIsOwner,
   pageId,
 }: Props) => {
-  const cache = new Map();
+  const [cache] = useState(() => new Map());
   cache.set('pageId', pageId);
 
+  const swrValue = useMemo(
+    () => ({ ...value, fetcher, provider: () => cache }),
+    [value, cache]
+  );
+
   return (
-    <SWRConfig value={{ ...value, fetcher, provider: () => cache }}>
+    <SWRConfig value={swrValue}>
       <WithTourProvider>
         <SidebarProvider
           style={
