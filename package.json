@@ -19,6 +19,7 @@
   },
   "scripts": {
     "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
     "dev": "turbo dev",
     "dev:migrate": "dotenvx run -f .env.local -- prisma migrate dev --config ./packages/prisma/prisma.config.ts",
     "dev:seed": "dotenvx run -f .env.local -- tsx ./packages/prisma/prisma/seed.ts",

@@ -45,6 +45,8 @@
     "zod": "^3.2"
   },
   "devDependencies": {
+    "@types/node": "22.8.7",
+    "@types/react": "^19.0.10",
     "fastify-tsconfig": "^2.0.0",
     "typescript": "^5"
   },
@@ -52,6 +54,7 @@
     "dev": "dotenvx run -f ../../.env.local -- tsx watch src",
     "start:api": "node dist/index.js",
     "build:api": "node build.js && pnpm run sentry:sourcemaps",
+    "typecheck": "tsc --noEmit",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject --org hyperdusk --project glow-api ./dist && sentry-cli sourcemaps upload ./dist --org hyperdusk --project glow-api"
   }
 }

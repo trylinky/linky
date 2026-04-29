@@ -289,8 +289,8 @@ const refreshTikTokToken = async (refreshToken: string) => {
       }),
     });
 
-    const data = await response.json();
-    
+    const data = (await response.json()) as any;
+
     if (data.error) {
       captureException(new Error(`TikTok token refresh failed: ${data.error}`));
       return null;
@@ -330,7 +330,7 @@ const fetchTikTokProfile = async ({
       },
     });
 
-    return req.json();
+    return (await req.json()) as any;
   };
 
   let { data, error } = await makeRequest(currentAccessToken);
@@ -338,7 +338,7 @@ const fetchTikTokProfile = async ({
   // If token expired and we have refresh token, try to refresh
   if (error && error.code === 'access_token_invalid' && refreshToken && userId) {
     const newTokens = await refreshTikTokToken(refreshToken);
-    
+
     if (newTokens) {
       // Update the stored tokens in database
       await prisma.account.updateMany({
@@ -395,7 +395,7 @@ const checkHasPublishedVideo = async ({
     }),
   });
 
-  const { data, error } = await req.json();
+  const { data, error } = (await req.json()) as any;
 
   if (error.code !== 'ok') {
     return false;

@@ -4,7 +4,8 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "dev": "email dev -p 3005"
+    "dev": "email dev -p 3005",
+    "typecheck": "tsc --noEmit"
   },
   "exports": {
     ".": {

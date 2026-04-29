@@ -8,6 +8,7 @@
     "build:frontend": "next build",
     "start:frontend": "next start",
     "lint": "next lint",
+    "typecheck": "tsc --noEmit",
     "vercel:build": "prisma generate --schema ../../packages/prisma/prisma/schema.prisma && prisma migrate deploy --schema ../../packages/prisma/prisma/schema.prisma && next build"
   },
   "dependencies": {

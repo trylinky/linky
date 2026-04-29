@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "prisma:generate": "prisma generate --no-hints",
-    "prisma:migrate": "prisma migrate deploy"
+    "prisma:migrate": "prisma migrate deploy",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@prisma/client": "^7.0.0",

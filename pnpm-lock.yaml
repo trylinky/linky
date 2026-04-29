@@ -160,6 +160,12 @@ importers:
         specifier: ^3.2
         version: 3.25.76
     devDependencies:
+      '@types/node':
+        specifier: 22.8.7
+        version: 22.8.7
+      '@types/react':
+        specifier: ^19.0.10
+        version: 19.0.10
       fastify-tsconfig:
         specifier: ^2.0.0
         version: 2.0.0
@@ -368,6 +374,9 @@ importers:
       '@trylinky/common':
         specifier: workspace:*
         version: link:../../packages/common
+      '@trylinky/prisma':
+        specifier: workspace:*
+        version: link:../../packages/prisma
       '@trylinky/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -377,6 +386,9 @@ importers:
       better-auth:
         specifier: ^1.4.3
         version: 1.4.3(next@15.2.5(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.2))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      framer-motion:
+        specifier: ^12.0.0-alpha.1
+        version: 12.23.24(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       graphql-request:
         specifier: ^7.1.2
         version: 7.3.5(graphql@16.12.0)
@@ -402,6 +414,9 @@ importers:
       '@next/eslint-plugin-next':
         specifier: 15.5.15
         version: 15.5.15
+      '@types/mdx':
+        specifier: ^2.0.13
+        version: 2.0.13
       '@types/react':
         specifier: ^19.0.10
         version: 19.0.10
@@ -432,12 +447,24 @@ importers:
 
   packages/common:
     dependencies:
+      '@heroicons/react':
+        specifier: ^2.2.0
+        version: 2.2.0(react@19.0.0)
       '@trylinky/ui':
         specifier: workspace:*
         version: link:../ui
       better-auth:
         specifier: 1.4.3
         version: 1.4.3(next@15.2.5(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.2))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      next:
+        specifier: '15.2'
+        version: 15.2.5(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.2)
+      react:
+        specifier: ^19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.0.0(react@19.0.0)
       swr:
         specifier: ^2.3.3
         version: 2.3.6(react@19.0.0)
@@ -447,6 +474,16 @@ importers:
       yup:
         specifier: ^1.4.0
         version: 1.7.1
+    devDependencies:
+      '@types/node':
+        specifier: 22.8.7
+        version: 22.8.7
+      '@types/react':
+        specifier: ^19.0.10
+        version: 19.0.10
+      '@types/react-dom':
+        specifier: ^19.0.4
+        version: 19.0.4(@types/react@19.0.10)
 
   packages/notifications:
     dependencies:
@@ -577,6 +614,12 @@ importers:
       motion:
         specifier: ^12.10.5
         version: 12.23.24(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react:
+        specifier: ^19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.0.0(react@19.0.0)
       recharts:
         specifier: ^2.13.0
         version: 2.15.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -592,6 +635,13 @@ importers:
       typescript:
         specifier: ^5
         version: 5.6.3
+    devDependencies:
+      '@types/react':
+        specifier: ^19.0.10
+        version: 19.0.10
+      '@types/react-dom':
+        specifier: ^19.0.4
+        version: 19.0.4(@types/react@19.0.10)
 
 packages:
 
@@ -6445,6 +6495,7 @@ packages:
   next@15.1.2:
     resolution: {integrity: sha512-nLJDV7peNy+0oHlmY2JZjzMfJ8Aj0/dd3jCwSZS8ZiO5nkQfcZRqDrRN3U5rJtqVTQneIOGZzb6LCNrk7trMCQ==}
     engines: {node: ^18.18.0 || ^19.8.0 || >= 20.0.0}
+    deprecated: This version has a security vulnerability. Please upgrade to a patched version. See https://nextjs.org/blog/CVE-2025-66478 for more details.
     hasBin: true
     peerDependencies:
       '@opentelemetry/api': ^1.1.0

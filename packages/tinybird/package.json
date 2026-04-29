@@ -6,7 +6,8 @@
   "scripts": {
     "build:tracker": "tsup browser/tracker.ts --format esm --minify --target es2017",
     "dev": "tsup browser/tracker.ts --format esm --watch",
-    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+    "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
+    "typecheck": "tsc --noEmit"
   },
   "main": "./dist/tracker.js",
   "module": "./dist/tracker.js",

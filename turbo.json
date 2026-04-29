@@ -202,6 +202,10 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^prisma:generate"],
+      "outputs": []
     }
   }
 }

@@ -3,12 +3,24 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@trylinky/ui": "workspace:*",
     "better-auth": "1.4.3",
+    "next": "15.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "swr": "^2.3.3",
     "typescript": "^5",
     "yup": "^1.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.8.7",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4"
   },
   "exports": {
     ".": {

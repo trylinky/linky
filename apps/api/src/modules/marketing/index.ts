@@ -1,6 +1,8 @@
 import prisma from '../../lib/prisma';
-import { JsonObject } from '@prisma/client/runtime/library';
+import { Prisma } from '@trylinky/prisma';
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+
+type JsonObject = Prisma.JsonObject;
 
 export default async function marketingRoutes(fastify: FastifyInstance) {
   fastify.get('/featured-pages', {

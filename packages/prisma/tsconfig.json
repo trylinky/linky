@@ -1,12 +1,11 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "ES2015",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "target": "ES2020",
+    "module": "Preserve",
+    "moduleResolution": "bundler",
     "rootDir": "./",
-    "outDir": "dist",
-    "allowImportingTsExtensions": true
+    "noEmit": true
   },
-  "include": ["index.ts"]
+  "include": ["index.ts", "types.ts", "src/**/*"]
 }

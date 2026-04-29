@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "extends": "../tsconfig.json",
+  "extends": "../../tsconfig.json",
   "include": ["emails"],
   "exclude": ["dist", "build", "node_modules"],
   "compilerOptions": {

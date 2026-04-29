@@ -33,7 +33,6 @@ export async function requestToken({
     method: 'POST',
     headers,
     body: data,
-    cache: 'no-cache',
   });
 }
 

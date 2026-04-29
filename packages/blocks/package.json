@@ -4,7 +4,8 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "build": "tsc index.ts"
+    "build": "tsc index.ts",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "typescript": "^5",

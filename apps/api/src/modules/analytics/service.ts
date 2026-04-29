@@ -15,7 +15,7 @@ export async function fetchStats(pageId: string) {
       return null;
     }
 
-    const analyticsData = await analyticsResponse.json();
+    const analyticsData = (await analyticsResponse.json()) as any;
 
     const totalViews = analyticsData.data.reduce(
       (acc: number, curr: any) => acc + curr.total_views,
@@ -60,7 +60,7 @@ export async function fetchTopLocations(pageId: string) {
       return null;
     }
 
-    const analyticsData = await analyticsResponse.json();
+    const analyticsData = (await analyticsResponse.json()) as any;
 
     return analyticsData.data;
   } catch (error) {

@@ -7,7 +7,9 @@ import {
   StackMockup,
 } from '@/components/landing-page/ui-mockups';
 import { MarketingContainer } from '@/components/marketing-container';
-import { JsonValue } from '@prisma/client/runtime/library';
+import { Prisma } from '@trylinky/prisma';
+
+type JsonValue = Prisma.JsonValue;
 
 export type HSLColor = {
   h: number;
