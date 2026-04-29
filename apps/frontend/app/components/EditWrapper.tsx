@@ -9,12 +9,14 @@ import { InternalApi, internalApiFetcher } from '@trylinky/common';
 import { Skeleton, useToast, cn } from '@trylinky/ui';
 import { useParams, useRouter } from 'next/navigation';
 import {
+  Children,
+  ReactElement,
   ReactNode,
+  isValidElement,
   useEffect,
   useMemo,
-  useOptimistic,
   useRef,
-  useTransition,
+  useState,
 } from 'react';
 import {
   Layout,
@@ -48,29 +50,44 @@ export function EditWrapper({ children, layoutProps }: Props) {
     internalApiFetcher
   );
 
-  const [isPending, startTransition] = useTransition();
-
   const ResponsiveReactGridLayout = useMemo(
     () => WidthProvider(Responsive),
     []
   );
 
-  const [optimisticItems, setOptimisticItems] =
-    useOptimistic<ReactNode[]>(children);
+  // Skeletons for blocks that have been dropped but whose real React
+  // element hasn't yet arrived from the server (post `router.refresh`).
+  // Stored separately from `useOptimistic` so the skeleton survives until
+  // the real block lands in `children`, instead of vanishing the moment
+  // the transition resolves.
+  const [pendingAdds, setPendingAdds] = useState<Map<string, ReactElement>>(
+    () => new Map()
+  );
 
+  // Drop a pending skeleton as soon as the real block appears in children.
   useEffect(() => {
-    if (!optimisticItems) return;
-
-    const filteredItems = (optimisticItems as ReactNode[])?.filter(
-      (item: any) => {
-        return layout?.sm?.some((layoutItem) => layoutItem.i === item.key);
+    if (pendingAdds.size === 0) return;
+    const childKeys = new Set<string>();
+    Children.forEach(children, (child) => {
+      if (isValidElement(child) && child.key != null) {
+        childKeys.add(String(child.key));
       }
-    );
-
-    startTransition(() => {
-      setOptimisticItems(filteredItems);
     });
-  }, [layout]);
+    let changed = false;
+    const next = new Map(pendingAdds);
+    for (const key of pendingAdds.keys()) {
+      if (childKeys.has(key)) {
+        next.delete(key);
+        changed = true;
+      }
+    }
+    if (changed) setPendingAdds(next);
+  }, [children, pendingAdds]);
+
+  // Block handleLayoutChange while a drop is in flight so its debounced
+  // POST can't race with the drop's authoritative POST and persist a
+  // half-baked layout.
+  const dropInFlightRef = useRef(false);
 
   useEffect(() => {
     if (nextToAddBlock) {
@@ -113,31 +130,38 @@ export function EditWrapper({ children, layoutProps }: Props) {
       saveTimerRef.current = null;
     }
 
+    dropInFlightRef.current = true;
+
     // Optimistically place the block in the SWR cache so the grid renders
     // it immediately at the dropped position.
     mutateLayout(layoutWithNewBlock, { revalidate: false });
 
-    startTransition(async () => {
-      setOptimisticItems([
-        ...optimisticItems,
-        <div key={newItemId} data-grid={newItemConfig} className="w-full h-14">
-          <CoreBlock
-            blockId={newItemId}
-            blockType="default"
-            pageId="tmp-unknown"
-            isEditable={false}
-          >
-            <div className="flex items-center space-x-4">
-              <Skeleton className="h-12 w-12 rounded-full" />
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-[150px]" />
-                <Skeleton className="h-4 w-[100px]" />
-              </div>
+    const skeleton = (
+      <div key={newItemId} data-grid={newItemConfig} className="w-full h-14">
+        <CoreBlock
+          blockId={newItemId}
+          blockType="default"
+          pageId="tmp-unknown"
+          isEditable={false}
+        >
+          <div className="flex items-center space-x-4">
+            <Skeleton className="h-12 w-12 rounded-full" />
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-[150px]" />
+              <Skeleton className="h-4 w-[100px]" />
             </div>
-          </CoreBlock>
-        </div>,
-      ]);
+          </div>
+        </CoreBlock>
+      </div>
+    );
 
+    setPendingAdds((prev) => {
+      const next = new Map(prev);
+      next.set(newItemId, skeleton);
+      return next;
+    });
+
+    try {
       const blockResponse = await InternalApi.post('/blocks/add', {
         block: { id: newItemId, type: blockType },
         pageSlug: params.slug,
@@ -149,8 +173,13 @@ export function EditWrapper({ children, layoutProps }: Props) {
           title: 'Something went wrong',
           description: blockResponse.error.message,
         });
-        // Roll back the optimistic layout so the ghost block doesn't linger.
+        // Roll back optimistic state so the ghost block doesn't linger.
         mutateLayout(layout, { revalidate: false });
+        setPendingAdds((prev) => {
+          const next = new Map(prev);
+          next.delete(newItemId);
+          return next;
+        });
         return;
       }
 
@@ -180,7 +209,9 @@ export function EditWrapper({ children, layoutProps }: Props) {
       );
 
       router.refresh();
-    });
+    } finally {
+      dropInFlightRef.current = false;
+    }
   };
 
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -194,6 +225,9 @@ export function EditWrapper({ children, layoutProps }: Props) {
   const handleLayoutChange = (newLayout: Layout[], _currentLayouts: Layouts) => {
     if (newLayout.length === 0 || !layout) return;
     if (newLayout.some((block) => block.i === 'tmp-block')) return;
+    // While a drop is mid-flight, handleAddNewBlock owns the layout save.
+    // Skipping here prevents a stale-closure POST from clobbering it.
+    if (dropInFlightRef.current) return;
 
     const sortAndNormalizeLayout = (layout: Layout[]) => {
       return layout
@@ -311,7 +345,7 @@ export function EditWrapper({ children, layoutProps }: Props) {
             xxs: layout?.xxs ?? [],
           }}
         >
-          {optimisticItems}
+          {[...children, ...pendingAdds.values()]}
         </ResponsiveReactGridLayout>
       </div>
     </>
