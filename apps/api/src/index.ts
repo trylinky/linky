@@ -88,6 +88,10 @@ fastify.decorate('authenticate', authenticateDecorator);
 
 Sentry.setupFastifyErrorHandler(fastify);
 
+fastify.addHook('onSend', async (request, reply) => {
+  reply.header('Cache-Control', 'no-store, must-revalidate');
+});
+
 fastify.addHook('onRequest', async (request, reply) => {
   request.startTime = Date.now();
 });

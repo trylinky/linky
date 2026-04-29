@@ -226,8 +226,10 @@ export function EditWrapper({ children, layoutProps }: Props) {
         return;
       }
 
-      // Update the layout in the client-side cache
-      mutateLayout(nextLayout);
+      // The POST returned the authoritative state; skip the auto-revalidate
+      // so a stale GET can't clobber what we just saved and re-trigger
+      // onLayoutChange in react-grid-layout.
+      mutateLayout(nextLayout, { revalidate: false });
     } catch (error) {
       captureException(error);
       toast({
