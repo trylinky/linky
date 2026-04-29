@@ -5,7 +5,7 @@ import { BlockProps } from '@/lib/blocks/ui';
 import NumberFlow from '@number-flow/react';
 import { InternalApi, internalApiFetcher } from '@trylinky/common';
 import { motion } from 'framer-motion';
-import { FunctionComponent, useEffect, useState, useRef } from 'react';
+import { FunctionComponent, useEffect, useRef, useState } from 'react';
 import useSWR from 'swr';
 
 const Icon = () => {
@@ -30,82 +30,50 @@ const Icon = () => {
 export const Reactions: FunctionComponent<BlockProps> = (props) => {
   const { pageId, isEditable } = props;
 
-  const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(
-    null
-  );
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [displayCount, setDisplayCount] = useState(0);
 
-  const [displayCount, setDisplayCount] = useState(0); // Track whether we're waiting for an API response
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const [pendingClicks, setPendingClicks] = useState(0);
-
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingClicksRef = useRef(0);
+  const isSubmittingRef = useRef(false);
 
   const { data, mutate } = useSWR<{
-    current: {
-      [reactionType: string]: number;
-    };
-    total: {
-      [reactionType: string]: number;
-    };
-  }>(`/reactions?pageId=${pageId}`, internalApiFetcher);
+    current: { [reactionType: string]: number };
+    total: { [reactionType: string]: number };
+  }>(pageId ? `/reactions?pageId=${pageId}` : null, internalApiFetcher);
+
+  const serverLove = data?.total?.love;
 
   useEffect(() => {
-    pendingClicksRef.current = pendingClicks;
-  }, [pendingClicks]);
-
-  useEffect(() => {
-    if (data?.total?.love !== undefined && !isSubmitting) {
-      setDisplayCount(data.total.love);
+    if (serverLove !== undefined && !isSubmittingRef.current) {
+      setDisplayCount(serverLove);
     }
-  }, [data?.total?.love, isSubmitting]);
+  }, [serverLove]);
 
-  // Cleanup timer on unmount
   useEffect(() => {
     return () => {
-      if (debounceTimer) {
-        clearTimeout(debounceTimer);
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
       }
     };
-  }, [debounceTimer]);
+  }, []);
 
   const handleClick = () => {
-    if (isEditable) {
-      return;
-    }
-
-    // Don't allow more than 16 reactions
-    if (displayCount >= 16) {
-      return;
-    }
+    if (isEditable) return;
+    if (displayCount >= 16) return;
 
     setDisplayCount((prev) => prev + 1);
+    pendingClicksRef.current += 1;
 
-    setPendingClicks((prev) => {
-      const newValue = prev + 1;
-      pendingClicksRef.current = newValue; // Update ref immediately
-      return newValue;
-    });
-    setIsAnimating(true);
-
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
     }
 
-    const newTimer = setTimeout(async () => {
+    debounceTimerRef.current = setTimeout(async () => {
+      const incrementAmount = pendingClicksRef.current;
+      if (incrementAmount <= 0) return;
+
+      isSubmittingRef.current = true;
       try {
-        setIsSubmitting(true);
-
-        const incrementAmount = pendingClicksRef.current;
-
-        if (incrementAmount <= 0) {
-          setIsSubmitting(false);
-          setPendingClicks(0);
-          pendingClicksRef.current = 0;
-          return;
-        }
-
         const response = await InternalApi.post('/reactions', {
           pageId,
           increment: incrementAmount,
@@ -115,26 +83,18 @@ export const Reactions: FunctionComponent<BlockProps> = (props) => {
           throw new Error(response.error);
         }
 
-        setPendingClicks(0);
         pendingClicksRef.current = 0;
-
-        // Update data from server
-        await mutate(response.data);
-
-        setIsSubmitting(false);
+        await mutate(response.data, { revalidate: false });
       } catch (error) {
         console.error('Error liking resource:', error);
-
+        pendingClicksRef.current = 0;
         if (data?.total?.love !== undefined) {
           setDisplayCount(data.total.love);
         }
-        setPendingClicks(0);
-        pendingClicksRef.current = 0;
-        setIsSubmitting(false);
+      } finally {
+        isSubmittingRef.current = false;
       }
     }, 1600);
-
-    setDebounceTimer(newTimer);
   };
 
   return (
