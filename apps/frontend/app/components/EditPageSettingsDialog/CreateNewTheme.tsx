@@ -183,7 +183,9 @@ export function CreateEditThemeForm({
           className="bg-white"
           placeholder="Give your theme a name"
           value={themeName}
-          onChange={(e) => setThemeName(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setThemeName(e.target.value)
+          }
         />
       </div>
 

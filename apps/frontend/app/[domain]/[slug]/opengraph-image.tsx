@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import { hslToHex } from '@/lib/theme';
 import { ImageResponse } from 'next/og';
 import { CSSProperties } from 'react';
@@ -39,85 +38,83 @@ export default async function Image({ params }: { params: { slug: string } }) {
   ).then((res) => res.arrayBuffer());
 
   return new ImageResponse(
-    (
+    <div
+      style={{
+        fontSize: 96,
+        background: hslToHex({
+          h: theme?.colorBgBase.h,
+          s: theme?.colorBgBase.s * 100,
+          l: theme?.colorBgBase.l * 100,
+        }),
+        color: hslToHex({
+          h: theme?.colorLabelPrimary.h,
+          s: theme?.colorLabelPrimary.s * 100,
+          l: theme?.colorLabelPrimary.l * 100,
+        }),
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+      }}
+    >
       <div
         style={{
-          fontSize: 96,
-          background: hslToHex({
-            h: theme?.colorBgBase.h,
-            s: theme?.colorBgBase.s * 100,
-            l: theme?.colorBgBase.l * 100,
-          }),
-          color: hslToHex({
-            h: theme?.colorLabelPrimary.h,
-            s: theme?.colorLabelPrimary.s * 100,
-            l: theme?.colorLabelPrimary.l * 100,
-          }),
-          width: '100%',
-          height: '100%',
           display: 'flex',
-          alignItems: 'center',
+          flexDirection: 'column',
+          paddingLeft: 80,
+          paddingRight: 80,
         }}
       >
-        <div
+        {avatarSrc && (
+          <img
+            src={avatarSrc}
+            alt=""
+            width={100}
+            height={100}
+            style={{
+              borderRadius: '50%',
+              marginBottom: 20,
+            }}
+          />
+        )}
+        <h1
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            paddingLeft: 80,
-            paddingRight: 80,
+            fontSize: 88,
+            margin: 0,
+            marginBottom: 10,
           }}
         >
-          {avatarSrc && (
-            <img
-              src={avatarSrc}
-              alt=""
-              width={100}
-              height={100}
-              style={{
-                borderRadius: '50%',
-                marginBottom: 20,
-              }}
-            />
+          {verifiedPageTitle ? (
+            <>
+              {verifiedPageTitle}
+              <VerifiedBadge />
+            </>
+          ) : (
+            headerTitle
           )}
-          <h1
-            style={{
-              fontSize: 88,
-              margin: 0,
-              marginBottom: 10,
-            }}
-          >
-            {verifiedPageTitle ? (
-              <>
-                {verifiedPageTitle}
-                <VerifiedBadge />
-              </>
-            ) : (
-              headerTitle
-            )}
-          </h1>
-          <span
-            style={{
-              fontSize: 40,
-              fontFamily: 'SaansRegular',
-              color: hslToHex({
-                h: theme?.colorLabelSecondary.h,
-                s: theme?.colorLabelSecondary.s * 100,
-                l: theme?.colorLabelSecondary.l * 100,
-              }),
-            }}
-          >
-            {headerDescription}
-          </span>
-        </div>
-        <LinkyLogo
+        </h1>
+        <span
           style={{
-            position: 'absolute',
-            bottom: 20,
-            right: 20,
+            fontSize: 40,
+            fontFamily: 'SaansRegular',
+            color: hslToHex({
+              h: theme?.colorLabelSecondary.h,
+              s: theme?.colorLabelSecondary.s * 100,
+              l: theme?.colorLabelSecondary.l * 100,
+            }),
           }}
-        />
+        >
+          {headerDescription}
+        </span>
       </div>
-    ),
+      <LinkyLogo
+        style={{
+          position: 'absolute',
+          bottom: 20,
+          right: 20,
+        }}
+      />
+    </div>,
     {
       ...size,
       fonts: [

@@ -53,6 +53,7 @@ export const TikTokFollowerCountServerUI: FunctionComponent<{
           rel="noopener noreferrer"
           className="flex gap-2 items-center"
         >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={data.profile.avatarUrl}
             alt="Profile picture"

@@ -212,6 +212,7 @@ export default async function BlogPostPage({
                     className="rounded-full bg-black/5 hover:bg-black/10 transition-colors w-10 h-10 flex items-center justify-center"
                     title={`Share on ${icon.name}`}
                   >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={icon.icon}
                       alt={icon.name}
@@ -281,6 +282,7 @@ export default async function BlogPostPage({
                       className="rounded-full bg-slate-100 hover:bg-slate-200 transition-colors w-10 h-10 flex items-center justify-center"
                       title={`Share on ${icon.name}`}
                     >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={icon.icon}
                         alt={icon.name}
@@ -305,6 +307,7 @@ export default async function BlogPostPage({
                         className="rounded-full bg-black/5 hover:bg-black/10 transition-colors w-10 h-10 flex items-center justify-center"
                         title={`Share on ${icon.name}`}
                       >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={icon.icon}
                           alt={icon.name}

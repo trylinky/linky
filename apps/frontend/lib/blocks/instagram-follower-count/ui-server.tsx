@@ -57,6 +57,7 @@ export const InstagramFollowerCountServerUI: FunctionComponent<{
           rel="noopener noreferrer"
           className="flex gap-2 items-center"
         >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={data.profile.profilePictureUrl}
             alt="Profile picture"

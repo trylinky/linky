@@ -1,21 +1,15 @@
-import { FlatCompat } from '@eslint/eslintrc';
-import pkg from '@typescript-eslint/parser';
-
-const { parser } = pkg;
-
-const compat = new FlatCompat();
+import tsParser from '@typescript-eslint/parser';
 
 export default [
   {
     files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
-      parser: '@typescript-eslint/parser',
+      parser: tsParser,
       parserOptions: {
         project: [
           'apps/*/tsconfig.json',
           'packages/*/tsconfig.json',
           'tsconfig.json',
-          'prettier.config.js',
         ],
       },
     },

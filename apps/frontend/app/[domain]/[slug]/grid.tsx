@@ -58,7 +58,6 @@ export default function Grid({
 
   const ResponsiveReactGridLayout = useMemo(
     () => WidthProvideRGL(Responsive, isPotentiallyMobile),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 

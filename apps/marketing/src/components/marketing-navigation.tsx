@@ -42,7 +42,7 @@ export default function MarketingNavigation({ children }: Props) {
             )}
           >
             <div className="flex lg:flex-1">
-              <a href="/" className="-m-1.5 p-1.5 flex items-center gap-2">
+              <Link href="/" className="-m-1.5 p-1.5 flex items-center gap-2">
                 <svg viewBox="0 0 321 321" width={20} height={20} fill="none">
                   <path
                     fill="#000"
@@ -51,7 +51,7 @@ export default function MarketingNavigation({ children }: Props) {
                 </svg>
 
                 <span className="font-bold text-sm">Linky</span>
-              </a>
+              </Link>
             </div>
             <div className="flex flex-1 items-center justify-end gap-x-1">
               <Button asChild variant="ghost" className="hidden sm:flex">

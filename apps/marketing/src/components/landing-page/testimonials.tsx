@@ -73,6 +73,7 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
   return (
     <div className="mb-4 flex w-full break-inside-avoid flex-col items-start justify-start gap-4 rounded-3xl py-6 px-8 border border-neutral-200 bg-white dark:bg-black dark:border-neutral-800">
       <div className="flex w-full select-none items-center justify-start gap-3">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           alt={testimonial.author}
           width={40}

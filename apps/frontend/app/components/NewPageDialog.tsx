@@ -47,6 +47,7 @@ function WelcomeScreen({ onNext }: { onNext: () => void }) {
     <div className="w-full p-4 md:p-6 flex flex-col bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 rounded-lg shadow-md transition-all">
       <div className="flex flex-col items-center justify-center h-full text-center">
         {/* Logo Illustration */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/assets/logo.png"
           alt="Linky Logo"

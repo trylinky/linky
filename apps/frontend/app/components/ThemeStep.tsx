@@ -6,7 +6,6 @@ import { Label, RadioGroup, RadioGroupItem } from '@trylinky/ui';
 
 interface ThemeStepProps {
   currentThemeId: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setFieldValue: (field: string, value: any, shouldValidate?: boolean) => void;
 }
 
@@ -14,7 +13,7 @@ export function ThemeStep({ currentThemeId, setFieldValue }: ThemeStepProps) {
   return (
     <div>
       <RadioGroup
-        onValueChange={(val) => setFieldValue('themeId', val)}
+        onValueChange={(val: string) => setFieldValue('themeId', val)}
         value={currentThemeId} // Use value prop for controlled component
         className="grid max-w-md grid-cols-2 gap-4 pt-2"
       >

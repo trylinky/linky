@@ -38,7 +38,6 @@ export function IconSelect({ onIconChange, initialValue }: IconSelectProps) {
     if (selectedIcon) {
       onIconChange(selectedIcon.value);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedIcon]);
 
   return (

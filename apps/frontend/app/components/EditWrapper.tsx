@@ -69,14 +69,12 @@ export function EditWrapper({ children, layoutProps }: Props) {
     startTransition(() => {
       setOptimisticItems(filteredItems);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [layout]);
 
   useEffect(() => {
     if (nextToAddBlock) {
       handleAddNewBlock([], nextToAddBlock, null, true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nextToAddBlock]);
 
   const handleAddNewBlock = async (
