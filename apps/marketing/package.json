@@ -6,7 +6,7 @@
     "dev": "dotenvx run -f ../../.env.local -- next dev --port 3002",
     "build:marketing": "next build",
     "start:marketing": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "vercel:build": "next build"
   },

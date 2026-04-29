@@ -6,6 +6,15 @@ import reactHooksPlugin from 'eslint-plugin-react-hooks';
 
 export default [
   {
+    ignores: [
+      '.next/**',
+      'node_modules/**',
+      'dist/**',
+      'build/**',
+      '.turbo/**',
+    ],
+  },
+  {
     files: ['**/*.{js,jsx,ts,tsx}'],
     plugins: {
       '@next/next': nextPlugin,

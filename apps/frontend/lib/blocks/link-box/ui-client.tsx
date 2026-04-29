@@ -3,7 +3,6 @@ import { CoreBlock } from '@/components/CoreBlock';
 import { LinkBoxServerUI } from '@/lib/blocks/link-box/ui-server';
 import { LinkBoxBlockConfig } from '@trylinky/blocks';
 import { cn } from '@trylinky/ui';
-import Link from 'next/link';
 import { Suspense } from 'react';
 
 export function LinkBox(props: BlockProps & LinkBoxBlockConfig) {
@@ -13,16 +12,7 @@ export function LinkBox(props: BlockProps & LinkBoxBlockConfig) {
     <CoreBlock
       {...props}
       className={cn('items-center flex group', showPreview && 'p-0')}
-      component={props.isEditable ? 'div' : Link}
-      linkProps={
-        props.isEditable
-          ? {}
-          : {
-              href: link ?? '',
-              target: '_blank',
-              rel: 'noopener noreferrer',
-            }
-      }
+      href={link ?? ''}
     >
       <Suspense>
         <LinkBoxServerUI

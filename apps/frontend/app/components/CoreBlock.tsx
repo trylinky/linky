@@ -3,14 +3,14 @@
 import { EditBlockToolbar } from './EditBlockToolbar';
 import { BlockProps } from '@/lib/blocks/ui';
 import { cn } from '@trylinky/ui';
-import { AnchorHTMLAttributes, JSXElementConstructor, ReactNode } from 'react';
+import Link from 'next/link';
+import { ReactNode } from 'react';
 
 interface Props extends BlockProps {
   className?: string;
   children: ReactNode;
   isFrameless?: boolean;
-  component?: string | JSXElementConstructor<any>;
-  linkProps?: AnchorHTMLAttributes<HTMLAnchorElement>;
+  href?: string;
 }
 
 export function CoreBlock({
@@ -20,23 +20,36 @@ export function CoreBlock({
   className,
   children,
   isFrameless,
-  component: Component = 'div',
-  linkProps,
+  href,
 }: Props) {
-  return (
-    <Component
-      className={cn(
-        'h-full overflow-hidden relative max-w-[624px]',
-        !isFrameless &&
-          'bg-sys-bg-primary border-sys-bg-border border p-6 rounded-3xl shadow-md ',
-        className
-      )}
-      {...linkProps}
-    >
+  const classes = cn(
+    'h-full overflow-hidden relative max-w-[624px]',
+    !isFrameless &&
+      'bg-sys-bg-primary border-sys-bg-border border p-6 rounded-3xl shadow-md ',
+    className
+  );
+
+  const content = (
+    <>
       {children}
       {isEditable && blockType !== 'default' && (
         <EditBlockToolbar blockId={blockId} blockType={blockType} />
       )}
-    </Component>
+    </>
   );
+
+  if (href && !isEditable) {
+    return (
+      <Link
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={classes}
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return <div className={classes}>{content}</div>;
 }

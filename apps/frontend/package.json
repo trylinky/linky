@@ -7,7 +7,7 @@
     "copy-tinybird-tracker": "cp ../../packages/tinybird/dist/tracker.js  public/assets",
     "build:frontend": "next build",
     "start:frontend": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "vercel:build": "prisma generate --schema ../../packages/prisma/prisma/schema.prisma && prisma migrate deploy --schema ../../packages/prisma/prisma/schema.prisma && next build"
   },
