@@ -22,34 +22,32 @@ export function MapboxMap({ className, mapTheme, coords }: Props) {
   const mapBoxMapTheme = mapThemes[mapTheme] ?? mapThemes.STREETS.value;
 
   useEffect(() => {
-    if (!mapContainerRef.current || !coords) return;
+    const container = mapContainerRef.current;
+    if (!container || !coords) return;
 
-    // Initialize map when component mounts
-    mapBoxRef.current = new mapboxgl.Map({
-      container: mapContainerRef.current,
-      style: mapBoxMapTheme.value, // Specify the map style
-      center: [coords.long, coords.lat], // Specify the initial map center coordinates
-      zoom: 12, // Specify the initial zoom level
+    const map = new mapboxgl.Map({
+      container,
+      style: mapBoxMapTheme.value,
+      center: [coords.long, coords.lat],
+      zoom: 12,
       interactive: false,
     });
+    mapBoxRef.current = map;
 
-    // Clean up on unmount
-    return () => mapBoxRef.current?.remove();
-  }, [coords, mapBoxMapTheme]); // Empty dependency array ensures map only initialized once
-
-  useEffect(() => {
-    if (!mapBoxRef.current || !mapContainerRef.current) return;
-
-    const resizer = new ResizeObserver(
-      debounce(() => mapBoxRef.current?.resize(), 10)
-    );
-
-    resizer.observe(mapContainerRef.current);
+    let timeoutId: number | undefined;
+    const resizer = new ResizeObserver(() => {
+      clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(() => map.resize(), 10);
+    });
+    resizer.observe(container);
 
     return () => {
+      clearTimeout(timeoutId);
       resizer.disconnect();
+      map.remove();
+      mapBoxRef.current = null;
     };
-  }, []);
+  }, [coords, mapBoxMapTheme]);
 
   return (
     <div
@@ -58,16 +56,4 @@ export function MapboxMap({ className, mapTheme, coords }: Props) {
       style={{ width: '100%', height: '100%' }}
     />
   );
-}
-
-function debounce<F extends (...args: any[]) => void>(
-  func: F,
-  waitFor: number
-): (this: ThisParameterType<F>, ...args: Parameters<F>) => void {
-  let timeoutId: number | undefined;
-
-  return function (this: ThisParameterType<F>, ...args: Parameters<F>) {
-    clearTimeout(timeoutId);
-    timeoutId = window.setTimeout(() => func.apply(this, args), waitFor);
-  };
 }
