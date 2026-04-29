@@ -5,22 +5,54 @@ import { regexSlug } from '@/lib/slugs';
 import { makeId } from '@/modules/pages/utils';
 import { captureException } from '@sentry/node';
 import { headerBlockDefaults } from '@trylinky/blocks';
+import { Prisma } from '@trylinky/prisma';
 import { randomUUID } from 'crypto';
 
-export async function getPageLayoutById(pageId: string) {
-  const page = await prisma.page.findUnique({
-    where: {
-      id: pageId,
-    },
-    select: {
-      config: true,
-      mobileConfig: true,
-      publishedAt: true,
-      organizationId: true,
-    },
-  });
+type LayoutEntry = { i: string; [key: string]: unknown };
 
-  return page;
+function filterLayoutToBlockIds(
+  layout: unknown,
+  validIds: Set<string>
+): LayoutEntry[] {
+  if (!Array.isArray(layout)) return [];
+  return (layout as LayoutEntry[]).filter(
+    (entry) =>
+      entry &&
+      typeof entry === 'object' &&
+      typeof entry.i === 'string' &&
+      validIds.has(entry.i)
+  );
+}
+
+async function getValidBlockIds(pageId: string): Promise<Set<string>> {
+  const blocks = await prisma.block.findMany({
+    where: { pageId },
+    select: { id: true },
+  });
+  return new Set(blocks.map((b) => b.id));
+}
+
+export async function getPageLayoutById(pageId: string) {
+  const [page, validIds] = await Promise.all([
+    prisma.page.findUnique({
+      where: { id: pageId },
+      select: {
+        config: true,
+        mobileConfig: true,
+        publishedAt: true,
+        organizationId: true,
+      },
+    }),
+    getValidBlockIds(pageId),
+  ]);
+
+  if (!page) return null;
+
+  return {
+    ...page,
+    config: filterLayoutToBlockIds(page.config, validIds),
+    mobileConfig: filterLayoutToBlockIds(page.mobileConfig, validIds),
+  };
 }
 
 export async function getPageThemeById(pageId: string) {
@@ -132,13 +164,18 @@ export async function updatePageLayout(
     xxs: any;
   }
 ) {
+  const validIds = await getValidBlockIds(pageId);
+
+  const sm = filterLayoutToBlockIds(newLayout.sm, validIds);
+  const xxs = filterLayoutToBlockIds(newLayout.xxs, validIds);
+
   const updatedPage = await prisma.page.update({
     where: {
       id: pageId,
     },
     data: {
-      config: newLayout.sm,
-      mobileConfig: newLayout.xxs,
+      config: sm as unknown as Prisma.InputJsonValue,
+      mobileConfig: xxs as unknown as Prisma.InputJsonValue,
     },
     select: {
       id: true,
