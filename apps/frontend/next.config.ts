@@ -75,6 +75,7 @@ export default withSentryConfig(nextConfig, {
   project: 'glow',
   silent: false,
   sourcemaps: {
+    disable: true,
     deleteSourcemapsAfterUpload: true,
   },
 });
