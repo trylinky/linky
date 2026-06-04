@@ -92,7 +92,7 @@ export function CallToActionBlock() {
           </p>
 
           <div className="mt-6">
-            <div className="w-full md:w-auto inline-flex flex-row items-center rounded-full bg-white pl-4 border border-slate-200 shadow-sm">
+            <div className="w-full md:w-auto inline-flex flex-row items-center rounded-full bg-white pl-4 border border-slate-200 shadow-xs">
               <span className="text-slate-600 font-medium">lin.ky/</span>
               <input
                 type="text"

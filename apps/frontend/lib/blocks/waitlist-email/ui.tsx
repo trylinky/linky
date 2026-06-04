@@ -84,7 +84,7 @@ export const WaitlistEmail: FunctionComponent<BlockProps> = (props) => {
           id="email"
           autoComplete="email"
           required
-          className="min-w-0 w-full flex-1 appearance-none rounded-md border-0 bg-sys-bg-primary px-3 py-1.5 text-base text-sys-label-primary shadow-sm ring-1 ring-inset ring-sys-bg-secondary/50 placeholder:text-gray-400 focus:ring-sys-bg-secondary/90 sm:w-64 sm:text-sm sm:leading-6 xl:w-full"
+          className="min-w-0 w-full flex-1 appearance-none rounded-md border-0 bg-sys-bg-primary px-3 py-1.5 text-base text-sys-label-primary shadow-xs ring-1 ring-inset ring-sys-bg-secondary/50 placeholder:text-gray-400 focus:ring-sys-bg-secondary/90 sm:w-64 sm:text-sm sm:leading-6 xl:w-full"
           placeholder="Enter your email"
         />
         <div className="ml-4 sm:shrink-0">
@@ -110,7 +110,7 @@ const SubmitButton = ({
   return (
     <button
       type="submit"
-      className="flex w-full items-center justify-center rounded-md bg-sys-label-primary px-3 py-2 text-sm font-semibold text-sys-bg-primary shadow-sm hover:bg-sys-label-primary/50 relative overflow-hidden"
+      className="flex w-full items-center justify-center rounded-md bg-sys-label-primary px-3 py-2 text-sm font-semibold text-sys-bg-primary shadow-xs hover:bg-sys-label-primary/50 relative overflow-hidden"
       disabled={disabled}
     >
       {buttonLabel}

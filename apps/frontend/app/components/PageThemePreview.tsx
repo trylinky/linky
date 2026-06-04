@@ -37,7 +37,7 @@ export function PageThemePreview({
       }}
     >
       <div
-        className="flex items-center space-x-2 rounded-md p-2 shadow-sm"
+        className="flex items-center space-x-2 rounded-md p-2 shadow-xs"
         style={{
           backgroundColor: `hsl(${themeColorToCssValue(
             themeValues.colorBgPrimary
@@ -62,7 +62,7 @@ export function PageThemePreview({
         />
       </div>
       <div
-        className="space-y-2 rounded-md p-2 shadow-sm"
+        className="space-y-2 rounded-md p-2 shadow-xs"
         style={{
           backgroundColor: `hsl(${themeColorToCssValue(
             themeValues.colorBgPrimary

@@ -30,7 +30,7 @@ export default function SignupPage() {
         </div>
 
         <div className="flex flex-col items-center w-full max-w-lg mx-auto">
-          <div className="mt-4 w-full flex-1 rounded-lg border bg-white px-8 py-8 shadow-sm dark:bg-zinc-950 text-center">
+          <div className="mt-4 w-full flex-1 rounded-lg border bg-white px-8 py-8 shadow-xs dark:bg-zinc-950 text-center">
             <LoginForm />
           </div>
         </div>

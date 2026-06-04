@@ -63,7 +63,7 @@ export default function Hero() {
                 styles.ctas
               )}
             >
-              <div className="w-full inline-flex flex-row items-center rounded-full bg-white pl-4 border border-slate-200 shadow-sm justify-center">
+              <div className="w-full inline-flex flex-row items-center rounded-full bg-white pl-4 border border-slate-200 shadow-xs justify-center">
                 <span className="text-slate-600 font-medium">lin.ky/</span>
                 <input
                   type="text"

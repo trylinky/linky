@@ -27,7 +27,7 @@ const PlaceholderIcon = ({
 }) => (
   <span
     className={cn(
-      'inline-flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full mx-1 font-bold text-sm md:text-base align-middle shadow-sm',
+      'inline-flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full mx-1 font-bold text-sm md:text-base align-middle shadow-xs',
       bgColor,
       textColor,
       isSymbol ? 'font-mono' : 'font-sans',

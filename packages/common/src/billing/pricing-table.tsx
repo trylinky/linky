@@ -367,7 +367,7 @@ export function PricingTable({
   return (
     <div className="mx-auto relative z-2 max-w-2xl">
       {subscriptionData?.periodEnd && (
-        <Alert className="rounded-2xl border-none shadow-sm ring-1 ring-gray-200 mb-8">
+        <Alert className="rounded-2xl border-none shadow-xs ring-1 ring-gray-200 mb-8">
           <AlertTitle className="text-lg font-medium">
             Subscription ending soon
           </AlertTitle>
@@ -378,7 +378,7 @@ export function PricingTable({
         </Alert>
       )}
       {upgradeEligibility?.nextStep === 'completeTrial' && (
-        <Alert className="rounded-2xl border-none shadow-sm ring-1 ring-gray-200 mb-8">
+        <Alert className="rounded-2xl border-none shadow-xs ring-1 ring-gray-200 mb-8">
           <AlertTitle className="text-lg font-medium">
             You have an active trial
           </AlertTitle>
@@ -388,7 +388,7 @@ export function PricingTable({
         </Alert>
       )}
       {upgradeEligibility?.nextStep === 'addPaymentMethod' && (
-        <Alert className="rounded-2xl border-none shadow-sm ring-1 ring-gray-200 mb-8">
+        <Alert className="rounded-2xl border-none shadow-xs ring-1 ring-gray-200 mb-8">
           <AlertTitle className="text-lg font-medium">
             You are currently on a free trial
           </AlertTitle>
@@ -400,7 +400,7 @@ export function PricingTable({
       )}
       {subscriptionData?.plan === 'premium' &&
         subscriptionData?.isTeamPremium && (
-          <Alert className="rounded-2xl border-none shadow-sm ring-1 ring-gray-200 mb-8">
+          <Alert className="rounded-2xl border-none shadow-xs ring-1 ring-gray-200 mb-8">
             <AlertTitle className="text-lg font-medium">
               Your premium subscription is managed by your team
             </AlertTitle>
@@ -418,7 +418,7 @@ export function PricingTable({
             <div
               key={tier.name}
               className={cn(
-                'rounded-2xl bg-white/50 p-8 shadow-sm ring-1 ring-gray-200/50',
+                'rounded-2xl bg-white/50 p-8 shadow-xs ring-1 ring-gray-200/50',
                 tier.id === 'premium' && 'bg-white ring-0'
               )}
             >
@@ -484,7 +484,7 @@ export function PricingTable({
         !subscriptionData?.isTeamPremium &&
         !subscriptionData?.periodEnd &&
         subscriptionData?.plan !== 'freeLegacy' && (
-          <Alert className="rounded-2xl border-none shadow-sm ring-1 ring-gray-200 mt-4">
+          <Alert className="rounded-2xl border-none shadow-xs ring-1 ring-gray-200 mt-4">
             <AlertTitle className="text-base font-medium">
               Cancel Subscription
             </AlertTitle>

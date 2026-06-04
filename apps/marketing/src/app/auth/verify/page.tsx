@@ -29,7 +29,7 @@ export default function VerifyLoginPage() {
         </div>
 
         <div className="flex flex-col items-center gap-4 space-y-3">
-          <div className="mt-4 w-full flex-1 rounded-lg border bg-white px-6 py-4 shadow-sm md:w-96 dark:bg-zinc-950 text-center">
+          <div className="mt-4 w-full flex-1 rounded-lg border bg-white px-6 py-4 shadow-xs md:w-96 dark:bg-zinc-950 text-center">
             <span className="text-base text-zinc-600 text-center">
               We&apos;ve sent a verification link to your email. Please click on
               the link to continue.

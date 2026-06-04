@@ -58,7 +58,7 @@ export default async function AcceptInvitePage(props: {
 
   return (
     <div className="max-w-xl w-full mx-auto py-16 px-4">
-      <div className="bg-white shadow-sm px-8 py-12 rounded-2xl border border-slate-200 text-center w-full flex flex-col items-center">
+      <div className="bg-white shadow-xs px-8 py-12 rounded-2xl border border-slate-200 text-center w-full flex flex-col items-center">
         <Avatar className="h-16 w-16 mb-4">
           <AvatarImage
             src={`https://avatar.vercel.sh/${invite?.organization.id}.png`}
