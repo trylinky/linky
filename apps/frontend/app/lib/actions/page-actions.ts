@@ -110,7 +110,15 @@ export async function getPublicPageBySlugOrDomain(slug: string, domain: string) 
     return null;
   }
 
-  return res.json();
+  const data = await res.json();
+
+  // Also tag by the resolved id so a single `revalidateTag('page-id-' + id)`
+  // invalidates everything for the page (content AND this slug->id lookup).
+  if (data?.id) {
+    cacheTag(`page-id-${data.id}`);
+  }
+
+  return data;
 }
 
 export async function getPublicPageLoadData(pageId: string) {

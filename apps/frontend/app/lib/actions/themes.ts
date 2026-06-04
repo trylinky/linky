@@ -4,6 +4,7 @@ import { ThemeData } from '@/app/components/EditPageSettingsDialog/shared';
 import { getSession } from '@/app/lib/auth';
 import prisma from '@/lib/prisma';
 import { captureException } from '@sentry/nextjs';
+import { revalidateTag } from 'next/cache';
 import { headers } from 'next/headers';
 
 export async function createTheme({
@@ -201,7 +202,7 @@ export async function setPageTheme(pageSlug: string, themeId: string) {
   }
 
   try {
-    await prisma.page.update({
+    const updatedPage = await prisma.page.update({
       where: {
         slug: pageSlug,
         deletedAt: null,
@@ -220,7 +221,18 @@ export async function setPageTheme(pageSlug: string, themeId: string) {
           },
         },
       },
+      select: {
+        id: true,
+      },
     });
+
+    // Revalidate the public page cache (Task E2-14): theme change affects
+    // public rendering. The client SWR `mutate` flow (editor) is unchanged.
+    revalidateTag(`page-id-${updatedPage.id}`, 'minutes');
+    revalidateTag(
+      `page-slug-${pageSlug}-${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`,
+      'minutes'
+    );
 
     return {
       success: true,

@@ -6,6 +6,7 @@ import { designPageSettingsSchema, generalPageSettingsSchema } from './shared';
 import { getSession } from '@/app/lib/auth';
 import prisma from '@/lib/prisma';
 import { isForbiddenSlug, isReservedSlug } from '@/lib/slugs';
+import { revalidateTag } from 'next/cache';
 import { headers } from 'next/headers';
 
 export const fetchPageSettings = async (slug: string) => {
@@ -198,6 +199,21 @@ export const updateGeneralPageSettings = async (
     },
   });
 
+  // Revalidate the public page cache (Task E2-14). `pageSlug` is the new slug;
+  // `currentPageSlug` is the old one. The `page-id` tag invalidates all content
+  // (and, via the by-slug fn's secondary id tag, the slug->id lookup too).
+  revalidateTag(`page-id-${updatedPage.id}`, 'minutes');
+  revalidateTag(
+    `page-slug-${pageSlug}-${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`,
+    'minutes'
+  );
+  if (currentPageSlug !== pageSlug) {
+    revalidateTag(
+      `page-slug-${currentPageSlug}-${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`,
+      'minutes'
+    );
+  }
+
   return {
     data: {
       page: updatedPage,
@@ -255,6 +271,14 @@ export const updateDesignPageSettings = async (
       id: true,
     },
   });
+
+  // Revalidate the public page cache (Task E2-14): theme/background affect
+  // public rendering. Slug is unchanged here.
+  revalidateTag(`page-id-${updatedPage.id}`, 'minutes');
+  revalidateTag(
+    `page-slug-${currentPageSlug}-${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`,
+    'minutes'
+  );
 
   return {
     data: {
