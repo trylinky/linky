@@ -229,7 +229,7 @@ export function DraggableBlockButton({ type }: Props) {
       <button
         id="hello"
         type="button"
-        className="hidden md:flex w-full bg-white border border-stone-200 rounded-md items-center justify-start text-left px-3 py-3 shadow-none hover:shadow-md hover:translate-y-[-2px] transition-shadow transition-transform cursor-move"
+        className="hidden md:flex w-full bg-white/70 border border-white/60 backdrop-blur-sm rounded-md items-center justify-start text-left px-3 py-3 shadow-none hover:shadow-md hover:translate-y-[-2px] transition-shadow transition-transform cursor-move"
         draggable={true}
         unselectable="on"
         onDragStart={(e) => {
@@ -248,7 +248,7 @@ export function DraggableBlockButton({ type }: Props) {
       </button>
       <button
         type="button"
-        className="flex md:hidden w-full bg-white border border-stone-200 rounded-md items-center justify-start text-left px-3 py-3 shadow-none hover:shadow-md transition-shadow"
+        className="flex md:hidden w-full bg-white/70 border border-white/60 backdrop-blur-sm rounded-md items-center justify-start text-left px-3 py-3 shadow-none hover:shadow-md transition-shadow"
         onClick={() => {
           setNextToAddBlock({
             i: 'tmp-block',
