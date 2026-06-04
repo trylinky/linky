@@ -98,10 +98,11 @@ export function SidebarAnalytics() {
   }
 
   return (
-    <div>
-      {dataPoints.map((dataPoint) => (
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {dataPoints.map((dataPoint) => (
             <div key={dataPoint.key}>
-              <Card className="shadow-none mb-4">
+              <Card className="shadow-none h-full">
                 <CardContent>
                   <div className="flex flex-col gap-0 mt-4 mb-4">
                     {isLoading ? (
@@ -166,8 +167,9 @@ export function SidebarAnalytics() {
               </Card>
             </div>
           ))}
+      </div>
 
-          <Card className="shadow-none mb-4">
+          <Card className="shadow-none">
             <CardContent>
               <div className="flex flex-col gap-0 mt-4 mb-4">
                 <span className="text-lg font-semibold mb-4">
@@ -229,9 +231,9 @@ export function SidebarAnalytics() {
 
 export function SidebarAnalyticsComingsoon() {
   return (
-    <div className="w-full p-6 bg-stone-50 rounded-lg flex flex-col items-center justify-center text-center">
+    <div className="w-full min-h-[320px] p-12 bg-stone-50 rounded-lg flex flex-col items-center justify-center text-center">
       <span className="text-lg font-medium mb-2">Analytics coming soon</span>
-      <span className="text-sm text-muted-foreground">
+      <span className="text-sm text-muted-foreground max-w-md">
         We're still collecting data for this page. Please check back in a few
         days.
       </span>
