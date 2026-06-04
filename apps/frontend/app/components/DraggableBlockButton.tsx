@@ -212,14 +212,16 @@ export function DraggableBlockButton({ type }: Props) {
         height={15}
         alt=""
       />
-      <div className="w-9 h-9 bg-stone-100 rounded-md flex items-center mr-3 shrink-0">
+      <div className="w-9 h-9 bg-stone-100 dark:bg-white/10 rounded-md flex items-center mr-3 shrink-0">
         <Image src={blockConfig.icon} className="w-9 h-9" alt="" />
       </div>
       <div className="flex flex-col">
-        <span className="font-semibold text-stone-900 text-sm">
+        <span className="font-semibold text-stone-900 dark:text-white text-sm">
           {blockConfig.title}
         </span>
-        <span className="text-xs text-slate-600">{blockConfig.label}</span>
+        <span className="text-xs text-slate-600 dark:text-zinc-300">
+          {blockConfig.label}
+        </span>
       </div>
     </>
   );
@@ -229,7 +231,7 @@ export function DraggableBlockButton({ type }: Props) {
       <button
         id="hello"
         type="button"
-        className="hidden md:flex w-full bg-white/80 backdrop-blur-sm rounded-md shadow-[0_0_0_1px_#2000241c,0_2px_2px_#2000240d] items-center justify-start text-left px-3 py-3 hover:shadow-md hover:translate-y-[-2px] transition-shadow transition-transform cursor-move"
+        className="hidden md:flex w-full bg-white/80 backdrop-blur-sm rounded-md shadow-[0_0_0_1px_#2000241c,0_2px_2px_#2000240d] dark:bg-white/10 dark:shadow-[0_0_0_1px_#ffffff1f,0_2px_2px_#00000040] items-center justify-start text-left px-3 py-3 hover:shadow-md hover:translate-y-[-2px] transition-shadow transition-transform cursor-move"
         draggable={true}
         unselectable="on"
         onDragStart={(e) => {
@@ -248,7 +250,7 @@ export function DraggableBlockButton({ type }: Props) {
       </button>
       <button
         type="button"
-        className="flex md:hidden w-full bg-white/80 backdrop-blur-sm rounded-md shadow-[0_0_0_1px_#2000241c,0_2px_2px_#2000240d] items-center justify-start text-left px-3 py-3 hover:shadow-md transition-shadow"
+        className="flex md:hidden w-full bg-white/80 backdrop-blur-sm rounded-md shadow-[0_0_0_1px_#2000241c,0_2px_2px_#2000240d] dark:bg-white/10 dark:shadow-[0_0_0_1px_#ffffff1f,0_2px_2px_#00000040] items-center justify-start text-left px-3 py-3 hover:shadow-md transition-shadow"
         onClick={() => {
           setNextToAddBlock({
             i: 'tmp-block',

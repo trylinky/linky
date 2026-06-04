@@ -3,10 +3,12 @@
 import { SidebarBlockForm } from '@/app/components/SidebarBlockForm';
 import { SidebarBlocks } from '@/app/components/SidebarBlocks';
 import { useEditModeContext } from '@/app/contexts/Edit';
+import { internalApiFetcher } from '@trylinky/common';
 import * as Catalyst from '@trylinky/ui/catalyst';
 import dynamic from 'next/dynamic';
 import { ReactNode } from 'react';
 import { ResponsiveProps } from 'react-grid-layout';
+import useSWR, { useSWRConfig } from 'swr';
 
 const DynamicEditWrapper = dynamic(
   () =>
@@ -43,6 +45,17 @@ export function EditorCanvas({ children }: { children: ReactNode[] }) {
   // fallback) and owns drag/drop. The shell provides EditModeContextProvider.
   const { currentEditingBlock, setCurrentEditingBlock } = useEditModeContext();
 
+  // Pick a light- or dark-glass palette based on the theme background's
+  // lightness (theme colors are { h, l, s } with l in 0..1).
+  const { cache } = useSWRConfig();
+  const pageId = cache.get('pageId');
+  const { data: pageTheme } = useSWR<{ theme: { colorBgBase?: { l?: number } } }>(
+    pageId ? `/pages/${pageId}/theme` : null,
+    internalApiFetcher
+  );
+  const bgLightness = pageTheme?.theme?.colorBgBase?.l;
+  const isDarkTheme = typeof bgLightness === 'number' ? bgLightness < 0.5 : false;
+
   return (
     // Full-bleed out of the StackedLayout content card's p-6/lg:p-10 padding so
     // the theme background reaches the container edges (no white frame), then
@@ -51,12 +64,13 @@ export function EditorCanvas({ children }: { children: ReactNode[] }) {
       {/* Docked, non-modal block palette so HTML5 drag-to-add still works
           (a modal would block dragging onto the grid). Stacked above the grid
           on mobile (click-to-add), docked rail on desktop (drag-to-add). */}
-      <aside className="w-full shrink-0 md:w-72">
-        {/* Theme-adaptive frosted glass: tints with the page's own surface + text
-            tokens, so it's a light frost on light themes and a dark frost on dark
-            themes (rather than a fixed white panel that clashes on dark themes). */}
-        <div className="rounded-2xl bg-sys-bg-base/70 shadow-lg ring-1 ring-sys-bg-border/50 backdrop-blur-md md:sticky md:top-6 md:flex md:h-[calc(100svh-7rem)] md:flex-col md:overflow-hidden">
-          <h2 className="text-sys-title-primary shrink-0 border-b border-sys-bg-border/40 p-4 text-xl font-bold">
+      {/* `dark` toggles the glass between light- and dark-frost based on the
+          theme background lightness (Tailwind dark: variants below + in the
+          block cards). */}
+      <aside className={`w-full shrink-0 md:w-72 ${isDarkTheme ? 'dark' : ''}`}>
+        {/* Glassy frosted palette: light frost by default, dark frost on dark themes. */}
+        <div className="rounded-2xl bg-white/80 shadow-[0_0_0_1px_#2000241c,0_2px_2px_#2000240d] backdrop-blur-sm md:sticky md:top-6 md:flex md:h-[calc(100svh-7rem)] md:flex-col md:overflow-hidden dark:bg-zinc-900/70 dark:shadow-[0_0_0_1px_#ffffff1f,0_2px_2px_#00000040]">
+          <h2 className="shrink-0 border-b border-black/5 p-4 text-xl font-bold text-zinc-950 dark:border-white/10 dark:text-white">
             Blocks
           </h2>
           <div className="min-h-0 flex-1 overflow-y-auto p-4">
