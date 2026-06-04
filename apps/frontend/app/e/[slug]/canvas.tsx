@@ -1,5 +1,9 @@
 'use client';
 
+import { SidebarBlockForm } from '@/app/components/SidebarBlockForm';
+import { SidebarBlocks } from '@/app/components/SidebarBlocks';
+import { useEditModeContext } from '@/app/contexts/Edit';
+import * as Catalyst from '@trylinky/ui/catalyst';
 import dynamic from 'next/dynamic';
 import { ReactNode } from 'react';
 import { ResponsiveProps } from 'react-grid-layout';
@@ -37,9 +41,37 @@ const layoutProps: ResponsiveProps = {
 export function EditorCanvas({ children }: { children: ReactNode[] }) {
   // EditWrapper reads layout from SWR (seeded by the shell's LinkyProviders
   // fallback) and owns drag/drop. The shell provides EditModeContextProvider.
+  const { currentEditingBlock, setCurrentEditingBlock } = useEditModeContext();
+
   return (
-    <DynamicEditWrapper layoutProps={layoutProps}>
-      {children}
-    </DynamicEditWrapper>
+    <div className="flex w-full flex-col gap-6 md:flex-row">
+      {/* Docked, non-modal block palette so HTML5 drag-to-add still works
+          (a modal would block dragging onto the grid). Stacked above the grid
+          on mobile (click-to-add), docked rail on desktop (drag-to-add). */}
+      <aside className="w-full shrink-0 md:w-72">
+        <div className="rounded-xl border border-zinc-950/10 bg-white p-4 md:sticky md:top-6">
+          <Catalyst.Heading level={2} className="mb-4">
+            Blocks
+          </Catalyst.Heading>
+          <SidebarBlocks />
+        </div>
+      </aside>
+
+      <div className="min-w-0 flex-1">
+        <DynamicEditWrapper layoutProps={layoutProps}>
+          {children}
+        </DynamicEditWrapper>
+      </div>
+
+      {/* Per-block edit form. A modal is fine here — you're not dragging
+          while editing. */}
+      <Catalyst.Dialog
+        open={!!currentEditingBlock}
+        onClose={() => setCurrentEditingBlock(null)}
+        size="xl"
+      >
+        <SidebarBlockForm onClose={() => setCurrentEditingBlock(null)} />
+      </Catalyst.Dialog>
+    </div>
   );
 }

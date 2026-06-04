@@ -6,8 +6,8 @@ import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { captureException } from '@sentry/nextjs';
 import { Blocks } from '@trylinky/blocks';
 import { InternalApi, internalApiFetcher } from '@trylinky/common';
-import { useSidebar, useToast } from '@trylinky/ui';
-import { useParams, useRouter } from 'next/navigation';
+import { useToast } from '@trylinky/ui';
+import { useRouter } from 'next/navigation';
 import useSWR, { useSWRConfig } from 'swr';
 
 interface Props {
@@ -18,9 +18,6 @@ interface Props {
 export function EditBlockToolbar({ blockId, blockType }: Props) {
   const { toast } = useToast();
   const router = useRouter();
-  const params = useParams();
-  const slug = params.slug;
-  const { setOpen, setOpenMobile, setSidebarView } = useSidebar();
 
   const { setCurrentEditingBlock } = useEditModeContext();
 
@@ -91,15 +88,9 @@ export function EditBlockToolbar({ blockId, blockType }: Props) {
           type="button"
           className="relative inline-flex items-center rounded-l-full bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-stone-100 focus:z-10"
           onTouchStart={() => {
-            setOpen(true);
-            setOpenMobile(true);
-            setSidebarView('blockForm');
             setCurrentEditingBlock({ id: blockId, type: blockType });
           }}
           onClick={() => {
-            setOpen(true);
-            setOpenMobile(true);
-            setSidebarView('blockForm');
             setCurrentEditingBlock({ id: blockId, type: blockType });
           }}
         >

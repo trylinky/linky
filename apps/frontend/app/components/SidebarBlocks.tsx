@@ -1,13 +1,7 @@
 import { DraggableBlockButton } from '@/app/components/DraggableBlockButton';
 import { Blocks } from '@trylinky/blocks';
 import { internalApiFetcher } from '@trylinky/common';
-import {
-  SidebarContentHeader,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarInput,
-  SidebarMenu,
-} from '@trylinky/ui';
+import * as Catalyst from '@trylinky/ui/catalyst';
 import { SearchIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import useSWR from 'swr';
@@ -35,32 +29,24 @@ export function SidebarBlocks() {
   }, [search, enabledBlocks]);
 
   return (
-    <>
-      <SidebarContentHeader title="Blocks">
-        <div className="relative">
-          <SidebarInput
-            placeholder="Filter blocks"
-            value={search}
-            onChange={(ev: any) => setSearch(ev.target.value)}
-            className="mt-2 pl-7"
-          />
-          <SearchIcon className="absolute left-2 top-2 text-muted-foreground/50 size-4" />
-        </div>
-      </SidebarContentHeader>
+    <div className="flex flex-col gap-4">
+      <Catalyst.InputGroup>
+        <SearchIcon data-slot="icon" />
+        <Catalyst.Input
+          aria-label="Filter blocks"
+          placeholder="Filter blocks"
+          value={search}
+          onChange={(ev) => setSearch(ev.target.value)}
+        />
+      </Catalyst.InputGroup>
 
-      <SidebarGroup>
-        <SidebarGroupContent>
-          <SidebarMenu>
-            <div className="overflow-y-auto overscroll-none">
-              <div className="space-y-2 flex flex-col" id="tour-blocks">
-                {filteredBlocks?.map((block) => {
-                  return <DraggableBlockButton key={block} type={block} />;
-                })}
-              </div>
-            </div>
-          </SidebarMenu>
-        </SidebarGroupContent>
-      </SidebarGroup>
-    </>
+      <div className="overflow-y-auto overscroll-none">
+        <div className="space-y-2 flex flex-col" id="tour-blocks">
+          {filteredBlocks?.map((block) => {
+            return <DraggableBlockButton key={block} type={block} />;
+          })}
+        </div>
+      </div>
+    </div>
   );
 }

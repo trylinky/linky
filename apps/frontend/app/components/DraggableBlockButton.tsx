@@ -16,7 +16,6 @@ import blockWaitlistEmailIcon from '@/app/assets/ui/type-waitlist-email.svg';
 import blockYoutubeIcon from '@/app/assets/ui/type-youtube.svg';
 import { useEditModeContext } from '@/app/contexts/Edit';
 import { Blocks } from '@trylinky/blocks';
-import { useSidebar } from '@trylinky/ui';
 import Image from 'next/image';
 
 export const config: Record<
@@ -202,8 +201,6 @@ interface Props {
 export function DraggableBlockButton({ type }: Props) {
   const { setDraggingItem, setNextToAddBlock } = useEditModeContext();
 
-  const { isMobile, setOpen, setSidebarView } = useSidebar();
-
   const blockConfig = config[type];
 
   const content = (
@@ -259,10 +256,6 @@ export function DraggableBlockButton({ type }: Props) {
             h: blockConfig.drag.h,
             type,
           });
-
-          if (isMobile && setOpen) {
-            setOpen(false);
-          }
         }}
       >
         {content}

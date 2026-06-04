@@ -1,11 +1,7 @@
 import { config } from '@/app/components/DraggableBlockButton';
 import { EditForm } from '@/app/components/EditForm';
 import { useEditModeContext } from '@/app/contexts/Edit';
-import {
-  SidebarContentHeader,
-  SidebarGroup,
-  SidebarGroupContent,
-} from '@trylinky/ui';
+import * as Catalyst from '@trylinky/ui/catalyst';
 
 export function SidebarBlockForm({ onClose }: { onClose: () => void }) {
   const { currentEditingBlock } = useEditModeContext();
@@ -13,20 +9,15 @@ export function SidebarBlockForm({ onClose }: { onClose: () => void }) {
   if (!currentEditingBlock) return null;
 
   return (
-    <>
-      <SidebarContentHeader
-        title={`Editing ${config[currentEditingBlock.type].title}`}
+    <div className="flex flex-col gap-4">
+      <Catalyst.Heading level={2}>
+        {`Editing ${config[currentEditingBlock.type].title}`}
+      </Catalyst.Heading>
+      <EditForm
+        onClose={onClose}
+        blockId={currentEditingBlock?.id}
+        blockType={currentEditingBlock?.type}
       />
-      <SidebarGroup>
-        <SidebarGroupContent>
-          <div className="pb-2"></div>
-          <EditForm
-            onClose={onClose}
-            blockId={currentEditingBlock?.id}
-            blockType={currentEditingBlock?.type}
-          />
-        </SidebarGroupContent>
-      </SidebarGroup>
-    </>
+    </div>
   );
 }
