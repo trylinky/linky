@@ -11,7 +11,7 @@ import { usePathname } from 'next/navigation';
 import useSWR from 'swr';
 
 const tabs = (slug: string) => [
-  { label: 'Blocks', href: `/e/${slug}` },
+  { label: 'Editor', href: `/e/${slug}` },
   { label: 'Themes', href: `/e/${slug}/themes` },
   { label: 'Settings', href: `/e/${slug}/settings` },
   { label: 'Integrations', href: `/e/${slug}/integrations` },
