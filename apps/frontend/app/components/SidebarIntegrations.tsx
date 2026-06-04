@@ -5,19 +5,8 @@ import {
 import { captureException } from '@sentry/nextjs';
 import { InternalApi, internalApiFetcher } from '@trylinky/common';
 import { Integration } from '@trylinky/prisma';
-import {
-  SidebarContentHeader,
-  SidebarGroup,
-  SidebarGroupContent,
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  toast,
-} from '@trylinky/ui';
+import { toast } from '@trylinky/ui';
+import * as Catalyst from '@trylinky/ui/catalyst';
 import { useState } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 
@@ -68,10 +57,8 @@ export function SidebarIntegrations() {
 
   return (
     <>
-      <SidebarContentHeader title="Integrations" />
-
-      <SidebarGroup>
-        <SidebarGroupContent>
+      <div>
+        <div>
           {isLoading ? (
             <div className="w-full aspect-square bg-stone-200 rounded-lg flex items-center justify-center">
               <span className="text-muted-foreground text-sm">
@@ -106,9 +93,8 @@ export function SidebarIntegrations() {
                         </span>
                       </div>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
+                    <Catalyst.Button
+                      outline
                       onClick={() => {
                         if (!integration.id) {
                           return;
@@ -119,7 +105,7 @@ export function SidebarIntegrations() {
                       className="ml-auto"
                     >
                       Disconnect
-                    </Button>
+                    </Catalyst.Button>
                   </div>
                 );
               })}
@@ -132,60 +118,54 @@ export function SidebarIntegrations() {
               </span>
             </div>
           )}
-        </SidebarGroupContent>
-      </SidebarGroup>
+        </div>
+      </div>
 
-      <Dialog
+      <Catalyst.Dialog
         open={showConfirmDisconnect}
-        onOpenChange={setShowConfirmDisconnect}
+        onClose={setShowConfirmDisconnect}
       >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              Confirm to disconnect {currentlySelectedIntegration?.type}
-            </DialogTitle>
-            <DialogDescription>
-              Are you sure you want to disconnect this integration?
-            </DialogDescription>
+        <Catalyst.DialogTitle>
+          Confirm to disconnect {currentlySelectedIntegration?.type}
+        </Catalyst.DialogTitle>
+        <Catalyst.DialogDescription>
+          Are you sure you want to disconnect this integration?
+        </Catalyst.DialogDescription>
 
-            {currentlySelectedIntegration?.blocks?.length ? (
-              <>
-                <DialogDescription className="text-pretty">
-                  This integration is connected to{' '}
-                  {currentlySelectedIntegration?.blocks?.length}{' '}
-                  {currentlySelectedIntegration?.blocks?.length === 1
-                    ? 'block'
-                    : 'blocks'}{' '}
-                  on the following pages:
-                </DialogDescription>
-                <DialogDescription
-                  className="text-pretty list-disc list-inside pl-4 my-3"
-                  is="ul"
-                >
-                  {currentlySelectedIntegration?.blocks?.map((block) => (
-                    <li key={block.page.id}>/{block.page.slug}</li>
-                  ))}
-                </DialogDescription>
-                <DialogDescription className="text-pretty">
-                  Disconnecting will stop those pages from syncing data from{' '}
-                  {currentlySelectedIntegration?.type}.
-                </DialogDescription>
-              </>
-            ) : null}
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="secondary"
-              onClick={() => setShowConfirmDisconnect(false)}
-            >
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleDisconnect}>
-              Disconnect
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        {currentlySelectedIntegration?.blocks?.length ? (
+          <Catalyst.DialogBody>
+            <Catalyst.DialogDescription className="text-pretty">
+              This integration is connected to{' '}
+              {currentlySelectedIntegration?.blocks?.length}{' '}
+              {currentlySelectedIntegration?.blocks?.length === 1
+                ? 'block'
+                : 'blocks'}{' '}
+              on the following pages:
+            </Catalyst.DialogDescription>
+            <ul className="text-pretty list-disc list-inside pl-4 my-3">
+              {currentlySelectedIntegration?.blocks?.map((block) => (
+                <li key={block.page.id}>/{block.page.slug}</li>
+              ))}
+            </ul>
+            <Catalyst.DialogDescription className="text-pretty">
+              Disconnecting will stop those pages from syncing data from{' '}
+              {currentlySelectedIntegration?.type}.
+            </Catalyst.DialogDescription>
+          </Catalyst.DialogBody>
+        ) : null}
+
+        <Catalyst.DialogActions>
+          <Catalyst.Button
+            outline
+            onClick={() => setShowConfirmDisconnect(false)}
+          >
+            Cancel
+          </Catalyst.Button>
+          <Catalyst.Button color="red" onClick={handleDisconnect}>
+            Disconnect
+          </Catalyst.Button>
+        </Catalyst.DialogActions>
+      </Catalyst.Dialog>
     </>
   );
 }
