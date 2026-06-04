@@ -1,11 +1,6 @@
 import { EditPageSettingsGeneral } from '@/app/components/EditPageSettingsDialog/EditPageSettingsGeneralForm';
 import { internalApiFetcher } from '@trylinky/common';
 import { Page } from '@trylinky/prisma';
-import {
-  SidebarContentHeader,
-  SidebarGroup,
-  SidebarGroupContent,
-} from '@trylinky/ui';
 import useSWR, { useSWRConfig } from 'swr';
 
 export function SidebarPageSettings() {
@@ -19,21 +14,13 @@ export function SidebarPageSettings() {
   );
 
   return (
-    <>
-      <SidebarContentHeader title="Settings"></SidebarContentHeader>
-
-      <SidebarGroup>
-        <SidebarGroupContent>
-          <EditPageSettingsGeneral
-            initialValues={{
-              metaTitle: pageSettings?.metaTitle ?? '',
-              pageSlug: pageSettings?.slug ?? '',
-              published: pageSettings?.publishedAt ? true : false,
-            }}
-            pageId={pageSettings?.id ?? ''}
-          />
-        </SidebarGroupContent>
-      </SidebarGroup>
-    </>
+    <EditPageSettingsGeneral
+      initialValues={{
+        metaTitle: pageSettings?.metaTitle ?? '',
+        pageSlug: pageSettings?.slug ?? '',
+        published: pageSettings?.publishedAt ? true : false,
+      }}
+      pageId={pageSettings?.id ?? ''}
+    />
   );
 }
