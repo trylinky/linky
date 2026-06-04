@@ -62,25 +62,33 @@ export function EditorNavbar({ slug }: { slug: string }) {
 
 function ScreenSizeSwitcher() {
   const { editLayoutMode, setEditLayoutMode } = useEditModeContext();
+  const base =
+    'inline-flex items-center justify-center rounded-md p-1.5 transition-colors';
+  const active = 'bg-white text-zinc-950 shadow-sm';
+  const inactive = 'text-zinc-500 hover:text-zinc-950';
   return (
     <span
       id="tour-screen-size-switcher"
-      className="inline-flex items-center gap-1"
+      className="inline-flex items-center gap-0.5 rounded-lg bg-zinc-100 p-0.5"
     >
-      <Catalyst.NavbarItem
-        current={editLayoutMode === 'desktop'}
-        onClick={() => setEditLayoutMode('desktop')}
+      <button
+        type="button"
         aria-label="Desktop preview"
+        aria-pressed={editLayoutMode === 'desktop'}
+        onClick={() => setEditLayoutMode('desktop')}
+        className={`${base} ${editLayoutMode === 'desktop' ? active : inactive}`}
       >
-        <ComputerDesktopIcon />
-      </Catalyst.NavbarItem>
-      <Catalyst.NavbarItem
-        current={editLayoutMode === 'mobile'}
-        onClick={() => setEditLayoutMode('mobile')}
+        <ComputerDesktopIcon className="size-5" />
+      </button>
+      <button
+        type="button"
         aria-label="Mobile preview"
+        aria-pressed={editLayoutMode === 'mobile'}
+        onClick={() => setEditLayoutMode('mobile')}
+        className={`${base} ${editLayoutMode === 'mobile' ? active : inactive}`}
       >
-        <DevicePhoneMobileIcon />
-      </Catalyst.NavbarItem>
+        <DevicePhoneMobileIcon className="size-5" />
+      </button>
     </span>
   );
 }
