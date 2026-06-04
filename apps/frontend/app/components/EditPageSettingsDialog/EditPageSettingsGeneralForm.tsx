@@ -1,16 +1,12 @@
 'use client';
 
-import { FormField } from '../FormField';
 import { updateGeneralPageSettings } from './actions';
 import { generalPageSettingsSchema } from './shared';
 import VerificationRequestDialog from '@/app/components/VerificationRequestDialog';
-import { ChevronDownIcon } from '@radix-ui/react-icons';
 import { captureException } from '@sentry/nextjs';
 import { InternalApi } from '@trylinky/common';
+import * as Catalyst from '@trylinky/ui/catalyst';
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
   Button,
   Dialog,
   DialogContent,
@@ -18,11 +14,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  Label,
-  Switch,
   useToast,
 } from '@trylinky/ui';
-import { Form, Formik, FormikHelpers } from 'formik';
+import { Field as FormikField, Form, Formik, FormikHelpers } from 'formik';
 import { withZodSchema } from 'formik-validator-zod';
 import { Loader2 } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
@@ -135,113 +129,153 @@ export function EditPageSettingsGeneral({ initialValues, pageId }: Props) {
         enableReinitialize
       >
         {({ isSubmitting, values, setFieldValue, errors }) => (
-          <Form className="w-full flex flex-col">
-            <div className="border-b border-white/10 pb-12">
-              <div>
-                <FormField
-                  withPrefix="lin.ky/"
-                  label="Handle"
-                  name="pageSlug"
-                  placeholder="your-page"
-                  id="pageSlug"
-                  error={errors.pageSlug}
-                />
-                <div className="hidden px-3 py-4 rounded-lg ring-1 ring-black/10 relative bg-[#fffbec] flex flex-col gap-1">
-                  <span className="text-sm text-black font-semibold">
-                    Custom Domain 👀
-                  </span>
-                  <span className="text-sm text-black">
-                    Add a custom domain to your page for a one-time fee of{' '}
-                    <del>$10</del> <ins className="font-semibold">$5</ins>. This
-                    feature is still in beta, and you can enable it by reaching
-                    out to us at <a href="mailto:team@lin.ky">team@lin.ky</a>.
-                  </span>
+          <Form className="flex w-full flex-col gap-12">
+            {/* General */}
+            <section className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-3">
+              <div className="md:col-span-1">
+                <Catalyst.Subheading>General</Catalyst.Subheading>
+                <Catalyst.Text className="mt-1">
+                  Your page handle, title, and whether it&apos;s live.
+                </Catalyst.Text>
+              </div>
+
+              <div className="md:col-span-2">
+                <Catalyst.Fieldset>
+                  <Catalyst.FieldGroup>
+                    <Catalyst.Field>
+                      <Catalyst.Label htmlFor="pageSlug">Handle</Catalyst.Label>
+                      <div className="mt-3 flex">
+                        <span className="inline-flex items-center rounded-l-lg border border-r-0 border-zinc-950/10 bg-zinc-50 px-3 text-sm text-zinc-500 dark:border-white/10 dark:bg-white/5 dark:text-zinc-400">
+                          lin.ky/
+                        </span>
+                        <FormikField name="pageSlug">
+                          {({ field }: { field: { value: string } }) => (
+                            <Catalyst.Input
+                              {...field}
+                              id="pageSlug"
+                              placeholder="your-page"
+                              className="flex-1 [&_input]:rounded-l-none"
+                              invalid={!!errors.pageSlug}
+                            />
+                          )}
+                        </FormikField>
+                      </div>
+                      {errors.pageSlug && (
+                        <Catalyst.ErrorMessage className="mt-2">
+                          {errors.pageSlug}
+                        </Catalyst.ErrorMessage>
+                      )}
+                    </Catalyst.Field>
+
+                    <Catalyst.Field>
+                      <Catalyst.Label htmlFor="metaTitle">
+                        Page title
+                      </Catalyst.Label>
+                      <FormikField name="metaTitle">
+                        {({ field }: { field: { value: string } }) => (
+                          <Catalyst.Input
+                            {...field}
+                            id="metaTitle"
+                            placeholder="Hello world"
+                            invalid={!!errors.metaTitle}
+                          />
+                        )}
+                      </FormikField>
+                      {errors.metaTitle && (
+                        <Catalyst.ErrorMessage className="mt-2">
+                          {errors.metaTitle}
+                        </Catalyst.ErrorMessage>
+                      )}
+                    </Catalyst.Field>
+
+                    <Catalyst.SwitchField>
+                      <Catalyst.Label>Published</Catalyst.Label>
+                      <Catalyst.Description>
+                        Disabling this will turn your page into a draft and only
+                        you will be able to see it.
+                      </Catalyst.Description>
+                      <Catalyst.Switch
+                        name="published"
+                        checked={values.published}
+                        onChange={(newVal: boolean) =>
+                          setFieldValue('published', newVal)
+                        }
+                      />
+                    </Catalyst.SwitchField>
+                  </Catalyst.FieldGroup>
+                </Catalyst.Fieldset>
+
+                <div className="mt-8">
+                  <Catalyst.Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
+                    Save settings
+                  </Catalyst.Button>
                 </div>
               </div>
-              <div className="mt-4">
-                <FormField
-                  label="Page title"
-                  name="metaTitle"
-                  placeholder="Hello world"
-                  id="metaTitle"
-                  error={errors.metaTitle}
-                />
+            </section>
+
+            <Catalyst.Divider />
+
+            {/* Verification */}
+            <section className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-3">
+              <div className="md:col-span-1">
+                <Catalyst.Subheading>Verification</Catalyst.Subheading>
+                <Catalyst.Text className="mt-1">
+                  Verified pages are highlighted with a badge.
+                </Catalyst.Text>
               </div>
 
-              <div className="mt-4">
-                <Label htmlFor="published">Published</Label>
-                <div className="flex flex-col md:flex-row items-center mt-3">
-                  <Switch
-                    id="published"
-                    checked={values.published}
-                    onCheckedChange={(newVal: boolean) =>
-                      setFieldValue('published', newVal)
-                    }
-                  />
-                  <label className="text-sm mt-3 md:mt-0 md:ml-3 max-w-80">
-                    Disabling this will turn your page into a draft and only you
-                    will be able to see it.
-                  </label>
-                </div>
+              <div className="md:col-span-2">
+                <Catalyst.Text>
+                  Begin the verification process to request a verified badge for
+                  your page.
+                </Catalyst.Text>
+                <Catalyst.Button
+                  type="button"
+                  outline
+                  className="mt-4"
+                  onClick={() => setShowVerificationDialog(true)}
+                >
+                  Begin page verification
+                </Catalyst.Button>
+              </div>
+            </section>
+
+            <Catalyst.Divider />
+
+            {/* Danger zone */}
+            <section className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-3">
+              <div className="md:col-span-1">
+                <Catalyst.Subheading className="text-red-600 dark:text-red-500">
+                  Danger zone
+                </Catalyst.Subheading>
+                <Catalyst.Text className="mt-1">
+                  Irreversible actions for this page.
+                </Catalyst.Text>
               </div>
 
-              <Collapsible className="mt-4 group">
-                <CollapsibleTrigger className="w-full py-2 px-3 bg-stone-100 rounded-lg">
-                  <div className="flex justify-between items-center w-full">
-                    <span className="font-semibold">Page Verification</span>
-                    <ChevronDownIcon className="w-4 h-4 group-data-[state=open]:rotate-180" />
-                  </div>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="px-3 py-2 bg-stone-100 rounded-lg">
-                  <span className="text-sm mt-1 block">
-                    Verified pages are highlighted with a badge. Click below to
-                    begin the verification process.
-                  </span>
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="mt-4"
-                    onClick={() => setShowVerificationDialog(true)}
-                  >
-                    Begin Page Verification
-                  </Button>
-                </CollapsibleContent>
-              </Collapsible>
-
-              <Collapsible className="mt-4 group">
-                <CollapsibleTrigger className="w-full py-2 px-3 bg-stone-100 rounded-lg">
-                  <div className="flex justify-between items-center w-full">
-                    <span className="font-semibold">Deleting your page</span>
-                    <ChevronDownIcon className="w-4 h-4 group-data-[state=open]:rotate-180" />
-                  </div>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="px-3 py-2 bg-stone-100 rounded-lg">
-                  <span className="text-sm mt-1 block">
+              <div className="md:col-span-2">
+                <div className="rounded-lg border border-red-300 bg-red-50 p-4 dark:border-red-500/30 dark:bg-red-500/10">
+                  <Catalyst.Subheading className="text-red-700 dark:text-red-400">
+                    Delete this page
+                  </Catalyst.Subheading>
+                  <Catalyst.Text className="mt-1">
                     Deleting your page is irreversible and your page handle will
                     be available to use by other users.
-                  </span>
-
-                  <Button
+                  </Catalyst.Text>
+                  <Catalyst.Button
                     type="button"
-                    variant="destructive"
+                    color="red"
                     className="mt-4"
                     onClick={() => setShowConfirmDelete(true)}
                   >
-                    Delete Page
-                  </Button>
-                </CollapsibleContent>
-              </Collapsible>
-            </div>
-
-            <DialogFooter>
-              <Button type="submit">
-                {isSubmitting && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
-                Save Settings
-              </Button>
-            </DialogFooter>
+                    Delete page
+                  </Catalyst.Button>
+                </div>
+              </div>
+            </section>
           </Form>
         )}
       </Formik>
