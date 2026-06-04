@@ -107,9 +107,9 @@ export function SidebarThemes() {
             <ChevronLeft size={16} />
             Back to themes
           </Catalyst.Button>
-          <Catalyst.Heading level={2}>
+          <h1 className="text-3xl font-bold tracking-tight text-zinc-950 dark:text-white">
             {editThemeId ? 'Edit theme' : 'Create theme'}
-          </Catalyst.Heading>
+          </h1>
         </div>
 
         {editThemeId && (

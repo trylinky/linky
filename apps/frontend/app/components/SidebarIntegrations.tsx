@@ -152,13 +152,13 @@ export function SidebarIntegrations() {
                   return (
                     <div
                       key={type}
-                      className="flex flex-col rounded-lg border border-stone-200 p-4"
+                      className="flex flex-col rounded-lg border border-stone-300 p-4"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md bg-stone-100">
-                          <IntegrationIcon width={20} height={20} />
+                        <div className="flex size-12 flex-shrink-0 items-center justify-center rounded-lg bg-stone-100">
+                          <IntegrationIcon width={28} height={28} />
                         </div>
-                        <span className="text-sm font-medium">
+                        <span className="text-lg font-semibold text-zinc-950">
                           {config.name}
                         </span>
                       </div>

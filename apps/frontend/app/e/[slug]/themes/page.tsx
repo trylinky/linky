@@ -6,7 +6,9 @@ import * as Catalyst from '@trylinky/ui/catalyst';
 export default function ThemesTab() {
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
-      <Catalyst.Heading>Themes</Catalyst.Heading>
+      <h1 className="text-3xl font-bold tracking-tight text-zinc-950 dark:text-white">
+        Themes
+      </h1>
       <Catalyst.Text className="mt-1">
         Pick a theme to style your page. Each preview shows how your page will
         look.
