@@ -188,9 +188,9 @@ Change the matcher line from:
 ```ts
 '/((?!api/|_next/|i/|_static/|_vercel|edit|invite|new|new-api|assets|[\\w-]+\\.\\w+).*)',
 ```
-to:
+to (use `e(?=/|$)`, NOT bare `e` — bare `e` would exclude every slug starting with "e" like `/emma` and 404 those public pages; the lookahead matches only `/e` exactly and `/e/...`):
 ```ts
-'/((?!api/|_next/|i/|_static/|_vercel|e|edit|invite|new|new-api|assets|[\\w-]+\\.\\w+).*)',
+'/((?!api/|_next/|i/|_static/|_vercel|e(?=/|$)|edit|invite|new|new-api|assets|[\\w-]+\\.\\w+).*)',
 ```
 
 - [ ] **Step 2: Verify `/e/*` is not rewritten**
