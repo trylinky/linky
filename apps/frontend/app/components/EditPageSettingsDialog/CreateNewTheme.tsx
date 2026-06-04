@@ -3,6 +3,7 @@
 import { RenderThemeStyle } from '@/app/[domain]/[slug]/render-page-theme';
 import { FontSelector } from '@/app/components/FontSelector';
 import { FormFileUpload } from '@/app/components/FormFileUpload';
+import { ThemeMockup } from '@/app/components/ThemeMockup';
 import { createTheme, updateTheme } from '@/app/lib/actions/themes';
 import { HSLColor, hslToHex, themeFields } from '@/lib/theme';
 import { ChevronDownIcon } from '@heroicons/react/24/solid';
@@ -172,88 +173,113 @@ export function CreateEditThemeForm({
 
     mutate('/themes/me/team');
   };
+
+  // Build a partial theme from the current form state so the live preview
+  // reflects edits before the theme is saved.
+  const previewTheme = {
+    font,
+    backgroundImage,
+    ...Object.fromEntries(
+      Object.entries(colors).map(([key, value]) => [key, value.hsl])
+    ),
+  } as Partial<Theme>;
+
   return (
-    <div className="grid grid-cols-2 gap-2">
-      <div className="col-span-2">
-        <Label htmlFor="themeName">Theme name</Label>
-        <Input
-          type="text"
-          id="themeName"
-          name="themeName"
-          className="bg-white"
-          placeholder="Give your theme a name"
-          value={themeName}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setThemeName(e.target.value)
-          }
-        />
+    <div className="grid max-w-4xl grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_220px]">
+      <div className="flex max-w-2xl flex-col gap-6">
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="themeName">Theme name</Label>
+          <Input
+            type="text"
+            id="themeName"
+            name="themeName"
+            className="bg-white"
+            placeholder="Give your theme a name"
+            value={themeName}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setThemeName(e.target.value)
+            }
+          />
+        </div>
+
+        <Collapsible className="group">
+          <CollapsibleTrigger className="w-full rounded-lg bg-stone-100 px-3 py-2">
+            <div className="flex w-full items-center justify-between">
+              <span className="font-semibold">Background</span>
+              <ChevronDownIcon className="h-4 w-4 group-data-[state=open]:rotate-180" />
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2 rounded-lg bg-stone-100 px-3 py-2">
+            <FormFileUpload
+              htmlFor="theme-background-image"
+              onUploaded={(url) => setBackgroundImage(url)}
+              initialValue={backgroundImage}
+              referenceId={editThemeId || 'new-theme'}
+              label="Background image"
+              assetContext="pageBackgroundImage"
+              isCondensed
+            />
+          </CollapsibleContent>
+        </Collapsible>
+
+        <Collapsible className="group">
+          <CollapsibleTrigger className="w-full rounded-lg bg-stone-100 px-3 py-2">
+            <div className="flex w-full items-center justify-between">
+              <span className="font-semibold">Fonts</span>
+              <ChevronDownIcon className="h-4 w-4 group-data-[state=open]:rotate-180" />
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2 rounded-lg bg-stone-100 px-3 py-2">
+            <FontSelector
+              value={font}
+              onChange={setFont}
+              label="Font"
+              id="theme-font"
+            />
+          </CollapsibleContent>
+        </Collapsible>
+
+        <Collapsible className="group">
+          <CollapsibleTrigger className="w-full rounded-lg bg-stone-100 px-3 py-2">
+            <div className="flex w-full items-center justify-between">
+              <span className="font-semibold">Colors</span>
+              <ChevronDownIcon className="h-4 w-4 group-data-[state=open]:rotate-180" />
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2 rounded-lg bg-stone-100 px-3 py-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {themeFields.map((field) => {
+                return (
+                  <ColorField
+                    key={field.id}
+                    id={field.id}
+                    label={field.label}
+                    variable={field.variable}
+                    onChange={(value) => setColor(field.id, value)}
+                    value={colors[field.id]}
+                  />
+                );
+              })}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        <div>
+          <Button type="button" onClick={handleThemeAction}>
+            {action === 'create' ? 'Create theme' : 'Update theme'}
+          </Button>
+        </div>
       </div>
 
-      <Collapsible className="mt-4 group col-span-2">
-        <CollapsibleTrigger className="w-full py-2 px-3 bg-stone-100 rounded-lg">
-          <div className="flex justify-between items-center w-full">
-            <span className="font-semibold">Background</span>
-            <ChevronDownIcon className="w-4 h-4 group-data-[state=open]:rotate-180" />
+      {/* Live preview */}
+      <div className="hidden lg:block">
+        <div className="sticky top-4 flex flex-col gap-2">
+          <span className="text-sm font-medium text-stone-500">Preview</span>
+          <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5">
+            <ThemeMockup theme={previewTheme} />
           </div>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="px-3 py-2 bg-stone-100 rounded-lg">
-          <FormFileUpload
-            htmlFor="theme-background-image"
-            onUploaded={(url) => setBackgroundImage(url)}
-            initialValue={backgroundImage}
-            referenceId={editThemeId || 'new-theme'}
-            label="Background image"
-            assetContext="pageBackgroundImage"
-            isCondensed
-          />
-        </CollapsibleContent>
-      </Collapsible>
-
-      <Collapsible className="mt-4 group col-span-2">
-        <CollapsibleTrigger className="w-full py-2 px-3 bg-stone-100 rounded-lg">
-          <div className="flex justify-between items-center w-full">
-            <span className="font-semibold">Fonts</span>
-            <ChevronDownIcon className="w-4 h-4 group-data-[state=open]:rotate-180" />
-          </div>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="px-3 py-2 bg-stone-100 rounded-lg">
-          <FontSelector
-            value={font}
-            onChange={setFont}
-            label="Font"
-            id="theme-font"
-          />
-        </CollapsibleContent>
-      </Collapsible>
-
-      <Collapsible className="mt-4 group col-span-2">
-        <CollapsibleTrigger className="w-full py-2 px-3 bg-stone-100 rounded-lg">
-          <div className="flex justify-between items-center w-full">
-            <span className="font-semibold">Colors</span>
-            <ChevronDownIcon className="w-4 h-4 group-data-[state=open]:rotate-180" />
-          </div>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="px-3 py-2 bg-stone-100 rounded-lg">
-          <div className="grid grid-cols-1 gap-4">
-            {themeFields.map((field) => {
-              return (
-                <ColorField
-                  key={field.id}
-                  id={field.id}
-                  label={field.label}
-                  variable={field.variable}
-                  onChange={(value) => setColor(field.id, value)}
-                  value={colors[field.id]}
-                />
-              );
-            })}
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
-
-      <Button type="button" onClick={handleThemeAction} className="col-span-2">
-        {action === 'create' ? 'Create theme' : 'Update theme'}
-      </Button>
+        </div>
+      </div>
 
       <RenderThemeStyle
         theme={Object.fromEntries(

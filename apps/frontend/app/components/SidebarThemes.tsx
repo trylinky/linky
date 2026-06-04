@@ -6,7 +6,7 @@ import { internalApiFetcher } from '@trylinky/common';
 import { Theme } from '@trylinky/prisma';
 import { toast } from '@trylinky/ui';
 import * as Catalyst from '@trylinky/ui/catalyst';
-import { Check, Plus } from 'lucide-react';
+import { Check, ChevronLeft, Plus } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
@@ -90,8 +90,28 @@ export function SidebarThemes() {
   };
 
   if (editThemeId || (showCreateNewTheme && !editThemeId)) {
+    const handleBack = () => {
+      setEditThemeId(null);
+      setShowCreateNewTheme(false);
+    };
+
     return (
       <div>
+        <div className="mb-6">
+          <Catalyst.Button
+            type="button"
+            plain
+            className="mb-2 px-0 text-sm text-stone-500 hover:text-stone-800"
+            onClick={handleBack}
+          >
+            <ChevronLeft size={16} />
+            Back to themes
+          </Catalyst.Button>
+          <Catalyst.Heading level={2}>
+            {editThemeId ? 'Edit theme' : 'Create theme'}
+          </Catalyst.Heading>
+        </div>
+
         {editThemeId && (
           <CreateEditThemeForm action="edit" editThemeId={editThemeId} />
         )}
