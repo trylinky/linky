@@ -45,16 +45,28 @@ export function EditorCanvas({ children }: { children: ReactNode[] }) {
   // fallback) and owns drag/drop. The shell provides EditModeContextProvider.
   const { currentEditingBlock, setCurrentEditingBlock } = useEditModeContext();
 
-  // Pick a light- or dark-glass palette based on the theme background's
-  // lightness (theme colors are { h, l, s } with l in 0..1).
+  // Derive a frosted-glass tint from the theme background's actual hue +
+  // saturation (theme colors are { h, l, s }; l,s in 0..1, h in deg). The glass
+  // is a darker or lighter *shade of the page color* (not neutral gray), so it
+  // stays cohesive on light, dark, and mid-tone/colored themes. Text contrast
+  // (the `dark` class) flips on the glass lightness.
   const { cache } = useSWRConfig();
   const pageId = cache.get('pageId');
-  const { data: pageTheme } = useSWR<{ theme: { colorBgBase?: { l?: number } } }>(
-    pageId ? `/pages/${pageId}/theme` : null,
-    internalApiFetcher
-  );
-  const bgLightness = pageTheme?.theme?.colorBgBase?.l;
-  const isDarkTheme = typeof bgLightness === 'number' ? bgLightness < 0.5 : false;
+  const { data: pageTheme } = useSWR<{
+    theme: { colorBgBase?: { h?: number; s?: number; l?: number } };
+  }>(pageId ? `/pages/${pageId}/theme` : null, internalApiFetcher);
+
+  const bg = pageTheme?.theme?.colorBgBase;
+  const h = bg?.h ?? 0;
+  const s = Math.min(bg?.s ?? 0, 0.35); // cap saturation so the tint stays subtle
+  const l = typeof bg?.l === 'number' ? bg.l : 1;
+  const isDarkTheme = l < 0.5;
+  // Panel/card lightness: a shade of the page color, offset for separation.
+  const panelL = isDarkTheme ? Math.max(l * 0.5, 0.12) : Math.min(l + 0.06, 0.98);
+  const cardL = isDarkTheme ? Math.max(l * 0.72, 0.18) : 1;
+  const sp = (s * 100).toFixed(1);
+  const glassPanel = `hsl(${h}deg ${sp}% ${(panelL * 100).toFixed(1)}% / ${isDarkTheme ? 0.66 : 0.8})`;
+  const glassCard = `hsl(${h}deg ${sp}% ${(cardL * 100).toFixed(1)}% / ${isDarkTheme ? 0.55 : 0.85})`;
 
   return (
     // Full-bleed out of the StackedLayout content card's p-6/lg:p-10 padding so
@@ -67,9 +79,18 @@ export function EditorCanvas({ children }: { children: ReactNode[] }) {
       {/* `dark` toggles the glass between light- and dark-frost based on the
           theme background lightness (Tailwind dark: variants below + in the
           block cards). */}
-      <aside className={`w-full shrink-0 md:w-72 ${isDarkTheme ? 'dark' : ''}`}>
-        {/* Glassy frosted palette: light frost by default, dark frost on dark themes. */}
-        <div className="rounded-2xl bg-white/80 shadow-[0_0_0_1px_#2000241c,0_2px_2px_#2000240d] backdrop-blur-sm md:sticky md:top-6 md:flex md:h-[calc(100svh-7rem)] md:flex-col md:overflow-hidden dark:bg-zinc-900/70 dark:shadow-[0_0_0_1px_#ffffff1f,0_2px_2px_#00000040]">
+      <aside
+        className={`w-full shrink-0 md:w-72 ${isDarkTheme ? 'dark' : ''}`}
+        style={
+          {
+            '--glass-panel': glassPanel,
+            '--glass-card': glassCard,
+          } as React.CSSProperties
+        }
+      >
+        {/* Frosted palette tinted from the theme color (var set above); light or
+            dark text via the `dark` class. */}
+        <div className="rounded-2xl bg-[var(--glass-panel)] shadow-[0_0_0_1px_#2000241c,0_2px_2px_#2000240d] backdrop-blur-md md:sticky md:top-6 md:flex md:h-[calc(100svh-7rem)] md:flex-col md:overflow-hidden dark:shadow-[0_0_0_1px_#ffffff1f,0_2px_2px_#00000040]">
           <h2 className="shrink-0 border-b border-black/5 p-4 text-xl font-bold text-zinc-950 dark:border-white/10 dark:text-white">
             Blocks
           </h2>
