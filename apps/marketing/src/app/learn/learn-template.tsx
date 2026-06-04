@@ -15,7 +15,7 @@ export function ArticleTemplate({ children, meta }: Props) {
         itemType="https://schema.org/Question"
         className="flex flex-col min-h-[calc(100vh-12rem)]"
       >
-        <section className="bg-gradient-to-b from-[#f9f9f8] to-[#f5f3ea] pb-16 pt-16">
+        <section className="bg-linear-to-b from-[#f9f9f8] to-[#f5f3ea] pb-16 pt-16">
           <MarketingContainer>
             <div className="mx-auto max-w-2xl lg:max-w-none">
               <header className="flex max-w-3xl flex-col pt-16">

@@ -44,7 +44,7 @@ interface Props {
 
 function WelcomeScreen({ onNext }: { onNext: () => void }) {
   return (
-    <div className="w-full p-4 md:p-6 flex flex-col bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 rounded-lg shadow-md transition-all">
+    <div className="w-full p-4 md:p-6 flex flex-col bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 rounded-lg shadow-md transition-all">
       <div className="flex flex-col items-center justify-center h-full text-center">
         {/* Logo Illustration */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -102,7 +102,7 @@ function HandleScreen({
             This will be your page's unique web address on lin.ky.
           </p>
         </div>
-        <div className="flex-grow">
+        <div className="grow">
           <HandleStep error={error} touched={touched} />
         </div>
       </div>
@@ -137,7 +137,7 @@ function ThemeScreen({
             Pick a visual style that best represents your page.
           </p>
         </div>
-        <div className="flex-grow">
+        <div className="grow">
           <ThemeStep
             currentThemeId={currentThemeId}
             setFieldValue={setFieldValue}
@@ -216,7 +216,7 @@ export function NewPageDialog({ open, onOpenChange, onClose }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="md:max-w-2xl lg:max-w-3xl xl:max-w-4xl !p-0 min-h-[550px]">
+      <DialogContent className="md:max-w-2xl lg:max-w-3xl xl:max-w-4xl p-0! min-h-[550px]">
         <Formik<FormValues>
           initialValues={{
             pageSlug: '',

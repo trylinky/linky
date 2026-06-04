@@ -28,7 +28,7 @@ export function Map(props: BlockProps) {
   if (!blockData?.coords) return null;
 
   return (
-    <CoreBlock className="relative !p-0 overflow-hidden" {...props}>
+    <CoreBlock className="relative p-0! overflow-hidden" {...props}>
       <DynamicMapboxMap
         className="absolute w-full h-full object-cover"
         coords={blockData?.coords}

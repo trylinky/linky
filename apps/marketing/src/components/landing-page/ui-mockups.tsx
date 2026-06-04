@@ -69,7 +69,7 @@ export const SpotifyPlayingNowMockup = ({
   const data = mockSpotifyData[variant];
   return (
     <CoreBlockMock
-      className={cn('bg-gradient-to-tr from-[#0A0B0D] to-[#402650]', className)}
+      className={cn('bg-linear-to-tr from-[#0A0B0D] to-[#402650]', className)}
     >
       <div className="flex gap-3">
         <img
@@ -148,17 +148,17 @@ export const InstagramLatestPostMockup = ({
   className?: string;
 }) => {
   return (
-    <CoreBlockMock className={cn('!p-0', className)}>
+    <CoreBlockMock className={cn('p-0!', className)}>
       <div className="w-full h-full overflow-x-auto snap-x snap-mandatory">
         <div className="w-auto h-full flex flex-row gap-3">
-          <div className="w-full flex-shrink-0 relative snap-center">
+          <div className="w-full shrink-0 relative snap-center">
             <img
               src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?q=80&w=2920&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               alt=""
               className="absolute w-full h-full object-cover"
             />
 
-            <div className="absolute h-32 w-full bg-gradient-to-b from-transparent to-black bottom-0 z-10 px-6 py-6 flex flex-row justify-between items-end">
+            <div className="absolute h-32 w-full bg-linear-to-b from-transparent to-black bottom-0 z-10 px-6 py-6 flex flex-row justify-between items-end">
               <span className="flex flex-col">
                 <span className="text-white font-bold text-base">
                   @trylinky
@@ -237,7 +237,7 @@ export const StackMockup = ({ className }: { className?: string }) => {
 
 export const ImageMockup = ({ className }: { className?: string }) => {
   return (
-    <CoreBlockMock className={cn('relative !p-0 overflow-hidden', className)}>
+    <CoreBlockMock className={cn('relative p-0! overflow-hidden', className)}>
       <img
         src="https://cdn.lin.ky/block-610e4b68-f485-4730-b374-8c69fcec6928/8fca8b36-3f2d-48be-9519-5bb566044cbb"
         className="absolute w-full h-full object-cover"

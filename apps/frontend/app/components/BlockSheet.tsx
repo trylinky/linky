@@ -67,13 +67,13 @@ export function BlockSheet() {
   return (
     <>
       <div
-        className="fixed shadow z-50 bottom-2 left-2 w-[calc(100%_-_1rem)] h-14 bg-white rounded-full flex items-center justify-center md:hidden"
+        className="fixed shadow z-50 bottom-2 left-2 w-[calc(100%-1rem)] h-14 bg-white rounded-full flex items-center justify-center md:hidden"
         onClick={() => setOpen(true)}
       >
         <span className="text-stone-900 font-4xl font-bold">+ New Block</span>
       </div>
       <div
-        className="hidden md:flex fixed h-screen w-60 bg-gradient-to-r from-transparent to-black/10 right-0 top-0 items-center justify-center"
+        className="hidden md:flex fixed h-screen w-60 bg-linear-to-r from-transparent to-black/10 right-0 top-0 items-center justify-center"
         onMouseOver={() => setOpen(true)}
         // onMouseLeave={() => setOpen(false)}
       >

@@ -61,11 +61,11 @@ export function LoginForm({
         </Button>
       </form>
       <div className="flex items-center my-4">
-        <span className="h-[1px] w-full bg-zinc-200" />
+        <span className="h-px w-full bg-zinc-200" />
         <span className="text-zinc-400 text-sm mx-4 uppercase font-semibold">
           Or
         </span>
-        <span className="h-[1px] w-full bg-zinc-200" />
+        <span className="h-px w-full bg-zinc-200" />
       </div>
 
       <div className="flex flex-col md:flex-row gap-2">

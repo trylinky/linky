@@ -29,11 +29,11 @@ export async function Card({
   return (
     <div className="w-full max-w-lg mx-auto bg-white border border-stone-100 shadow-lg rounded-xl p-8 text-center flex flex-col items-center">
       <div className="flex items-center justify-between w-full mb-8 px-24">
-        <div className="relative z-[2] w-16 h-16 bg-stone-100 outline outline-8 outline-white rounded-lg flex items-center justify-center">
+        <div className="relative z-2 w-16 h-16 bg-stone-100 outline outline-8 outline-white rounded-lg flex items-center justify-center">
           <TiktokLogo />
         </div>
-        <div className="flex-1 w-full h-[1px] border border-dashed border-stone-200 z-0" />
-        <div className="relative z-[2] w-16 h-16 bg-stone-100 outline outline-8 outline-white  rounded-lg flex items-center justify-center">
+        <div className="flex-1 w-full h-px border border-dashed border-stone-200 z-0" />
+        <div className="relative z-2 w-16 h-16 bg-stone-100 outline outline-8 outline-white  rounded-lg flex items-center justify-center">
           <BrandLogo shouldAnimate={isLoading} />
         </div>
       </div>

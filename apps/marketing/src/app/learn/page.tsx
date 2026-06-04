@@ -36,7 +36,7 @@ export default async function LearnLandingPage() {
 
   return (
     <main>
-      <div className="w-full flex-auto bg-gradient-to-b from-[#f9f9f8] to-[#f5f3ea]">
+      <div className="w-full flex-auto bg-linear-to-b from-[#f9f9f8] to-[#f5f3ea]">
         <MarketingContainer>
           <div className="mx-auto max-w-2xl lg:max-w-none pt-32 pb-16">
             <div>

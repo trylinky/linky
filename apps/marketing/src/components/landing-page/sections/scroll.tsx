@@ -34,7 +34,7 @@ export function FloatingIcons() {
   return (
     <div
       ref={ref}
-      className="pointer-events-none sticky top-0 w-full h-[100vh] z-0"
+      className="pointer-events-none sticky top-0 w-full h-screen z-0"
     >
       {icons.map((icon, i) => {
         // Animate from outside the viewport to their position

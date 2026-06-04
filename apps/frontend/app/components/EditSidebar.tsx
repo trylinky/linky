@@ -89,12 +89,12 @@ export function EditSidebar({
     <>
       <Sidebar
         collapsible="icon"
-        className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row !border-r mt-[58px] h-[calc(100svh-58px)]"
+        className="overflow-hidden *:data-[sidebar=sidebar]:flex-row border-r! mt-[58px] h-[calc(100svh-58px)]"
         {...props}
       >
         <Sidebar
           collapsible="none"
-          className="!w-[calc(var(--sidebar-width-icon)_+_1px)] border-r bg-white h-auto"
+          className="w-[calc(var(--sidebar-width-icon)+1px)]! border-r bg-white h-auto"
         >
           <SidebarContent className="flex-auto">
             <SidebarGroup>
@@ -106,7 +106,7 @@ export function EditSidebar({
                         return (
                           <SidebarMenuButton
                             key={menuItem.label}
-                            className="flex-shrink-0 w-auto"
+                            className="shrink-0 w-auto"
                             onClick={() => {
                               setOpen(true);
                               setSidebarView(menuItem.viewId);

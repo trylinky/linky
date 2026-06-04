@@ -365,7 +365,7 @@ export function PricingTable({
   };
 
   return (
-    <div className="mx-auto relative z-[2] max-w-2xl">
+    <div className="mx-auto relative z-2 max-w-2xl">
       {subscriptionData?.periodEnd && (
         <Alert className="rounded-2xl border-none shadow-sm ring-1 ring-gray-200 mb-8">
           <AlertTitle className="text-lg font-medium">
@@ -469,7 +469,7 @@ export function PricingTable({
                       key={highlight.description}
                       className="flex items-center gap-3 text-sm text-gray-600"
                     >
-                      <highlight.icon className="h-5 w-5 flex-shrink-0 text-gray-400" />
+                      <highlight.icon className="h-5 w-5 shrink-0 text-gray-400" />
                       {highlight.description}
                     </li>
                   ))}

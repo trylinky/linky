@@ -29,7 +29,7 @@ export function PremiumOnboardingDialog() {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="p-0 !border-0 bg-gradient-to-b from-[#f9f9f8] to-[#f5f3ea]">
+      <DialogContent className="p-0 border-0! bg-linear-to-b from-[#f9f9f8] to-[#f5f3ea]">
         <DialogHeader className="pt-14 pb-4 text-center">
           <svg
             viewBox="0 0 321 321"
@@ -82,7 +82,7 @@ export function TeamOnboardingDialog() {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="p-0 !border-0 bg-gradient-to-b from-[#f9f9f8] to-[#f5f3ea]">
+      <DialogContent className="p-0 border-0! bg-linear-to-b from-[#f9f9f8] to-[#f5f3ea]">
         <DialogHeader className="pt-14 pb-4 text-center">
           <svg
             viewBox="0 0 321 321"

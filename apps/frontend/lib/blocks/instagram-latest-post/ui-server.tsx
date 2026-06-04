@@ -51,7 +51,7 @@ export const InstagramLatestPostServerUI: FunctionComponent<{
           return (
             <div
               key={post?.imageUrl}
-              className="w-full flex-shrink-0 relative snap-center"
+              className="w-full shrink-0 relative snap-center"
             >
               {post?.mediaType === 'video' ? (
                 <video
@@ -71,7 +71,7 @@ export const InstagramLatestPostServerUI: FunctionComponent<{
                   />
                 </>
               )}
-              <div className="absolute h-32 w-full bg-gradient-to-b from-transparent to-black bottom-0 z-10 px-6 py-6 flex flex-row justify-between items-end">
+              <div className="absolute h-32 w-full bg-linear-to-b from-transparent to-black bottom-0 z-10 px-6 py-6 flex flex-row justify-between items-end">
                 <span className="flex flex-col">
                   <span className="text-white font-bold text-base">
                     @{post?.username}

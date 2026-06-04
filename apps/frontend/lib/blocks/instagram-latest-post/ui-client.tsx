@@ -9,7 +9,7 @@ export const InstagramLatestPost: FunctionComponent<
   BlockProps & InstagramLatestPostBlockConfig
 > = ({ blockId, numberOfPosts, ...otherProps }) => {
   return (
-    <CoreBlock blockId={blockId} {...otherProps} className="!p-0">
+    <CoreBlock blockId={blockId} {...otherProps} className="p-0!">
       <Suspense fallback={<LoadingState />}>
         <InstagramLatestPostServerUI
           blockId={blockId}

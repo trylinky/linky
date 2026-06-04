@@ -62,7 +62,7 @@ export function EditForm({
                   error={errors.numberOfPosts}
                 />
 
-                <div className="flex flex-shrink-0 justify-between py-4 border-t border-stone-200">
+                <div className="flex shrink-0 justify-between py-4 border-t border-stone-200">
                   <Button type="button" variant="secondary" onClick={onClose}>
                     ← Cancel
                   </Button>

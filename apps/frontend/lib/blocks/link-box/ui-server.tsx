@@ -20,7 +20,7 @@ export const LinkBoxServerUI: FunctionComponent<{
           />
         )}
 
-        <div className="absolute bottom-0 left-0 w-full h-auto py-8 bg-gradient-to-b from-transparent to-black/80 group-hover:to-black/90 px-4 z-[2] flex flex-row items-center gap-4">
+        <div className="absolute bottom-0 left-0 w-full h-auto py-8 bg-linear-to-b from-transparent to-black/80 group-hover:to-black/90 px-4 z-2 flex flex-row items-center gap-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={iconSrc} className="w-10 h-10 rounded-md" alt="Link icon" />
           <div className="flex flex-col">

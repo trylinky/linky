@@ -80,8 +80,8 @@ const socialLinks = [
 
 export default function MarketingFooter() {
   return (
-    <footer className="relative bg-gradient-to-b from-[#19191a] via-[#181817] to-[#131313] pt-0 text-white overflow-hidden">
-      <div className="pointer-events-none absolute left-1/2 top-0 z-0 h-72 w-96 -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#fff2] via-[#fff1] to-transparent blur-2xl opacity-40" />
+    <footer className="relative bg-linear-to-b from-[#19191a] via-[#181817] to-[#131313] pt-0 text-white overflow-hidden">
+      <div className="pointer-events-none absolute left-1/2 top-0 z-0 h-72 w-96 -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-[#fff2] via-[#fff1] to-transparent blur-2xl opacity-40" />
 
       <div className="relative z-10 flex flex-col items-center justify-center py-16 space-y-6">
         <div className="flex flex-col items-center space-y-3">
@@ -100,7 +100,7 @@ export default function MarketingFooter() {
         </p>
         <Link
           href="/i/auth/signup"
-          className="mt-2 rounded-full bg-gradient-to-r from-[#fff] to-[#eaeaea] px-8 py-3 text-base font-bold text-gray-900 shadow-lg transition-all hover:scale-105 hover:from-[#f3f3f3] hover:to-[#fff] focus:outline-none focus:ring-2 focus:ring-white/40"
+          className="mt-2 rounded-full bg-linear-to-r from-white to-[#eaeaea] px-8 py-3 text-base font-bold text-gray-900 shadow-lg transition-all hover:scale-105 hover:from-[#f3f3f3] hover:to-white focus:outline-none focus:ring-2 focus:ring-white/40"
         >
           Get Started Free
         </Link>

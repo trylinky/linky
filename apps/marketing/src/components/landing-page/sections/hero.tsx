@@ -26,7 +26,7 @@ const colors = [
 
 export default function Hero() {
   return (
-    <section className="pt-48 pb-16 bg-gradient-to-b from-[#f5f3ea] to-[#fff]">
+    <section className="pt-48 pb-16 bg-linear-to-b from-[#f5f3ea] to-white">
       <MarketingContainer>
         <div className="flex justify-center items-center">
           <div className="w-full max-w-lg text-center flex flex-col items-center">

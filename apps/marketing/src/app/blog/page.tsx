@@ -23,7 +23,7 @@ export default async function ArticlesLandingPage() {
 
   return (
     <main>
-      <div className="w-full flex-auto bg-gradient-to-b from-[#f9f9f8] to-[#f5f3ea]">
+      <div className="w-full flex-auto bg-linear-to-b from-[#f9f9f8] to-[#f5f3ea]">
         <MarketingContainer>
           <div className="mx-auto max-w-2xl lg:max-w-none pt-32 pb-16">
             <div>
@@ -43,7 +43,7 @@ export default async function ArticlesLandingPage() {
           {/* Featured Post */}
           <div className="mx-auto max-w-6xl mb-20 px-4">
             <div className="rounded-3xl bg-white shadow-xl p-0 md:p-8 flex flex-col md:flex-row gap-0 md:gap-8 items-stretch overflow-hidden">
-              <div className="w-full min-h-[280px] md:w-1/2 flex-shrink-0 flex items-center justify-center bg-slate-100 relative rounded-xl overflow-hidden">
+              <div className="w-full min-h-[280px] md:w-1/2 shrink-0 flex items-center justify-center bg-slate-100 relative rounded-xl overflow-hidden">
                 {featuredPost.featuredImage?.url && (
                   <Image
                     src={featuredPost.featuredImage.url}

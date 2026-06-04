@@ -22,7 +22,7 @@ export function PagePreview({
   return (
     <div className="w-full h-full flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/50 p-4">
       <div
-        className="w-full max-w-[200px] aspect-[9/16] shadow-lg rounded-xl overflow-hidden bg-white dark:bg-black"
+        className="w-full max-w-[200px] aspect-9/16 shadow-lg rounded-xl overflow-hidden bg-white dark:bg-black"
         style={{
           backgroundColor: `hsl(${themeColorToCssValue(
             selectedThemeObject.colorBgBase

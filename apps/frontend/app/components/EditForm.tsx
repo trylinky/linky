@@ -50,7 +50,7 @@ export function EditForm({ onClose, blockId, blockType }: Props) {
   const CurrentEditForm = editForms[blockType];
 
   return (
-    <div className="max-h-[calc(100vh_-_90px)] overflow-y-auto">
+    <div className="max-h-[calc(100vh-90px)] overflow-y-auto">
       <CurrentEditForm
         initialValues={blockData?.blockData}
         onSave={onSave}

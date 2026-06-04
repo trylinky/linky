@@ -21,7 +21,7 @@ export default async function PricingPage() {
   });
 
   return (
-    <div className="bg-gradient-to-b from-[#f9f9f8] to-[#f5f3ea] pt-24 sm:pt-32 pb-8">
+    <div className="bg-linear-to-b from-[#f9f9f8] to-[#f5f3ea] pt-24 sm:pt-32 pb-8">
       <MarketingContainer className="text-center">
         <h1 className="text-pretty text-5xl lg:text-6xl font-black text-black tracking-tight">
           Go Premium.

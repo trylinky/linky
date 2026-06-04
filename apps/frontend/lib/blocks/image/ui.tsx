@@ -15,7 +15,7 @@ export const Image: FunctionComponent<BlockProps> = (props) => {
   const { blockData } = data || {};
 
   return (
-    <CoreBlock className="relative !p-0 overflow-hidden" {...props}>
+    <CoreBlock className="relative p-0! overflow-hidden" {...props}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={blockData?.src}

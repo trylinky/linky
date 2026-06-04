@@ -87,7 +87,7 @@ export const WaitlistEmail: FunctionComponent<BlockProps> = (props) => {
           className="min-w-0 w-full flex-1 appearance-none rounded-md border-0 bg-sys-bg-primary px-3 py-1.5 text-base text-sys-label-primary shadow-sm ring-1 ring-inset ring-sys-bg-secondary/50 placeholder:text-gray-400 focus:ring-sys-bg-secondary/90 sm:w-64 sm:text-sm sm:leading-6 xl:w-full"
           placeholder="Enter your email"
         />
-        <div className="ml-4 sm:flex-shrink-0">
+        <div className="ml-4 sm:shrink-0">
           <SubmitButton
             buttonLabel={blockData?.buttonLabel || 'Submit'}
             disabled={!!formSubmitted}

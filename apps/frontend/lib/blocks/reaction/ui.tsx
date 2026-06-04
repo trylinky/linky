@@ -98,7 +98,7 @@ export const Reactions: FunctionComponent<BlockProps> = (props) => {
   };
 
   return (
-    <CoreBlock className="relative !p-0 overflow-hidden" {...props}>
+    <CoreBlock className="relative p-0! overflow-hidden" {...props}>
       <button
         onClick={!isEditable ? handleClick : undefined}
         className="flex items-center justify-between gap-2 py-4 px-4 group relative w-full h-full bg-sys-background-primary"
@@ -137,7 +137,7 @@ export const Reactions: FunctionComponent<BlockProps> = (props) => {
                 d="m0 128 26.7-5.3c26.6-5.7 80.3-15.7 133.3 0 53.3 16.3 107 58.3 160 74.6 53.3 15.7 107 5.7 160 0 53.3-5.3 107-5.3 160 10.7 53.3 16 107 48 160 48 53.3 0 107-32 160-74.7 53.3-42.3 107-96.3 160-90.6 53.3 5.3 107 69.3 160 80 53.3 10.3 107-31.7 133-53.4l27-21.3v224H0Z"
               />
             </svg>
-            <div className="w-full h-full bg-gradient-to-b from-[#FF6096] to-[#FF2A76]" />
+            <div className="w-full h-full bg-linear-to-b from-[#FF6096] to-[#FF2A76]" />
           </motion.div>
         </div>
       </button>

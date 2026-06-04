@@ -142,11 +142,11 @@ export default async function BlogPostPage({
   return (
     <>
       <article>
-        <div className="bg-gradient-to-b from-[#f9f9f8] to-[#f5f3ea] pt-16">
+        <div className="bg-linear-to-b from-[#f9f9f8] to-[#f5f3ea] pt-16">
           <MarketingContainer>
             <header className="flex flex-col items-center max-w-2xl mx-auto pt-16 pb-8">
               {blogPost.featuredImage?.url && (
-                <div className="w-full mb-8 rounded-2xl overflow-hidden shadow-lg bg-slate-100 aspect-[2/1] relative">
+                <div className="w-full mb-8 rounded-2xl overflow-hidden shadow-lg bg-slate-100 aspect-2/1 relative">
                   <Image
                     src={blogPost.featuredImage.url}
                     alt={blogPost.title}

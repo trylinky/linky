@@ -55,8 +55,8 @@ export function UserOnboardingDialog() {
 
   return (
     <Dialog open={dialogOpen} onOpenChange={handleClose}>
-      <DialogContent className="p-0 !border-0">
-        <DialogHeader className="pt-14 pb-4 bg-gradient-to-b from-orange-300 to-white text-center">
+      <DialogContent className="p-0 border-0!">
+        <DialogHeader className="pt-14 pb-4 bg-linear-to-b from-orange-300 to-white text-center">
           <svg
             viewBox="0 0 321 321"
             width={32}

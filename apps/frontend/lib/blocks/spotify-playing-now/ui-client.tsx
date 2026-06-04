@@ -13,7 +13,7 @@ export const SpotifyPlayingNow: FunctionComponent<BlockProps> = ({
     <CoreBlock
       pageId={pageId}
       blockId={blockId}
-      className="bg-gradient-to-tr from-[#0A0B0D] to-[#402650]"
+      className="bg-linear-to-tr from-[#0A0B0D] to-[#402650]"
       {...otherProps}
     >
       <Suspense fallback={<LoadingState />}>

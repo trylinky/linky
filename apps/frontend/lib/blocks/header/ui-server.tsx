@@ -46,7 +46,7 @@ export async function HeaderServerUI({
           <VerifiedBadge />
         </button>
       </DialogTrigger>
-      <DialogContent className="max-w-sm !rounded-xl">
+      <DialogContent className="max-w-sm rounded-xl!">
         <DialogHeader className="flex flex-col items-center text-center">
           <VerifiedBadge />
           <DialogTitle>Verified by Linky</DialogTitle>

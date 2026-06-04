@@ -215,7 +215,7 @@ export function DraggableBlockButton({ type }: Props) {
         height={15}
         alt=""
       />
-      <div className="w-9 h-9 bg-stone-100 rounded-md flex items-center mr-3 flex-shrink-0">
+      <div className="w-9 h-9 bg-stone-100 rounded-md flex items-center mr-3 shrink-0">
         <Image src={blockConfig.icon} className="w-9 h-9" alt="" />
       </div>
       <div className="flex flex-col">
@@ -232,7 +232,7 @@ export function DraggableBlockButton({ type }: Props) {
       <button
         id="hello"
         type="button"
-        className="hidden md:flex w-full bg-white border border-stone-200 rounded-md items-center justify-start text-left px-3 py-3 shadow-none hover:shadow-md hover:-translate-y-[2px] transition-shadow transition-transform cursor-move"
+        className="hidden md:flex w-full bg-white border border-stone-200 rounded-md items-center justify-start text-left px-3 py-3 shadow-none hover:shadow-md hover:translate-y-[-2px] transition-shadow transition-transform cursor-move"
         draggable={true}
         unselectable="on"
         onDragStart={(e) => {

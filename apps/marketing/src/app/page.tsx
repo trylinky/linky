@@ -77,7 +77,7 @@ export default async function LandingPage() {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-6 w-full">
-            <div className="w-full bg-[#e2e5ea] bg-gradient-to-tr from-[#607166] to-[#87a290] border border-stone-200 md:row-span-2 overflow-hidden rounded-xl flex flex-col justify-between">
+            <div className="w-full bg-[#e2e5ea] bg-linear-to-tr from-[#607166] to-[#87a290] border border-stone-200 md:row-span-2 overflow-hidden rounded-xl flex flex-col justify-between">
               <Image
                 src="/i/assets/landing-page/dynamic.png"
                 width={789}
@@ -95,7 +95,7 @@ export default async function LandingPage() {
                 </p>
               </div>
             </div>
-            <div className="w-full bg-gradient-to-tr from-[#4e54c8] to-[#8f94fb] border border-stone-200 overflow-hidden rounded-xl flex flex-col justify-between md:col-span-2">
+            <div className="w-full bg-linear-to-tr from-[#4e54c8] to-[#8f94fb] border border-stone-200 overflow-hidden rounded-xl flex flex-col justify-between md:col-span-2">
               <Image
                 src="/i/assets/landing-page/drag.png"
                 width={789}
@@ -112,7 +112,7 @@ export default async function LandingPage() {
                 </p>
               </div>
             </div>
-            <div className="w-full bg-gradient-to-tr from-[#fc4a1a] to-[#f7b733] border border-stone-200 overflow-hidden rounded-xl flex flex-col justify-between">
+            <div className="w-full bg-linear-to-tr from-[#fc4a1a] to-[#f7b733] border border-stone-200 overflow-hidden rounded-xl flex flex-col justify-between">
               <Image
                 width={789}
                 height={479}
@@ -130,7 +130,7 @@ export default async function LandingPage() {
                 </p>
               </div>
             </div>
-            <div className="w-full  bg-gradient-to-tr from-[#282337] to-[#434665] border border-stone-200 overflow-hidden rounded-xl flex flex-col justify-between">
+            <div className="w-full  bg-linear-to-tr from-[#282337] to-[#434665] border border-stone-200 overflow-hidden rounded-xl flex flex-col justify-between">
               <Image
                 width={789}
                 height={479}
@@ -163,7 +163,7 @@ export default async function LandingPage() {
             View all →
           </Link>
         </MarketingContainer>
-        <div className="rounded-xl bg-gradient-to-b from-[#f5f3ea] to-[#ffeee2]">
+        <div className="rounded-xl bg-linear-to-b from-[#f5f3ea] to-[#ffeee2]">
           <div
             className="w-full overflow-x-auto no-scrollbar snap-x snap-mandatory"
             style={{
@@ -179,7 +179,7 @@ export default async function LandingPage() {
                   <Link
                     key={page.id}
                     href={`/${page.slug}`}
-                    className="bg-transparent hover:bg-black/5 transition-colors px-4 py-4 rounded-xl w-[384px] flex-shrink-0 snap-start"
+                    className="bg-transparent hover:bg-black/5 transition-colors px-4 py-4 rounded-xl w-[384px] shrink-0 snap-start"
                   >
                     <Image
                       src={`${process.env.NEXT_PUBLIC_APP_URL}/${page.slug}/opengraph-image`}
