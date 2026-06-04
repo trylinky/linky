@@ -4,7 +4,6 @@ import {
   getPageLayout,
   getPageLoadData,
 } from '@/app/lib/actions/page-actions';
-import { getSession } from '@/app/lib/auth';
 import { renderBlock } from '@/lib/blocks/ui';
 import { isUserAgentMobile } from '@/lib/user-agent';
 import { Block, Integration } from '@trylinky/prisma';
@@ -70,56 +69,31 @@ export type InitialDataUsersIntegrations = Pick<
 >[];
 
 export default async function Page(props: { params: Promise<Params> }) {
-  const startTime = performance.now();
   const params = await props.params;
-  const session = await getSession({
-    fetchOptions: { headers: await headers() },
-  });
-
   const headersList = await headers();
 
-  const { user } = session?.data ?? {};
-
-  const isLoggedIn = !!user;
-
-  // Track core page fetch time
-  const corePageStartTime = performance.now();
   const corePage = await getPageIdBySlugOrDomain(params.slug, params.domain);
-  const corePageTime = performance.now() - corePageStartTime;
 
   if (!corePage) {
     return notFound();
   }
 
-  // Track layout and data fetch time
-  const dataFetchStartTime = performance.now();
   const [layout, page] = await Promise.all([
     getPageLayout(corePage.id),
     getPageLoadData(corePage.id),
   ]);
-  const dataFetchTime = performance.now() - dataFetchStartTime;
 
   if (!page) {
     notFound();
   }
 
-  let isEditMode = false;
-
-  if (
-    session &&
-    page?.organizationId === session?.data?.session.activeOrganizationId
-  ) {
-    isEditMode = true;
-  }
-
-  if (page.publishedAt == null && !isEditMode) {
+  if (page.publishedAt == null) {
     return notFound();
   }
 
   if (
     page.customDomain &&
-    page.customDomain !== decodeURIComponent(params.domain) &&
-    !isEditMode
+    page.customDomain !== decodeURIComponent(params.domain)
   ) {
     redirect(`//${page.customDomain}`);
   }
@@ -128,22 +102,8 @@ export default async function Page(props: { params: Promise<Params> }) {
   const pageLayout = layout as unknown as PageConfig;
   const mergedIds = [...pageLayout.sm, ...pageLayout.xxs].map((item) => item.i);
 
-  // Calculate total time
-  const totalTime = performance.now() - startTime;
-
-  // Add Server-Timing headers
-  const responseHeaders = new Headers();
-  responseHeaders.append('Server-Timing', `core-page;dur=${corePageTime}`);
-  responseHeaders.append('Server-Timing', `data-fetch;dur=${dataFetchTime}`);
-  responseHeaders.append('Server-Timing', `total;dur=${totalTime}`);
-
   return (
-    <Grid
-      isPotentiallyMobile={isMobile}
-      layout={pageLayout}
-      editMode={isEditMode}
-      isLoggedIn={isLoggedIn}
-    >
+    <Grid isPotentiallyMobile={isMobile} layout={pageLayout}>
       {page.blocks
         .filter((block: Block) => mergedIds.includes(block.id))
         .map((block: Block) => {
@@ -152,7 +112,7 @@ export default async function Page(props: { params: Promise<Params> }) {
               key={block.id}
               style={{ fontFamily: 'var(--font-sys-body)' }}
             >
-              {renderBlock(block, page.id, isEditMode)}
+              {renderBlock(block, page.id, false)}
             </section>
           );
         })}

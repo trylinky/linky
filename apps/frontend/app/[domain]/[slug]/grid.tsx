@@ -1,10 +1,6 @@
 'use client';
 
-import { EditLayout } from '@/app/components/EditLayout';
-import { EditModeContextProvider } from '@/app/contexts/Edit';
-import { GlobalNavigation } from '@/components/GlobalNavigation';
 import { WidthProvideRGL } from '@/components/WidthProvider';
-import dynamic from 'next/dynamic';
 import { ReactNode, useMemo } from 'react';
 import { Layout, Responsive, ResponsiveProps } from 'react-grid-layout';
 
@@ -16,27 +12,10 @@ export interface PageConfig {
 interface Props {
   layout: PageConfig;
   children: ReactNode[];
-  editMode?: boolean;
   isPotentiallyMobile: boolean;
-  isLoggedIn: boolean;
 }
 
-// Dynamically import EditWrapper
-const DynamicEditWrapper = dynamic(
-  () =>
-    import('@/app/components/EditWrapper').then((mod) => ({
-      default: mod.EditWrapper,
-    })),
-  { ssr: false }
-);
-
-export default function Grid({
-  layout,
-  children,
-  editMode = false,
-  isPotentiallyMobile,
-  isLoggedIn,
-}: Props) {
+export default function Grid({ layout, children, isPotentiallyMobile }: Props) {
   const defaultLayoutProps: ResponsiveProps = {
     useCSSTransforms: true,
     width: 624,
@@ -51,9 +30,9 @@ export default function Grid({
       xxs: [10, 20],
     },
     compactType: 'vertical',
-    isResizable: editMode ? true : false,
-    isDraggable: editMode ? true : false,
-    isDroppable: editMode ? true : false,
+    isResizable: false,
+    isDraggable: false,
+    isDroppable: false,
   };
 
   const ResponsiveReactGridLayout = useMemo(
@@ -61,34 +40,18 @@ export default function Grid({
     []
   );
 
-  if (editMode) {
-    return (
-      <EditModeContextProvider>
-        <GlobalNavigation isEditMode />
-        <EditLayout>
-          <DynamicEditWrapper layoutProps={defaultLayoutProps}>
-            {children}
-          </DynamicEditWrapper>
-        </EditLayout>
-      </EditModeContextProvider>
-    );
-  }
-
   return (
-    <>
-      {isLoggedIn && <GlobalNavigation isEditMode={false} />}
-      <ResponsiveReactGridLayout
-        layouts={{
-          lg: layout.sm,
-          md: layout.sm,
-          sm: layout.sm,
-          xs: layout.sm,
-          xxs: layout.xxs,
-        }}
-        {...defaultLayoutProps}
-      >
-        {children}
-      </ResponsiveReactGridLayout>
-    </>
+    <ResponsiveReactGridLayout
+      layouts={{
+        lg: layout.sm,
+        md: layout.sm,
+        sm: layout.sm,
+        xs: layout.sm,
+        xxs: layout.xxs,
+      }}
+      {...defaultLayoutProps}
+    >
+      {children}
+    </ResponsiveReactGridLayout>
   );
 }
