@@ -86,6 +86,38 @@
   }
 }
 
+/* Tailwind v4 compatibility: restore v3 default behaviors for visual parity.
+   Remove incrementally once intentionally redesigned. */
+@layer base {
+  /* v4 defaults border/divide color to currentColor; v3 used gray-200. */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, #e5e7eb);
+  }
+
+  /* v4 defaults placeholder to currentColor@50%; v3 used gray-400. */
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-gray-400, #9ca3af);
+    opacity: 1;
+  }
+
+  /* v4 sets interactive elements to cursor:default; v3 used pointer. */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+/* v4 default ring width is 1px (v3 was 3px). Restore the v3 width so any
+   bare `ring` utility matches. Ring colors here are set explicitly. */
+@theme {
+  --default-ring-width: 3px;
+}
+
 @layer base {
   * {
     @apply border-border;
