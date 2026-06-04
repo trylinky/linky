@@ -44,7 +44,7 @@ export function EditorCanvas({ children }: { children: ReactNode[] }) {
   const { currentEditingBlock, setCurrentEditingBlock } = useEditModeContext();
 
   return (
-    <div className="flex w-full flex-col gap-6 md:flex-row">
+    <div className="app-page bg-sys-bg-base flex w-full flex-col gap-6 rounded-xl p-4 md:flex-row md:p-6">
       {/* Docked, non-modal block palette so HTML5 drag-to-add still works
           (a modal would block dragging onto the grid). Stacked above the grid
           on mobile (click-to-add), docked rail on desktop (drag-to-add). */}
@@ -59,7 +59,7 @@ export function EditorCanvas({ children }: { children: ReactNode[] }) {
         </div>
       </aside>
 
-      <div className="app-page bg-sys-bg-base flex min-w-0 flex-1 justify-center rounded-xl">
+      <div className="flex min-w-0 flex-1 justify-center">
         <DynamicEditWrapper layoutProps={layoutProps}>
           {children}
         </DynamicEditWrapper>
