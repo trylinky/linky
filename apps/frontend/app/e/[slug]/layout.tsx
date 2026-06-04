@@ -11,7 +11,7 @@ import {
   getPageTheme,
 } from '@/app/lib/actions/page-actions';
 import { getSession } from '@/app/lib/auth';
-import { Catalyst } from '@trylinky/ui';
+import * as Catalyst from '@trylinky/ui/catalyst';
 import { headers } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 

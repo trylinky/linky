@@ -157,7 +157,7 @@ Append to `packages/ui/src/index.ts`:
 export * as Catalyst from './catalyst';
 ```
 
-(Namespaced to avoid name collisions with shadcn exports like `Button`/`Dialog`. Editor code imports `import { Catalyst } from '@trylinky/ui'` then uses `<Catalyst.Button>`.)
+(Namespaced to avoid name collisions with shadcn exports like `Button`/`Dialog`. Editor code imports `import * as Catalyst from '@trylinky/ui/catalyst'` then uses `<Catalyst.Button>`.)
 
 - [ ] **Step 5: Verify it compiles in isolation**
 
@@ -228,7 +228,7 @@ import {
   getPageTheme,
 } from '@/app/lib/actions/page-actions';
 import { getSession } from '@/app/lib/auth';
-import { Catalyst } from '@trylinky/ui';
+import * as Catalyst from '@trylinky/ui/catalyst';
 import { headers } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 
@@ -307,7 +307,7 @@ import { PageSwitcher } from '@/app/components/PageSwitcher';
 import { TeamSwitcher } from '@/app/components/TeamSwitcher';
 import { UserWidget } from '@/app/components/UserWidget';
 import { auth } from '@/app/lib/auth';
-import { Catalyst } from '@trylinky/ui';
+import * as Catalyst from '@trylinky/ui/catalyst';
 import { internalApiFetcher } from '@trylinky/common';
 import type { Page } from '@trylinky/prisma';
 import {
@@ -555,7 +555,7 @@ Canonical pattern (worked example = Settings). Apply the same shape to the other
 'use client';
 
 import { SidebarPageSettings } from '@/app/components/SidebarPageSettings';
-import { Catalyst } from '@trylinky/ui';
+import * as Catalyst from '@trylinky/ui/catalyst';
 
 export default function SettingsTab() {
   return (

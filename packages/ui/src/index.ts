@@ -30,5 +30,3 @@ export * from './ui/use-toast';
 
 export * from './lib/utils';
 export * from './hooks/use-mobile';
-
-export * as Catalyst from './catalyst';

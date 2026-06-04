@@ -54,6 +54,10 @@
     },
     "./tailwind.config": {
       "default": "./tailwind.config.ts"
+    },
+    "./catalyst": {
+      "types": "./src/catalyst/index.ts",
+      "default": "./src/catalyst/index.ts"
     }
   }
 }
