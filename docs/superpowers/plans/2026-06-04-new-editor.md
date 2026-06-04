@@ -18,9 +18,23 @@
 
 **Logged-out `lin.ky/<slug>` must stay pixel-identical.** The shadcn→Catalyst replacement touches **editor-only** components. The public render path — verified in Task 1 — is quarantined.
 
-## Public-render quarantine list (do NOT replace these `@trylinky/ui` usages in this spec)
+## Public-render quarantine list — CONFIRMED (Task E2-1)
 
-From the audit, the public render path uses: `SidebarProvider` (via `LinkyProviders`, `skipSidebar` for non-owners), `cn` (in block UIs: `header/ui-client`, `link-box/ui-client`, `CoreBlock`), and — via `ShareButton`→`ShareDialog` — `Dialog*`, `Button`, `Tabs*`, `toast`. All 18 block UI components under `lib/blocks/*/ui*.tsx` and `CoreBlock` render publicly. **These keep their current shadcn imports.** Catalyst replacement applies only to the editor shell and tab pages (Phase 3 surfaces).
+The public render path uses these shadcn `@trylinky/ui` exports:
+- `SidebarProvider`, `Button` — `LinkyProviders.tsx`
+- `Dialog, DialogContent, DialogHeader, DialogTitle, Button, Tabs, TabsContent, TabsList, TabsTrigger, toast` — `ShareDialog.tsx` (via `ShareButton`)
+- `cn` — `CoreBlock.tsx` + block UIs (`header/ui-*`, `link-box/ui-client`, …)
+- `Button`, `toast`, `Skeleton` — block UIs under `lib/blocks/*/ui*.tsx`
+
+All 18 block UI components and `CoreBlock` render publicly.
+
+**THE LOCKED RULE for this spec:** never modify or delete any shadcn primitive in
+`packages/ui/src/ui/` — several are on the public path, and the public page must stay
+pixel-identical. To adopt Catalyst in an **editor** file, change *that file's import* from the
+shadcn name to `Catalyst.*` (e.g. `Button` → `Catalyst.Button`). The shadcn components stay in
+place for the public path (and any non-migrated surface). Catalyst replacement applies only to
+the editor shell + tab pages. `Skeleton`, `Card*`, and `Chart*` (analytics) stay shadcn in this
+spec (Spec 3).
 
 ---
 
