@@ -34,8 +34,10 @@ Consequences:
 1. **Catalyst location:** vendored into `packages/ui/src/catalyst/*` with a Next.js `Link`
    adapter, exported from `@trylinky/ui`. Begin replacing shadcn in Spec-2 surfaces (shell +
    tab pages); shadcn remains where untouched.
-2. **Caching:** hybrid — `use cache` + short `cacheLife` (~60s) on the public page, plus an
-   on-demand revalidate route the `apps/api` publish handler calls so publishing is instant.
+2. **Caching:** hybrid — `use cache` + short `cacheLife` (~60s) on the public page, plus
+   in-process `revalidateTag` from the frontend publish/theme/settings **server actions** so
+   publishing is instant. (See note below: publish is a frontend server action, so NO
+   cross-service webhook/secret is needed — strictly simpler than first assumed.)
 3. **Scope:** Spec 2 = shell + the 6 tab routes + porting each tab's content restyled in
    Catalyst + caching + auth/redirects. Spec 3 = shared dialogs, global Formik forms, and
    block-editing chrome.
@@ -95,20 +97,26 @@ New route tree `app/e/[slug]/`:
 
 ## Section B — Caching & revalidation
 
-- Wrap the public page's read path in `use cache` with `cacheTag('page-<slug>')` and
-  `cacheTag('page-id-<id>')`, and set a short `cacheLife` (~60s) for incidental freshness.
-  Remove `force-dynamic` and `revalidate = 0` from the public route. (Implementation may tag
-  at the data-function level via the Next 16 `use cache` directive, or at the route segment;
-  the plan picks the cleanest seam. Custom-domain pages get the same tags keyed by slug/id.)
-- Add `app/api/revalidate/route.ts`: POST, validates a shared `REVALIDATE_SECRET` (header or
-  body), then `revalidateTag('page-<slug>')` (and/or `page-id-<id>`). Returns 401 on bad
-  secret. This route is excluded from middleware rewrite (under `api/`, already excluded).
-- `apps/api`'s **publish** handler calls this frontend route after a successful publish (and
-  on unpublish/delete) so the public page reflects the change immediately, not after the
-  `cacheLife` window. The ~60s window covers non-publish incidental edits.
-- New env: `REVALIDATE_SECRET` (in both `apps/frontend` and `apps/api`) and the frontend base
-  URL reachable from `apps/api` (reuse `NEXT_PUBLIC_APP_URL`/`NEXT_PUBLIC_BASE_URL`). Document
-  in `.env.example`.
+**Discovered during planning:** publish is a **frontend Next.js server action**
+(`app/components/EditPageSettingsDialog/actions.ts` → `updateGeneralPageSettings`, which
+writes `publishedAt` via Prisma directly), as are theme changes (`app/lib/actions/themes.ts`
+`setPageTheme`) and page-settings/slug changes. So revalidation happens **in-process** — no
+cross-service webhook, no shared secret, no `apps/api` changes. (Block add/update and layout
+saves DO route through `apps/api`; those are covered by the `cacheLife` window, not instant.)
+
+- Wrap the public page's read path in `use cache` with `cacheTag('page-slug-<slug>-<domain>')`
+  and `cacheTag('page-id-<id>')`, and set a short `cacheLife` (~60s) for incidental freshness.
+  Remove `force-dynamic` and `revalidate = 0` from the public route. Tag at the **data-function
+  level** in `page-actions.ts`.
+  - Constraint: `use cache` functions cannot read request data (`headers()`/`cookies()`). The
+    current `apiServerFetch` forwards cookies, so the cached public reads must use a
+    **cookie-free** read variant (the public page is session-free, so published-page data needs
+    no auth). This cookie-free read path is an explicit task.
+- In the frontend **publish/unpublish** server action (and `setPageTheme`, and slug/settings
+  changes), call `revalidateTag('page-slug-<slug>-<domain>')` / `revalidateTag('page-id-<id>')`
+  after the successful Prisma write so the public page reflects the change immediately. The
+  ~60s `cacheLife` window covers block/layout edits that go through `apps/api`.
+- No new shared secret or `apps/api` route is required for this spec.
 - Owners visiting their own `/<slug>` while logged in see the **public** (cached) view; they
   edit at `/e/<slug>`. The public page stays session-free to remain cacheable (no per-request
   "edit" affordance in this spec).
@@ -176,9 +184,9 @@ In `app/e/[slug]/layout.tsx` (server):
   reference pages: plain, Lilac, Orange Punch — desktop + mobile). Must stay pixel-identical
   despite the route refactor, session removal, and caching.
 - **Caching:** confirm `/<slug>` serves from cache (response headers / repeated-load timing),
-  and that a publish triggers the revalidate route so the public page reflects the change
-  immediately (not after the `cacheLife` window). Confirm a bad/missing `REVALIDATE_SECRET`
-  is rejected (401).
+  and that a publish (frontend server action) `revalidateTag`s so the public page reflects the
+  change immediately (not after the `cacheLife` window). Confirm the cached public reads never
+  read cookies/session (so no per-user data is cached).
 - **Editor QA:** every tab route loads and deep-links; the blocks canvas drag/drop, add, and
   layout-save still function; tab nav active-state is correct; auth redirects behave
   (logged-out→login→back, non-owner→public, `/e`→first page, `/edit`→`/e`).
@@ -188,8 +196,13 @@ In `app/e/[slug]/layout.tsx` (server):
 
 - **Public parity regressions** from the route refactor or a shadcn→Catalyst swap leaking
   onto the public path. Mitigated by the public-render component audit + browser-diff gate.
-- **Cross-service revalidation** (`apps/api` → frontend) failure modes (missed ping, wrong
-  URL/secret). Mitigated by the `cacheLife` window as a backstop and a 401-tested secret.
+- **Revalidation gaps**: block/layout edits route through `apps/api` and are not revalidated
+  in-process, so they go live only after the `cacheLife` window (accepted). Publish/theme/
+  settings (frontend server actions) revalidate immediately. The `cacheLife` window is the
+  backstop for everything else.
+- **`use cache` + request data**: a cached read that touches `headers()`/`cookies()` will
+  fail or leak per-user data. Mitigated by the cookie-free public read path (session-free
+  public route).
 - **Catalyst ↔ existing tokens**: Catalyst assumes certain theme tokens/aesthetics; the
   dashboard chrome adopts Catalyst's look, but shared tokens (`sys-*`, shadcn vars) must not
   shift the public page. Covered by the invariant + diff.
