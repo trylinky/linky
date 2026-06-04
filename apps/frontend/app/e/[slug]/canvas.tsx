@@ -52,10 +52,13 @@ export function EditorCanvas({ children }: { children: ReactNode[] }) {
           (a modal would block dragging onto the grid). Stacked above the grid
           on mobile (click-to-add), docked rail on desktop (drag-to-add). */}
       <aside className="w-full shrink-0 md:w-72">
-        <div className="rounded-2xl bg-white/80 shadow-[0_0_0_1px_#2000241c,0_2px_2px_#2000240d] backdrop-blur-sm md:sticky md:top-6 md:flex md:h-[calc(100svh-7rem)] md:flex-col md:overflow-hidden">
-          <Catalyst.Heading level={2} className="shrink-0 border-b border-white/30 p-4">
+        {/* Theme-adaptive frosted glass: tints with the page's own surface + text
+            tokens, so it's a light frost on light themes and a dark frost on dark
+            themes (rather than a fixed white panel that clashes on dark themes). */}
+        <div className="rounded-2xl bg-sys-bg-base/70 shadow-lg ring-1 ring-sys-bg-border/50 backdrop-blur-md md:sticky md:top-6 md:flex md:h-[calc(100svh-7rem)] md:flex-col md:overflow-hidden">
+          <h2 className="text-sys-title-primary shrink-0 border-b border-sys-bg-border/40 p-4 text-xl font-bold">
             Blocks
-          </Catalyst.Heading>
+          </h2>
           <div className="min-h-0 flex-1 overflow-y-auto p-4">
             <SidebarBlocks />
           </div>
