@@ -1,4 +1,5 @@
 import { EditModeContextProvider } from '@/app/contexts/Edit';
+import { RenderPageTheme } from '@/app/[domain]/[slug]/render-page-theme';
 import { EditorNavbar } from '@/app/e/[slug]/editor-navbar';
 import { EditorMobileSidebar } from '@/app/e/[slug]/editor-mobile-sidebar';
 import { LinkyProviders } from '@/app/components/LinkyProviders';
@@ -71,6 +72,7 @@ export default async function EditorLayout(props: {
   return (
     <LinkyProviders currentUserIsOwner pageId={page.id} value={{ fallback: initialData }}>
       <EditModeContextProvider>
+        <RenderPageTheme pageId={page.id} />
         <Catalyst.StackedLayout
           navbar={<EditorNavbar slug={slug} />}
           sidebar={<EditorMobileSidebar slug={slug} />}
