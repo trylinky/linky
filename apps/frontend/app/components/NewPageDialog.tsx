@@ -198,7 +198,7 @@ export function NewPageDialog({ open, onOpenChange, onClose }: Props) {
       }
 
       if (slug) {
-        router.push(`/${slug}`);
+        router.push(`/e/${slug}`);
         toast({ title: 'Page created' });
         if (onClose) onClose();
       }
