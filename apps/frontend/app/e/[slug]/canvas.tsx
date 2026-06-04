@@ -44,9 +44,9 @@ export function EditorCanvas({ children }: { children: ReactNode[] }) {
   const { currentEditingBlock, setCurrentEditingBlock } = useEditModeContext();
 
   return (
-    {/* Full-bleed out of the StackedLayout content card's p-6/lg:p-10 padding so
-        the theme background reaches the container edges (no white frame), then
-        re-add inner padding. */}
+    // Full-bleed out of the StackedLayout content card's p-6/lg:p-10 padding so
+    // the theme background reaches the container edges (no white frame), then
+    // re-add inner padding.
     <div className="app-page bg-sys-bg-base -m-6 flex flex-col gap-6 p-6 md:flex-row lg:-m-10 lg:rounded-lg lg:p-10">
       {/* Docked, non-modal block palette so HTML5 drag-to-add still works
           (a modal would block dragging onto the grid). Stacked above the grid
