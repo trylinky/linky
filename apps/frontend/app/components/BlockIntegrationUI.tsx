@@ -27,27 +27,43 @@ export type SupportedIntegrations =
 
 export const integrationUIConfig: Record<
   SupportedIntegrations,
-  { name: string; icon: React.ElementType; connectUrl: string }
+  {
+    name: string;
+    icon: React.ElementType;
+    connectUrl: string;
+    /** Short, human-readable description of what this integration enables. */
+    description: string;
+    /** The block(s) that connect/configure this integration, by display name. */
+    blocks: string[];
+  }
 > = {
   instagram: {
     name: 'Instagram',
     icon: InstagramLogo,
     connectUrl: `${process.env.NEXT_PUBLIC_API_URL}/services/instagram/v2`,
+    description: 'Show your latest Instagram post or follower count.',
+    blocks: ['Latest Instagram post', 'Instagram Follower Count'],
   },
   spotify: {
     name: 'Spotify',
     icon: SpotifyLogo,
     connectUrl: `${process.env.NEXT_PUBLIC_API_URL}/services/spotify`,
+    description: 'Show the track you are currently playing on Spotify.',
+    blocks: ['Spotify Playing Now'],
   },
   threads: {
     name: 'Threads',
     icon: ThreadsLogo,
     connectUrl: `${process.env.NEXT_PUBLIC_API_URL}/services/threads`,
+    description: 'Show your Threads follower count.',
+    blocks: ['Threads Follower Count'],
   },
   tiktok: {
     name: 'TikTok',
     icon: TikTokLogo,
     connectUrl: `${process.env.NEXT_PUBLIC_API_URL}/services/tiktok`,
+    description: 'Show your latest TikTok post or follower count.',
+    blocks: ['TikTok Follower Count', 'TikTok Latest Post'],
   },
 };
 

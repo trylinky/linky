@@ -7,10 +7,19 @@ import { InternalApi, internalApiFetcher } from '@trylinky/common';
 import { Integration } from '@trylinky/prisma';
 import { toast } from '@trylinky/ui';
 import * as Catalyst from '@trylinky/ui/catalyst';
+import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 
+const AVAILABLE_INTEGRATIONS = Object.entries(integrationUIConfig) as [
+  SupportedIntegrations,
+  (typeof integrationUIConfig)[SupportedIntegrations],
+][];
+
 export function SidebarIntegrations() {
+  const params = useParams<{ slug: string }>();
+  const blocksTabHref = params?.slug ? `/e/${params.slug}` : '/dashboard';
+
   const [showConfirmDisconnect, setShowConfirmDisconnect] = useState(false);
   const [integrationToDisconnect, setIntegrationToDisconnect] = useState<
     string | null
@@ -55,70 +64,122 @@ export function SidebarIntegrations() {
     (integration) => integration.id === integrationToDisconnect
   );
 
+  const hasConnected = !!currentTeamIntegrations?.length;
+
   return (
     <>
-      <div>
-        <div>
-          {isLoading ? (
-            <div className="w-full aspect-square bg-stone-200 rounded-lg flex items-center justify-center">
-              <span className="text-muted-foreground text-sm">
-                Loading integrations...
-              </span>
-            </div>
-          ) : currentTeamIntegrations?.length ? (
-            <div className="flex flex-col gap-2 divide-y divide-stone-200">
-              {currentTeamIntegrations?.map((integration) => {
-                const integrationConfig =
-                  integrationUIConfig[
-                    integration.type as SupportedIntegrations
-                  ];
+      <div className="flex flex-col gap-10">
+        {isLoading ? (
+          <div className="w-full rounded-lg bg-stone-100 px-4 py-12 flex items-center justify-center">
+            <span className="text-sm text-muted-foreground">
+              Loading integrations...
+            </span>
+          </div>
+        ) : (
+          <>
+            {hasConnected ? (
+              <section>
+                <Catalyst.Subheading>Connected</Catalyst.Subheading>
+                <Catalyst.Text className="mt-1">
+                  Accounts currently connected to this team.
+                </Catalyst.Text>
+                <div className="mt-4 flex flex-col divide-y divide-stone-200 rounded-lg border border-stone-200">
+                  {currentTeamIntegrations?.map((integration) => {
+                    const integrationConfig =
+                      integrationUIConfig[
+                        integration.type as SupportedIntegrations
+                      ];
 
-                const IntegrationIcon = integrationConfig.icon;
+                    const IntegrationIcon = integrationConfig?.icon;
 
-                return (
-                  <div
-                    className="w-full px-2 pt-2 flex items-center"
-                    key={integration.id}
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="bg-stone-200 rounded-md w-8 h-8 flex items-center justify-center">
-                        <IntegrationIcon width={18} height={18} />
+                    return (
+                      <div
+                        className="flex w-full items-center gap-3 p-4"
+                        key={integration.id}
+                      >
+                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md bg-stone-100">
+                          {IntegrationIcon ? (
+                            <IntegrationIcon width={20} height={20} />
+                          ) : null}
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium">
+                            {integrationConfig?.name ?? integration.type}
+                          </span>
+                          {integration.displayName ? (
+                            <span className="text-xs text-muted-foreground">
+                              {integration.displayName}
+                            </span>
+                          ) : null}
+                        </div>
+                        <Catalyst.Button
+                          outline
+                          onClick={() => {
+                            if (!integration.id) {
+                              return;
+                            }
+                            setIntegrationToDisconnect(integration.id);
+                            setShowConfirmDisconnect(true);
+                          }}
+                          className="ml-auto"
+                        >
+                          Disconnect
+                        </Catalyst.Button>
                       </div>
-                      <div className="flex flex-col">
+                    );
+                  })}
+                </div>
+              </section>
+            ) : null}
+
+            <section>
+              <Catalyst.Subheading>
+                {hasConnected ? 'Available integrations' : 'Get started'}
+              </Catalyst.Subheading>
+              <Catalyst.Text className="mt-1">
+                Connect an account by adding its block to your page. Once added,
+                open the block to connect and it will appear under Connected.
+              </Catalyst.Text>
+
+              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {AVAILABLE_INTEGRATIONS.map(([type, config]) => {
+                  const IntegrationIcon = config.icon;
+                  const blockHint =
+                    config.blocks.length === 1
+                      ? `Add the “${config.blocks[0]}” block to connect.`
+                      : `Add a block like “${config.blocks[0]}” to connect.`;
+
+                  return (
+                    <div
+                      key={type}
+                      className="flex flex-col rounded-lg border border-stone-200 p-4"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md bg-stone-100">
+                          <IntegrationIcon width={20} height={20} />
+                        </div>
                         <span className="text-sm font-medium">
-                          {integrationConfig.name}
+                          {config.name}
                         </span>
-                        <span className="text-muted-foreground text-xs">
-                          {integration.displayName}
-                        </span>
+                      </div>
+                      <p className="mt-3 text-sm text-muted-foreground">
+                        {config.description}
+                      </p>
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        {blockHint}
+                      </p>
+                      <div className="mt-4">
+                        <Catalyst.Button outline href={blocksTabHref}>
+                          Add a block
+                        </Catalyst.Button>
                       </div>
                     </div>
-                    <Catalyst.Button
-                      outline
-                      onClick={() => {
-                        if (!integration.id) {
-                          return;
-                        }
-                        setIntegrationToDisconnect(integration.id);
-                        setShowConfirmDisconnect(true);
-                      }}
-                      className="ml-auto"
-                    >
-                      Disconnect
-                    </Catalyst.Button>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="w-full aspect-square bg-stone-200 rounded-lg flex items-center justify-center px-4">
-              <span className="text-muted-foreground text-sm text-center">
-                When you connect an integration using a block, it will appear
-                here.
-              </span>
-            </div>
-          )}
-        </div>
+                  );
+                })}
+              </div>
+            </section>
+          </>
+        )}
       </div>
 
       <Catalyst.Dialog
