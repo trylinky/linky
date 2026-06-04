@@ -5,13 +5,8 @@ import { setPageTheme } from '@/app/lib/actions/themes';
 import { getGoogleFontUrl } from '@/lib/fonts';
 import { internalApiFetcher } from '@trylinky/common';
 import { Theme } from '@trylinky/prisma';
-import {
-  toast,
-  SidebarContentHeader,
-  SidebarGroup,
-  SidebarGroupContent,
-  Button,
-} from '@trylinky/ui';
+import { toast } from '@trylinky/ui';
+import * as Catalyst from '@trylinky/ui/catalyst';
 import { Plus } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -74,75 +69,72 @@ export function SidebarThemes() {
 
   return (
     <>
-      <SidebarContentHeader title="Themes" />
-      <SidebarGroup>
-        {editThemeId || (showCreateNewTheme && !editThemeId) ? (
-          <SidebarGroupContent className="px-2">
-            {editThemeId && (
-              <CreateEditThemeForm action="edit" editThemeId={editThemeId} />
-            )}
+      {editThemeId || (showCreateNewTheme && !editThemeId) ? (
+        <div>
+          {editThemeId && (
+            <CreateEditThemeForm action="edit" editThemeId={editThemeId} />
+          )}
 
-            {showCreateNewTheme && !editThemeId && (
-              <CreateEditThemeForm
-                action="create"
-                onCreateSuccess={(newThemeId) => {
-                  setShowCreateNewTheme(false);
-                  setEditThemeId(newThemeId);
-                }}
-              />
-            )}
-          </SidebarGroupContent>
-        ) : (
-          <SidebarGroupContent className="px-2">
-            <Button
-              variant="outline"
-              className="w-full mb-4"
-              onClick={() => {
-                setShowCreateNewTheme(true);
+          {showCreateNewTheme && !editThemeId && (
+            <CreateEditThemeForm
+              action="create"
+              onCreateSuccess={(newThemeId) => {
+                setShowCreateNewTheme(false);
+                setEditThemeId(newThemeId);
               }}
-            >
-              <Plus size={16} />
-              <span>Create theme</span>
-            </Button>
-            <div className="grid grid-cols-2 gap-4">
-              {currentTeamThemes?.map((theme) => {
-                return (
-                  <div className="flex flex-col gap-1" key={theme.id}>
-                    <button
-                      onClick={() => {
-                        setEditThemeId(null);
-                        setShowCreateNewTheme(false);
-                        handleSetPageTheme(theme.id);
-                      }}
-                      onMouseEnter={() => setPreviewTheme(theme.id)}
-                      onMouseLeave={() => setPreviewTheme(null)}
-                    >
-                      <PageThemePreview themeValues={theme} />
-                    </button>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium text-stone-800">
-                        {theme.name}
-                      </span>
-                      {!theme.isDefault && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          className="text-xs text-indigo-600 px-0"
-                          onClick={() => {
-                            setEditThemeId(theme.id);
-                          }}
-                        >
-                          Edit
-                        </Button>
-                      )}
-                    </div>
+            />
+          )}
+        </div>
+      ) : (
+        <div>
+          <Catalyst.Button
+            outline
+            className="mb-4 w-full"
+            onClick={() => {
+              setShowCreateNewTheme(true);
+            }}
+          >
+            <Plus size={16} />
+            <span>Create theme</span>
+          </Catalyst.Button>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+            {currentTeamThemes?.map((theme) => {
+              return (
+                <div className="flex flex-col gap-1" key={theme.id}>
+                  <button
+                    onClick={() => {
+                      setEditThemeId(null);
+                      setShowCreateNewTheme(false);
+                      handleSetPageTheme(theme.id);
+                    }}
+                    onMouseEnter={() => setPreviewTheme(theme.id)}
+                    onMouseLeave={() => setPreviewTheme(null)}
+                  >
+                    <PageThemePreview themeValues={theme} />
+                  </button>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-stone-800">
+                      {theme.name}
+                    </span>
+                    {!theme.isDefault && (
+                      <Catalyst.Button
+                        type="button"
+                        plain
+                        className="px-0 text-xs text-indigo-600"
+                        onClick={() => {
+                          setEditThemeId(theme.id);
+                        }}
+                      >
+                        Edit
+                      </Catalyst.Button>
+                    )}
                   </div>
-                );
-              })}
-            </div>
-          </SidebarGroupContent>
-        )}
-      </SidebarGroup>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {previewTheme &&
         previewThemeValues &&
