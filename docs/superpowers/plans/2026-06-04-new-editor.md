@@ -743,7 +743,7 @@ Publish a previously-unpublished page → load `/<slug>` logged-out → it appea
 
 - **Preserve data flow.** Tab pages are presentation swaps over existing `Sidebar*` logic — keep every SWR key, `InternalApi` call, server action, and the `pageId`-from-SWR-cache pattern. The shell's `LinkyProviders` populates the SWR fallback exactly like today's owner layout.
 - **`pageId` in the SWR cache.** Tab components read `useSWRConfig().cache.get('pageId')`. Ensure `LinkyProviders` (reused from the public layout) still sets this in the `/e` shell (it takes `pageId` as a prop today).
-- **Catalyst is namespaced** (`Catalyst.Button`) to coexist with shadcn. Don't add Catalyst exports flat into `@trylinky/ui` (name clashes).
+- **Catalyst is a SUBPATH export.** Import it as `import * as Catalyst from '@trylinky/ui/catalyst'` and use `Catalyst.Button` etc. Do NOT import Catalyst from the main `@trylinky/ui` barrel — it's deliberately kept off the main barrel so `@trylinky/common`/marketing don't pull in Catalyst (and its `@headlessui/react` dep). All Catalyst files are `'use client'`.
 - **Charts stay shadcn** in this spec (not in the Catalyst kit) — Spec 3.
 - **Login redirect target** is unverified in code; confirm the real sign-in entry + redirect param before finalizing Task 4/5 (`packages/common/src/auth/login-form.tsx` `redirectTo`, verify page `/i/auth/verify`).
 - **Cache + request data**: never call `headers()`/`cookies()` inside a `use cache` function or in a way that forces the public route dynamic. UA-based mobile detection on the public path is the main trap — drop it or move it client-side.
