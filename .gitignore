@@ -48,3 +48,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Tailwind v4 migration visual baselines (local verification only)
+docs/superpowers/baselines/
+.gstack/
