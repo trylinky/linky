@@ -49,7 +49,7 @@ export function EditorCanvas({ children }: { children: ReactNode[] }) {
           (a modal would block dragging onto the grid). Stacked above the grid
           on mobile (click-to-add), docked rail on desktop (drag-to-add). */}
       <aside className="w-full shrink-0 md:w-72">
-        <div className="rounded-xl border border-zinc-950/10 bg-white md:sticky md:top-6 md:flex md:max-h-[calc(100svh-7rem)] md:flex-col md:overflow-hidden">
+        <div className="rounded-xl border border-zinc-950/10 bg-white md:sticky md:top-6 md:flex md:h-[calc(100svh-7rem)] md:flex-col md:overflow-hidden">
           <Catalyst.Heading level={2} className="shrink-0 border-b border-zinc-950/5 p-4">
             Blocks
           </Catalyst.Heading>
