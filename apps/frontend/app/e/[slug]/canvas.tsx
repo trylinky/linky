@@ -94,7 +94,7 @@ export function EditorCanvas({ children }: { children: ReactNode[] }) {
           <h2 className="shrink-0 border-b border-black/5 p-4 text-xl font-bold text-zinc-950 dark:border-white/10 dark:text-white">
             Blocks
           </h2>
-          <div className="min-h-0 flex-1 overflow-y-auto p-4">
+          <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto p-4">
             <SidebarBlocks />
           </div>
         </div>

@@ -63,7 +63,8 @@
   }
 
   &.react-grid-placeholder {
-    border: 2px dashed hsl(var(--color-sys-border), 20%);
+    background: hsl(var(--color-sys-bg-border) / 18%) !important;
+    border: 2px dashed hsl(var(--color-sys-bg-border) / 55%);
     border-radius: 20px;
     // transition-duration: 100ms;
     z-index: 2;

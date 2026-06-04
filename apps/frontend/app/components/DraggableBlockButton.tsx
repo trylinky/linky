@@ -231,7 +231,7 @@ export function DraggableBlockButton({ type }: Props) {
       <button
         id="hello"
         type="button"
-        className="hidden md:flex w-full bg-[var(--glass-card)] backdrop-blur-sm rounded-md shadow-[0_0_0_1px_#2000241c,0_2px_2px_#2000240d] dark:shadow-[0_0_0_1px_#ffffff1f,0_2px_2px_#00000040] items-center justify-start text-left px-3 py-3 hover:shadow-md hover:translate-y-[-2px] transition-shadow transition-transform cursor-move"
+        className="hidden md:flex w-full bg-[var(--glass-card)] backdrop-blur-sm rounded-md shadow-[0_0_0_1px_#2000241c,0_2px_2px_#2000240d] hover:shadow-[0_0_0_1px_#2000241c,0_10px_20px_-8px_#0000001f] dark:shadow-[0_0_0_1px_#ffffff1f,0_2px_2px_#00000040] dark:hover:shadow-[0_0_0_1px_#ffffff2e,0_10px_20px_-8px_#00000066] items-center justify-start text-left px-3 py-3 hover:translate-y-[-2px] transition-[box-shadow,transform] cursor-move"
         draggable={true}
         unselectable="on"
         onDragStart={(e) => {
@@ -250,7 +250,7 @@ export function DraggableBlockButton({ type }: Props) {
       </button>
       <button
         type="button"
-        className="flex md:hidden w-full bg-[var(--glass-card)] backdrop-blur-sm rounded-md shadow-[0_0_0_1px_#2000241c,0_2px_2px_#2000240d] dark:shadow-[0_0_0_1px_#ffffff1f,0_2px_2px_#00000040] items-center justify-start text-left px-3 py-3 hover:shadow-md transition-shadow"
+        className="flex md:hidden w-full bg-[var(--glass-card)] backdrop-blur-sm rounded-md shadow-[0_0_0_1px_#2000241c,0_2px_2px_#2000240d] dark:shadow-[0_0_0_1px_#ffffff1f,0_2px_2px_#00000040] items-center justify-start text-left px-3 py-3 hover:shadow-[0_0_0_1px_#2000241c,0_10px_20px_-8px_#0000001f] dark:hover:shadow-[0_0_0_1px_#ffffff2e,0_10px_20px_-8px_#00000066] transition-shadow"
         onClick={() => {
           setNextToAddBlock({
             i: 'tmp-block',

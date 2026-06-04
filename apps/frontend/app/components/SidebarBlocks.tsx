@@ -1,7 +1,6 @@
 import { DraggableBlockButton } from '@/app/components/DraggableBlockButton';
 import { Blocks } from '@trylinky/blocks';
 import { internalApiFetcher } from '@trylinky/common';
-import * as Catalyst from '@trylinky/ui/catalyst';
 import { SearchIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import useSWR from 'swr';
@@ -30,15 +29,16 @@ export function SidebarBlocks() {
 
   return (
     <div className="flex flex-col gap-4">
-      <Catalyst.InputGroup>
-        <SearchIcon data-slot="icon" />
-        <Catalyst.Input
+      <div className="relative">
+        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400 dark:text-zinc-500" />
+        <input
           aria-label="Filter blocks"
           placeholder="Filter blocks"
           value={search}
           onChange={(ev) => setSearch(ev.target.value)}
+          className="w-full rounded-xl border border-black/10 bg-white/60 py-2.5 pr-3 pl-9 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-black/20 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-zinc-400"
         />
-      </Catalyst.InputGroup>
+      </div>
 
       <div className="space-y-2 flex flex-col" id="tour-blocks">
         {filteredBlocks?.map((block) => {
