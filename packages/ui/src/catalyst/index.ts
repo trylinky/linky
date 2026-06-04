@@ -1,6 +1,7 @@
 export * from './link';
 export * from './button';
 export * from './navbar';
+export * from './sidebar';
 export * from './stacked-layout';
 export * from './dropdown';
 export * from './avatar';

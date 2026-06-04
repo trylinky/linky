@@ -39,8 +39,8 @@ export function EditorNavbar({ slug }: { slug: string }) {
         {orgs && orgs.length > 1 && <TeamSwitcher usersOrganizations={orgs} />}
         <PageSwitcher teamPages={teamPages} />
       </Catalyst.NavbarSection>
-      <Catalyst.NavbarDivider />
-      <Catalyst.NavbarSection>
+      <Catalyst.NavbarDivider className="max-lg:hidden" />
+      <Catalyst.NavbarSection className="max-lg:hidden">
         {tabs(slug).map((t) => (
           <Catalyst.NavbarItem
             key={t.href}
@@ -53,14 +53,14 @@ export function EditorNavbar({ slug }: { slug: string }) {
       </Catalyst.NavbarSection>
       <Catalyst.NavbarSpacer />
       <Catalyst.NavbarSection>
-        {onBlocks && <ScreenSizeSwitcher />}
+        {onBlocks && <ScreenSizeSwitcher className="max-lg:hidden" />}
         <UserWidget usersOrganizations={orgs} />
       </Catalyst.NavbarSection>
     </Catalyst.Navbar>
   );
 }
 
-function ScreenSizeSwitcher() {
+function ScreenSizeSwitcher({ className }: { className?: string }) {
   const { editLayoutMode, setEditLayoutMode } = useEditModeContext();
   const base =
     'inline-flex items-center justify-center rounded-md p-1.5 transition-colors';
@@ -69,7 +69,7 @@ function ScreenSizeSwitcher() {
   return (
     <span
       id="tour-screen-size-switcher"
-      className="inline-flex items-center gap-0.5 rounded-lg bg-zinc-100 p-0.5"
+      className={`inline-flex items-center gap-0.5 rounded-lg bg-zinc-100 p-0.5${className ? ` ${className}` : ''}`}
     >
       <button
         type="button"

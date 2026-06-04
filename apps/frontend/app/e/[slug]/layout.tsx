@@ -1,5 +1,6 @@
 import { EditModeContextProvider } from '@/app/contexts/Edit';
 import { EditorNavbar } from '@/app/e/[slug]/editor-navbar';
+import { EditorMobileSidebar } from '@/app/e/[slug]/editor-mobile-sidebar';
 import { LinkyProviders } from '@/app/components/LinkyProviders';
 import { getEnabledBlocks } from '@/app/lib/actions/blocks';
 import { getTeamIntegrations } from '@/app/lib/actions/integrations';
@@ -72,7 +73,7 @@ export default async function EditorLayout(props: {
       <EditModeContextProvider>
         <Catalyst.StackedLayout
           navbar={<EditorNavbar slug={slug} />}
-          sidebar={null}
+          sidebar={<EditorMobileSidebar slug={slug} />}
         >
           {props.children}
         </Catalyst.StackedLayout>
