@@ -4,9 +4,6 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  SidebarContentHeader,
-  SidebarGroup,
-  SidebarGroupContent,
   Card,
   CardContent,
   Skeleton,
@@ -101,12 +98,8 @@ export function SidebarAnalytics() {
   }
 
   return (
-    <>
-      <SidebarContentHeader title="Analytics"></SidebarContentHeader>
-
-      <SidebarGroup>
-        <SidebarGroupContent>
-          {dataPoints.map((dataPoint) => (
+    <div>
+      {dataPoints.map((dataPoint) => (
             <div key={dataPoint.key}>
               <Card className="shadow-none mb-4">
                 <CardContent>
@@ -230,30 +223,18 @@ export function SidebarAnalytics() {
               </div>
             </CardContent>
           </Card>
-        </SidebarGroupContent>
-      </SidebarGroup>
-    </>
+    </div>
   );
 }
 
 export function SidebarAnalyticsComingsoon() {
   return (
-    <>
-      <SidebarContentHeader title="Analytics"></SidebarContentHeader>
-
-      <SidebarGroup>
-        <SidebarGroupContent>
-          <div className="w-full p-6 bg-stone-50 rounded-lg flex flex-col items-center justify-center text-center">
-            <span className="text-lg font-medium mb-2">
-              Analytics coming soon
-            </span>
-            <span className="text-sm text-muted-foreground">
-              We're still collecting data for this page. Please check back in a
-              few days.
-            </span>
-          </div>
-        </SidebarGroupContent>
-      </SidebarGroup>
-    </>
+    <div className="w-full p-6 bg-stone-50 rounded-lg flex flex-col items-center justify-center text-center">
+      <span className="text-lg font-medium mb-2">Analytics coming soon</span>
+      <span className="text-sm text-muted-foreground">
+        We're still collecting data for this page. Please check back in a few
+        days.
+      </span>
+    </div>
   );
 }
