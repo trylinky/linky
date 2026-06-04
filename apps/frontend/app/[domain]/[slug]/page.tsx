@@ -1,18 +1,14 @@
 import Grid, { PageConfig } from './grid';
 import {
-  getPageIdBySlugOrDomain,
-  getPageLayout,
-  getPageLoadData,
+  getPublicPageBySlugOrDomain,
+  getPublicPageLayout,
+  getPublicPageLoadData,
 } from '@/app/lib/actions/page-actions';
 import { renderBlock } from '@/lib/blocks/ui';
-import { isUserAgentMobile } from '@/lib/user-agent';
 import { Block, Integration } from '@trylinky/prisma';
 import type { Metadata, ResolvingMetadata } from 'next';
-import { headers } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 export const dynamicParams = true;
 
 export async function generateMetadata(
@@ -23,13 +19,13 @@ export async function generateMetadata(
   const isCustomDomain =
     decodeURIComponent(params.domain) !== process.env.NEXT_PUBLIC_ROOT_DOMAIN;
 
-  const corePage = await getPageIdBySlugOrDomain(params.slug, params.domain);
+  const corePage = await getPublicPageBySlugOrDomain(params.slug, params.domain);
 
   if (!corePage) {
     return {};
   }
 
-  const page = await getPageLoadData(corePage.id);
+  const page = await getPublicPageLoadData(corePage.id);
 
   if (!page || !page.publishedAt) {
     return {};
@@ -70,17 +66,16 @@ export type InitialDataUsersIntegrations = Pick<
 
 export default async function Page(props: { params: Promise<Params> }) {
   const params = await props.params;
-  const headersList = await headers();
 
-  const corePage = await getPageIdBySlugOrDomain(params.slug, params.domain);
+  const corePage = await getPublicPageBySlugOrDomain(params.slug, params.domain);
 
   if (!corePage) {
     return notFound();
   }
 
   const [layout, page] = await Promise.all([
-    getPageLayout(corePage.id),
-    getPageLoadData(corePage.id),
+    getPublicPageLayout(corePage.id),
+    getPublicPageLoadData(corePage.id),
   ]);
 
   if (!page) {
@@ -98,12 +93,11 @@ export default async function Page(props: { params: Promise<Params> }) {
     redirect(`//${page.customDomain}`);
   }
 
-  const isMobile = isUserAgentMobile(headersList.get('user-agent'));
   const pageLayout = layout as unknown as PageConfig;
   const mergedIds = [...pageLayout.sm, ...pageLayout.xxs].map((item) => item.i);
 
   return (
-    <Grid isPotentiallyMobile={isMobile} layout={pageLayout}>
+    <Grid isPotentiallyMobile={false} layout={pageLayout}>
       {page.blocks
         .filter((block: Block) => mergedIds.includes(block.id))
         .map((block: Block) => {

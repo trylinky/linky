@@ -2,16 +2,14 @@ import { RenderPageTheme } from '@/app/[domain]/[slug]/render-page-theme';
 import { LinkyProviders } from '@/app/components/LinkyProviders';
 import { ShareButton } from '@/app/components/ShareButton';
 import {
-  getPageBlocks,
-  getPageIdBySlugOrDomain,
-  getPageLayout,
-  getPageTheme,
+  getPublicPageBlocks,
+  getPublicPageBySlugOrDomain,
+  getPublicPageLayout,
+  getPublicPageTheme,
 } from '@/app/lib/actions/page-actions';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import Script from 'next/script';
-
-export const dynamic = 'force-dynamic';
 
 export default async function PageLayout(props: {
   children: React.ReactNode;
@@ -24,7 +22,7 @@ export default async function PageLayout(props: {
   const { children } = props;
 
   // Combine initial page fetch with settings to reduce queries
-  const page = await getPageIdBySlugOrDomain(params.slug, params.domain);
+  const page = await getPublicPageBySlugOrDomain(params.slug, params.domain);
 
   if (!page) {
     return notFound();
@@ -36,9 +34,9 @@ export default async function PageLayout(props: {
 
   // Batch fetch core page data
   const [{ blocks }, pageLayout, pageTheme] = await Promise.all([
-    getPageBlocks(page.id),
-    getPageLayout(page.id),
-    getPageTheme(page.id),
+    getPublicPageBlocks(page.id),
+    getPublicPageLayout(page.id),
+    getPublicPageTheme(page.id),
   ]);
 
   const initialData: Record<string, any> = {

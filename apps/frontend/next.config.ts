@@ -3,6 +3,12 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   transpilePackages: ['@trylinky/ui', '@trylinky/common'],
+  experimental: {
+    // Enables the `'use cache'` directive for cacheable public reads
+    // (public `/[domain]/[slug]` route). This is the narrow flag — it does NOT
+    // turn on full Cache Components / PPR (top-level `cacheComponents`).
+    useCache: true,
+  },
   rewrites: async () => [
     {
       source: '/',
