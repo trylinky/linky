@@ -59,7 +59,7 @@ export function EditorCanvas({ children }: { children: ReactNode[] }) {
         </div>
       </aside>
 
-      <div className="app-page flex min-w-0 flex-1 justify-center rounded-xl">
+      <div className="app-page bg-sys-bg-base flex min-w-0 flex-1 justify-center rounded-xl">
         <DynamicEditWrapper layoutProps={layoutProps}>
           {children}
         </DynamicEditWrapper>
