@@ -73,7 +73,7 @@ export function PageSwitcher({ teamPages }: Props) {
                   <CommandItem
                     key={page.id}
                     onSelect={() => {
-                      router.push(`/${page.slug}`);
+                      router.push(`/e/${page.slug}`);
                     }}
                     className="text-sm"
                   >
