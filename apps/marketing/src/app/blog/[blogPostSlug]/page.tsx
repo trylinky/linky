@@ -372,14 +372,12 @@ export default async function BlogPostPage({
       </article>
       <script
         type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{
           __html: serializeJsonLd(articleJsonLd),
         }}
       />
       <script
         type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{
           __html: serializeJsonLd(
             buildBreadcrumbSchema([

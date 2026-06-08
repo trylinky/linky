@@ -61,7 +61,6 @@ export default async function RootLayout({
         )}
         <script
           type="application/ld+json"
-          // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{
             __html: serializeJsonLd(
               buildOrganizationSchema({
@@ -74,7 +73,6 @@ export default async function RootLayout({
         />
         <script
           type="application/ld+json"
-          // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{
             __html: serializeJsonLd(buildWebSiteSchema({ name: 'Linky', url: 'https://lin.ky' })),
           }}
