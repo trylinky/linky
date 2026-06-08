@@ -17,11 +17,18 @@ export function IntegrationBlocks({
 }) {
   const entries = Object.entries(blockCopy).filter(([key]) => isRealBlock(key));
   return (
-    <ul className="grid gap-4 sm:grid-cols-2 not-prose">
+    <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 not-prose">
       {entries.map(([key, copy]) => (
-        <li key={key} className="rounded-xl border border-gray-200 bg-white p-5">
-          <div className="font-semibold">{copy.name}</div>
-          {copy.description && <p className="mt-1 text-sm text-gray-600">{copy.description}</p>}
+        <li
+          key={key}
+          className="rounded-2xl border border-gray-200 bg-white p-6 shadow-xs hover:shadow-sm transition-shadow"
+        >
+          <div className="text-base font-semibold text-gray-900">{copy.name}</div>
+          {copy.description && (
+            <p className="mt-1.5 text-sm text-gray-600 leading-relaxed">
+              {copy.description}
+            </p>
+          )}
         </li>
       ))}
     </ul>
