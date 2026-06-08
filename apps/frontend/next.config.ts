@@ -22,6 +22,10 @@ const nextConfig: NextConfig = {
       source: '/llms.txt',
       destination: `${process.env.NEXT_PUBLIC_MARKETING_URL}/i/llms.txt`,
     },
+    { source: '/integrations', destination: `${process.env.NEXT_PUBLIC_MARKETING_URL}/i/integrations` },
+    { source: '/integrations/:path*', destination: `${process.env.NEXT_PUBLIC_MARKETING_URL}/i/integrations/:path*` },
+    { source: '/templates', destination: `${process.env.NEXT_PUBLIC_MARKETING_URL}/i/templates` },
+    { source: '/templates/:path*', destination: `${process.env.NEXT_PUBLIC_MARKETING_URL}/i/templates/:path*` },
     {
       source: '/i/:path*',
       destination: `${process.env.NEXT_PUBLIC_MARKETING_URL}/i/:path*`,
