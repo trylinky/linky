@@ -1,2 +1,1 @@
-// Barrel for @trylinky/seo. Exports added in later tasks.
-export {};
+export * from './should-index-page';
