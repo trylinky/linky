@@ -8,7 +8,7 @@ const INTEGRATIONS: IntegrationContent[] = [
     name: 'Spotify',
     h1: 'Add Spotify to your link in bio',
     answer:
-      'Connect your Spotify account to Linky and a live "Now Playing" block will display your current or most recently played track directly on your link-in-bio page.',
+      'Connect your Spotify account to Linky and a "Now Playing" block will display your current or most recently played track directly on your link-in-bio page, staying up to date as your listening activity changes.',
     targetKeyword: 'spotify link in bio',
     blockCopy: {
       'spotify-playing-now': {
@@ -20,7 +20,7 @@ const INTEGRATIONS: IntegrationContent[] = [
     sections: [
       {
         heading: 'What your Spotify block shows',
-        body: 'The Spotify "Now Playing" block pulls your real-time listening activity directly from the Spotify API. When you have a song queued up, your visitors see the track title, artist, and album art. When your session is idle, the block falls back to whichever track you last played, so there is always something meaningful on screen.',
+        body: 'The Spotify "Now Playing" block pulls your listening activity from the Spotify API and refreshes roughly every minute. When you have a song queued up, your visitors see the track title, artist, and album art. When your session is idle, the block falls back to whichever track you last played, so there is always something meaningful on screen.',
       },
       {
         heading: 'How to add Spotify to your Linky page',
@@ -28,7 +28,7 @@ const INTEGRATIONS: IntegrationContent[] = [
       },
       {
         heading: 'Why musicians and music lovers use it',
-        body: 'Spotify is how most of your audience already discovers music, so embedding your listening activity removes a step between your content and their interest. Artists use it to signal what influences their work, DJs use it to tease upcoming sets, and music journalists use it to show what they are reviewing. It turns a static link page into something that updates itself every time you hit play.',
+        body: 'Spotify is how most of your audience already discovers music, so embedding your listening activity removes a step between your content and their interest. Artists use it to signal what influences their work, DJs use it to tease upcoming sets, and music journalists use it to show what they are reviewing. It turns a static link page into something that stays current as your listening activity changes.',
       },
       {
         heading: 'Pair it with the rest of your page',
@@ -39,7 +39,7 @@ const INTEGRATIONS: IntegrationContent[] = [
       {
         question: 'Does the Now Playing block update automatically?',
         answer:
-          'Yes. The block fetches your current playback state from the Spotify API each time a visitor loads your page, so it reflects whatever you are playing at that moment with no manual refreshing required.',
+          'Yes. The block updates automatically — the Spotify API response is refreshed roughly every minute, so visitors see your current or most recent track without any manual intervention.',
       },
       {
         question: 'What happens when I am not listening to anything?',
@@ -65,28 +65,28 @@ const INTEGRATIONS: IntegrationContent[] = [
     name: 'Instagram',
     h1: 'Add Instagram to your link in bio',
     answer:
-      'Connect your Instagram Business or Creator account to Linky to display your latest post and live follower count on your link-in-bio page.',
+      'Connect your Instagram Business or Creator account to Linky to display your latest post and up-to-date follower count on your link-in-bio page.',
     targetKeyword: 'instagram link in bio',
     blockCopy: {
       'instagram-latest-post': {
         name: 'Latest Post',
         description:
-          'Shows your most recent Instagram post — or a configurable number of recent posts — pulled live from your connected account.',
+          'Shows your most recent Instagram post — or a configurable number of recent posts — fetched from your connected account and refreshed about once a minute.',
       },
       'instagram-follower-count': {
         name: 'Follower Count',
         description:
-          'Displays your current Instagram follower count, refreshed automatically so the number stays accurate as your audience grows.',
+          'Displays your current Instagram follower count, automatically refreshed about once a minute so the number stays accurate as your audience grows.',
       },
     },
     sections: [
       {
         heading: 'What your Instagram blocks show',
-        body: 'Linky offers two Instagram blocks you can mix and match. The Latest Post block embeds your most recent Instagram post directly on your link page — you can show anywhere from one to ten recent posts depending on how much visual space you want to give your feed. The Follower Count block shows your real-time follower number, which is a strong social-proof signal for brands and creators negotiating sponsorship deals.',
+        body: 'Linky offers two Instagram blocks you can mix and match. The Latest Post block embeds your most recent Instagram post directly on your link page — you can show anywhere from one to ten recent posts depending on how much visual space you want to give your feed. The Follower Count block shows your up-to-date follower number, which is a strong social-proof signal for brands and creators negotiating sponsorship deals.',
       },
       {
         heading: 'How to connect Instagram to your Linky page',
-        body: 'Because Instagram\'s API requires an official account type, you will need a Business or Creator account (not a personal account) to use these blocks. In the Linky editor, add a "Latest Post" or "Follower Count" block, then follow the OAuth flow to connect your Instagram account. The connection is read-only — Linky can read your posts and profile but cannot post, message, or modify your account. Once connected, both blocks update automatically every time someone visits your page.',
+        body: 'Because Instagram\'s API requires an official account type, you will need a Business or Creator account (not a personal account) to use these blocks. In the Linky editor, add a "Latest Post" or "Follower Count" block, then follow the OAuth flow to connect your Instagram account. The connection is read-only — Linky can read your posts and profile but cannot post, message, or modify your account. Once connected, both blocks refresh automatically about once a minute so your page stays current.',
       },
       {
         heading: 'Why Instagram integration matters for creators',
@@ -109,9 +109,9 @@ const INTEGRATIONS: IntegrationContent[] = [
           'You can configure the block to display between 1 and 10 of your most recent posts. Single-post mode works well as a featured piece of content; multi-post mode gives visitors a scrollable grid preview of your feed.',
       },
       {
-        question: 'Does my follower count update in real time?',
+        question: 'Does my follower count update automatically?',
         answer:
-          'The Follower Count block fetches your current count each time a visitor loads your page, so it reflects your actual follower number at the time of the visit rather than a stale cached figure.',
+          'Yes. The Follower Count block refreshes your Instagram follower count approximately once a minute, so it stays accurate without any manual updates needed.',
       },
       {
         question: 'Can Linky post to my Instagram on my behalf?',
@@ -127,13 +127,13 @@ const INTEGRATIONS: IntegrationContent[] = [
     name: 'TikTok',
     h1: 'Add TikTok to your link in bio',
     answer:
-      'Connect TikTok to Linky to show your latest TikTok post and your live follower count on your link-in-bio page, giving followers a taste of your content wherever they find your link.',
+      'Connect TikTok to Linky to show your latest TikTok post and your up-to-date follower count on your link-in-bio page, giving followers a taste of your content wherever they find your link.',
     targetKeyword: 'tiktok link in bio',
     blockCopy: {
       'tiktok-follower-count': {
         name: 'Follower Count',
         description:
-          'Shows your current TikTok follower count, updated automatically so new visitors always see your real audience size.',
+          'Shows your current TikTok follower count, refreshed about once a minute so visitors see an accurate audience size.',
       },
       'tiktok-latest-post': {
         name: 'Latest Post',
@@ -148,7 +148,7 @@ const INTEGRATIONS: IntegrationContent[] = [
       },
       {
         heading: 'How to add TikTok to your Linky page',
-        body: 'In the Linky editor, add either the "Follower Count" or "Latest Post" block from the TikTok section, then complete the OAuth flow to authorise Linky with your TikTok account. Linky only requests read access to your public profile and videos. Once connected, both blocks pull fresh data on each page load — no manual updates needed. You can use one or both blocks on the same page.',
+        body: 'In the Linky editor, add either the "Follower Count" or "Latest Post" block from the TikTok section, then complete the OAuth flow to authorise Linky with your TikTok account. Linky only requests read access to your public profile and videos. Once connected, both blocks update automatically about once a minute — no manual updates needed. You can use one or both blocks on the same page.',
       },
       {
         heading: 'Why TikTok creators rely on a strong link page',
@@ -161,14 +161,14 @@ const INTEGRATIONS: IntegrationContent[] = [
     ],
     faqs: [
       {
-        question: 'Does Linky work with personal TikTok accounts?',
+        question: 'How do I connect my TikTok account?',
         answer:
-          'Yes. Unlike Instagram, TikTok\'s API supports both personal and professional account types for reading public profile data and latest videos, so you can connect any TikTok account.',
+          'In the Linky editor, add a TikTok block and you will be guided through an OAuth authorisation flow. Linky only requests read access to your profile and videos — no posting or account management permissions are requested.',
       },
       {
         question: 'Does my follower count update automatically?',
         answer:
-          'Yes. The Follower Count block fetches your current count from TikTok\'s API each time a visitor loads your Linky page, so it always reflects your real audience size.',
+          'Yes. The Follower Count block refreshes your TikTok follower count approximately once a minute, so it stays accurate without any manual updates.',
       },
       {
         question: 'Which video does the Latest Post block show?',
@@ -189,23 +189,23 @@ const INTEGRATIONS: IntegrationContent[] = [
     name: 'Threads',
     h1: 'Add Threads to your link in bio',
     answer:
-      'Connect your Threads account to Linky to display your live follower count on your link-in-bio page, giving visitors an instant measure of your Threads audience.',
+      'Connect your Threads account to Linky to display your up-to-date follower count on your link-in-bio page, giving visitors an accurate measure of your Threads audience.',
     targetKeyword: 'threads link in bio',
     blockCopy: {
       'threads-follower-count': {
         name: 'Follower Count',
         description:
-          'Displays your current Threads follower count, updated on each page visit so visitors always see your actual audience size.',
+          'Displays your current Threads follower count, automatically refreshed about once a minute so visitors see an accurate audience size.',
       },
     },
     sections: [
       {
         heading: 'What your Threads block shows',
-        body: 'Linky\'s Threads integration currently offers a Follower Count block that pulls your real-time audience size from the Threads API. As Threads continues to grow and expand its developer platform, this is a straightforward way to signal your presence on the platform to visitors who may not yet know you are there.',
+        body: 'Linky\'s Threads integration currently offers a Follower Count block that pulls your audience size from the Threads API, refreshing about once a minute. As Threads continues to grow and expand its developer platform, this is a straightforward way to signal your presence on the platform to visitors who may not yet know you are there.',
       },
       {
         heading: 'How to add your Threads follower count to Linky',
-        body: 'In the Linky editor, add the "Follower Count" block from the Threads section. You will be walked through an OAuth authorisation flow where you grant Linky read-only access to your Threads profile. Once connected, your follower count appears on your page and refreshes automatically with each visit — no manual updates required.',
+        body: 'In the Linky editor, add the "Follower Count" block from the Threads section. You will be walked through an OAuth authorisation flow where you grant Linky read-only access to your Threads profile. Once connected, your follower count appears on your page and updates automatically about once a minute — no manual updates required.',
       },
       {
         heading: 'Why showing your Threads audience matters',
@@ -220,7 +220,7 @@ const INTEGRATIONS: IntegrationContent[] = [
       {
         question: 'Does the Threads follower count update automatically?',
         answer:
-          'Yes. The block fetches your current follower count from the Threads API on every page load, so the number reflects your real audience size at the time of each visit.',
+          'Yes. The block refreshes your follower count from the Threads API approximately once a minute, so it stays accurate without any manual updates needed.',
       },
       {
         question: 'Can Linky post to Threads on my behalf?',
@@ -246,23 +246,23 @@ const INTEGRATIONS: IntegrationContent[] = [
     name: 'GitHub',
     h1: 'Add GitHub to your link in bio',
     answer:
-      'Add the GitHub Commits This Month block to your Linky page to display how many commits you have made to public GitHub repositories in the current calendar month.',
+      'Add the GitHub Commits block to your Linky page to display your recent GitHub commit activity over roughly the past 30 days — a live proof-of-work signal that requires only your GitHub username.',
     targetKeyword: 'github link in bio',
     blockCopy: {
       'github-commits-this-month': {
         name: 'Commits This Month',
         description:
-          'Shows the total number of commits you have pushed to public GitHub repositories in the current calendar month, updated on every page load.',
+          'Shows the total number of commits you have made in roughly the past 30 days, reflecting your recent GitHub activity with no OAuth connection required.',
       },
     },
     sections: [
       {
         heading: 'What your GitHub block shows',
-        body: 'The GitHub Commits This Month block counts the public commits you have made across all repositories in the current calendar month and displays that number on your Linky page. It is a live activity signal — visitors see a number that reflects your recent shipping cadence rather than a static badge. The count resets at the start of each new month and requires only your GitHub username, no authentication needed.',
+        body: 'The GitHub Commits block counts your recent commit contributions over a rolling window of roughly the past 30 days and displays that number on your Linky page. It is a live activity signal — visitors see a number that reflects your recent shipping cadence rather than a static badge. Only your GitHub username is needed; no OAuth connection or personal access token is required from you.',
       },
       {
         heading: 'How to add GitHub commits to your Linky page',
-        body: 'In the Linky editor, add the "Commits This Month" block from the GitHub section. You will be prompted to enter your GitHub username — that is all the configuration required. Because the block reads public commit data from GitHub\'s API, no OAuth connection or token is needed. Hit publish and your commit count will be live on your page within seconds.',
+        body: 'In the Linky editor, add the "Commits This Month" block from the GitHub section. You will be prompted to enter your GitHub username — that is all the configuration required. Because the block uses a server-side GitHub API connection, no OAuth authorisation or personal token is needed from you. Hit publish and your commit count will be live on your page within seconds.',
       },
       {
         heading: 'Why developers use it on their personal page',
@@ -277,22 +277,22 @@ const INTEGRATIONS: IntegrationContent[] = [
       {
         question: 'Does Linky need access to my private GitHub repositories?',
         answer:
-          'No. The GitHub Commits This Month block only reads public commit data using your GitHub username. No OAuth authorisation or personal access token is required, and private repositories are never included in the count.',
+          'No OAuth authorisation or personal access token is required from you. You only provide your GitHub username, and the block uses a server-side API connection to fetch your recent commit activity.',
       },
       {
         question: 'Does the commit count update automatically?',
         answer:
-          'Yes. The block fetches your current month\'s commit count from GitHub\'s public API each time a visitor loads your page, so the number always reflects your activity up to that moment.',
+          'Yes. The block fetches your recent GitHub commit activity automatically, so the number on your page reflects your activity over roughly the past 30 days without any manual refreshing.',
       },
       {
-        question: 'When does the monthly count reset?',
+        question: 'What time period does the commit count cover?',
         answer:
-          'The count covers commits made in the current calendar month. On the first day of a new month, the count resets to zero and begins accumulating again from that point.',
+          'The block counts your commit contributions over a rolling window of approximately the past 30 days from the current date. It is not tied to a calendar month and does not reset on the 1st of the month.',
       },
       {
-        question: 'Are commits to private repositories counted?',
+        question: 'What counts as a commit in the block?',
         answer:
-          'No. The block uses GitHub\'s public API with only a username, which means it can only access public repository data. Commits to private repositories are not counted or visible.',
+          'The block counts your commit contributions as reported by the GitHub API for the rolling ~30-day window. Only your GitHub username is needed to display this activity — no additional setup is required.',
       },
     ],
   },
