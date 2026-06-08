@@ -21,8 +21,20 @@ export async function generateMetadata(props: { params: Promise<{ niche: string 
   return buildPseoMetadata({ title: `${c.h1} | Linky`, description: c.answer, path: `/for/${c.slug}` });
 }
 
+const BLOCK_WORD_BRANDS: Record<string, string> = {
+  youtube: 'YouTube',
+  tiktok: 'TikTok',
+  github: 'GitHub',
+  spotify: 'Spotify',
+  instagram: 'Instagram',
+  threads: 'Threads',
+};
+
 function humanizeBlockKey(key: string): string {
-  return key.replace(/-/g, ' ').replace(/\b\w/g, (m) => m.toUpperCase());
+  return key
+    .split('-')
+    .map((w) => BLOCK_WORD_BRANDS[w] ?? w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
 }
 
 export default async function NichePage(props: { params: Promise<{ niche: string }> }) {
@@ -55,7 +67,7 @@ export default async function NichePage(props: { params: Promise<{ niche: string
           {i === 1 && Object.keys(blockCopy).length > 0 && <IntegrationBlocks blockCopy={blockCopy} />}
         </section>
       ))}
-      {((c.relatedIntegrations?.length ?? 0) > 0 || c.recommendedTemplate) && (
+      {((c.relatedIntegrations?.length ?? 0) > 0 || template) && (
         <section className="not-prose">
           <h2 className="text-xl font-semibold">Related</h2>
           <ul className="mt-3 flex flex-wrap gap-3 text-sm">
@@ -64,9 +76,9 @@ export default async function NichePage(props: { params: Promise<{ niche: string
                 <Link href={`/integrations/${slug}`} className="text-blue-700 hover:underline">{slug} integration</Link>
               </li>
             ))}
-            {c.recommendedTemplate && (
+            {template && (
               <li>
-                <Link href={`/templates/${c.recommendedTemplate}`} className="text-blue-700 hover:underline">{c.recommendedTemplate} template</Link>
+                <Link href={`/templates/${c.recommendedTemplate}`} className="text-blue-700 hover:underline">{template.name} template</Link>
               </li>
             )}
           </ul>
