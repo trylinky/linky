@@ -101,7 +101,7 @@ A small `isPublishable(content)` check (in the content module) requires: a non-e
 
 **Content set (6):** the curated default themes — `Default`, `Purple`, `Black`, `Forest`, `Lilac`, `Orange Punch` — each with an editorial slug + answer-first copy + FAQ. **Real data** = the theme's actual HSL color palette + font.
 
-**Theme palette sharing:** the palette source of truth is `apps/frontend/lib/theme` (`defaultThemeSeeds`). To consume it from the marketing app without a fragile cross-app import, **relocate `defaultThemeSeeds` (and its color types) into `@trylinky/common`** and re-export from the existing `apps/frontend/lib/theme` path for back-compat (so the frontend render path and `packages/prisma/seed.ts` are untouched in behavior). The marketing content module imports the palette from `@trylinky/common`.
+**Theme palette sharing:** the palette source of truth is `apps/frontend/lib/theme.ts` (`defaultThemeSeeds`), but it has 11+ frontend importers, so relocating it is higher-risk than the value warrants. Instead, **snapshot the 6 curated palettes into the marketing content module** (`templates.ts`), each with a `// mirrors apps/frontend/lib/theme.ts defaultThemeSeeds.<Name>` comment, plus a tiny local `hslToCss({h,s,l})` helper (HSL values are `h: 0–360`, `s`/`l`: 0–1 fractions). This keeps Spec 2 fully self-contained to the marketing app + `@trylinky/seo`, with zero coupling to the live frontend theme-render path. Drift risk is negligible (the 6 default themes are stable, curated data).
 
 **Live CSS mock** (`apps/marketing/src/components/pseo/theme-mock.tsx`): a server component that renders a realistic link-in-bio preview card (avatar circle, title, subtitle, 3–4 link rows, a header) using the theme's HSL colors as inline CSS custom properties and the theme font. No screenshot, no image — real HTML/CSS, which is both fast and SEO-valuable. Used full-size on the template page and as a thumbnail in the hub grid.
 
@@ -135,7 +135,7 @@ A small `isPublishable(content)` check (in the content module) requires: a non-e
 - `apps/marketing/src/components/marketing-footer.tsx` — Resources links
 - `apps/frontend/next.config.ts` — rewrites for `/integrations`, `/templates`
 - `apps/frontend/middleware.ts` — matcher exclusions
-- `packages/common/...` — house `defaultThemeSeeds`; `apps/frontend/lib/theme` re-exports
+- `apps/marketing/package.json` — add `@trylinky/blocks` dependency (for the integration block registry)
 
 ---
 
