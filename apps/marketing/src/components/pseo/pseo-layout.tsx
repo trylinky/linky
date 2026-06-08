@@ -20,7 +20,7 @@ export function PseoLayout({
 
       {/* CTA */}
       <section className="bg-white pb-8 md:pb-16">
-        <PseoCtaCard />
+        <PseoCtaCard scheme="coral" />
       </section>
     </div>
   );
