@@ -1,5 +1,6 @@
 'use client';
 
+import { buildFaqSchema, serializeJsonLd } from '@trylinky/seo';
 import {
   Accordion,
   AccordionContent,
@@ -58,26 +59,6 @@ const pricingQuestions = [
   },
 ];
 
-const generateFaqJsonLd = (
-  faqs: {
-    question: string;
-    answer: string;
-  }[]
-) => {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: faqs.map((faq, index) => ({
-      '@type': 'Question',
-      name: faq.question,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: faq.answer,
-      },
-    })),
-  };
-};
-
 const questionSets: Record<string, typeof landingPageQuestions> = {
   'landing-page': landingPageQuestions,
   pricing: pricingQuestions,
@@ -89,7 +70,6 @@ export function FrequentlyAskedQuestions({
   questionSet: 'landing-page' | 'pricing';
 }) {
   const questions = questionSets[questionSet];
-  const faqJsonLd = generateFaqJsonLd(questions);
 
   return (
     <>
@@ -110,7 +90,7 @@ export function FrequentlyAskedQuestions({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(faqJsonLd),
+          __html: serializeJsonLd(buildFaqSchema(questions)),
         }}
       />
     </>

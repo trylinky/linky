@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildBreadcrumbSchema,
+  buildFaqSchema,
   buildOrganizationSchema,
   buildProfilePageSchema,
   buildWebSiteSchema,
@@ -94,5 +95,23 @@ describe('buildBreadcrumbSchema', () => {
 describe('serializeJsonLd', () => {
   it('escapes < to prevent breaking out of the script tag', () => {
     expect(serializeJsonLd({ a: '</script><b>' })).toBe('{"a":"\\u003c/script>\\u003cb>"}');
+  });
+});
+
+describe('buildFaqSchema', () => {
+  it('builds a FAQPage with Question/acceptedAnswer entries', () => {
+    expect(
+      buildFaqSchema([
+        { question: 'What is Linky?', answer: 'A link-in-bio builder.' },
+        { question: 'Is it free?', answer: 'Yes, with paid upgrades.' },
+      ])
+    ).toEqual({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        { '@type': 'Question', name: 'What is Linky?', acceptedAnswer: { '@type': 'Answer', text: 'A link-in-bio builder.' } },
+        { '@type': 'Question', name: 'Is it free?', acceptedAnswer: { '@type': 'Answer', text: 'Yes, with paid upgrades.' } },
+      ],
+    });
   });
 });

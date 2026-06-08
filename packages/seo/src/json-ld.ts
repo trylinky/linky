@@ -71,6 +71,18 @@ export function buildBreadcrumbSchema(crumbs: Array<{ name: string; url: string 
   };
 }
 
+export function buildFaqSchema(faqs: Array<{ question: string; answer: string }>) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.question,
+      acceptedAnswer: { '@type': 'Answer', text: f.answer },
+    })),
+  };
+}
+
 /** JSON-LD string safe to embed in a <script> tag (escapes `<`). */
 export function serializeJsonLd(obj: unknown): string {
   return JSON.stringify(obj).replace(/</g, '\\u003c');
