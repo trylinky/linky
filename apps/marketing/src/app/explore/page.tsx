@@ -1,12 +1,15 @@
 import { getFeaturedPages } from '@/actions/get-featured-pages';
 import { MarketingContainer } from '@/components/marketing-container';
-import { Metadata } from 'next';
+import { buildPageMetadata } from '@/lib/seo-metadata';
 import Image from 'next/image';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
-  title: 'Explore - Linky',
-};
+export const metadata = buildPageMetadata({
+  title: 'Explore Linky pages — community link-in-bio examples',
+  description:
+    'Browse real link-in-bio pages built with Linky — from creators and musicians to photographers and developers. Get inspired and start building your own.',
+  path: '/i/explore',
+});
 
 export default async function ExploreLandingPage() {
   const featuredPages = await getFeaturedPages();

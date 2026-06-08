@@ -1,3 +1,12 @@
+import { buildPageMetadata } from '@/lib/seo-metadata';
+
+export const metadata = buildPageMetadata({
+  title: 'Terms of Service — Linky',
+  description:
+    'These Terms of Service govern your use of lin.ky and cover acceptable use, account responsibilities, intellectual property, and how disputes are handled under UK law.',
+  path: '/i/terms',
+});
+
 export default function LegalTermsPage() {
   return (
     <div className="bg-[#FCFBF8] px-6 py-32 lg:px-8">

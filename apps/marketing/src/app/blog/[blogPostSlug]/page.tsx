@@ -10,6 +10,7 @@ import { getBlogPosts } from '@/lib/cms/get-blog-posts';
 import { RichText } from '@graphcms/rich-text-react-renderer';
 import { ElementNode, RichTextContent } from '@graphcms/rich-text-types';
 import slugify from '@sindresorhus/slugify';
+import { buildBreadcrumbSchema, serializeJsonLd } from '@trylinky/seo';
 import { Button } from '@trylinky/ui';
 import { Metadata } from 'next';
 import Image from 'next/image';
@@ -58,6 +59,7 @@ export const generateMetadata = async ({
   return {
     title: blogPost.title + ' | Linky - The delightful link in bio',
     description: blogPost.description,
+    alternates: { canonical: `https://lin.ky/i/blog/${blogPost.slug}` },
     openGraph: {
       title: blogPost.title,
       description: blogPost.description,
@@ -370,8 +372,22 @@ export default async function BlogPostPage({
       </article>
       <script
         type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(articleJsonLd),
+          __html: serializeJsonLd(articleJsonLd),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd(
+            buildBreadcrumbSchema([
+              { name: 'Home', url: 'https://lin.ky' },
+              { name: 'Blog', url: 'https://lin.ky/i/blog' },
+              { name: blogPost.title, url: `https://lin.ky/i/blog/${blogPost.slug}` },
+            ])
+          ),
         }}
       />
     </>

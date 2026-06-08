@@ -19,6 +19,7 @@
     "@sindresorhus/slugify": "^2.2.1",
     "@trylinky/common": "workspace:*",
     "@trylinky/prisma": "workspace:*",
+    "@trylinky/seo": "workspace:*",
     "@trylinky/ui": "workspace:*",
     "framer-motion": "^12.0.0-alpha.1",
     "@vercel/analytics": "^1.5.0",

@@ -1,15 +1,17 @@
 import { CallToActionBlock } from '@/components/landing-page/CallToActionBlock';
 import { FrequentlyAskedQuestions } from '@/components/landing-page/Faq';
 import { MarketingContainer } from '@/components/marketing-container';
+import { buildPageMetadata } from '@/lib/seo-metadata';
 import { PricingTable, auth } from '@trylinky/common';
-import { Metadata } from 'next';
 import { headers } from 'next/headers';
 import Image from 'next/image';
 
-export const metadata: Metadata = {
-  title: 'Pricing | Linky',
-  description: 'Take Linky to the next level with one of our paid plans.',
-};
+export const metadata = buildPageMetadata({
+  title: 'Linky pricing — free, Premium, and Team plans',
+  description:
+    'Linky is free to start. Premium unlocks custom domains, advanced blocks, and analytics; Team adds shared pages and seats. Compare plans and pricing.',
+  path: '/i/pricing',
+});
 
 export default async function PricingPage() {
   const headersList = await headers();

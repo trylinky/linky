@@ -2,6 +2,7 @@ import './globals.css';
 import MarketingFooter from '@/components/marketing-footer';
 import MarketingNavigation from '@/components/marketing-navigation';
 import { LoginWidget } from '@trylinky/common';
+import { buildOrganizationSchema, buildWebSiteSchema, serializeJsonLd } from '@trylinky/seo';
 import { Button } from '@trylinky/ui';
 import { Analytics } from '@vercel/analytics/react';
 import { Metadata } from 'next';
@@ -55,6 +56,26 @@ export default async function RootLayout({
             defer={true}
           />
         )}
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: serializeJsonLd(
+              buildOrganizationSchema({
+                name: 'Linky',
+                url: 'https://lin.ky',
+                logo: 'https://lin.ky/assets/logo.png',
+              })
+            ),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: serializeJsonLd(buildWebSiteSchema({ name: 'Linky', url: 'https://lin.ky' })),
+          }}
+        />
       </head>
       <body className="min-h-screen">
         <MarketingNavigation>

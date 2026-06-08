@@ -1,3 +1,12 @@
+import { buildPageMetadata } from '@/lib/seo-metadata';
+
+export const metadata = buildPageMetadata({
+  title: 'Privacy Policy — Linky',
+  description:
+    'Linky collects only the personal information you provide during sign-up and account use; this policy explains what we collect, how we use it, and your rights to access, correct, or delete your data.',
+  path: '/i/privacy',
+});
+
 export default function LegalPrivacyPage() {
   return (
     <div className="bg-[#FCFBF8] px-6 py-32 lg:px-8">

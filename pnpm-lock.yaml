@@ -380,6 +380,9 @@ importers:
       '@trylinky/prisma':
         specifier: workspace:*
         version: link:../../packages/prisma
+      '@trylinky/seo':
+        specifier: workspace:*
+        version: link:../../packages/seo
       '@trylinky/ui':
         specifier: workspace:*
         version: link:../../packages/ui
