@@ -26,7 +26,7 @@ const NICHES: NicheContent[] = [
         body: "Start with a Header block at the top — artist name, a short bio, and your profile image. Below that, drop in the Spotify Now Playing block so the first thing fans see is what you are listening to. Add a YouTube block with your latest music video or lyric video underneath. Fill in three or four Link Box blocks pointing to Spotify, Apple Music, your merch store, and your tour dates page. That covers the core use cases: discovery, streaming, commerce, and live shows — all in one scroll.",
       },
       {
-        heading: 'Themes and branding for artists',
+        heading: 'Themes and branding for musicians',
         body: "Midnight is the default recommendation for musicians because the pure-black canvas makes album artwork and video thumbnails pop with maximum contrast. If your brand runs darker or more moody, it holds up well under any accent colour you set. Alternatively, Violet gives a deep purple backdrop that works well for artists in electronic, ambient, or lo-fi spaces. Whatever theme you pick, Linky lets you match the page palette to your current release artwork so the whole profile feels intentional.",
       },
       {
@@ -377,8 +377,8 @@ const NICHES: NicheContent[] = [
     answer:
       'Linky gives hair and beauty salons a polished link page that showcases their work with images, links to their booking system and price list, and lets clients find the salon location instantly — all from a single tap in the bio.',
     targetKeyword: 'link in bio for salons',
-    recommendedBlocks: ['link-box', 'image', 'map'],
-    relatedIntegrations: [],
+    recommendedBlocks: ['link-box', 'image', 'map', 'instagram-latest-post'],
+    relatedIntegrations: ['instagram'],
     recommendedTemplate: 'lilac',
     sections: [
       {
@@ -633,7 +633,7 @@ const NICHES: NicheContent[] = [
       },
       {
         heading: 'Linky blocks built for developers',
-        body: "The GitHub Commits This Month block is the most distinctive feature for developers on Linky: it connects to your GitHub account and displays your real commit activity for the current month, live on the page. It is a concrete, data-driven signal of activity that says more about how you work than any self-description. Pair it with a Content block for a short technical bio — your stack, your current project focus, and what kinds of problems you are interested in. Use Link Box blocks to route visitors to your GitHub profile, portfolio or personal site, latest blog post, and any specific open-source project you want to highlight. If you are open to opportunities, a Link Box pointing to your CV or a contact form handles inbound efficiently.",
+        body: "The GitHub Commits This Month block is the most distinctive feature for developers on Linky: simply add the block and enter your GitHub username — no OAuth or account connection required — and it displays your real commit activity over a rolling window of roughly the past 30 days, live on the page. It is a concrete, data-driven signal of activity that says more about how you work than any self-description. Pair it with a Content block for a short technical bio — your stack, your current project focus, and what kinds of problems you are interested in. Use Link Box blocks to route visitors to your GitHub profile, portfolio or personal site, latest blog post, and any specific open-source project you want to highlight. If you are open to opportunities, a Link Box pointing to your CV or a contact form handles inbound efficiently.",
       },
       {
         heading: 'A suggested page setup for developers',
@@ -652,12 +652,12 @@ const NICHES: NicheContent[] = [
       {
         question: 'What does the GitHub Commits This Month block show?',
         answer:
-          'It displays your real commit count for the current calendar month, pulled live from your connected GitHub account. It refreshes automatically and resets at the start of each month, so it always shows current activity rather than a static figure.',
+          'It displays your real commit count over a rolling window of roughly the past 30 days, pulled live from GitHub. It refreshes automatically, so it always shows current activity rather than a static figure.',
       },
       {
         question: 'Do I need to connect my GitHub account to use Linky?',
         answer:
-          'You only need to connect GitHub if you want to use the GitHub Commits This Month block. All other blocks — Link Box, Content, Header, and others — work without any integration. Connect your GitHub account from the Integrations tab in the editor.',
+          'You only need to supply a GitHub username if you want to use the GitHub Commits This Month block — simply add the block and enter your GitHub username. No OAuth, token, or Integrations-tab connection is required. All other blocks — Link Box, Content, Header, and others — work without any integration.',
       },
       {
         question: 'Can I link to specific GitHub repositories rather than my full profile?',
