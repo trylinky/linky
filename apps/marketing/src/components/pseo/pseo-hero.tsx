@@ -35,10 +35,16 @@ export function PseoHero({
     <section
       className={
         isDark
-          ? 'bg-linear-to-b from-[#1A1712] to-[#14110D] pt-28 md:pt-36 pb-16 md:pb-24'
+          ? 'relative overflow-hidden bg-linear-to-br from-[#2A231C] via-[#191510] to-[#0E0C0A] pt-28 md:pt-36 pb-16 md:pb-24'
           : 'bg-linear-to-b from-[#F4F0E7] to-[#FBFAF7] pt-28 md:pt-36 pb-16 md:pb-24'
       }
     >
+      {isDark && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_70%_0%,rgba(232,85,63,0.10),transparent_70%)]"
+        />
+      )}
       {breadcrumbs && breadcrumbs.length > 0 && (
         <script
           type="application/ld+json"
@@ -48,7 +54,7 @@ export function PseoHero({
         />
       )}
       <MarketingContainer>
-        <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
+        <div className="relative z-10 grid md:grid-cols-2 gap-10 md:gap-16 items-center">
           <div>
             {breadcrumbs && breadcrumbs.length > 0 && (
               <nav
