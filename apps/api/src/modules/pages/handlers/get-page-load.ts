@@ -15,6 +15,9 @@ export const getPageLoadSchema = {
       metaDescription: Type.String(),
       slug: Type.String(),
       customDomain: Type.String(),
+      isFeatured: Type.Boolean(),
+      verifiedAt: Type.Union([Type.String(), Type.Null()]),
+      isPaid: Type.Boolean(),
       blocks: Type.Array(
         Type.Object({
           id: Type.String(),
@@ -56,9 +59,26 @@ export async function getPageLoadHandler(
       slug: true,
       metaTitle: true,
       metaDescription: true,
+      isFeatured: true,
+      verifiedAt: true,
       blocks: true,
+      organization: { select: { subscription: { select: { plan: true } } } },
     },
   });
 
-  return response.status(200).send(page);
+  if (!page) {
+    return response.notFound();
+  }
+
+  const plan = page.organization?.subscription?.plan;
+  const isPaid = plan === 'premium' || plan === 'team';
+
+  const { organization, publishedAt, verifiedAt, ...rest } = page;
+
+  return response.status(200).send({
+    ...rest,
+    publishedAt: publishedAt?.toISOString() ?? '',
+    verifiedAt: verifiedAt ? verifiedAt.toISOString() : null,
+    isPaid,
+  });
 }
