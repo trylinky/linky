@@ -39,6 +39,9 @@ export const metadata: Metadata = {
     creator: '@trylinky',
     images: 'https://lin.ky/assets/og.png',
   },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+  },
 };
 
 export default async function RootLayout({
