@@ -1,6 +1,8 @@
 import { MarketingContainer } from '@/components/marketing-container';
+import { PseoBand } from '@/components/pseo/pseo-section';
 import { alternatives } from '@/content/alternatives';
 import { buildPseoMetadata } from '@/lib/seo-metadata';
+import { Button } from '@trylinky/ui';
 import Link from 'next/link';
 
 export const metadata = buildPseoMetadata({
@@ -12,21 +14,51 @@ export const metadata = buildPseoMetadata({
 
 export default function AlternativesHub() {
   return (
-    <div className="bg-[#FCFBF8]">
-      <MarketingContainer className="py-16">
-        <h1 className="text-4xl font-bold tracking-tight">Linky vs the alternatives</h1>
-        <p className="mt-4 max-w-2xl text-xl text-gray-600">Honest comparisons with the other link-in-bio tools.</p>
-        <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="min-h-screen">
+      {/* Hero band */}
+      <section className="bg-linear-to-b from-[#f5f3ea] to-white pt-28 md:pt-36 pb-16 md:pb-20">
+        <MarketingContainer>
+          <div className="max-w-2xl">
+            <h1 className="text-4xl md:text-6xl font-black tracking-tight text-black">
+              Linky vs the alternatives
+            </h1>
+            <p className="mt-5 text-lg md:text-xl text-[#241f3d]/80 text-pretty">
+              Honest, side-by-side comparisons with every major link-in-bio
+              tool. See where Linky wins, where others have strengths, and which
+              platform fits how you work.
+            </p>
+            <Button
+              asChild
+              variant="default"
+              size="xl"
+              className="mt-8 rounded-full font-bold"
+            >
+              <Link href="/i/auth/signup">Get started free</Link>
+            </Button>
+          </div>
+        </MarketingContainer>
+      </section>
+
+      {/* Alternatives grid */}
+      <PseoBand tone="white">
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {alternatives.map((a) => (
             <li key={a.slug}>
-              <Link href={`/i/alternatives/${a.slug}`} className="block rounded-xl border border-gray-200 bg-white p-6 hover:border-gray-300">
-                <div className="text-lg font-semibold">Linky vs {a.competitor}</div>
-                <p className="mt-1 text-sm text-gray-600">{a.answer}</p>
+              <Link
+                href={`/i/alternatives/${a.slug}`}
+                className="block rounded-2xl border border-gray-200 bg-white p-6 shadow-xs hover:shadow-sm hover:border-gray-300 transition-shadow"
+              >
+                <div className="text-lg font-semibold text-gray-900">
+                  Linky vs {a.competitor}
+                </div>
+                <p className="mt-1.5 text-sm text-gray-600 leading-relaxed">
+                  {a.answer}
+                </p>
               </Link>
             </li>
           ))}
         </ul>
-      </MarketingContainer>
+      </PseoBand>
     </div>
   );
 }
