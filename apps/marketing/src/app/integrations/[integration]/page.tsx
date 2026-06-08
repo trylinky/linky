@@ -39,19 +39,17 @@ export default async function IntegrationPage(props: {
   if (!c) notFound();
 
   return (
-    <PseoLayout
-      breadcrumbs={[
-        { name: 'Home', url: 'https://lin.ky' },
-        { name: 'Integrations', url: 'https://lin.ky/i/integrations' },
-        { name: c.name, url: `https://lin.ky/i/integrations/${c.slug}` },
-      ]}
-      faqs={c.faqs}
-    >
+    <PseoLayout faqs={c.faqs}>
       <PseoHero
         eyebrow={`${c.name} integration`}
         h1={c.h1}
         answer={c.answer}
         visual={<IntegrationVisual slug={c.slug} />}
+        breadcrumbs={[
+          { name: 'Home', url: 'https://lin.ky' },
+          { name: 'Integrations', url: 'https://lin.ky/i/integrations' },
+          { name: c.name, url: `https://lin.ky/i/integrations/${c.slug}` },
+        ]}
       />
 
       <PseoBand tone="white">
