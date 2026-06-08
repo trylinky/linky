@@ -101,7 +101,7 @@ const ALTERNATIVES: AlternativeContent[] = [
       },
       {
         heading: 'Where Linky stands out',
-        body: 'Linky is purpose-built around live content blocks. Its Instagram block pulls in your latest post and follower count; the Spotify block shows what you are currently listening to or your latest release; the TikTok block displays follower count and recent posts; the GitHub block shows recent commits. These make a Linky page feel current without daily maintenance.\n\nLinky\'s theming system lets you pick custom colour palettes and fonts, giving your page a distinct look that matches your brand. Custom domains are available on the Premium plan at $4/month, which also includes unlimited pages and blocks, a verification badge, private pages, and analytics. The Team plan ($14/month) adds a shared workspace for up to five collaborators and support for Google Analytics and Facebook Pixel.',
+        body: 'Linky is purpose-built around live content blocks. Its Instagram block pulls in your latest post and follower count; the Spotify block shows what you are currently listening to or your most recently played track; the TikTok block displays follower count and recent posts; the GitHub block shows recent commits. These make a Linky page feel current without daily maintenance.\n\nLinky\'s theming system lets you pick custom colour palettes and fonts, giving your page a distinct look that matches your brand. Custom domains are available on the Premium plan at $4/month, which also includes unlimited pages and blocks, a verification badge, private pages, and analytics. The Team plan ($14/month) adds a shared workspace for up to five collaborators and support for Google Analytics and Facebook Pixel.',
       },
       {
         heading: 'What Beacons is genuinely good at',
@@ -227,12 +227,12 @@ const ALTERNATIVES: AlternativeContent[] = [
       {
         feature: 'Live social and music integrations',
         linky: 'Yes — Spotify, Instagram, TikTok, GitHub, YouTube, and more',
-        competitor: 'Basic social icons/links',
+        competitor: 'Social links and basic embeds',
       },
       {
         feature: 'Custom themes (colours + fonts)',
         linky: 'Yes — full colour palette and font control',
-        competitor: 'Limited customisation',
+        competitor: 'Basic theme options',
       },
       {
         feature: 'Custom domain',
@@ -266,7 +266,7 @@ const ALTERNATIVES: AlternativeContent[] = [
       },
       {
         heading: 'Where Linky stands out',
-        body: 'Linky is purpose-built for link-in-bio pages. Its editor is structured around blocks that work together out of the box, and its live integrations are the standout feature: Spotify shows your currently-playing track or latest release; Instagram surfaces your most recent post and follower count; TikTok shows follower count and recent posts; GitHub displays recent commit activity. These update automatically, so your page always reflects your current output.\n\nLinky\'s theming system provides custom colour palettes and font choices without requiring design skills. Custom domains are included in the Premium plan at $4/month, along with unlimited blocks, unlimited pages, a verification badge, private pages, and analytics. The Team plan at $14/month adds a shared workspace for up to five people and support for Google Analytics and Facebook Pixel.',
+        body: 'Linky is purpose-built for link-in-bio pages. Its editor is structured around blocks that work together out of the box, and its live integrations are the standout feature: Spotify shows your currently-playing track or most recently played track; Instagram surfaces your most recent post and follower count; TikTok shows follower count and recent posts; GitHub displays recent commit activity. These update automatically, so your page always reflects your current output.\n\nLinky\'s theming system provides custom colour palettes and font choices without requiring design skills. Custom domains are included in the Premium plan at $4/month, along with unlimited blocks, unlimited pages, a verification badge, private pages, and analytics. The Team plan at $14/month adds a shared workspace for up to five people and support for Google Analytics and Facebook Pixel.',
       },
       {
         heading: 'What Carrd is genuinely good at',
