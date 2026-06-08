@@ -1,6 +1,7 @@
 import { PseoPage } from '@/components/pseo/pseo-page';
 import { IntegrationBlocks, isRealBlock } from '@/components/pseo/integration-blocks';
 import { ThemeMock } from '@/components/pseo/theme-mock';
+import { getBlockPresentation } from '@/content/block-copy';
 import { getNiche, getNicheSlugs } from '@/content/niches';
 import { getTemplate } from '@/content/templates';
 import { buildPseoMetadata } from '@/lib/seo-metadata';
@@ -21,22 +22,6 @@ export async function generateMetadata(props: { params: Promise<{ niche: string 
   return buildPseoMetadata({ title: `${c.h1} | Linky`, description: c.answer, path: `/for/${c.slug}` });
 }
 
-const BLOCK_WORD_BRANDS: Record<string, string> = {
-  youtube: 'YouTube',
-  tiktok: 'TikTok',
-  github: 'GitHub',
-  spotify: 'Spotify',
-  instagram: 'Instagram',
-  threads: 'Threads',
-};
-
-function humanizeBlockKey(key: string): string {
-  return key
-    .split('-')
-    .map((w) => BLOCK_WORD_BRANDS[w] ?? w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
-}
-
 export default async function NichePage(props: { params: Promise<{ niche: string }> }) {
   const { niche } = await props.params;
   const c = getNiche(niche);
@@ -44,7 +29,7 @@ export default async function NichePage(props: { params: Promise<{ niche: string
 
   const blockCopy: Record<string, { name: string; description: string }> = {};
   for (const key of c.recommendedBlocks ?? []) {
-    if (isRealBlock(key)) blockCopy[key] = { name: humanizeBlockKey(key), description: '' };
+    if (isRealBlock(key)) blockCopy[key] = getBlockPresentation(key);
   }
   const template = c.recommendedTemplate ? getTemplate(c.recommendedTemplate) : null;
 
