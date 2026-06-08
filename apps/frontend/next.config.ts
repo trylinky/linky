@@ -26,6 +26,10 @@ const nextConfig: NextConfig = {
     { source: '/integrations/:path*', destination: `${process.env.NEXT_PUBLIC_MARKETING_URL}/i/integrations/:path*` },
     { source: '/templates', destination: `${process.env.NEXT_PUBLIC_MARKETING_URL}/i/templates` },
     { source: '/templates/:path*', destination: `${process.env.NEXT_PUBLIC_MARKETING_URL}/i/templates/:path*` },
+    { source: '/for', destination: `${process.env.NEXT_PUBLIC_MARKETING_URL}/i/for` },
+    { source: '/for/:path*', destination: `${process.env.NEXT_PUBLIC_MARKETING_URL}/i/for/:path*` },
+    { source: '/alternatives', destination: `${process.env.NEXT_PUBLIC_MARKETING_URL}/i/alternatives` },
+    { source: '/alternatives/:path*', destination: `${process.env.NEXT_PUBLIC_MARKETING_URL}/i/alternatives/:path*` },
     {
       source: '/i/:path*',
       destination: `${process.env.NEXT_PUBLIC_MARKETING_URL}/i/:path*`,

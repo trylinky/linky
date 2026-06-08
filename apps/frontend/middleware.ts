@@ -14,7 +14,7 @@ export const config: MiddlewareConfig = {
      * 6. _vercel
      * 7. assets
      */
-    '/((?!api/|_next/|i/|_static/|_vercel|e(?=/|$)|edit|invite|new|new-api|assets|integrations|templates|[\\w-]+\\.\\w+).*)',
+    '/((?!api/|_next/|i/|_static/|_vercel|e(?=/|$)|edit|invite|new|new-api|assets|integrations|templates|for|alternatives|[\\w-]+\\.\\w+).*)',
   ],
 };
 
