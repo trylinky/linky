@@ -31,3 +31,12 @@ export function buildPageMetadata(input: {
     twitter: { card: 'summary_large_image', site: '@trylinky', creator: '@trylinky', images: image },
   };
 }
+
+/**
+ * Metadata for a programmatic SEO page. `path` is the CLEAN root path
+ * (e.g. "/integrations/spotify") — canonical points there, not at /i/...,
+ * because the frontend rewrites the clean URL to the marketing route.
+ */
+export function buildPseoMetadata(input: { title: string; description: string; path: string }): Metadata {
+  return buildPageMetadata({ title: input.title, description: input.description, path: input.path });
+}
