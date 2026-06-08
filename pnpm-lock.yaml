@@ -217,6 +217,9 @@ importers:
       '@trylinky/prisma':
         specifier: workspace:*
         version: link:../../packages/prisma
+      '@trylinky/seo':
+        specifier: workspace:*
+        version: link:../../packages/seo
       '@trylinky/tinybird':
         specifier: workspace:*
         version: link:../../packages/tinybird

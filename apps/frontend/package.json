@@ -26,6 +26,7 @@
     "@trylinky/blocks": "workspace:*",
     "@trylinky/common": "workspace:*",
     "@trylinky/prisma": "workspace:*",
+    "@trylinky/seo": "workspace:*",
     "@trylinky/tinybird": "workspace:*",
     "@trylinky/ui": "workspace:*",
     "@vercel/analytics": "^1.5.0",
