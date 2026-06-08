@@ -1,0 +1,21 @@
+{
+  "name": "@trylinky/seo",
+  "version": "1.0.0",
+  "description": "Shared SEO/GEO helpers: indexing gate + JSON-LD builders.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "vitest": "^3.0.0",
+    "typescript": "^5"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  }
+}

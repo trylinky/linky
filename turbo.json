@@ -206,6 +206,10 @@
     "typecheck": {
       "dependsOn": ["^prisma:generate"],
       "outputs": []
+    },
+    "test": {
+      "dependsOn": ["^prisma:generate"],
+      "outputs": []
     }
   }
 }

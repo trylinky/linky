@@ -18,6 +18,7 @@
     "turbo": "^2.3.3"
   },
   "scripts": {
+    "test": "turbo test",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "dev": "turbo dev",
