@@ -128,6 +128,22 @@ export default function MarketingFooter() {
                 </li>
                 <li>
                   <Link
+                    href="/integrations"
+                    className="transition-colors hover:text-white/90"
+                  >
+                    Integrations
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/templates"
+                    className="transition-colors hover:text-white/90"
+                  >
+                    Templates
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     href="/i/auth/signup"
                     className="transition-colors hover:text-white/90"
                   >

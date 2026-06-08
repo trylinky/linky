@@ -1,4 +1,6 @@
 import { getLearnPosts } from '@/app/learn/utils';
+import { integrations } from '@/content/integrations';
+import { templates } from '@/content/templates';
 import { getBlogPosts } from '@/lib/cms/get-blog-posts';
 import { MetadataRoute } from 'next';
 
@@ -11,7 +13,22 @@ const baseUrl = `https://lin.ky`;
 //
 // Spec 2 will append programmatic SEO routes (integration/template/use-case/
 // alternative pages) to `pseoSitemap` below.
-const pseoSitemap: MetadataRoute.Sitemap = [];
+const pseoSitemap: MetadataRoute.Sitemap = [
+  { url: 'https://lin.ky/integrations', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
+  { url: 'https://lin.ky/templates', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
+  ...integrations.map((i) => ({
+    url: `https://lin.ky/integrations/${i.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.5,
+  })),
+  ...templates.map((t) => ({
+    url: `https://lin.ky/templates/${t.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.5,
+  })),
+];
 
 const baseSitemap = [
   {
