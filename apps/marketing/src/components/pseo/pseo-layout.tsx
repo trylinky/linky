@@ -1,8 +1,7 @@
-import { CallToActionBlock } from '@/components/landing-page/CallToActionBlock';
-import { MarketingContainer } from '@/components/marketing-container';
 import type { ReactNode } from 'react';
 import type { FaqEntry } from './pseo-faq';
 import { PseoFaqSection } from './pseo-faq-section';
+import { PseoCtaCard } from './pseo-cta-card';
 
 export function PseoLayout({
   faqs,
@@ -20,10 +19,8 @@ export function PseoLayout({
       <PseoFaqSection faqs={faqs} />
 
       {/* CTA */}
-      <section className="py-8 md:py-24 bg-white">
-        <MarketingContainer>
-          <CallToActionBlock />
-        </MarketingContainer>
+      <section className="bg-white pb-8 md:pb-16">
+        <PseoCtaCard />
       </section>
     </div>
   );
