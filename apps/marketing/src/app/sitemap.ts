@@ -4,6 +4,15 @@ import { MetadataRoute } from 'next';
 
 const baseUrl = `https://lin.ky`;
 
+// IMPORTANT: We deliberately DO NOT enumerate public user pages (lin.ky/<slug>)
+// in the sitemap. Thousands of thin user pages would dilute root-domain authority
+// and feed scaled-content signals. User pages are indexed individually only when
+// they pass the quality gate (see @trylinky/seo `shouldIndexPage`). Do not add them.
+//
+// Spec 2 will append programmatic SEO routes (integration/template/use-case/
+// alternative pages) to `pseoSitemap` below.
+const pseoSitemap: MetadataRoute.Sitemap = [];
+
 const baseSitemap = [
   {
     url: baseUrl,
@@ -48,6 +57,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...baseSitemap,
+    ...pseoSitemap,
     ...blogSitemap,
     ...learnSitemap,
   ] as MetadataRoute.Sitemap;
