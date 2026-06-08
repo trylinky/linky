@@ -144,6 +144,22 @@ export default function MarketingFooter() {
                 </li>
                 <li>
                   <Link
+                    href="/for"
+                    className="transition-colors hover:text-white/90"
+                  >
+                    Use cases
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/alternatives"
+                    className="transition-colors hover:text-white/90"
+                  >
+                    Comparisons
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     href="/i/auth/signup"
                     className="transition-colors hover:text-white/90"
                   >

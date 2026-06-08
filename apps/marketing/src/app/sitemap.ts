@@ -1,5 +1,7 @@
 import { getLearnPosts } from '@/app/learn/utils';
+import { alternatives } from '@/content/alternatives';
 import { integrations } from '@/content/integrations';
+import { niches } from '@/content/niches';
 import { templates } from '@/content/templates';
 import { getBlogPosts } from '@/lib/cms/get-blog-posts';
 import { MetadataRoute } from 'next';
@@ -24,6 +26,20 @@ const pseoSitemap: MetadataRoute.Sitemap = [
   })),
   ...templates.map((t) => ({
     url: `https://lin.ky/templates/${t.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.5,
+  })),
+  { url: 'https://lin.ky/for', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
+  { url: 'https://lin.ky/alternatives', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
+  ...niches.map((n) => ({
+    url: `https://lin.ky/for/${n.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.5,
+  })),
+  ...alternatives.map((a) => ({
+    url: `https://lin.ky/alternatives/${a.slug}`,
     lastModified: new Date(),
     changeFrequency: 'monthly' as const,
     priority: 0.5,
