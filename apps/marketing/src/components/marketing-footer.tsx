@@ -78,139 +78,86 @@ const socialLinks = [
   },
 ];
 
+const linkColumns = [
+  {
+    heading: 'Product',
+    links: [
+      { label: 'Features', href: '/' },
+      { label: 'Pricing', href: '/i/pricing' },
+      { label: 'Integrations', href: '/i/integrations' },
+      { label: 'Templates', href: '/i/templates' },
+    ],
+  },
+  {
+    heading: 'Use cases',
+    links: [
+      { label: 'For musicians', href: '/i/for/musicians' },
+      { label: 'For photographers', href: '/i/for/photographers' },
+      { label: 'For restaurants', href: '/i/for/restaurants' },
+      { label: 'All use cases', href: '/i/for' },
+    ],
+  },
+  {
+    heading: 'Compare',
+    links: [
+      { label: 'vs Linktree', href: '/i/alternatives/linktree' },
+      { label: 'vs Beacons', href: '/i/alternatives/beacons' },
+      { label: 'vs Bio.link', href: '/i/alternatives/bio-link' },
+      { label: 'All comparisons', href: '/i/alternatives' },
+    ],
+  },
+  {
+    heading: 'Resources',
+    links: [
+      { label: 'Blog', href: '/i/blog' },
+      { label: 'Explore', href: '/i/explore' },
+      { label: 'What is a link in bio?', href: '/i/learn/what-is-a-link-in-bio' },
+      { label: 'AI Headshots', href: 'https://starkie.ai' },
+    ],
+  },
+  {
+    heading: 'Company',
+    links: [
+      { label: 'Get started', href: '/i/auth/signup' },
+      { label: 'Terms', href: '/i/terms' },
+      { label: 'Privacy', href: '/i/privacy' },
+    ],
+  },
+];
+
 export default function MarketingFooter() {
   return (
     <footer className="relative bg-linear-to-b from-[#19191a] via-[#181817] to-[#131313] pt-0 text-white overflow-hidden">
       <div className="pointer-events-none absolute left-1/2 top-0 z-0 h-72 w-96 -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-[#fff2] via-[#fff1] to-transparent blur-2xl opacity-40" />
 
-      <div className="relative z-10 flex flex-col items-center justify-center py-16 space-y-6">
-        <div className="flex flex-col items-center space-y-3">
-          <span className="scale-150 drop-shadow-lg">
-            <BrandLogo />
-          </span>
-          <span className="font-extrabold text-3xl tracking-tight text-white drop-shadow">
-            Linky
-          </span>
-        </div>
-        <p className="max-w-xl text-center text-lg text-white/80 font-medium">
-          The ultimate link-in-bio platform for creators. <br />
-          <span className="text-white/60">
-            Delightfully simple, delightfully fast.
-          </span>
-        </p>
-        <Link
-          href="/i/auth/signup"
-          className="mt-2 rounded-full bg-linear-to-r from-white to-[#eaeaea] px-8 py-3 text-base font-bold text-gray-900 shadow-lg transition-all hover:scale-105 hover:from-[#f3f3f3] hover:to-white focus:outline-none focus:ring-2 focus:ring-white/40"
-        >
-          Get Started Free
-        </Link>
-      </div>
-      <div className="relative z-10 border-t border-white/10 bg-transparent">
+      {/* Tier 1 — brand block + link columns */}
+      <div className="relative z-10">
         <MarketingContainer>
-          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center py-10 gap-10 lg:gap-0">
-            <nav className="flex-1 flex flex-col items-center lg:items-start gap-6 lg:gap-2">
-              <ul className="flex flex-col lg:flex-row gap-6 lg:gap-10 text-base font-medium">
-                <li>
-                  <Link
-                    href="/"
-                    className="transition-colors hover:text-white/90"
-                  >
-                    Features
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/i/pricing"
-                    className="transition-colors hover:text-white/90"
-                  >
-                    Pricing
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/integrations"
-                    className="transition-colors hover:text-white/90"
-                  >
-                    Integrations
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/templates"
-                    className="transition-colors hover:text-white/90"
-                  >
-                    Templates
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/for"
-                    className="transition-colors hover:text-white/90"
-                  >
-                    Use cases
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/alternatives"
-                    className="transition-colors hover:text-white/90"
-                  >
-                    Comparisons
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/i/auth/signup"
-                    className="transition-colors hover:text-white/90"
-                  >
-                    Get started
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/i/learn/what-is-a-link-in-bio"
-                    className="transition-colors hover:text-white/90"
-                  >
-                    What is a link in bio?
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="https://starkie.ai"
-                    className="transition-colors hover:text-white/90"
-                  >
-                    AI Headshots
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/i/blog"
-                    className="transition-colors hover:text-white/90"
-                  >
-                    Blog
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/i/terms"
-                    className="transition-colors hover:text-white/90"
-                  >
-                    Terms
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/i/privacy"
-                    className="transition-colors hover:text-white/90"
-                  >
-                    Privacy
-                  </Link>
-                </li>
-              </ul>
-            </nav>
-            {/* Social icons */}
-            <div className="flex flex-col items-center gap-4 mt-8 lg:mt-0">
-              <div className="flex items-center gap-4 rounded-full bg-white/10 px-6 py-2 shadow-inner backdrop-blur-md">
+          <div className="flex flex-col gap-12 py-16 lg:flex-row lg:gap-16">
+            {/* Brand block */}
+            <div className="flex flex-col gap-6 lg:w-72 lg:shrink-0">
+              <div className="flex flex-col gap-3">
+                <span className="scale-150 origin-left drop-shadow-lg">
+                  <BrandLogo />
+                </span>
+                <span className="font-extrabold text-3xl tracking-tight text-white drop-shadow">
+                  Linky
+                </span>
+              </div>
+              <p className="text-sm text-white/70 leading-relaxed">
+                The ultimate link-in-bio platform for creators.{' '}
+                <span className="text-white/50">
+                  Delightfully simple, delightfully fast.
+                </span>
+              </p>
+              <Link
+                href="/i/auth/signup"
+                className="inline-flex w-fit rounded-full bg-linear-to-r from-white to-[#eaeaea] px-6 py-2.5 text-sm font-bold text-gray-900 shadow-lg transition-all hover:scale-105 hover:from-[#f3f3f3] hover:to-white focus:outline-none focus:ring-2 focus:ring-white/40"
+              >
+                Get Started Free
+              </Link>
+              {/* Social icons */}
+              <div className="flex items-center gap-3 rounded-full bg-white/10 px-5 py-2 shadow-inner backdrop-blur-md w-fit">
                 {socialLinks.map((link) => (
                   <Link
                     key={link.label}
@@ -224,9 +171,54 @@ export default function MarketingFooter() {
                   </Link>
                 ))}
               </div>
-              <span className="text-xs text-white/40 mt-2">
-                © 2023 - {new Date().getFullYear()} Linky – Hyperdusk Ltd
-              </span>
+            </div>
+
+            {/* Link columns */}
+            <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-5 lg:flex-1">
+              {linkColumns.map((col) => (
+                <div key={col.heading} className="flex flex-col gap-4">
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-white/40">
+                    {col.heading}
+                  </h3>
+                  <ul className="flex flex-col gap-2.5">
+                    {col.links.map((link) => (
+                      <li key={link.label}>
+                        <Link
+                          href={link.href}
+                          className="text-sm text-white/70 transition-colors hover:text-white"
+                        >
+                          {link.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </MarketingContainer>
+      </div>
+
+      {/* Tier 2 — bottom bar */}
+      <div className="relative z-10 border-t border-white/10">
+        <MarketingContainer>
+          <div className="flex flex-col items-center justify-between gap-4 py-6 sm:flex-row">
+            <span className="text-xs text-white/40">
+              © 2023 - {new Date().getFullYear()} Linky – Hyperdusk Ltd
+            </span>
+            <div className="flex items-center gap-3">
+              {socialLinks.map((link) => (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group rounded-full p-1.5 transition-all hover:bg-white/10 hover:scale-110"
+                >
+                  <span className="sr-only">{link.label}</span>
+                  {link.icon()}
+                </Link>
+              ))}
             </div>
           </div>
         </MarketingContainer>
