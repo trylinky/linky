@@ -17,6 +17,7 @@
     "@mdx-js/loader": "^3.1.0",
     "@next/mdx": "^16.2.4",
     "@sindresorhus/slugify": "^2.2.1",
+    "@trylinky/blocks": "workspace:*",
     "@trylinky/common": "workspace:*",
     "@trylinky/prisma": "workspace:*",
     "@trylinky/seo": "workspace:*",
