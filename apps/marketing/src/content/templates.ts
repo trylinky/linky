@@ -4,8 +4,9 @@ import type { ThemePalette } from '@/components/pseo/theme-mock';
 
 // Palettes mirror apps/frontend/lib/theme.ts defaultThemeSeeds (source of truth).
 // All h/s/l values are copied verbatim — do NOT round or alter.
-// Note: Purple.colorLabelPrimary and Forest.colorLabelPrimary have l:100 in the source
-// (likely a pre-normalisation value); copied exactly as-is from the seed file.
+// Note: Purple.colorLabelPrimary and Forest.colorLabelPrimary were l:100 in the source
+// (a pre-normalisation quirk); normalized here to l:1 (= white) to satisfy the HslColor
+// 0–1 contract. Rendering is identical.
 // Lilac.colorBgBase has an extra `a` field in the source; only h/s/l are included here
 // to satisfy the HslColor shape.
 const PALETTES: Record<string, ThemePalette> = {
@@ -23,7 +24,7 @@ const PALETTES: Record<string, ThemePalette> = {
     colorBgPrimary: { h: 255, s: 0.29, l: 0.135 },
     colorBgSecondary: { h: 0, s: 0, l: 0 },
     colorBorderPrimary: { h: 253.55, s: 0.1969, l: 0.2837 },
-    colorLabelPrimary: { h: 0, s: 0, l: 100 },
+    colorLabelPrimary: { h: 0, s: 0, l: 1 },
     colorLabelSecondary: { h: 293.33, s: 0.0744, l: 0.7627 },
     colorLabelTertiary: { h: 0, s: 0, l: 0.9804 },
   },
@@ -41,7 +42,7 @@ const PALETTES: Record<string, ThemePalette> = {
     colorBgPrimary: { h: 140, s: 0.0988, l: 0.31 },
     colorBgSecondary: { h: 0, s: 0, l: 0.902 },
     colorBorderPrimary: { h: 140, s: 0.0988, l: 0.31 },
-    colorLabelPrimary: { h: 0, s: 0, l: 100 },
+    colorLabelPrimary: { h: 0, s: 0, l: 1 },
     colorLabelSecondary: { h: 141.18, s: 0.4146, l: 0.8392 },
     colorLabelTertiary: { h: 0, s: 0, l: 0.9804 },
   },

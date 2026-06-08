@@ -1,12 +1,5 @@
 import { blocks } from '@trylinky/blocks';
 
-/** Returns the real block keys the registry maps to an integration type. */
-export function blocksForIntegration(integrationType: string): string[] {
-  return Object.entries(blocks)
-    .filter(([, cfg]) => cfg.integrationType === integrationType)
-    .map(([key]) => key);
-}
-
 /** True if `key` is a real block in the @trylinky/blocks registry. */
 export function isRealBlock(key: string): boolean {
   return Object.prototype.hasOwnProperty.call(blocks, key);
