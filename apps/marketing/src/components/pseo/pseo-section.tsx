@@ -6,8 +6,8 @@ type Tone = 'white' | 'cream' | 'beige';
 
 const toneClasses: Record<Tone, string> = {
   white: 'bg-white',
-  cream: 'bg-[#f8f7f3]',
-  beige: 'bg-[#f5f3ea]',
+  cream: 'bg-[#FBFAF7]',
+  beige: 'bg-[#F4F0E7]',
 };
 
 export function PseoBand({
@@ -20,7 +20,7 @@ export function PseoBand({
   children: ReactNode;
 }) {
   return (
-    <section className={cn('py-16 md:py-24', toneClasses[tone], className)}>
+    <section className={cn('py-20 md:py-28', toneClasses[tone], className)}>
       <MarketingContainer>{children}</MarketingContainer>
     </section>
   );
@@ -28,7 +28,8 @@ export function PseoBand({
 
 export function PseoEyebrow({ children }: { children: ReactNode }) {
   return (
-    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+    <p className="flex items-center gap-2 text-sm font-semibold text-[#E8553F]">
+      <span className="inline-block size-1.5 rounded-full bg-[#E8553F]" />
       {children}
     </p>
   );
@@ -36,7 +37,7 @@ export function PseoEyebrow({ children }: { children: ReactNode }) {
 
 export function PseoSectionHeading({ children }: { children: ReactNode }) {
   return (
-    <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900">
+    <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-zinc-900 text-balance">
       {children}
     </h2>
   );

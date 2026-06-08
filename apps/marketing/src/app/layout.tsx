@@ -78,7 +78,7 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen">
+      <body className="min-h-screen antialiased bg-[#FBFAF7]">
         <MarketingNavigation>
           <>
             <LoginWidget

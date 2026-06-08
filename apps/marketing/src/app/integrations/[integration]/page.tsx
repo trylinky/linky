@@ -56,10 +56,12 @@ export default async function IntegrationPage(props: {
         <div className="mb-3">
           <PseoEyebrow>What you can show</PseoEyebrow>
         </div>
-        <PseoSectionHeading>
-          Live {c.name} content on your page
-        </PseoSectionHeading>
-        <p className="mt-4 text-lg text-gray-600 mb-8 max-w-2xl">
+        <div className="mt-3">
+          <PseoSectionHeading>
+            Live {c.name} content on your page
+          </PseoSectionHeading>
+        </div>
+        <p className="mt-4 text-lg leading-8 text-zinc-600 mb-8 max-w-[60ch]">
           These blocks connect directly to {c.name} and refresh automatically —
           your page always shows the latest.
         </p>

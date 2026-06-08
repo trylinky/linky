@@ -8,15 +8,15 @@ export function PseoProse({ sections }: { sections: ContentSection[] }) {
         {sections.map((section, i) => (
           <div
             key={i}
-            className={i === 0 ? '' : 'border-t border-gray-100 pt-14 mt-14'}
+            className={i === 0 ? '' : 'border-t border-zinc-950/5 pt-14 mt-14'}
           >
-            <div className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">
+            <div className="text-sm font-semibold text-[#E8553F] mb-3">
               {String(i + 1).padStart(2, '0')}
             </div>
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">
+            <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-zinc-900">
               {section.heading}
             </h2>
-            <p className="mt-5 text-lg leading-8 text-gray-600">
+            <p className="mt-5 text-lg leading-8 text-zinc-600">
               {section.body}
             </p>
           </div>

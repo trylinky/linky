@@ -21,102 +21,30 @@ type IconProps = SVGProps<SVGSVGElement> & { title?: string };
 
 interface BlockStyle {
   Icon: ComponentType<IconProps>;
-  chip: string;
-  icon: string;
 }
 
 const blockStyleMap: Record<string, BlockStyle> = {
-  'spotify-playing-now': {
-    Icon: MusicalNoteIcon,
-    chip: 'bg-emerald-50',
-    icon: 'text-emerald-500',
-  },
-  'instagram-latest-post': {
-    Icon: PhotoIcon,
-    chip: 'bg-rose-50',
-    icon: 'text-rose-500',
-  },
-  'instagram-follower-count': {
-    Icon: UserGroupIcon,
-    chip: 'bg-rose-50',
-    icon: 'text-rose-500',
-  },
-  'tiktok-latest-post': {
-    Icon: VideoCameraIcon,
-    chip: 'bg-slate-50',
-    icon: 'text-slate-500',
-  },
-  'tiktok-follower-count': {
-    Icon: UserGroupIcon,
-    chip: 'bg-slate-50',
-    icon: 'text-slate-500',
-  },
-  'threads-follower-count': {
-    Icon: UserGroupIcon,
-    chip: 'bg-slate-50',
-    icon: 'text-slate-500',
-  },
-  'github-commits-this-month': {
-    Icon: CodeBracketIcon,
-    chip: 'bg-slate-50',
-    icon: 'text-slate-500',
-  },
-  'link-box': {
-    Icon: LinkIcon,
-    chip: 'bg-blue-50',
-    icon: 'text-blue-500',
-  },
-  'link-bar': {
-    Icon: LinkIcon,
-    chip: 'bg-blue-50',
-    icon: 'text-blue-500',
-  },
-  image: {
-    Icon: PhotoIcon,
-    chip: 'bg-amber-50',
-    icon: 'text-amber-500',
-  },
-  content: {
-    Icon: DocumentTextIcon,
-    chip: 'bg-violet-50',
-    icon: 'text-violet-500',
-  },
-  youtube: {
-    Icon: PlayIcon,
-    chip: 'bg-red-50',
-    icon: 'text-red-500',
-  },
-  map: {
-    Icon: MapPinIcon,
-    chip: 'bg-teal-50',
-    icon: 'text-teal-500',
-  },
-  'waitlist-email': {
-    Icon: EnvelopeIcon,
-    chip: 'bg-blue-50',
-    icon: 'text-blue-500',
-  },
-  reactions: {
-    Icon: HeartIcon,
-    chip: 'bg-pink-50',
-    icon: 'text-pink-500',
-  },
-  header: {
-    Icon: UserCircleIcon,
-    chip: 'bg-gray-50',
-    icon: 'text-gray-500',
-  },
-  stack: {
-    Icon: RectangleStackIcon,
-    chip: 'bg-gray-50',
-    icon: 'text-gray-500',
-  },
+  'spotify-playing-now': { Icon: MusicalNoteIcon },
+  'instagram-latest-post': { Icon: PhotoIcon },
+  'instagram-follower-count': { Icon: UserGroupIcon },
+  'tiktok-latest-post': { Icon: VideoCameraIcon },
+  'tiktok-follower-count': { Icon: UserGroupIcon },
+  'threads-follower-count': { Icon: UserGroupIcon },
+  'github-commits-this-month': { Icon: CodeBracketIcon },
+  'link-box': { Icon: LinkIcon },
+  'link-bar': { Icon: LinkIcon },
+  image: { Icon: PhotoIcon },
+  content: { Icon: DocumentTextIcon },
+  youtube: { Icon: PlayIcon },
+  map: { Icon: MapPinIcon },
+  'waitlist-email': { Icon: EnvelopeIcon },
+  reactions: { Icon: HeartIcon },
+  header: { Icon: UserCircleIcon },
+  stack: { Icon: RectangleStackIcon },
 };
 
 const defaultBlockStyle: BlockStyle = {
   Icon: Squares2X2Icon,
-  chip: 'bg-gray-50',
-  icon: 'text-gray-500',
 };
 
 /** True if `key` is a real block in the @trylinky/blocks registry. */
@@ -136,25 +64,23 @@ export function IntegrationBlocks({
 }) {
   const entries = Object.entries(blockCopy).filter(([key]) => isRealBlock(key));
   return (
-    <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 not-prose">
+    <ul className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 not-prose">
       {entries.map(([key, copy]) => {
         const style = blockStyleMap[key] ?? defaultBlockStyle;
-        const { Icon, chip, icon } = style;
+        const { Icon } = style;
         return (
           <li
             key={key}
-            className="rounded-2xl border border-gray-200 bg-white p-6 shadow-xs hover:shadow-sm transition-shadow"
+            className="bg-white rounded-2xl ring-1 ring-black/5 p-6 hover:ring-black/10 transition"
           >
-            <div
-              className={`mb-4 inline-flex size-11 items-center justify-center rounded-xl ${chip}`}
-            >
-              <Icon className={`size-6 ${icon}`} />
+            <div className="mb-4 inline-flex size-11 items-center justify-center rounded-xl bg-[#FBEAE6]">
+              <Icon className="size-6 text-[#E8553F]" />
             </div>
-            <div className="text-base font-semibold text-gray-900">
+            <div className="text-base font-semibold text-zinc-900">
               {copy.name}
             </div>
             {copy.description && (
-              <p className="mt-1.5 text-sm text-gray-600 leading-relaxed">
+              <p className="mt-1.5 text-sm text-zinc-600 leading-relaxed">
                 {copy.description}
               </p>
             )}

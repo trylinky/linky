@@ -24,12 +24,12 @@ export function PseoFeatureImage({
         </div>
       )}
       <PseoSectionHeading>{heading}</PseoSectionHeading>
-      <p className="mt-4 text-lg text-gray-600 leading-relaxed">{body}</p>
+      <p className="mt-4 text-lg leading-8 text-zinc-600 text-pretty max-w-[52ch]">{body}</p>
     </div>
   );
 
   const imageCol = (
-    <div className="rounded-2xl shadow-sm overflow-hidden">
+    <div className="rounded-2xl ring-1 ring-black/5 shadow-sm overflow-hidden">
       <Image
         src={imageSrc}
         alt={imageAlt}
@@ -41,7 +41,7 @@ export function PseoFeatureImage({
   );
 
   return (
-    <PseoBand tone="cream">
+    <PseoBand tone="beige">
       <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
         {reverse ? (
           <>

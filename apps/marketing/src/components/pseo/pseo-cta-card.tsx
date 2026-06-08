@@ -27,40 +27,40 @@ interface Scheme {
 const SCHEMES: Record<SchemeKey, Scheme> = {
   indigo: {
     cardClass:
-      'bg-linear-to-br from-indigo-500 to-violet-600 shadow-lg',
+      'bg-linear-to-br from-zinc-800 to-zinc-950 shadow-lg ring-1 ring-black/10',
     headingClass: 'text-white',
-    subtextClass: 'text-white/85',
+    subtextClass: 'text-white/75',
     inputWrapperClass:
       'inline-flex flex-row items-center rounded-full bg-white/95 pl-4 shadow-sm border border-white/30 w-full md:w-auto',
     inputClass:
-      'bg-transparent border-0 px-0 focus:outline-none focus:ring-0 rounded-full w-full text-gray-800 placeholder:text-gray-400',
-    prefixClass: 'text-gray-500 font-medium text-sm whitespace-nowrap',
+      'bg-transparent border-0 px-0 focus:outline-none focus:ring-0 rounded-full w-full text-zinc-800 placeholder:text-zinc-400',
+    prefixClass: 'text-zinc-500 font-medium text-sm whitespace-nowrap',
     buttonClass:
-      'rounded-full bg-gray-900 text-white font-bold hover:bg-gray-800 shrink-0',
+      'rounded-full bg-zinc-900 text-white font-bold hover:bg-zinc-800 shrink-0',
     glowOverlay: true,
     palette: {
-      colorBgBase:       { h: 245, s: 0.5,  l: 0.22 },
-      colorBgPrimary:    { h: 245, s: 0.45, l: 0.3  },
-      colorBgSecondary:  { h: 250, s: 0.5,  l: 0.45 },
-      colorBorderPrimary:{ h: 245, s: 0.4,  l: 0.35 },
-      colorLabelPrimary: { h: 0,   s: 0,    l: 1    },
-      colorLabelSecondary:{ h: 250, s: 0.3, l: 0.85 },
-      colorLabelTertiary:{ h: 0,   s: 0,    l: 0.98 },
+      colorBgBase:        { h: 245, s: 0.5,  l: 0.22 },
+      colorBgPrimary:     { h: 245, s: 0.45, l: 0.3  },
+      colorBgSecondary:   { h: 250, s: 0.5,  l: 0.45 },
+      colorBorderPrimary: { h: 245, s: 0.4,  l: 0.35 },
+      colorLabelPrimary:  { h: 0,   s: 0,    l: 1    },
+      colorLabelSecondary:{ h: 250, s: 0.3,  l: 0.85 },
+      colorLabelTertiary: { h: 0,   s: 0,    l: 0.98 },
     },
   },
 
   coral: {
     cardClass:
-      'bg-linear-to-br from-[#FF8A5B] to-[#FF5C7A] shadow-lg',
+      'bg-linear-to-br from-[#FF8A5B] to-[#FF5C7A] shadow-lg ring-1 ring-black/10',
     headingClass: 'text-white',
     subtextClass: 'text-white/85',
     inputWrapperClass:
       'inline-flex flex-row items-center rounded-full bg-white/95 pl-4 shadow-sm border border-white/30 w-full md:w-auto',
     inputClass:
-      'bg-transparent border-0 px-0 focus:outline-none focus:ring-0 rounded-full w-full text-gray-800 placeholder:text-gray-400',
-    prefixClass: 'text-gray-500 font-medium text-sm whitespace-nowrap',
+      'bg-transparent border-0 px-0 focus:outline-none focus:ring-0 rounded-full w-full text-zinc-800 placeholder:text-zinc-400',
+    prefixClass: 'text-zinc-500 font-medium text-sm whitespace-nowrap',
     buttonClass:
-      'rounded-full bg-gray-900 text-white font-bold hover:bg-gray-800 shrink-0',
+      'rounded-full bg-zinc-900 text-white font-bold hover:bg-zinc-800 shrink-0',
     glowOverlay: true,
     palette: {
       colorBgBase:        { h: 12,  s: 0.55, l: 0.28 },
@@ -75,24 +75,24 @@ const SCHEMES: Record<SchemeKey, Scheme> = {
 
   soft: {
     cardClass:
-      'bg-linear-to-br from-[#EEF1FF] to-[#FBEEFF] border border-black/5',
-    headingClass: 'text-gray-900',
-    subtextClass: 'text-gray-600',
+      'bg-[#F4F0E7] ring-1 ring-black/5',
+    headingClass: 'text-zinc-900',
+    subtextClass: 'text-zinc-600',
     inputWrapperClass:
       'inline-flex flex-row items-center rounded-full bg-white pl-4 shadow-sm border border-black/10 w-full md:w-auto',
     inputClass:
-      'bg-transparent border-0 px-0 focus:outline-none focus:ring-0 rounded-full w-full text-gray-800 placeholder:text-gray-400',
-    prefixClass: 'text-gray-500 font-medium text-sm whitespace-nowrap',
+      'bg-transparent border-0 px-0 focus:outline-none focus:ring-0 rounded-full w-full text-zinc-800 placeholder:text-zinc-400',
+    prefixClass: 'text-zinc-500 font-medium text-sm whitespace-nowrap',
     buttonClass:
-      'rounded-full bg-indigo-600 text-white font-bold hover:bg-indigo-700 shrink-0',
+      'rounded-full bg-zinc-900 text-white font-bold hover:bg-zinc-800 shrink-0',
     glowOverlay: false,
     palette: {
-      colorBgBase:        { h: 258, s: 0.6,  l: 0.5  },
-      colorBgPrimary:     { h: 258, s: 0.55, l: 0.58 },
-      colorBgSecondary:   { h: 270, s: 0.55, l: 0.68 },
-      colorBorderPrimary: { h: 258, s: 0.5,  l: 0.62 },
+      colorBgBase:        { h: 30,  s: 0.2,  l: 0.35 },
+      colorBgPrimary:     { h: 30,  s: 0.18, l: 0.42 },
+      colorBgSecondary:   { h: 28,  s: 0.18, l: 0.55 },
+      colorBorderPrimary: { h: 30,  s: 0.15, l: 0.48 },
       colorLabelPrimary:  { h: 0,   s: 0,    l: 1    },
-      colorLabelSecondary:{ h: 270, s: 0.3,  l: 0.92 },
+      colorLabelSecondary:{ h: 30,  s: 0.1,  l: 0.88 },
       colorLabelTertiary: { h: 0,   s: 0,    l: 0.98 },
     },
   },
