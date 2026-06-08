@@ -2,7 +2,7 @@ import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  transpilePackages: ['@trylinky/ui', '@trylinky/common'],
+  transpilePackages: ['@trylinky/ui', '@trylinky/common', '@trylinky/seo'],
   experimental: {
     // Enables the `'use cache'` directive for cacheable public reads
     // (public `/[domain]/[slug]` route). This is the narrow flag — it does NOT

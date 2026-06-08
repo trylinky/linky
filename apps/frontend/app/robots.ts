@@ -1,15 +1,5 @@
 import type { MetadataRoute } from 'next';
-
-const AI_CRAWLERS = [
-  'GPTBot',
-  'OAI-SearchBot',
-  'ChatGPT-User',
-  'ClaudeBot',
-  'Claude-Web',
-  'PerplexityBot',
-  'Google-Extended',
-  'CCBot',
-];
+import { AI_CRAWLERS } from '@trylinky/seo';
 
 const DISALLOWED = ['/api/', '/new-api/', '/_next/', '/e/', '/edit', '/new', '/invite'];
 

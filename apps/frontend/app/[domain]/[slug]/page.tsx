@@ -107,7 +107,7 @@ export default async function Page(props: { params: Promise<Params> }) {
     notFound();
   }
 
-  if (page.publishedAt == null) {
+  if (!page.publishedAt) {
     return notFound();
   }
 
