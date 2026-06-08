@@ -57,9 +57,8 @@ export default async function AlternativePage(props: {
             url: `https://lin.ky/i/alternatives/${c.slug}`,
           },
         ]}
+        tone="dark"
       />
-
-      <PseoBenefits heading="Why creators switch to Linky" />
 
       <PseoBand tone="white">
         <PseoEyebrow>Side by side</PseoEyebrow>
@@ -68,6 +67,8 @@ export default async function AlternativePage(props: {
           <ComparisonTable competitor={c.competitor} rows={c.comparison} />
         </div>
       </PseoBand>
+
+      <PseoBenefits heading="Why creators switch to Linky" />
 
       <PseoProse sections={c.sections} />
     </PseoLayout>

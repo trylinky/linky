@@ -120,10 +120,10 @@ export function PseoCtaCard({
           {/* Subtle glow overlay — only on dark gradient schemes */}
           {s.glowOverlay && (
             <div
-              className="pointer-events-none absolute right-0 top-0 h-[400px] w-[400px] rounded-full blur-3xl"
+              className="pointer-events-none absolute right-0 top-0 h-[300px] w-[300px] rounded-full blur-3xl"
               style={{
                 background:
-                  'radial-gradient(ellipse at top right, rgba(255,255,255,0.18) 0%, transparent 65%)',
+                  'radial-gradient(ellipse at top right, rgba(255,255,255,0.06) 0%, transparent 65%)',
               }}
             />
           )}

@@ -18,6 +18,7 @@ export function PseoHero({
   ctaLabel = 'Get started free',
   visual,
   breadcrumbs,
+  tone = 'light',
 }: {
   eyebrow?: string;
   h1: string;
@@ -26,9 +27,18 @@ export function PseoHero({
   ctaLabel?: string;
   visual?: ReactNode;
   breadcrumbs?: HeroBreadcrumb[];
+  tone?: 'light' | 'dark';
 }) {
+  const isDark = tone === 'dark';
+
   return (
-    <section className="bg-linear-to-b from-[#F4F0E7] to-[#FBFAF7] pt-28 md:pt-36 pb-16 md:pb-24">
+    <section
+      className={
+        isDark
+          ? 'bg-linear-to-b from-[#1A1712] to-[#14110D] pt-28 md:pt-36 pb-16 md:pb-24'
+          : 'bg-linear-to-b from-[#F4F0E7] to-[#FBFAF7] pt-28 md:pt-36 pb-16 md:pb-24'
+      }
+    >
       {breadcrumbs && breadcrumbs.length > 0 && (
         <script
           type="application/ld+json"
@@ -48,17 +58,27 @@ export function PseoHero({
                 {breadcrumbs.map((c, i) => (
                   <span key={c.url} className="flex items-center gap-1.5">
                     {i > 0 && (
-                      <span className="text-zinc-400">/</span>
+                      <span className={isDark ? 'text-zinc-600' : 'text-zinc-400'}>/</span>
                     )}
                     {i < breadcrumbs.length - 1 ? (
                       <Link
                         href={new URL(c.url).pathname}
-                        className="text-zinc-500 hover:text-zinc-800 transition-colors"
+                        className={
+                          isDark
+                            ? 'text-zinc-400 hover:text-zinc-200 transition-colors'
+                            : 'text-zinc-500 hover:text-zinc-800 transition-colors'
+                        }
                       >
                         {c.name}
                       </Link>
                     ) : (
-                      <span className="text-zinc-500 font-medium">{c.name}</span>
+                      <span
+                        className={
+                          isDark ? 'text-zinc-400 font-medium' : 'text-zinc-500 font-medium'
+                        }
+                      >
+                        {c.name}
+                      </span>
                     )}
                   </span>
                 ))}
@@ -66,37 +86,74 @@ export function PseoHero({
             )}
             {eyebrow && (
               <div className="mb-4">
-                <PseoEyebrow>{eyebrow}</PseoEyebrow>
+                {isDark ? (
+                  <p className="flex items-center gap-2 text-sm font-semibold text-[#FF7A5C]">
+                    <span className="inline-block size-1.5 rounded-full bg-[#FF7A5C]" />
+                    {eyebrow}
+                  </p>
+                ) : (
+                  <PseoEyebrow>{eyebrow}</PseoEyebrow>
+                )}
               </div>
             )}
-            <h1 className="text-4xl md:text-6xl font-black tracking-tight text-zinc-900 text-balance">
+            <h1
+              className={
+                isDark
+                  ? 'text-4xl md:text-6xl font-black tracking-tight text-white text-balance'
+                  : 'text-4xl md:text-6xl font-black tracking-tight text-zinc-900 text-balance'
+              }
+            >
               {h1}
             </h1>
-            <p className="mt-5 text-lg md:text-xl text-zinc-600 text-pretty max-w-[48ch]">
+            <p
+              className={
+                isDark
+                  ? 'mt-5 text-lg md:text-xl text-zinc-300 text-pretty max-w-[48ch]'
+                  : 'mt-5 text-lg md:text-xl text-zinc-600 text-pretty max-w-[48ch]'
+              }
+            >
               {answer}
             </p>
-            <Button
-              asChild
-              variant="default"
-              size="xl"
-              className="mt-8 rounded-full font-bold"
-            >
-              <Link href={ctaHref}>{ctaLabel}</Link>
-            </Button>
+            {isDark ? (
+              <Button
+                asChild
+                variant="default"
+                size="xl"
+                className="mt-8 rounded-full font-bold bg-white text-zinc-900 hover:bg-zinc-100"
+              >
+                <Link href={ctaHref}>{ctaLabel}</Link>
+              </Button>
+            ) : (
+              <Button
+                asChild
+                variant="default"
+                size="xl"
+                className="mt-8 rounded-full font-bold"
+              >
+                <Link href={ctaHref}>{ctaLabel}</Link>
+              </Button>
+            )}
           </div>
           {visual && (
             <div className="flex items-center justify-center">
               <div className="relative w-full flex items-center justify-center">
-                {/* Soft coral radial glow behind the visual */}
+                {/* Soft glow behind the visual */}
                 <div
                   className="pointer-events-none absolute inset-0 -z-10 rounded-3xl"
                   style={{
-                    background:
-                      'radial-gradient(ellipse at center, rgba(232,85,63,0.10) 0%, transparent 70%)',
+                    background: isDark
+                      ? 'radial-gradient(ellipse at center, rgba(232,85,63,0.25) 0%, transparent 70%)'
+                      : 'radial-gradient(ellipse at center, rgba(232,85,63,0.10) 0%, transparent 70%)',
                     filter: 'blur(40px)',
                   }}
                 />
-                <div className="rounded-3xl ring-1 ring-black/5 shadow-xl shadow-zinc-900/5 overflow-hidden">
+                <div
+                  className={
+                    isDark
+                      ? 'rounded-3xl ring-1 ring-white/10 shadow-xl shadow-zinc-900/5 overflow-hidden'
+                      : 'rounded-3xl ring-1 ring-black/5 shadow-xl shadow-zinc-900/5 overflow-hidden'
+                  }
+                >
                   {visual}
                 </div>
               </div>

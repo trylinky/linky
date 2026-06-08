@@ -49,6 +49,7 @@ export default async function TemplatePage(props: {
           { name: 'Templates', url: 'https://lin.ky/i/templates' },
           { name: c.name, url: `https://lin.ky/i/templates/${c.slug}` },
         ]}
+        tone="dark"
       />
 
       <PseoBand tone="white">

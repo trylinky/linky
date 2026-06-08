@@ -6,8 +6,8 @@ import {
   PaintBrushIcon,
   RectangleStackIcon,
 } from '@heroicons/react/24/outline';
+import { MarketingContainer } from '@/components/marketing-container';
 import type { ComponentType, SVGProps } from 'react';
-import { PseoBand, PseoEyebrow, PseoSectionHeading } from './pseo-section';
 
 export interface BenefitItem {
   Icon: ComponentType<SVGProps<SVGSVGElement>>;
@@ -60,26 +60,33 @@ export function PseoBenefits({
   items?: BenefitItem[];
 }) {
   return (
-    <PseoBand tone="white">
-      <div className="mb-12">
-        <PseoEyebrow>{eyebrow}</PseoEyebrow>
-        <div className="mt-3">
-          <PseoSectionHeading>{heading}</PseoSectionHeading>
-        </div>
-      </div>
-      <dl className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
-        {items.map((item) => (
-          <div key={item.title}>
-            <div className="size-11 rounded-xl bg-[#FBEAE6] inline-flex items-center justify-center">
-              <item.Icon className="size-6 text-[#E8553F]" />
-            </div>
-            <dt className="mt-5 text-base font-semibold text-zinc-900">
-              {item.title}
-            </dt>
-            <dd className="mt-2 text-zinc-600 leading-7">{item.body}</dd>
+    <section className="bg-[#1A1712] py-20 md:py-28">
+      <MarketingContainer>
+        <div className="mb-12">
+          <p className="flex items-center gap-2 text-sm font-semibold text-[#FF7A5C]">
+            <span className="inline-block size-1.5 rounded-full bg-[#FF7A5C]" />
+            {eyebrow}
+          </p>
+          <div className="mt-3">
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white text-balance">
+              {heading}
+            </h2>
           </div>
-        ))}
-      </dl>
-    </PseoBand>
+        </div>
+        <dl className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
+          {items.map((item) => (
+            <div key={item.title}>
+              <div className="size-11 rounded-xl bg-white/8 inline-flex items-center justify-center">
+                <item.Icon className="size-6 text-[#FF7A5C]" />
+              </div>
+              <dt className="mt-5 text-base font-semibold text-white">
+                {item.title}
+              </dt>
+              <dd className="mt-2 text-zinc-400 leading-7">{item.body}</dd>
+            </div>
+          ))}
+        </dl>
+      </MarketingContainer>
+    </section>
   );
 }
