@@ -7,7 +7,7 @@ export const metadata = buildPseoMetadata({
   title: 'Link in bio for every creator and business | Linky',
   description:
     'Link-in-bio pages tailored for musicians, photographers, restaurants, developers, and more. Find the right setup for you.',
-  path: '/for',
+  path: '/i/for',
 });
 
 export default function NichesHub() {
@@ -19,7 +19,7 @@ export default function NichesHub() {
         <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {niches.map((n) => (
             <li key={n.slug}>
-              <Link href={`/for/${n.slug}`} className="block rounded-xl border border-gray-200 bg-white p-6 hover:border-gray-300">
+              <Link href={`/i/for/${n.slug}`} className="block rounded-xl border border-gray-200 bg-white p-6 hover:border-gray-300">
                 <div className="text-lg font-semibold">{n.name}</div>
                 <p className="mt-1 text-sm text-gray-600">{n.answer}</p>
               </Link>

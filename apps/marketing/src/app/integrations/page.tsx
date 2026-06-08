@@ -6,7 +6,7 @@ import Link from 'next/link';
 export const metadata = buildPseoMetadata({
   title: 'Link in bio integrations | Linky',
   description: 'Connect Spotify, Instagram, TikTok, Threads, and GitHub to your Linky link-in-bio page. See every integration and what it adds.',
-  path: '/integrations',
+  path: '/i/integrations',
 });
 
 export default function IntegrationsHub() {
@@ -18,7 +18,7 @@ export default function IntegrationsHub() {
         <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {integrations.map((i) => (
             <li key={i.slug}>
-              <Link href={`/integrations/${i.slug}`} className="block rounded-xl border border-gray-200 bg-white p-6 hover:border-gray-300">
+              <Link href={`/i/integrations/${i.slug}`} className="block rounded-xl border border-gray-200 bg-white p-6 hover:border-gray-300">
                 <div className="text-lg font-semibold">{i.name}</div>
                 <p className="mt-1 text-sm text-gray-600">{i.answer}</p>
               </Link>

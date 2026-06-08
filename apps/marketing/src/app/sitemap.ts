@@ -16,30 +16,30 @@ const baseUrl = `https://lin.ky`;
 // Spec 2 will append programmatic SEO routes (integration/template/use-case/
 // alternative pages) to `pseoSitemap` below.
 const pseoSitemap: MetadataRoute.Sitemap = [
-  { url: 'https://lin.ky/integrations', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
-  { url: 'https://lin.ky/templates', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
+  { url: 'https://lin.ky/i/integrations', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
+  { url: 'https://lin.ky/i/templates', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
   ...integrations.map((i) => ({
-    url: `https://lin.ky/integrations/${i.slug}`,
+    url: `https://lin.ky/i/integrations/${i.slug}`,
     lastModified: new Date(),
     changeFrequency: 'monthly' as const,
     priority: 0.5,
   })),
   ...templates.map((t) => ({
-    url: `https://lin.ky/templates/${t.slug}`,
+    url: `https://lin.ky/i/templates/${t.slug}`,
     lastModified: new Date(),
     changeFrequency: 'monthly' as const,
     priority: 0.5,
   })),
-  { url: 'https://lin.ky/for', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
-  { url: 'https://lin.ky/alternatives', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
+  { url: 'https://lin.ky/i/for', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
+  { url: 'https://lin.ky/i/alternatives', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
   ...niches.map((n) => ({
-    url: `https://lin.ky/for/${n.slug}`,
+    url: `https://lin.ky/i/for/${n.slug}`,
     lastModified: new Date(),
     changeFrequency: 'monthly' as const,
     priority: 0.5,
   })),
   ...alternatives.map((a) => ({
-    url: `https://lin.ky/alternatives/${a.slug}`,
+    url: `https://lin.ky/i/alternatives/${a.slug}`,
     lastModified: new Date(),
     changeFrequency: 'monthly' as const,
     priority: 0.5,

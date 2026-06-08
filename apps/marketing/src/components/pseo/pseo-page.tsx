@@ -26,7 +26,7 @@ export function PseoPage(props: {
             <span key={c.url}>
               {i > 0 && <span className="mx-1">/</span>}
               {i < props.breadcrumbs.length - 1 ? (
-                <Link href={c.url} className="hover:underline">{c.name}</Link>
+                <Link href={new URL(c.url).pathname} className="hover:underline">{c.name}</Link>
               ) : (
                 <span className="text-gray-700">{c.name}</span>
               )}

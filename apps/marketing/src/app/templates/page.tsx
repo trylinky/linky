@@ -7,7 +7,7 @@ import Link from 'next/link';
 export const metadata = buildPseoMetadata({
   title: 'Link in bio templates | Linky',
   description: 'Browse free link-in-bio templates — light, dark, colorful — and apply one to your Linky page in seconds.',
-  path: '/templates',
+  path: '/i/templates',
 });
 
 export default function TemplatesHub() {
@@ -19,7 +19,7 @@ export default function TemplatesHub() {
         <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {templates.map((t) => (
             <li key={t.slug}>
-              <Link href={`/templates/${t.slug}`} className="block">
+              <Link href={`/i/templates/${t.slug}`} className="block">
                 <ThemeMock palette={t.palette} name={t.name} size="thumb" />
                 <div className="mt-3 font-semibold">{t.name}</div>
               </Link>

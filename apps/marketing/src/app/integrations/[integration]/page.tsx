@@ -15,7 +15,7 @@ export async function generateMetadata(props: { params: Promise<{ integration: s
   const { integration } = await props.params;
   const c = getIntegration(integration);
   if (!c) return {};
-  return buildPseoMetadata({ title: `${c.h1} | Linky`, description: c.answer, path: `/integrations/${c.slug}` });
+  return buildPseoMetadata({ title: `${c.h1} | Linky`, description: c.answer, path: `/i/integrations/${c.slug}` });
 }
 
 export default async function IntegrationPage(props: { params: Promise<{ integration: string }> }) {
@@ -29,8 +29,8 @@ export default async function IntegrationPage(props: { params: Promise<{ integra
       answer={c.answer}
       breadcrumbs={[
         { name: 'Home', url: 'https://lin.ky' },
-        { name: 'Integrations', url: 'https://lin.ky/integrations' },
-        { name: c.name, url: `https://lin.ky/integrations/${c.slug}` },
+        { name: 'Integrations', url: 'https://lin.ky/i/integrations' },
+        { name: c.name, url: `https://lin.ky/i/integrations/${c.slug}` },
       ]}
       faqs={c.faqs}
     >

@@ -19,7 +19,7 @@ export async function generateMetadata(props: { params: Promise<{ niche: string 
   const { niche } = await props.params;
   const c = getNiche(niche);
   if (!c) return {};
-  return buildPseoMetadata({ title: `${c.h1} | Linky`, description: c.answer, path: `/for/${c.slug}` });
+  return buildPseoMetadata({ title: `${c.h1} | Linky`, description: c.answer, path: `/i/for/${c.slug}` });
 }
 
 export default async function NichePage(props: { params: Promise<{ niche: string }> }) {
@@ -39,8 +39,8 @@ export default async function NichePage(props: { params: Promise<{ niche: string
       answer={c.answer}
       breadcrumbs={[
         { name: 'Home', url: 'https://lin.ky' },
-        { name: 'Use cases', url: 'https://lin.ky/for' },
-        { name: c.name, url: `https://lin.ky/for/${c.slug}` },
+        { name: 'Use cases', url: 'https://lin.ky/i/for' },
+        { name: c.name, url: `https://lin.ky/i/for/${c.slug}` },
       ]}
       hero={template ? <ThemeMock palette={template.palette} name={template.name} /> : undefined}
       faqs={c.faqs}
@@ -58,12 +58,12 @@ export default async function NichePage(props: { params: Promise<{ niche: string
           <ul className="mt-3 flex flex-wrap gap-3 text-sm">
             {(c.relatedIntegrations ?? []).map((slug) => (
               <li key={slug}>
-                <Link href={`/integrations/${slug}`} className="text-blue-700 hover:underline">{slug} integration</Link>
+                <Link href={`/i/integrations/${slug}`} className="text-blue-700 hover:underline">{slug} integration</Link>
               </li>
             ))}
             {template && (
               <li>
-                <Link href={`/templates/${c.recommendedTemplate}`} className="text-blue-700 hover:underline">{template.name} template</Link>
+                <Link href={`/i/templates/${c.recommendedTemplate}`} className="text-blue-700 hover:underline">{template.name} template</Link>
               </li>
             )}
           </ul>

@@ -15,7 +15,7 @@ export async function generateMetadata(props: { params: Promise<{ template: stri
   const { template } = await props.params;
   const c = getTemplate(template);
   if (!c) return {};
-  return buildPseoMetadata({ title: `${c.h1} | Linky`, description: c.answer, path: `/templates/${c.slug}` });
+  return buildPseoMetadata({ title: `${c.h1} | Linky`, description: c.answer, path: `/i/templates/${c.slug}` });
 }
 
 export default async function TemplatePage(props: { params: Promise<{ template: string }> }) {
@@ -29,8 +29,8 @@ export default async function TemplatePage(props: { params: Promise<{ template: 
       answer={c.answer}
       breadcrumbs={[
         { name: 'Home', url: 'https://lin.ky' },
-        { name: 'Templates', url: 'https://lin.ky/templates' },
-        { name: c.name, url: `https://lin.ky/templates/${c.slug}` },
+        { name: 'Templates', url: 'https://lin.ky/i/templates' },
+        { name: c.name, url: `https://lin.ky/i/templates/${c.slug}` },
       ]}
       hero={<ThemeMock palette={c.palette} name={c.name} />}
       faqs={c.faqs}

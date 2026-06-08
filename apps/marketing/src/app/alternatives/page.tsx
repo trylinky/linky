@@ -7,7 +7,7 @@ export const metadata = buildPseoMetadata({
   title: 'Link in bio alternatives | Linky',
   description:
     'See how Linky compares to Linktree, Beacons, Bio.link, Carrd, and Later — and why creators switch to a richer link-in-bio page.',
-  path: '/alternatives',
+  path: '/i/alternatives',
 });
 
 export default function AlternativesHub() {
@@ -19,7 +19,7 @@ export default function AlternativesHub() {
         <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {alternatives.map((a) => (
             <li key={a.slug}>
-              <Link href={`/alternatives/${a.slug}`} className="block rounded-xl border border-gray-200 bg-white p-6 hover:border-gray-300">
+              <Link href={`/i/alternatives/${a.slug}`} className="block rounded-xl border border-gray-200 bg-white p-6 hover:border-gray-300">
                 <div className="text-lg font-semibold">Linky vs {a.competitor}</div>
                 <p className="mt-1 text-sm text-gray-600">{a.answer}</p>
               </Link>

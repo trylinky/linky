@@ -15,7 +15,7 @@ export async function generateMetadata(props: { params: Promise<{ competitor: st
   const { competitor } = await props.params;
   const c = getAlternative(competitor);
   if (!c) return {};
-  return buildPseoMetadata({ title: `${c.h1} | Linky`, description: c.answer, path: `/alternatives/${c.slug}` });
+  return buildPseoMetadata({ title: `${c.h1} | Linky`, description: c.answer, path: `/i/alternatives/${c.slug}` });
 }
 
 export default async function AlternativePage(props: { params: Promise<{ competitor: string }> }) {
@@ -29,8 +29,8 @@ export default async function AlternativePage(props: { params: Promise<{ competi
       answer={c.answer}
       breadcrumbs={[
         { name: 'Home', url: 'https://lin.ky' },
-        { name: 'Alternatives', url: 'https://lin.ky/alternatives' },
-        { name: c.competitor, url: `https://lin.ky/alternatives/${c.slug}` },
+        { name: 'Alternatives', url: 'https://lin.ky/i/alternatives' },
+        { name: c.competitor, url: `https://lin.ky/i/alternatives/${c.slug}` },
       ]}
       faqs={c.faqs}
     >
