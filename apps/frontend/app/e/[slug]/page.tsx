@@ -9,8 +9,6 @@ import { renderBlock } from '@/lib/blocks/ui';
 import { Block } from '@trylinky/prisma';
 import { notFound } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
-
 export default async function EditorCanvasPage(props: {
   params: Promise<{ slug: string }>;
 }) {

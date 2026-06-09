@@ -17,8 +17,6 @@ import * as Catalyst from '@trylinky/ui/catalyst';
 import { headers } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
-
 export default async function EditorLayout(props: {
   children: React.ReactNode;
   params: Promise<{ slug: string }>;

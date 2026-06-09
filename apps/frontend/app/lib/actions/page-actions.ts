@@ -81,20 +81,22 @@ export async function getPageBlocks(pageId: string) {
  *
  * Used ONLY by the session-free public `/[domain]/[slug]` route. These mirror
  * the editor read functions above but use `publicApiFetch` (no cookies/headers,
- * cache-safe) and are wrapped in `'use cache'` with a tag + short `cacheLife`.
+ * cache-safe) and are wrapped in `'use cache'` with a tag + long `cacheLife`.
  *
  * Do NOT use these from the editor (`/e/*`) — owner/unpublished data must keep
  * forwarding the session cookie via the non-cached functions above.
  *
- * Revalidation: publish/theme/settings server actions `revalidateTag` these
- * tags in-process for instant freshness (Task E2-14). The `cacheLife` window
- * covers block/layout edits that go through apps/api.
+ * Revalidation is explicit, not TTL-driven: publish/theme/settings server
+ * actions `revalidateTag` in-process, and apps/api mutations (block CRUD,
+ * layout saves, page create/delete) call POST /api/revalidate with the same
+ * tags. The 'days' profile (daily background refresh) is only a safety net
+ * for a missed invalidation.
  * ---------------------------------------------------------------------------
  */
 
 export async function getPublicPageBySlugOrDomain(slug: string, domain: string) {
   'use cache';
-  cacheLife('minutes');
+  cacheLife('days');
   cacheTag(`page-slug-${slug}-${domain}`);
 
   const res = await publicApiFetch(
@@ -123,7 +125,7 @@ export async function getPublicPageBySlugOrDomain(slug: string, domain: string) 
 
 export async function getPublicPageLoadData(pageId: string) {
   'use cache';
-  cacheLife('minutes');
+  cacheLife('days');
   cacheTag(`page-id-${pageId}`);
 
   const res = await publicApiFetch(`/pages/${pageId}/internal/load`, {
@@ -141,7 +143,7 @@ export async function getPublicPageLoadData(pageId: string) {
 
 export async function getPublicPageLayout(pageId: string) {
   'use cache';
-  cacheLife('minutes');
+  cacheLife('days');
   cacheTag(`page-id-${pageId}`);
 
   const res = await publicApiFetch(`/pages/${pageId}/layout`);
@@ -151,7 +153,7 @@ export async function getPublicPageLayout(pageId: string) {
 
 export async function getPublicPageTheme(pageId: string) {
   'use cache';
-  cacheLife('minutes');
+  cacheLife('days');
   cacheTag(`page-id-${pageId}`);
 
   const res = await publicApiFetch(`/pages/${pageId}/theme`);
@@ -161,7 +163,7 @@ export async function getPublicPageTheme(pageId: string) {
 
 export async function getPublicPageBlocks(pageId: string) {
   'use cache';
-  cacheLife('minutes');
+  cacheLife('days');
   cacheTag(`page-id-${pageId}`);
 
   const res = await publicApiFetch(`/pages/${pageId}/blocks`);

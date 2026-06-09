@@ -8,6 +8,7 @@ import { Metadata } from 'next';
 import localFont from 'next/font/local';
 import { headers } from 'next/headers';
 import Script from 'next/script';
+import { Suspense } from 'react';
 
 const seasonFont = localFont({
   src: './ssn.woff2',
@@ -43,19 +44,35 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+// Session is only needed to identify the user in PostHog. Resolving it in a
+// Suspense-wrapped island keeps the (cookie-reading, DB-touching) session
+// lookup off the critical path of every route — public pages render their
+// shell without waiting for auth.
+async function PostHogIdentifyFromSession() {
   const session = await getSession({
     fetchOptions: { headers: await headers() },
   });
 
   const sessionData = session.data;
-
   const { user } = sessionData ?? {};
 
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <PostHogIdentify
+      userId={user.id}
+      organizationId={sessionData?.session.activeOrganizationId ?? ''}
+    />
+  );
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" className={seasonFont.className}>
       <head>
@@ -72,12 +89,9 @@ export default async function RootLayout({
           {children}
           <Toaster />
         </body>
-        {user && (
-          <PostHogIdentify
-            userId={user.id}
-            organizationId={sessionData?.session.activeOrganizationId ?? ''}
-          />
-        )}
+        <Suspense fallback={null}>
+          <PostHogIdentifyFromSession />
+        </Suspense>
       </PostHogProvider>
       <Analytics />
     </html>

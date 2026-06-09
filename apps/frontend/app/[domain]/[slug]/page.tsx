@@ -16,8 +16,6 @@ import {
 import type { Metadata, ResolvingMetadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
 
-export const dynamicParams = true;
-
 function buildIndexInput(page: any): PageIndexInput {
   return {
     publishedAt: page.publishedAt ?? null,

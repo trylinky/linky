@@ -3,12 +3,10 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   transpilePackages: ['@trylinky/ui', '@trylinky/common', '@trylinky/seo'],
-  experimental: {
-    // Enables the `'use cache'` directive for cacheable public reads
-    // (public `/[domain]/[slug]` route). This is the narrow flag — it does NOT
-    // turn on full Cache Components / PPR (top-level `cacheComponents`).
-    useCache: true,
-  },
+  // Full Cache Components / PPR: the public page shell prerenders, cached
+  // data ('use cache' in page-actions) serves from cache, and only dynamic
+  // Suspense-wrapped subtrees render per request.
+  cacheComponents: true,
   rewrites: async () => [
     {
       source: '/',
