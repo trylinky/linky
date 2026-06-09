@@ -104,27 +104,44 @@ export async function incrementReaction({
     sk: string;
     mapName: string;
   }) {
-    // Combined initialization and increment in a single atomic operation
-    const params = {
+    // DynamoDB rejects a single expression that sets both #map and
+    // #map.#type (overlapping document paths), so this must stay two calls:
+    // ensure the map exists, then atomically increment the nested counter.
+    const initParams = {
       TableName: TABLE_NAME,
       Key: {
         PK: pageId,
         SK: sk,
       },
-      UpdateExpression: `SET #map = if_not_exists(#map, :emptyMap), #map.#type = if_not_exists(#map.#type, :zero) + :increment`,
+      UpdateExpression: `SET #map = if_not_exists(#map, :emptyMap)`,
+      ExpressionAttributeNames: {
+        '#map': mapName,
+      },
+      ExpressionAttributeValues: {
+        ':emptyMap': {},
+      },
+    };
+
+    const incrementParams = {
+      TableName: TABLE_NAME,
+      Key: {
+        PK: pageId,
+        SK: sk,
+      },
+      UpdateExpression: `SET #map.#type = if_not_exists(#map.#type, :zero) + :increment`,
       ExpressionAttributeNames: {
         '#map': mapName,
         '#type': REACTION_TYPE,
       },
       ExpressionAttributeValues: {
-        ':emptyMap': {},
         ':zero': 0,
         ':increment': increment,
       },
     };
 
     try {
-      await dynamoDb.send(new UpdateCommand(params));
+      await dynamoDb.send(new UpdateCommand(initParams));
+      await dynamoDb.send(new UpdateCommand(incrementParams));
     } catch (error) {
       console.error(`Error updating ${mapName} for ${sk}:`, error);
       captureException(error);
@@ -191,11 +208,12 @@ export async function reactToResource(
   // an extra call to the database
   return {
     total: {
-      [REACTION_TYPE]: currentReactionsForPage.total[REACTION_TYPE] + increment,
+      [REACTION_TYPE]:
+        (currentReactionsForPage.total[REACTION_TYPE] ?? 0) + increment,
     },
     current: {
       [REACTION_TYPE]:
-        currentReactionsForPage.current[REACTION_TYPE] + increment,
+        (currentReactionsForPage.current[REACTION_TYPE] ?? 0) + increment,
     },
   };
 }
