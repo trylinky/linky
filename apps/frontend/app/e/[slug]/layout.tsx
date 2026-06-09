@@ -43,16 +43,16 @@ export default async function EditorLayout(props: {
   }
 
   // Owner data (mirrors today's owner branch in app/[domain]/[slug]/layout.tsx)
-  const [integrations, enabledBlocks, pageSettings] = await Promise.all([
-    getTeamIntegrations(),
-    getEnabledBlocks(),
-    getPageSettings(page.id),
-  ]);
-  const [{ blocks }, pageLayout, pageTheme] = await Promise.all([
-    getPageBlocks(page.id),
-    getPageLayout(page.id),
-    getPageTheme(page.id),
-  ]);
+  // All six reads are independent — fetch them in a single batch.
+  const [integrations, enabledBlocks, pageSettings, { blocks }, pageLayout, pageTheme] =
+    await Promise.all([
+      getTeamIntegrations(),
+      getEnabledBlocks(),
+      getPageSettings(page.id),
+      getPageBlocks(page.id),
+      getPageLayout(page.id),
+      getPageTheme(page.id),
+    ]);
 
   const initialData: Record<string, any> = {
     [`/pages/${page.id}/layout`]: pageLayout,
