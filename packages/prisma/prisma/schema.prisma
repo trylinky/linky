@@ -173,6 +173,9 @@ model Page {
   organizationId       String?
 
   @@index([organizationId])
+  @@index([organizationId, deletedAt])
+  @@index([slug, deletedAt])
+  @@index([customDomain, deletedAt])
   @@index([themeId])
 }
 
@@ -206,6 +209,7 @@ model Integration {
 
   @@index([type])
   @@index([organizationId])
+  @@index([organizationId, deletedAt])
 }
 
 model Theme {
