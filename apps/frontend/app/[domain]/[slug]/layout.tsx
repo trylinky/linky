@@ -103,7 +103,7 @@ export default async function PageLayout(props: {
       {process.env.NEXT_PUBLIC_TINYBIRD_TRACKER_TOKEN && (
         <Script
           id="tinybird-tracker"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           src="/assets/tracker.js"
           data-host="https://api.us-west-2.aws.tinybird.co"
           data-token={process.env.NEXT_PUBLIC_TINYBIRD_TRACKER_TOKEN}

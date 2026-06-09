@@ -53,7 +53,30 @@ declare global {
     return crypto.randomUUID();
   }
 
+  const LOCATION_STORAGE_KEY = 'tb-location';
+
+  function _getCachedLocation(): string | null {
+    try {
+      return sessionStorage.getItem(LOCATION_STORAGE_KEY);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function _setCachedLocation(location: string): void {
+    try {
+      sessionStorage.setItem(LOCATION_STORAGE_KEY, location);
+    } catch (error) {
+      // ignore storage errors (private mode, disabled storage)
+    }
+  }
+
   async function _getLocation(): Promise<string | null> {
+    const cached = _getCachedLocation();
+    if (cached) {
+      return cached;
+    }
+
     try {
       const response = await fetch('/api/user/location');
       const data = await response.json();
@@ -63,6 +86,7 @@ declare global {
         return timezones[timezone as keyof typeof timezones];
       }
 
+      _setCachedLocation(data.location);
       return data.location;
     } catch (error) {
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
