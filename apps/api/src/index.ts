@@ -20,8 +20,8 @@ import instagramServiceRoutes from '@/modules/services/instagram';
 import spotifyServiceRoutes from '@/modules/services/spotify';
 import threadsServiceRoutes from '@/modules/services/threads';
 import themesRoutes from '@/modules/themes';
+import fastifyCompress from '@fastify/compress';
 import cors from '@fastify/cors';
-import fastifyExpress from '@fastify/express';
 import fastifyMultipart from '@fastify/multipart';
 import fastifySensible from '@fastify/sensible';
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
@@ -34,7 +34,7 @@ import fastifyRawBody from 'fastify-raw-body';
 export const fastify: FastifyInstance =
   Fastify().withTypeProvider<TypeBoxTypeProvider>();
 
-await fastify.register(fastifyExpress);
+await fastify.register(fastifyCompress);
 await fastify.register(fastifySensible);
 
 await fastify.register(fastifyRawBody, {
@@ -89,7 +89,11 @@ fastify.decorate('authenticate', authenticateDecorator);
 Sentry.setupFastifyErrorHandler(fastify);
 
 fastify.addHook('onSend', async (request, reply) => {
-  reply.header('Cache-Control', 'no-store, must-revalidate');
+  // Default to no-store, but let individual routes opt into caching by
+  // setting their own Cache-Control header.
+  if (!reply.getHeader('Cache-Control')) {
+    reply.header('Cache-Control', 'no-store, must-revalidate');
+  }
 });
 
 fastify.addHook('onRequest', async (request, reply) => {
