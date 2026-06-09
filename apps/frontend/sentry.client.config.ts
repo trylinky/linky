@@ -7,7 +7,7 @@ if (SENTRY_DSN) {
     dsn: SENTRY_DSN,
     integrations: [Sentry.replayIntegration()],
 
-    tracesSampleRate: 1.0,
+    tracesSampleRate: 0.1,
 
     replaysSessionSampleRate: 0.1,
     replaysOnErrorSampleRate: 1.0,
