@@ -25,6 +25,11 @@ import {
 import { createPosthogClient } from '@/lib/posthog';
 import prisma from '@/lib/prisma';
 import {
+  pageIdCacheTag,
+  pageSlugCacheTag,
+  revalidatePageCache,
+} from '@/lib/revalidate';
+import {
   getPageLoadHandler,
   getPageLoadSchema,
 } from '@/modules/pages/handlers/get-page-load';
@@ -266,6 +271,8 @@ async function updatePageLayoutHandler(
 
   const updatedPage = await updatePageLayout(pageId, newLayout);
 
+  void revalidatePageCache([pageIdCacheTag(pageId)]);
+
   posthog?.capture({
     distinctId: session.user.id,
     event: 'page-layout-updated',
@@ -354,6 +361,13 @@ async function createPageHandler(
       });
     }
 
+    // Clear any cached "not found" lookup for the newly-claimed slug.
+    if (process.env.NEXT_PUBLIC_ROOT_DOMAIN) {
+      void revalidatePageCache([
+        pageSlugCacheTag(res.slug, process.env.NEXT_PUBLIC_ROOT_DOMAIN),
+      ]);
+    }
+
     return response.status(200).send({
       slug: res.slug,
     });
@@ -378,6 +392,8 @@ async function deletePageHandler(
   }
 
   await deletePage(pageId);
+
+  void revalidatePageCache([pageIdCacheTag(pageId)]);
 
   return response.status(200).send({
     success: true,

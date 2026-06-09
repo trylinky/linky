@@ -16,6 +16,7 @@ import {
 } from './service';
 import { createPosthogClient } from '@/lib/posthog';
 import prisma from '@/lib/prisma';
+import { pageIdCacheTag, revalidatePageCache } from '@/lib/revalidate';
 import { FastifyInstance, FastifyReply } from 'fastify';
 import { FastifyRequest } from 'fastify';
 
@@ -143,6 +144,8 @@ async function postCreateBlockHandler(
 
   const newBlock = await createBlock(block, pageSlug);
 
+  void revalidatePageCache([pageIdCacheTag(newBlock.pageId)]);
+
   posthog?.capture({
     distinctId: session.user.id,
     event: 'block-created',
@@ -236,6 +239,8 @@ async function deleteBlockHandler(
   try {
     await deleteBlockById(blockId, session.user.id);
 
+    void revalidatePageCache([pageIdCacheTag(block.pageId)]);
+
     posthog?.capture({
       distinctId: session.user.id,
       event: 'block-deleted',
@@ -280,6 +285,8 @@ async function updateBlockDataHandler(
 
   try {
     const updatedBlock = await updateBlockData(blockId, newData);
+
+    void revalidatePageCache([pageIdCacheTag(updatedBlock.pageId)]);
 
     return response.status(200).send({
       id: updatedBlock.id,
