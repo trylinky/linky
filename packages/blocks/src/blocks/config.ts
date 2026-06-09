@@ -13,7 +13,7 @@ import {
 import { LinkBarSchema, linkBarBlockDefaults } from './link-bar/config';
 import { LinkBoxSchema, linkBoxBlockDefaults } from './link-box/config';
 import { MapSchema, mapBlockDefaults } from './map/config';
-import { reactionBlockDefaults } from './reaction/config';
+import { ReactionSchema, reactionBlockDefaults } from './reaction/config';
 import {
   SpotifyEmbedSchema,
   spotifyEmbedBlockDefaults,
@@ -116,6 +116,6 @@ export const blocks: Record<
   },
   reactions: {
     defaults: reactionBlockDefaults,
-    schema: null,
+    schema: ReactionSchema,
   },
 };

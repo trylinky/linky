@@ -22,8 +22,18 @@ const TABLE_NAME = process.env.REACTIONS_TABLE_NAME;
 
 const MAX_ALLOWED_REACTIONS_PER_IP = 16;
 
-// We only support one reaction type for now
-const REACTION_TYPE = 'love';
+export const REACTION_TYPES = [
+  'love',
+  'thumbs-up',
+  'thumbs-down',
+  'smiley',
+  'rocket',
+] as const;
+
+export type ReactionType = (typeof REACTION_TYPES)[number];
+
+// Clients that predate configurable reactions send no reactionType
+export const DEFAULT_REACTION_TYPE: ReactionType = 'love';
 
 export async function getReactionsForPageId({
   pageId,
@@ -91,10 +101,12 @@ export async function incrementReaction({
   pageId,
   increment,
   ipAddress,
+  reactionType,
 }: {
   pageId: string;
   increment: number;
   ipAddress: string;
+  reactionType: ReactionType;
 }) {
   // Helper function to initialize and increment a reaction map with better error handling
   async function updateReactionMap({
@@ -131,7 +143,7 @@ export async function incrementReaction({
       UpdateExpression: `SET #map.#type = if_not_exists(#map.#type, :zero) + :increment`,
       ExpressionAttributeNames: {
         '#map': mapName,
-        '#type': REACTION_TYPE,
+        '#type': reactionType,
       },
       ExpressionAttributeValues: {
         ':zero': 0,
@@ -180,7 +192,8 @@ export async function incrementReaction({
 export async function reactToResource(
   pageId: string,
   increment: number,
-  ipAddress: string
+  ipAddress: string,
+  reactionType: ReactionType = DEFAULT_REACTION_TYPE
 ) {
   const currentReactionsForPage = await getReactionsForPageId({
     pageId,
@@ -188,32 +201,32 @@ export async function reactToResource(
   });
 
   if (
-    currentReactionsForPage.current[REACTION_TYPE] >=
+    currentReactionsForPage.current[reactionType] >=
     MAX_ALLOWED_REACTIONS_PER_IP
   ) {
     return {
       error: 'Max reactions reached',
       total: {
-        [REACTION_TYPE]: currentReactionsForPage.total[REACTION_TYPE],
+        [reactionType]: currentReactionsForPage.total[reactionType],
       },
       current: {
-        [REACTION_TYPE]: currentReactionsForPage.current[REACTION_TYPE],
+        [reactionType]: currentReactionsForPage.current[reactionType],
       },
     };
   }
 
-  await incrementReaction({ pageId, increment, ipAddress });
+  await incrementReaction({ pageId, increment, ipAddress, reactionType });
 
   // We could probably also refetch the latest data here, but this saves
   // an extra call to the database
   return {
     total: {
-      [REACTION_TYPE]:
-        (currentReactionsForPage.total[REACTION_TYPE] ?? 0) + increment,
+      [reactionType]:
+        (currentReactionsForPage.total[reactionType] ?? 0) + increment,
     },
     current: {
-      [REACTION_TYPE]:
-        (currentReactionsForPage.current[REACTION_TYPE] ?? 0) + increment,
+      [reactionType]:
+        (currentReactionsForPage.current[reactionType] ?? 0) + increment,
     },
   };
 }

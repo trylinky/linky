@@ -2,33 +2,67 @@
 
 import { CoreBlock } from '@/app/components/CoreBlock';
 import { BlockProps } from '@/lib/blocks/ui';
+import {
+  FaceSmileIcon,
+  HandThumbDownIcon,
+  HandThumbUpIcon,
+  HeartIcon,
+  RocketLaunchIcon,
+} from '@heroicons/react/24/solid';
 import NumberFlow from '@number-flow/react';
+import {
+  ReactionBlockConfig,
+  ReactionType,
+  defaultReactionType,
+} from '@trylinky/blocks';
 import { InternalApi, internalApiFetcher } from '@trylinky/common';
 import { motion } from 'framer-motion';
-import { FunctionComponent, useEffect, useRef, useState } from 'react';
+import { ComponentType, FunctionComponent, useEffect, useRef, useState } from 'react';
 import useSWR from 'swr';
 
-const Icon = () => {
-  return (
-    <svg
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="none"
-      className="fill-sys-label-primary"
-      width={40}
-      height={40}
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
-      />
-    </svg>
-  );
+export const reactionMeta: Record<
+  ReactionType,
+  {
+    label: string;
+    icon: ComponentType<{ className?: string; width?: number; height?: number }>;
+    gradientFrom: string;
+    gradientTo: string;
+  }
+> = {
+  love: {
+    label: 'Love',
+    icon: HeartIcon,
+    gradientFrom: '#FF6096',
+    gradientTo: '#FF2A76',
+  },
+  'thumbs-up': {
+    label: 'Thumbs up',
+    icon: HandThumbUpIcon,
+    gradientFrom: '#4ADE80',
+    gradientTo: '#22C55E',
+  },
+  'thumbs-down': {
+    label: 'Thumbs down',
+    icon: HandThumbDownIcon,
+    gradientFrom: '#F97316',
+    gradientTo: '#EF4444',
+  },
+  smiley: {
+    label: 'Smile',
+    icon: FaceSmileIcon,
+    gradientFrom: '#FBBF24',
+    gradientTo: '#F59E0B',
+  },
+  rocket: {
+    label: 'Rocket',
+    icon: RocketLaunchIcon,
+    gradientFrom: '#A78BFA',
+    gradientTo: '#8B5CF6',
+  },
 };
 
 export const Reactions: FunctionComponent<BlockProps> = (props) => {
-  const { pageId, isEditable } = props;
+  const { blockId, pageId, isEditable } = props;
 
   const [displayCount, setDisplayCount] = useState(0);
 
@@ -36,18 +70,30 @@ export const Reactions: FunctionComponent<BlockProps> = (props) => {
   const pendingClicksRef = useRef(0);
   const isSubmittingRef = useRef(false);
 
+  const { data: blockInfo } = useSWR<{ blockData: ReactionBlockConfig }>(
+    `/blocks/${blockId}`,
+    internalApiFetcher
+  );
+
+  // Blocks saved before reactions were configurable have no reactionType
+  const reactionType: ReactionType =
+    blockInfo?.blockData?.reactionType ?? defaultReactionType;
+  const meta = reactionMeta[reactionType] ?? reactionMeta[defaultReactionType];
+  const ReactionIcon = meta.icon;
+  const label = blockInfo?.blockData?.label?.trim() || meta.label;
+
   const { data, mutate } = useSWR<{
     current: { [reactionType: string]: number };
     total: { [reactionType: string]: number };
   }>(pageId ? `/reactions?pageId=${pageId}` : null, internalApiFetcher);
 
-  const serverLove = data?.total?.love;
+  const serverCount = data?.total?.[reactionType];
 
   useEffect(() => {
-    if (serverLove !== undefined && !isSubmittingRef.current) {
-      setDisplayCount(serverLove);
+    if (serverCount !== undefined && !isSubmittingRef.current) {
+      setDisplayCount(serverCount);
     }
-  }, [serverLove]);
+  }, [serverCount]);
 
   useEffect(() => {
     return () => {
@@ -77,6 +123,7 @@ export const Reactions: FunctionComponent<BlockProps> = (props) => {
         const response = await InternalApi.post('/reactions', {
           pageId,
           increment: incrementAmount,
+          reactionType,
         });
 
         if (response.error) {
@@ -86,10 +133,10 @@ export const Reactions: FunctionComponent<BlockProps> = (props) => {
         pendingClicksRef.current = 0;
         await mutate(response.data, { revalidate: false });
       } catch (error) {
-        console.error('Error liking resource:', error);
+        console.error('Error reacting to resource:', error);
         pendingClicksRef.current = 0;
-        if (data?.total?.love !== undefined) {
-          setDisplayCount(data.total.love);
+        if (data?.total?.[reactionType] !== undefined) {
+          setDisplayCount(data.total[reactionType]);
         }
       } finally {
         isSubmittingRef.current = false;
@@ -105,7 +152,7 @@ export const Reactions: FunctionComponent<BlockProps> = (props) => {
       >
         <div className="flex flex-col text-left gap-1 z-10">
           <span className="uppercase font-bold text-xs tracking-wider text-sys-label-primary">
-            Love
+            {label}
           </span>
           <NumberFlow
             value={displayCount}
@@ -113,7 +160,7 @@ export const Reactions: FunctionComponent<BlockProps> = (props) => {
           />
         </div>
         <div className="mr-8 flex justify-center z-10">
-          <Icon />
+          <ReactionIcon className="fill-sys-label-primary" width={40} height={40} />
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-full">
           <motion.div
@@ -133,11 +180,16 @@ export const Reactions: FunctionComponent<BlockProps> = (props) => {
               viewBox="0 0 1440 320"
             >
               <path
-                fill="#FF6096"
+                fill={meta.gradientFrom}
                 d="m0 128 26.7-5.3c26.6-5.7 80.3-15.7 133.3 0 53.3 16.3 107 58.3 160 74.6 53.3 15.7 107 5.7 160 0 53.3-5.3 107-5.3 160 10.7 53.3 16 107 48 160 48 53.3 0 107-32 160-74.7 53.3-42.3 107-96.3 160-90.6 53.3 5.3 107 69.3 160 80 53.3 10.3 107-31.7 133-53.4l27-21.3v224H0Z"
               />
             </svg>
-            <div className="w-full h-full bg-linear-to-b from-[#FF6096] to-[#FF2A76]" />
+            <div
+              className="w-full h-full"
+              style={{
+                background: `linear-gradient(to bottom, ${meta.gradientFrom}, ${meta.gradientTo})`,
+              }}
+            />
           </motion.div>
         </div>
       </button>
