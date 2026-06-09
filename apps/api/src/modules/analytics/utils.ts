@@ -1,11 +1,11 @@
 import { FastifyRequest } from 'fastify';
 
 export const getIpAddress = (request: FastifyRequest): string => {
+  // No NODE_ENV short-circuit here: the API bundle inlines process.env at
+  // build time, so an env-dependent branch can get baked into production.
+  // In local dev there are no proxy headers, so request.ip already resolves
+  // to 127.0.0.1 via the fallback chain.
   const defaultIpAddress = '127.0.0.1';
-
-  if (process.env.NODE_ENV === 'development') {
-    return defaultIpAddress;
-  }
 
   const ip = request.ip;
 

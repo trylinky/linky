@@ -61,6 +61,9 @@ export const reactionMeta: Record<
   },
 };
 
+// Mirrors MAX_ALLOWED_REACTIONS_PER_IP on the API
+const MAX_REACTIONS_PER_USER = 16;
+
 export const Reactions: FunctionComponent<BlockProps> = (props) => {
   const { blockId, pageId, isEditable } = props;
 
@@ -105,7 +108,12 @@ export const Reactions: FunctionComponent<BlockProps> = (props) => {
 
   const handleClick = () => {
     if (isEditable) return;
-    if (displayCount >= 16) return;
+
+    // Limit on this user's own reactions (server buckets by IP), not the
+    // page-wide total — otherwise one page hitting 16 blocks every visitor.
+    const userReactionCount =
+      (data?.current?.[reactionType] ?? 0) + pendingClicksRef.current;
+    if (userReactionCount >= MAX_REACTIONS_PER_USER) return;
 
     setDisplayCount((prev) => prev + 1);
     pendingClicksRef.current += 1;

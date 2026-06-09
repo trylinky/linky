@@ -48,10 +48,12 @@
     "@types/node": "22.8.7",
     "@types/react": "^19.0.10",
     "fastify-tsconfig": "^2.0.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.0.0"
   },
   "scripts": {
     "dev": "dotenvx run -f ../../.env.local -- tsx watch src",
+    "test": "vitest run",
     "start:api": "node dist/index.js",
     "build:api": "node build.js && pnpm run sentry:sourcemaps",
     "typecheck": "tsc --noEmit",
