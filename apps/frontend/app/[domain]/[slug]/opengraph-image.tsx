@@ -11,7 +11,13 @@ export const size = {
 
 export const contentType = 'image/png';
 
-export default async function Image({ params }: { params: { slug: string } }) {
+export default async function Image({
+  params: promiseParams,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const params = await promiseParams;
+
   const { data, error } = await fetch(
     `${process.env.NEXT_PUBLIC_APP_URL}/api/pages/${params.slug}/opengraph-image`
   ).then((res) => res.json());
