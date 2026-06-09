@@ -1,13 +1,12 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 import { withAccelerate } from '@prisma/extension-accelerate';
-import { withOptimize } from '@prisma/extension-optimize';
 import { PrismaClient } from '@trylinky/prisma';
 import 'server-only';
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 
 const prismaClientSingleton = () => {
-  if (!process.env.PRISMA_OPTIMIZE_API_KEY) {
+  if (process.env.NODE_ENV === 'development') {
     return new PrismaClient({ adapter })
       .$extends({
         query: {
@@ -25,9 +24,7 @@ const prismaClientSingleton = () => {
       .$extends(withAccelerate());
   }
 
-  return new PrismaClient({ adapter })
-    .$extends(withOptimize({ apiKey: process.env.PRISMA_OPTIMIZE_API_KEY }))
-    .$extends(withAccelerate());
+  return new PrismaClient({ adapter }).$extends(withAccelerate());
 };
 
 type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>;

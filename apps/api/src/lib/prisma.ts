@@ -3,15 +3,22 @@ import { PrismaClient } from '@trylinky/prisma';
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 
+// Synchronous console I/O on every query is a measurable tax in production,
+// so only surface genuinely slow queries. No NODE_ENV branch: the esbuild
+// bundle inlines env vars at build time (see analytics/utils.ts).
+const SLOW_QUERY_THRESHOLD_MS = 50;
+
 const prismaClientSingleton = () => {
   return new PrismaClient({ adapter }).$extends({
     query: {
       async $allOperations({ model, operation, args, query }) {
         const before = Date.now();
         const result = await query(args);
-        const after = Date.now();
+        const duration = Date.now() - before;
 
-        console.log(`Query ${model}.${operation} took ${after - before}ms`);
+        if (duration >= SLOW_QUERY_THRESHOLD_MS) {
+          console.log(`Slow query ${model}.${operation} took ${duration}ms`);
+        }
 
         return result;
       },
