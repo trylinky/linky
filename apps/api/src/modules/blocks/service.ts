@@ -71,9 +71,7 @@ export async function getEnabledBlocks(user: User) {
     }
   });
 
-  const filteredBlocks = enabledBlocks.filter((block) => block !== 'header');
-
-  return filteredBlocks;
+  return enabledBlocks;
 }
 
 export async function checkUserHasAccessToBlock(
