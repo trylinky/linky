@@ -353,13 +353,13 @@ export async function deletePage(pageId: string) {
   });
 
   try {
-    for (const block of page.blocks) {
-      await prisma.block.delete({
-        where: {
-          id: block.id,
+    await prisma.block.deleteMany({
+      where: {
+        id: {
+          in: page.blocks.map((block) => block.id),
         },
-      });
-    }
+      },
+    });
   } catch (error) {
     captureException(error);
     return false;

@@ -127,12 +127,6 @@ async function postCreateBlockHandler(
     });
   }
 
-  const user = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-  });
-
   const maxNumberOfBlocks = 100;
   if (page.blocks.length >= maxNumberOfBlocks) {
     return response.status(400).send({
@@ -179,6 +173,9 @@ async function getEnabledBlocksHandler(
   const dbUser = await prisma.user.findUnique({
     where: {
       id: session.user.id,
+    },
+    select: {
+      role: true,
     },
   });
 

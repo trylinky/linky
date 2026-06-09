@@ -303,7 +303,7 @@ async function createPageHandler(
     });
   }
 
-  const teamPages = await prisma.page.findMany({
+  const teamPageCount = await prisma.page.count({
     where: {
       deletedAt: null,
       organization: {
@@ -315,28 +315,20 @@ async function createPageHandler(
         },
       },
     },
-    include: {
-      organization: {
-        select: {
-          members: {
-            select: {
-              role: true,
-            },
-          },
-        },
-      },
-    },
-  });
-
-  const user = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
   });
 
   const maxNumberOfPages = 100;
 
-  if (teamPages.length >= maxNumberOfPages) {
+  if (teamPageCount >= maxNumberOfPages) {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: session.user.id,
+      },
+      select: {
+        role: true,
+      },
+    });
+
     if (user?.role !== 'ADMIN') {
       return response.status(400).send({
         error: {

@@ -28,6 +28,10 @@ export async function getReactionsHandler(
     where: {
       id: pageId,
     },
+    // Existence check only — the full row drags large JSON columns along.
+    select: {
+      id: true,
+    },
   });
 
   if (!page) {

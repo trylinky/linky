@@ -54,7 +54,7 @@ export async function createBlock(
   return newBlock;
 }
 
-export async function getEnabledBlocks(user: User) {
+export async function getEnabledBlocks(user: Pick<User, 'role'>) {
   if (!user) {
     return [];
   }
