@@ -10,7 +10,7 @@ export interface ArticleMetadata {
 export interface LearnPostMetadata {
   title: string;
   publishDate: string;
-  category: 'link-in-bio' | 'linky';
+  category: 'link-in-bio' | 'linky' | 'growth';
 }
 
 declare module '*.mdx' {

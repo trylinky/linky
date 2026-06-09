@@ -1,0 +1,27 @@
+import { ArticleTemplate } from '../../learn-template';
+
+export const metadata = {
+  title: 'What should I put in my link in bio?',
+  publishDate: '2026-06-05',
+  category: 'link-in-bio',
+};
+
+A good link-in-bio page leads with whatever you most want people to do right now, then lists your evergreen links below it. Put your single most important call-to-action first - a new release, a product, a sign-up - and keep the rest short and scannable.
+
+## Ideas for what to include
+
+- **Your latest thing.** A new video, song, blog post, or product drop at the very top.
+- **Your shop or store.** Link straight to your products or a featured item.
+- **A newsletter or waitlist sign-up.** Capture an audience you actually own.
+- **Your other socials.** Make it easy to follow you everywhere.
+- **Music and video.** A live [Spotify block](/i/integrations/spotify) or your [latest TikTok](/i/integrations/tiktok) keeps the page fresh on its own.
+- **Contact or booking.** An email, a booking link, or a "work with me" page.
+
+## Keep it focused
+
+You don't need every link you've ever made - too many choices and people click nothing. Lead with one clear action, group the rest, and reorder them whenever your priorities change. If you're not sure where to start, browse [templates](/i/templates) or see [real examples](/i/explore) from other creators for inspiration.
+
+export default function MDXArticle(props) {
+return <ArticleTemplate meta={metadata}>{props.children}</ArticleTemplate>;
+
+}

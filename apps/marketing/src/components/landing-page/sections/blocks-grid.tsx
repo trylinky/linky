@@ -3,10 +3,13 @@ import {
   ImageMockup,
   InstagramLatestPostMockup,
   LinkBoxMockup,
+  ReactionsMockup,
   SpotifyPlayingNowMockup,
   StackMockup,
+  TiktokFollowerCountMockup,
 } from '@/components/landing-page/ui-mockups';
 import { MarketingContainer } from '@/components/marketing-container';
+import { MinimalHeading } from '@/components/minimal-heading';
 import { Prisma } from '@trylinky/prisma';
 
 type JsonValue = Prisma.JsonValue;
@@ -88,17 +91,16 @@ export const themeColorToCssValue = (color?: JsonValue): string => {
 
 export function BlocksGrid() {
   return (
-    <section className="py-20 bg-white">
+    <section className="border-t border-zinc-950/5 bg-white py-20 md:py-28">
       <MarketingContainer>
-        <h2 className="text-4xl font-bold text-center tracking-tight text-gray-900">
-          Beautifully designed blocks
-        </h2>
-        <p className="text-base md:text-lg text-pretty text-center">
-          Use our drag-and-drop builder to create your page.
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-7 gap-4 md:gap-8 mt-8 md:mt-16">
+        <MinimalHeading
+          eyebrow="Blocks"
+          heading="Beautifully designed blocks"
+          body="Not just links. Drag and drop rich, live blocks that keep your page fresh on their own."
+        />
+        <div className="grid grid-cols-1 md:grid-cols-7 gap-4 md:gap-8 mt-12 md:mt-16">
           <div className="col-span-1 md:col-span-2 flex flex-col justify-start gap-4 md:gap-8">
-            <div className="hidden md:block w-full h-24 bg-[#dddace] rounded-3xl" />
+            <ReactionsMockup className="hidden h-24 md:flex" />
             <GithubCommitsThisMonthMockup className="h-32 md:h-32 w-full md:w-[calc(100%+2rem)] md:-ml-8" />
             <StackMockup className="h-60 md:h-80" />
           </div>
@@ -109,7 +111,7 @@ export function BlocksGrid() {
           <div className="col-span-1 md:col-span-2 flex flex-col justify-start gap-4 md:gap-8">
             <SpotifyPlayingNowMockup className="h-32" />
             <ImageMockup className="h-56 w-full md:w-[calc(100%+2rem)] md:ml-0" />
-            <div className="hidden md:block w-full h-24 bg-[#dddace] rounded-3xl" />
+            <TiktokFollowerCountMockup className="hidden h-24 md:flex" />
           </div>
         </div>
       </MarketingContainer>

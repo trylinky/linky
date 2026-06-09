@@ -1,0 +1,25 @@
+import { ArticleTemplate } from '../../learn-template';
+
+export const metadata = {
+  title: 'How do I add a link in bio on Twitter (X)?',
+  publishDate: '2026-06-09',
+  category: 'link-in-bio',
+};
+
+To add a link to your Twitter (now X) bio, open your profile, tap **Edit profile**, paste your URL into the **Website** field, and tap **Save**. The link then shows up beneath your bio with a small link icon. X also turns any URL you type directly into your bio text into a clickable link.
+
+The catch is that X only gives you **one** dedicated website link. If you want to send followers to more than one place - your shop, your latest video, your newsletter, your other socials - point that single link at a link-in-bio page instead. One tidy URL then opens a hub of everything you want to share, and you can change what's on it any time without touching your X profile.
+
+## Step by step
+
+1. Create a free link-in-bio page and claim your username (for example, `lin.ky/yourname`).
+2. Add a block for each thing you want to share, then publish.
+3. On X, open **Edit profile** and paste your link-in-bio URL into the **Website** field.
+4. Save - your followers now reach everything from one link.
+
+You can build a page like this for free with [Linky](/i/templates). It also supports a [custom domain](/i/pricing) on paid plans, so your link can match your brand instead of a generic short URL.
+
+export default function MDXArticle(props) {
+return <ArticleTemplate meta={metadata}>{props.children}</ArticleTemplate>;
+
+}

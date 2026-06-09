@@ -2,8 +2,8 @@ import {
   Heading,
   TableOfContents,
 } from '@/app/blog/[blogPostSlug]/rich-text-components';
-import { CallToActionBlock } from '@/components/landing-page/CallToActionBlock';
 import { MarketingContainer } from '@/components/marketing-container';
+import { MinimalCta } from '@/components/pseo/pseo-minimal-cta';
 import { authors } from '@/lib/cms/authors';
 import { getBlogPost } from '@/lib/cms/get-blog-post-by-slug';
 import { getBlogPosts } from '@/lib/cms/get-blog-posts';
@@ -11,7 +11,6 @@ import { RichText } from '@graphcms/rich-text-react-renderer';
 import { ElementNode, RichTextContent } from '@graphcms/rich-text-types';
 import slugify from '@sindresorhus/slugify';
 import { buildBreadcrumbSchema, serializeJsonLd } from '@trylinky/seo';
-import { Button } from '@trylinky/ui';
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -144,17 +143,60 @@ export default async function BlogPostPage({
   return (
     <>
       <article>
-        <div className="bg-linear-to-b from-[#f9f9f8] to-[#f5f3ea] pt-16">
+        <div className="border-b border-zinc-950/5 bg-linear-to-b from-white to-[#F5F5F3] pt-32 md:pt-40">
           <MarketingContainer>
-            <header className="flex flex-col items-center max-w-2xl mx-auto pt-16 pb-8">
+            <header className="mx-auto flex max-w-2xl flex-col items-center pb-8 text-center">
+              <p className="flex items-center gap-2 text-sm font-medium text-zinc-500">
+                <span className="inline-block h-px w-6 bg-zinc-300" />
+                Blog
+              </p>
+              <h1 className="mt-4 text-pretty text-4xl font-semibold tracking-tight text-zinc-900 lg:text-5xl">
+                {blogPost.title}
+              </h1>
+              <div className="mt-6 mb-2 flex items-center gap-3">
+                {author?.avatar && (
+                  <Image
+                    src={author.avatar}
+                    alt={author.name}
+                    width={36}
+                    height={36}
+                    className="rounded-full ring-1 ring-zinc-950/10"
+                  />
+                )}
+                <span className="text-sm font-medium text-zinc-700">
+                  by{' '}
+                  <a
+                    href={author?.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-zinc-900 underline underline-offset-2 hover:text-zinc-600"
+                  >
+                    {author?.name}
+                  </a>
+                </span>
+                <span className="text-zinc-300">·</span>
+                <time
+                  dateTime={blogPost.displayedPublishedAt}
+                  className="text-sm text-zinc-500"
+                >
+                  {Intl.DateTimeFormat('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  }).format(new Date(blogPost.displayedPublishedAt))}
+                </time>
+              </div>
+              <p className="mt-2 mb-6 max-w-2xl text-center text-lg text-zinc-500">
+                {blogPost.description}
+              </p>
               {blogPost.featuredImage?.url && (
-                <div className="w-full mb-8 rounded-2xl overflow-hidden shadow-lg bg-slate-100 aspect-2/1 relative">
+                <div className="relative mb-2 aspect-2/1 w-full overflow-hidden rounded-2xl bg-zinc-100 ring-1 ring-zinc-950/5">
                   <Image
                     src={blogPost.featuredImage.url}
                     alt={blogPost.title}
                     width={800}
                     height={400}
-                    className="object-cover w-full h-full"
+                    className="h-full w-full object-cover"
                     style={{
                       objectFit: 'cover',
                       width: '100%',
@@ -164,45 +206,6 @@ export default async function BlogPostPage({
                   />
                 </div>
               )}
-              <h1 className="text-pretty text-5xl lg:text-6xl font-black text-slate-900 tracking-tight text-center">
-                {blogPost.title}
-              </h1>
-              <div className="flex items-center gap-3 mt-6 mb-2">
-                {author?.avatar && (
-                  <Image
-                    src={author.avatar}
-                    alt={author.name}
-                    width={40}
-                    height={40}
-                    className="rounded-full border border-slate-200 shadow"
-                  />
-                )}
-                <span className="text-base font-semibold text-stone-800">
-                  by{' '}
-                  <a
-                    href={author?.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline hover:text-blue-600"
-                  >
-                    {author?.name}
-                  </a>
-                </span>
-                <span className="text-slate-400">·</span>
-                <time
-                  dateTime={blogPost.displayedPublishedAt}
-                  className="text-base text-stone-800"
-                >
-                  {Intl.DateTimeFormat('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  }).format(new Date(blogPost.displayedPublishedAt))}
-                </time>
-              </div>
-              <p className="text-lg text-slate-700 text-center max-w-2xl mt-2 mb-4">
-                {blogPost.description}
-              </p>
               {/* Social Share Buttons (top, mobile only) */}
               <div className="flex gap-2 justify-center mt-2 mb-2">
                 {shareIcons.map((icon) => (
@@ -228,7 +231,7 @@ export default async function BlogPostPage({
 
             <div className="flex flex-col lg:flex-row gap-8 mx-auto w-full justify-between">
               <div className="flex-1 min-w-0 max-w-3xl">
-                <div className="prose prose-lg max-w-3xl py-16 mx-auto">
+                <div className="prose prose-lg prose-zinc max-w-3xl py-16 mx-auto">
                   <RichText
                     content={blogPost.content.raw}
                     renderers={{
@@ -324,51 +327,41 @@ export default async function BlogPostPage({
             </div>
           </MarketingContainer>
         </div>
-        <MarketingContainer className="mt-8 mb-16">
-          <h3 className="text-2xl font-bold mb-6 text-slate-900">Read more</h3>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {readMorePosts.map((post) => {
-              const postAuthor = authors.find((a) => a.id === post.author);
-              return (
-                <div
-                  key={post.slug}
-                  className="rounded-xl bg-white shadow-md hover:shadow-xl transition-shadow p-4 flex flex-col h-full border border-slate-100"
-                >
-                  {post.featuredImage?.url && (
-                    <div className="w-full h-32 mb-3 rounded-lg overflow-hidden bg-slate-100 relative">
-                      <Image
-                        src={post.featuredImage.url}
-                        alt={post.title}
-                        fill
-                        className="object-cover w-full h-full"
-                      />
-                    </div>
-                  )}
-                  <h4 className="text-lg font-bold text-slate-900 mb-1">
-                    <Link href={`/i/blog/${post.slug}`}>{post.title}</Link>
-                  </h4>
-
-                  <p className="text-sm text-slate-600 mb-2 line-clamp-3">
-                    {post.description}
-                  </p>
-                  <Button
-                    asChild
-                    variant="outline"
-                    size="sm"
-                    className="mt-auto"
-                  >
-                    <Link href={`/i/blog/${post.slug}`}>Read more</Link>
-                  </Button>
-                </div>
-              );
-            })}
+        <MarketingContainer className="mt-8 mb-20">
+          <h2 className="mb-8 text-2xl font-semibold tracking-tight text-zinc-900">
+            Read more
+          </h2>
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {readMorePosts.map((post) => (
+              <Link
+                key={post.slug}
+                href={`/i/blog/${post.slug}`}
+                className="flex h-full flex-col rounded-2xl bg-white p-5 ring-1 ring-zinc-950/5 transition-shadow hover:shadow-sm"
+              >
+                {post.featuredImage?.url && (
+                  <div className="relative mb-4 h-40 w-full overflow-hidden rounded-xl bg-zinc-100">
+                    <Image
+                      src={post.featuredImage.url}
+                      alt={post.title}
+                      fill
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                )}
+                <h3 className="mb-2 text-lg font-semibold tracking-tight text-zinc-900">
+                  {post.title}
+                </h3>
+                <p className="mb-4 flex-1 text-sm leading-relaxed text-zinc-500 line-clamp-3">
+                  {post.description}
+                </p>
+                <span className="mt-auto text-sm font-medium text-zinc-900">
+                  Read more →
+                </span>
+              </Link>
+            ))}
           </div>
         </MarketingContainer>
-        <MarketingContainer>
-          <div className="mb-24">
-            <CallToActionBlock />
-          </div>
-        </MarketingContainer>
+        <MinimalCta />
       </article>
       <script
         type="application/ld+json"

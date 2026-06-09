@@ -301,3 +301,56 @@ export const LinkBoxMockup = ({
     </CoreBlockMock>
   );
 };
+
+export const ReactionsMockup = ({ className }: { className?: string }) => {
+  return (
+    <CoreBlockMock
+      className={cn(
+        'flex items-center bg-linear-to-tr from-[#FF2E63] to-[#FF7AA2] py-3 px-5',
+        className
+      )}
+    >
+      <div className="flex w-full items-center justify-between">
+        <div className="flex flex-col">
+          <p className="text-xs font-bold uppercase text-white/70">Love</p>
+          <p className="text-2xl font-medium text-white">827</p>
+        </div>
+        <svg
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          className="size-8 text-white"
+          aria-hidden="true"
+        >
+          <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+        </svg>
+      </div>
+    </CoreBlockMock>
+  );
+};
+
+export const TiktokFollowerCountMockup = ({
+  className,
+}: {
+  className?: string;
+}) => {
+  return (
+    <CoreBlockMock className={cn('flex items-center py-3 px-5', className)}>
+      <div className="flex w-full items-center justify-between">
+        <div className="flex flex-col">
+          <p className="text-xs font-bold uppercase tracking-wider text-sys-label-secondary">
+            TikTok followers
+          </p>
+          <p className="text-2xl font-medium text-sys-label-primary">1.2M</p>
+        </div>
+        <svg
+          viewBox="0 0 448 512"
+          fill="currentColor"
+          className="size-7 text-sys-label-primary"
+          aria-hidden="true"
+        >
+          <path d="M448 209.91a210.06 210.06 0 01-122.77-39.25v178.72A162.55 162.55 0 11185 188.31v89.89a74.62 74.62 0 1052.23 71.18V0h88a121.18 121.18 0 001.86 22.17A122.18 122.18 0 00381 102.39a121.43 121.43 0 0067 20.14z" />
+        </svg>
+      </div>
+    </CoreBlockMock>
+  );
+};

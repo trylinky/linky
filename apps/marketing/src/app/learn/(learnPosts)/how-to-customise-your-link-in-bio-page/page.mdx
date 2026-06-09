@@ -1,0 +1,27 @@
+import { ArticleTemplate } from '../../learn-template';
+
+export const metadata = {
+  title: 'How do I customise my link in bio page?',
+  publishDate: '2026-05-25',
+  category: 'linky',
+};
+
+To customise your link-in-bio page, change its theme - the colours, fonts, and backgrounds - and arrange your blocks so the most important ones come first. With Linky you start from a theme and adjust every colour role to match your brand, then drag your blocks into the order you want.
+
+A page that looks like *you* - rather than a generic default - builds trust and makes people more likely to click.
+
+## What you can change
+
+- **Colours.** Adjust the page background, card colours, borders, and text to fit your brand palette.
+- **Fonts and feel.** Pick a style that suits your audience, from clean and minimal to bold and colourful.
+- **Layout and order.** Put your top priority - a release, a product, a sign-up - at the very top, and group the rest.
+- **Profile.** Add your photo, name, and a short bio so the page feels personal.
+
+## The fastest way to start
+
+Browse the [templates](/i/templates) and pick one close to the look you want - each is fully editable, so you only tweak from there. You can also see how other creators set theirs up in [explore](/i/explore). When you're happy, publish and share your link. It's [free](/i/pricing) to build and customise.
+
+export default function MDXArticle(props) {
+return <ArticleTemplate meta={metadata}>{props.children}</ArticleTemplate>;
+
+}

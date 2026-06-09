@@ -2,13 +2,16 @@ import type { ReactNode } from 'react';
 import type { FaqEntry } from './pseo-faq';
 import { PseoFaqSection } from './pseo-faq-section';
 import { PseoCtaCard } from './pseo-cta-card';
+import { MinimalCta } from './pseo-minimal-cta';
 
 export function PseoLayout({
   faqs,
   children,
+  minimal = false,
 }: {
   faqs: FaqEntry[];
   children: ReactNode;
+  minimal?: boolean;
 }) {
   return (
     <div className="min-h-screen">
@@ -16,12 +19,10 @@ export function PseoLayout({
       {children}
 
       {/* FAQ */}
-      <PseoFaqSection faqs={faqs} />
+      <PseoFaqSection faqs={faqs} minimal={minimal} />
 
       {/* CTA */}
-      <section className="bg-white pb-8 md:pb-16">
-        <PseoCtaCard scheme="coral" />
-      </section>
+      {minimal ? <MinimalCta /> : <PseoCtaCard />}
     </div>
   );
 }

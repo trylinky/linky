@@ -24,7 +24,7 @@ const INTEGRATIONS: IntegrationContent[] = [
       },
       {
         heading: 'How to add Spotify to your Linky page',
-        body: 'Start by creating a free Linky page at trylinky.com — it takes about 30 seconds. In the editor, click "Add block" and choose "Now Playing" from the Spotify section. You will be prompted to connect your Spotify account via OAuth; Linky only requests read access to your currently playing track and recently played history. Hit publish and your page is live.',
+        body: 'Start by creating a free Linky page at trylinky.com - it takes about 30 seconds. In the editor, click "Add block" and choose "Now Playing" from the Spotify section. You will be prompted to connect your Spotify account via OAuth; Linky only requests read access to your currently playing track and recently played history. Hit publish and your page is live.',
       },
       {
         heading: 'Why musicians and music lovers use it',
@@ -39,7 +39,7 @@ const INTEGRATIONS: IntegrationContent[] = [
       {
         question: 'Does the Now Playing block update automatically?',
         answer:
-          'Yes. The block updates automatically — the Spotify API response is refreshed roughly every minute, so visitors see your current or most recent track without any manual intervention.',
+          'Yes. The block updates automatically - the Spotify API response is refreshed roughly every minute, so visitors see your current or most recent track without any manual intervention.',
       },
       {
         question: 'What happens when I am not listening to anything?',
@@ -71,7 +71,7 @@ const INTEGRATIONS: IntegrationContent[] = [
       'instagram-latest-post': {
         name: 'Latest Post',
         description:
-          'Shows your most recent Instagram post — or a configurable number of recent posts — fetched from your connected account and refreshed about once a minute.',
+          'Shows your most recent Instagram post - or a configurable number of recent posts - fetched from your connected account and refreshed about once a minute.',
       },
       'instagram-follower-count': {
         name: 'Follower Count',
@@ -82,15 +82,15 @@ const INTEGRATIONS: IntegrationContent[] = [
     sections: [
       {
         heading: 'What your Instagram blocks show',
-        body: 'Linky offers two Instagram blocks you can mix and match. The Latest Post block embeds your most recent Instagram post directly on your link page — you can show anywhere from one to ten recent posts depending on how much visual space you want to give your feed. The Follower Count block shows your up-to-date follower number, which is a strong social-proof signal for brands and creators negotiating sponsorship deals.',
+        body: 'Linky offers two Instagram blocks you can mix and match. The Latest Post block embeds your most recent Instagram post directly on your link page - you can show anywhere from one to ten recent posts depending on how much visual space you want to give your feed. The Follower Count block shows your up-to-date follower number, which is a strong social-proof signal for brands and creators negotiating sponsorship deals.',
       },
       {
         heading: 'How to connect Instagram to your Linky page',
-        body: 'Because Instagram\'s API requires an official account type, you will need a Business or Creator account (not a personal account) to use these blocks. In the Linky editor, add a "Latest Post" or "Follower Count" block, then follow the OAuth flow to connect your Instagram account. The connection is read-only — Linky can read your posts and profile but cannot post, message, or modify your account. Once connected, both blocks refresh automatically about once a minute so your page stays current.',
+        body: 'Because Instagram\'s API requires an official account type, you will need a Business or Creator account (not a personal account) to use these blocks. In the Linky editor, add a "Latest Post" or "Follower Count" block, then follow the OAuth flow to connect your Instagram account. The connection is read-only - Linky can read your posts and profile but cannot post, message, or modify your account. Once connected, both blocks refresh automatically about once a minute so your page stays current.',
       },
       {
         heading: 'Why Instagram integration matters for creators',
-        body: 'Instagram is typically where creators have the most visual content, yet the platform only allows one external link. Bringing your Instagram feed to your link page lets you showcase that visual work to anyone who finds you from a podcast, YouTube channel, or email list — audiences who may not follow you on Instagram yet. Displaying your follower count alongside your content adds the credibility signal that helps convert casual visitors into followers.',
+        body: 'Instagram is typically where creators have the most visual content, yet the platform only allows one external link. Bringing your Instagram feed to your link page lets you showcase that visual work to anyone who finds you from a podcast, YouTube channel, or email list - audiences who may not follow you on Instagram yet. Displaying your follower count alongside your content adds the credibility signal that helps convert casual visitors into followers.',
       },
       {
         heading: 'Combine with other blocks for a complete landing page',
@@ -144,15 +144,15 @@ const INTEGRATIONS: IntegrationContent[] = [
     sections: [
       {
         heading: 'What your TikTok blocks show',
-        body: 'Linky\'s TikTok integration offers two blocks. The Follower Count block surfaces your real audience size — a key credibility metric when you are pitching brand deals or driving sign-ups from other channels. The Latest Post block previews your most recent TikTok, putting your content front and centre for anyone who finds your link in bio from a bio link, QR code, or email signature.',
+        body: 'Linky\'s TikTok integration offers two blocks. The Follower Count block surfaces your real audience size - a key credibility metric when you are pitching brand deals or driving sign-ups from other channels. The Latest Post block previews your most recent TikTok, putting your content front and centre for anyone who finds your link in bio from a bio link, QR code, or email signature.',
       },
       {
         heading: 'How to add TikTok to your Linky page',
-        body: 'In the Linky editor, add either the "Follower Count" or "Latest Post" block from the TikTok section, then complete the OAuth flow to authorise Linky with your TikTok account. Linky only requests read access to your public profile and videos. Once connected, both blocks update automatically about once a minute — no manual updates needed. You can use one or both blocks on the same page.',
+        body: 'In the Linky editor, add either the "Follower Count" or "Latest Post" block from the TikTok section, then complete the OAuth flow to authorise Linky with your TikTok account. Linky only requests read access to your public profile and videos. Once connected, both blocks update automatically about once a minute - no manual updates needed. You can use one or both blocks on the same page.',
       },
       {
         heading: 'Why TikTok creators rely on a strong link page',
-        body: 'TikTok\'s algorithm regularly pushes content to new audiences who have never seen your profile before. When a viral moment drives a spike in profile visits, your link in bio is the only place those curious viewers can go deeper. A page that immediately shows your follower count and latest video gives that traffic a compelling reason to follow and explore — turning viral views into lasting growth on other platforms.',
+        body: 'TikTok\'s algorithm regularly pushes content to new audiences who have never seen your profile before. When a viral moment drives a spike in profile visits, your link in bio is the only place those curious viewers can go deeper. A page that immediately shows your follower count and latest video gives that traffic a compelling reason to follow and explore - turning viral views into lasting growth on other platforms.',
       },
       {
         heading: 'Round out your page with links and other content',
@@ -163,7 +163,7 @@ const INTEGRATIONS: IntegrationContent[] = [
       {
         question: 'How do I connect my TikTok account?',
         answer:
-          'In the Linky editor, add a TikTok block and you will be guided through an OAuth authorisation flow. Linky only requests read access to your profile and videos — no posting or account management permissions are requested.',
+          'In the Linky editor, add a TikTok block and you will be guided through an OAuth authorisation flow. Linky only requests read access to your profile and videos - no posting or account management permissions are requested.',
       },
       {
         question: 'Does my follower count update automatically?',
@@ -205,7 +205,7 @@ const INTEGRATIONS: IntegrationContent[] = [
       },
       {
         heading: 'How to add your Threads follower count to Linky',
-        body: 'In the Linky editor, add the "Follower Count" block from the Threads section. You will be walked through an OAuth authorisation flow where you grant Linky read-only access to your Threads profile. Once connected, your follower count appears on your page and updates automatically about once a minute — no manual updates required.',
+        body: 'In the Linky editor, add the "Follower Count" block from the Threads section. You will be walked through an OAuth authorisation flow where you grant Linky read-only access to your Threads profile. Once connected, your follower count appears on your page and updates automatically about once a minute - no manual updates required.',
       },
       {
         heading: 'Why showing your Threads audience matters',
@@ -213,7 +213,7 @@ const INTEGRATIONS: IntegrationContent[] = [
       },
       {
         heading: 'Combine with a link to your Threads profile',
-        body: 'The Follower Count block works best alongside a Link Box that sends visitors directly to your Threads profile. Place the count next to a short call to action — "Join the conversation on Threads" — and you have a compact, high-converting placement. You can also combine it with your Instagram blocks if you want to show your broader Meta ecosystem reach in one place.',
+        body: 'The Follower Count block works best alongside a Link Box that sends visitors directly to your Threads profile. Place the count next to a short call to action - "Join the conversation on Threads" - and you have a compact, high-converting placement. You can also combine it with your Instagram blocks if you want to show your broader Meta ecosystem reach in one place.',
       },
     ],
     faqs: [
@@ -230,7 +230,7 @@ const INTEGRATIONS: IntegrationContent[] = [
       {
         question: 'Do I need a separate Threads account, or is it linked to Instagram?',
         answer:
-          'Threads accounts are tied to an Instagram account at creation, but you authorise Linky separately via the Threads OAuth flow. You do not need to connect your Instagram account first — the two integrations in Linky are independent.',
+          'Threads accounts are tied to an Instagram account at creation, but you authorise Linky separately via the Threads OAuth flow. You do not need to connect your Instagram account first - the two integrations in Linky are independent.',
       },
       {
         question: 'Is the Threads integration free?',
@@ -246,7 +246,7 @@ const INTEGRATIONS: IntegrationContent[] = [
     name: 'GitHub',
     h1: 'Add GitHub to your link in bio',
     answer:
-      'Add the GitHub Commits block to your Linky page to display your recent GitHub commit activity over roughly the past 30 days — a live proof-of-work signal that requires only your GitHub username.',
+      'Add the GitHub Commits block to your Linky page to display your recent GitHub commit activity over roughly the past 30 days - a live proof-of-work signal that requires only your GitHub username.',
     targetKeyword: 'github link in bio',
     blockCopy: {
       'github-commits-this-month': {
@@ -258,15 +258,15 @@ const INTEGRATIONS: IntegrationContent[] = [
     sections: [
       {
         heading: 'What your GitHub block shows',
-        body: 'The GitHub Commits block counts your recent commit contributions over a rolling window of roughly the past 30 days and displays that number on your Linky page. It is a live activity signal — visitors see a number that reflects your recent shipping cadence rather than a static badge. Only your GitHub username is needed; no OAuth connection or personal access token is required from you.',
+        body: 'The GitHub Commits block counts your recent commit contributions over a rolling window of roughly the past 30 days and displays that number on your Linky page. It is a live activity signal - visitors see a number that reflects your recent shipping cadence rather than a static badge. Only your GitHub username is needed; no OAuth connection or personal access token is required from you.',
       },
       {
         heading: 'How to add GitHub commits to your Linky page',
-        body: 'In the Linky editor, add the "Commits This Month" block from the GitHub section. You will be prompted to enter your GitHub username — that is all the configuration required. Because the block uses a server-side GitHub API connection, no OAuth authorisation or personal token is needed from you. Hit publish and your commit count will be live on your page within seconds.',
+        body: 'In the Linky editor, add the "Commits This Month" block from the GitHub section. You will be prompted to enter your GitHub username - that is all the configuration required. Because the block uses a server-side GitHub API connection, no OAuth authorisation or personal token is needed from you. Hit publish and your commit count will be live on your page within seconds.',
       },
       {
         heading: 'Why developers use it on their personal page',
-        body: 'Developers, open-source maintainers, and engineering job seekers use the commits block as a concise proof-of-work signal. Rather than linking to a GitHub profile and hoping visitors dig through repositories, the block surfaces the headline metric — how active you are right now — right on your link page. It is particularly useful on a personal site or portfolio landing page where you want to communicate that you are actively building.',
+        body: 'Developers, open-source maintainers, and engineering job seekers use the commits block as a concise proof-of-work signal. Rather than linking to a GitHub profile and hoping visitors dig through repositories, the block surfaces the headline metric - how active you are right now - right on your link page. It is particularly useful on a personal site or portfolio landing page where you want to communicate that you are actively building.',
       },
       {
         heading: 'Pair it with links to your best work',
@@ -292,7 +292,7 @@ const INTEGRATIONS: IntegrationContent[] = [
       {
         question: 'What counts as a commit in the block?',
         answer:
-          'The block counts your commit contributions as reported by the GitHub API for the rolling ~30-day window. Only your GitHub username is needed to display this activity — no additional setup is required.',
+          'The block counts your commit contributions as reported by the GitHub API for the rolling ~30-day window. Only your GitHub username is needed to display this activity - no additional setup is required.',
       },
     ],
   },

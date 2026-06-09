@@ -1,0 +1,24 @@
+import { ArticleTemplate } from '../../learn-template';
+
+export const metadata = {
+  title: 'How do I add a link in bio on LinkedIn?',
+  publishDate: '2026-06-03',
+  category: 'link-in-bio',
+};
+
+LinkedIn gives you a few places to add a link. On a personal profile, open **Edit intro** and add a website under **Contact info**, or pin a link to the top of your profile using the **Featured** section. On a LinkedIn **Page**, add your URL in the **Website** field under **Edit page**, and consider adding a custom button.
+
+Because each of these spots holds a single link, a link-in-bio page is the easiest way to share more than one thing - your portfolio, your latest post, a booking link, a newsletter - from one URL that you can reorder any time.
+
+## Step by step
+
+1. Build a free link-in-bio page and add a block for each destination.
+2. Copy your URL, e.g. `lin.ky/yourname`.
+3. On LinkedIn, add it under **Contact info**, the **Featured** section, or your Page's **Website** field.
+
+The same link works across LinkedIn, Instagram, X, and your email signature, so you only ever maintain one place. Start [free](/i/pricing) and pick a [template](/i/templates) that looks professional out of the box.
+
+export default function MDXArticle(props) {
+return <ArticleTemplate meta={metadata}>{props.children}</ArticleTemplate>;
+
+}

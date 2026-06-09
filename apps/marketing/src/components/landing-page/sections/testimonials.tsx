@@ -1,17 +1,18 @@
 import { Testimonials } from '@/components/landing-page/testimonials';
 import { MarketingContainer } from '@/components/marketing-container';
+import { MinimalHeading } from '@/components/minimal-heading';
 
 export function TestimonialsSection() {
   return (
-    <section className="pt-24 bg-linear-to-b from-transparent to-white">
+    <section className="border-t border-zinc-950/5 bg-white pt-20 md:pt-28">
       <MarketingContainer className="">
-        <div className="max-w-4xl mx-auto text-center mb-8 md:mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-2">
-            Built by creators, for creators
-          </h2>
-          <p className="text-base md:text-lg text-pretty">
-            Linky is trusted by over 3000 creators to power their link-in-bio.
-          </p>
+        <div className="mb-12 flex justify-center md:mb-16">
+          <MinimalHeading
+            center
+            eyebrow="Testimonials"
+            heading="Built by creators, for creators"
+            body="Linky is trusted by over 3000 creators to power their link-in-bio."
+          />
         </div>
 
         <div className="relative">

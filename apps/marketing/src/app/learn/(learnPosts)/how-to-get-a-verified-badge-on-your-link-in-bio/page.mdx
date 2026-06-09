@@ -1,0 +1,27 @@
+import { ArticleTemplate } from '../../learn-template';
+
+export const metadata = {
+  title: 'How do I get a verified badge on my link in bio?',
+  publishDate: '2026-05-14',
+  category: 'linky',
+};
+
+A verified badge shows visitors that a page genuinely belongs to you - useful for reassuring your audience that they're in the right place and not on an impersonator's copy. On Linky, the verification badge is available on the **Premium** plan and appears on your page once enabled.
+
+## Why it matters
+
+- **Trust.** A badge signals authenticity, so people click your links with confidence.
+- **Protection.** As you grow, copycat pages become more common; a verified mark helps your real page stand apart.
+
+## How to get one
+
+1. Upgrade to [Premium](/i/pricing) - verification is included alongside custom domains, analytics, and unlimited blocks.
+2. Enable the badge on your page from the editor.
+3. Publish, and the badge shows next to your name.
+
+Pairing the badge with a [custom domain](/i/learn/can-i-use-my-own-domain) and an on-brand [theme](/i/learn/how-to-customise-your-link-in-bio-page) makes your page look unmistakably official. See everything Premium includes on the [pricing page](/i/pricing).
+
+export default function MDXArticle(props) {
+return <ArticleTemplate meta={metadata}>{props.children}</ArticleTemplate>;
+
+}

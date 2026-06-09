@@ -1,15 +1,19 @@
+import { MarketingContainer } from '@/components/marketing-container';
+import { MinimalHeading } from '@/components/minimal-heading';
 import { IntegrationBlocks, isRealBlock } from '@/components/pseo/integration-blocks';
+import { INTEGRATION_LOGOS } from '@/components/pseo/integration-logos';
 import { PseoBenefits } from '@/components/pseo/pseo-benefits';
-import { PseoHero } from '@/components/pseo/pseo-hero';
+import { PseoFeatureSections } from '@/components/pseo/pseo-feature-sections';
 import { PseoLayout } from '@/components/pseo/pseo-layout';
-import { PseoProse } from '@/components/pseo/pseo-prose';
-import { PseoBand, PseoEyebrow, PseoSectionHeading } from '@/components/pseo/pseo-section';
-import { ThemeMock } from '@/components/pseo/theme-mock';
+import { MinimalHero } from '@/components/pseo/pseo-minimal-hero';
+import { hslToCss, ThemeMock } from '@/components/pseo/theme-mock';
 import { getBlockPresentation } from '@/content/block-copy';
+import { NICHE_PREVIEW } from '@/content/niche-presentation';
 import { getNiche, getNicheSlugs } from '@/content/niches';
-import { getTemplate, templates } from '@/content/templates';
+import { getTemplate } from '@/content/templates';
 import { buildPseoMetadata } from '@/lib/seo-metadata';
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
@@ -48,76 +52,119 @@ export default async function NichePage(props: {
     ? getTemplate(c.recommendedTemplate)
     : null;
 
-  const heroPalette =
-    recommendedTemplate?.palette ??
-    getTemplate('violet')?.palette ??
-    templates[0].palette;
-
   const relatedIntegrations = c.relatedIntegrations ?? [];
 
+  const heroPalette =
+    (recommendedTemplate ?? getTemplate('violet'))?.palette ?? null;
+  const heroPreview = NICHE_PREVIEW[c.slug];
+  const hasBlocks = Object.keys(blockCopy).length > 0;
+
   return (
-    <PseoLayout faqs={c.faqs}>
-      <PseoHero
+    <PseoLayout faqs={c.faqs} minimal>
+      <MinimalHero
         eyebrow="Link in bio"
         h1={c.h1}
         answer={c.answer}
-        visual={<ThemeMock palette={heroPalette} name={c.name} />}
+        secondaryHref={hasBlocks ? '#blocks' : '/i/templates'}
+        secondaryLabel={hasBlocks ? 'See the blocks' : 'Browse templates'}
         breadcrumbs={[
           { name: 'Home', url: 'https://lin.ky' },
           { name: 'Use cases', url: 'https://lin.ky/i/for' },
           { name: c.name, url: `https://lin.ky/i/for/${c.slug}` },
         ]}
+        phoneVisual={
+          heroPalette ? (
+            <div
+              className="flex aspect-9/19 flex-col items-center justify-center"
+              style={{ backgroundColor: hslToCss(heroPalette.colorBgBase) }}
+            >
+              <ThemeMock
+                palette={heroPalette}
+                name={heroPreview?.name ?? c.name}
+                rows={heroPreview?.rows}
+              />
+            </div>
+          ) : undefined
+        }
       />
 
-      {Object.keys(blockCopy).length > 0 && (
-        <PseoBand tone="white">
-          <PseoEyebrow>Blocks</PseoEyebrow>
-          <PseoSectionHeading>
-            Blocks made for {c.name.toLowerCase()}
-          </PseoSectionHeading>
-          <div className="mt-10">
-            <IntegrationBlocks blockCopy={blockCopy} />
-          </div>
-        </PseoBand>
+      {hasBlocks && (
+        <section
+          id="blocks"
+          className="scroll-mt-24 border-t border-zinc-950/5 bg-white py-20 md:py-28"
+        >
+          <MarketingContainer>
+            <MinimalHeading
+              eyebrow="Blocks"
+              heading={`Blocks made for ${c.name.toLowerCase()}`}
+            />
+            <div className="mt-12">
+              <IntegrationBlocks blockCopy={blockCopy} />
+            </div>
+          </MarketingContainer>
+        </section>
       )}
 
-      <PseoBenefits />
+      <PseoBenefits minimal />
 
-      <PseoProse sections={c.sections} />
+      <PseoFeatureSections sections={c.sections} minimal />
 
       {(relatedIntegrations.length > 0 || recommendedTemplate) && (
-        <PseoBand tone="cream">
-          <PseoSectionHeading>Recommended for you</PseoSectionHeading>
-          <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {relatedIntegrations.map((slug) => (
-              <Link
-                key={slug}
-                href={`/i/integrations/${slug}`}
-                className="block rounded-2xl border border-gray-200 bg-white p-6 shadow-xs hover:shadow-sm hover:border-gray-300 transition-shadow"
-              >
-                <div className="text-base font-semibold text-gray-900 capitalize">
-                  {slug} integration
-                </div>
-                <p className="mt-1.5 text-sm text-gray-600 leading-relaxed">
-                  Connect {slug} to show live data on your Linky page.
-                </p>
-              </Link>
-            ))}
-            {recommendedTemplate && (
-              <Link
-                href={`/i/templates/${recommendedTemplate.slug}`}
-                className="block rounded-2xl border border-gray-200 bg-white p-6 shadow-xs hover:shadow-sm hover:border-gray-300 transition-shadow"
-              >
-                <div className="text-base font-semibold text-gray-900">
-                  {recommendedTemplate.name} template
-                </div>
-                <p className="mt-1.5 text-sm text-gray-600 leading-relaxed">
-                  {recommendedTemplate.answer}
-                </p>
-              </Link>
-            )}
-          </div>
-        </PseoBand>
+        <section className="border-t border-zinc-950/5 bg-[#FAFAF9] py-20 md:py-28">
+          <MarketingContainer>
+            <MinimalHeading eyebrow="Next" heading="Recommended for you" />
+            <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {relatedIntegrations.map((slug) => (
+                <Link
+                  key={slug}
+                  href={`/i/integrations/${slug}`}
+                  className="group block rounded-2xl bg-white p-6 ring-1 ring-zinc-950/5 transition hover:shadow-sm hover:ring-zinc-950/10"
+                >
+                  <div className="flex items-center gap-3">
+                    {INTEGRATION_LOGOS[slug] && (
+                      <Image
+                        src={INTEGRATION_LOGOS[slug]}
+                        alt=""
+                        width={36}
+                        height={36}
+                        className="size-9 rounded-lg"
+                      />
+                    )}
+                    <div className="text-base font-semibold capitalize text-zinc-900">
+                      {slug} integration
+                    </div>
+                  </div>
+                  <p className="mt-3 text-sm leading-relaxed text-zinc-500">
+                    Connect {slug} to show live data on your Linky page.
+                  </p>
+                </Link>
+              ))}
+              {recommendedTemplate && (
+                <Link
+                  href={`/i/templates/${recommendedTemplate.slug}`}
+                  className="group block rounded-2xl bg-white p-6 ring-1 ring-zinc-950/5 transition hover:shadow-sm hover:ring-zinc-950/10"
+                >
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="size-9 rounded-lg ring-1 ring-zinc-950/10"
+                      style={{
+                        backgroundColor: hslToCss(
+                          recommendedTemplate.palette.colorBgBase
+                        ),
+                      }}
+                    />
+                    <div className="text-base font-semibold text-zinc-900">
+                      {recommendedTemplate.name} template
+                    </div>
+                  </div>
+                  <p className="mt-3 text-sm leading-relaxed text-zinc-500 line-clamp-2">
+                    {recommendedTemplate.answer}
+                  </p>
+                </Link>
+              )}
+            </div>
+          </MarketingContainer>
+        </section>
       )}
     </PseoLayout>
   );

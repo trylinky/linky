@@ -1,0 +1,28 @@
+import { ArticleTemplate } from '../../learn-template';
+
+export const metadata = {
+  title: 'How do I track clicks on my link in bio?',
+  publishDate: '2026-06-04',
+  category: 'linky',
+};
+
+To track clicks on your link in bio, use a link-in-bio page with built-in analytics. Native bio links on Instagram, TikTok, and X don't report any data, so a page that records views and clicks for you is the only reliable way to see what's working.
+
+With [Linky](/i/pricing), analytics are built in on the Premium plan. You can see how many people viewed your page and which individual links and blocks they clicked - so you know whether your audience is heading to your shop, your latest video, or your newsletter.
+
+## What you can measure
+
+- **Page views** - how many people opened your link-in-bio page.
+- **Clicks per link and block** - exactly which destinations get the most attention.
+- **Trends over time** - so you can tell whether a new post or campaign is driving traffic.
+
+## Going further with your own tools
+
+If you already use Google Analytics, the Linky **Team** plan includes a Google Analytics integration, so your link-in-bio traffic flows into the same dashboards as the rest of your marketing. You can also add UTM parameters to the links on your page to attribute clicks inside your existing analytics setup.
+
+Once you can see which links perform, the rest is easy: move your best link to the top, cut the ones nobody clicks, and keep testing.
+
+export default function MDXArticle(props) {
+return <ArticleTemplate meta={metadata}>{props.children}</ArticleTemplate>;
+
+}

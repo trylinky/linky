@@ -1,0 +1,24 @@
+import { ArticleTemplate } from '../../learn-template';
+
+export const metadata = {
+  title: 'How do I add Spotify to my link in bio?',
+  publishDate: '2026-05-27',
+  category: 'linky',
+};
+
+To add Spotify to your link in bio with Linky, add a **Spotify block** to your page and connect your account. The block then shows a live "Now Playing" card with the track you're currently or most recently listening to - and it updates on its own as your listening changes.
+
+This is more engaging than a plain link to your profile: visitors see real, current activity instead of a static button, which makes your page feel alive.
+
+## Step by step
+
+1. Open your Linky page in the editor and add a **Spotify** block.
+2. Connect your Spotify account when prompted.
+3. Publish - your page now shows your live listening activity.
+
+You can combine it with other [live blocks](/i/integrations) - your [latest Instagram post](/i/integrations/instagram), [TikTok](/i/integrations/tiktok), or [GitHub activity](/i/integrations/github) - so the whole page stays fresh automatically. See everything the [Spotify integration](/i/integrations/spotify) can do, and start [free](/i/pricing).
+
+export default function MDXArticle(props) {
+return <ArticleTemplate meta={metadata}>{props.children}</ArticleTemplate>;
+
+}

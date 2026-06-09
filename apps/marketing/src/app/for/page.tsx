@@ -1,8 +1,12 @@
-import { MarketingContainer } from '@/components/marketing-container';
-import { PseoBand } from '@/components/pseo/pseo-section';
+import {
+  MinimalHubHero,
+  MinimalHubSection,
+} from '@/components/pseo/minimal-hub';
+import { ThemeMock } from '@/components/pseo/theme-mock';
+import { NICHE_PREVIEW } from '@/content/niche-presentation';
 import { niches } from '@/content/niches';
+import { getTemplate, templates } from '@/content/templates';
 import { buildPseoMetadata } from '@/lib/seo-metadata';
-import { Button } from '@trylinky/ui';
 import Link from 'next/link';
 
 export const metadata = buildPseoMetadata({
@@ -15,50 +19,59 @@ export const metadata = buildPseoMetadata({
 export default function NichesHub() {
   return (
     <div className="min-h-screen">
-      {/* Hero band */}
-      <section className="bg-linear-to-b from-[#f5f3ea] to-white pt-28 md:pt-36 pb-16 md:pb-20">
-        <MarketingContainer>
-          <div className="max-w-2xl">
-            <h1 className="text-4xl md:text-6xl font-black tracking-tight text-black">
-              Linky for everyone
-            </h1>
-            <p className="mt-5 text-lg md:text-xl text-[#241f3d]/80 text-pretty">
-              A link in bio tailored to what you do. From musicians to
-              restaurateurs, developers to designers — Linky has the right
-              blocks, integrations, and templates for your audience.
-            </p>
-            <Button
-              asChild
-              variant="default"
-              size="xl"
-              className="mt-8 rounded-full font-bold"
-            >
-              <Link href="/i/auth/signup">Get started free</Link>
-            </Button>
-          </div>
-        </MarketingContainer>
-      </section>
-
-      {/* Niches grid */}
-      <PseoBand tone="white">
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {niches.map((n) => (
-            <li key={n.slug}>
-              <Link
-                href={`/i/for/${n.slug}`}
-                className="block rounded-2xl border border-gray-200 bg-white p-6 shadow-xs hover:shadow-sm hover:border-gray-300 transition-shadow"
-              >
-                <div className="text-lg font-semibold text-gray-900">
-                  {n.name}
-                </div>
-                <p className="mt-1.5 text-sm text-gray-600 leading-relaxed">
-                  {n.answer}
-                </p>
-              </Link>
-            </li>
-          ))}
+      <MinimalHubHero
+        eyebrow="Use cases"
+        h1="Linky for everyone"
+        answer="A link in bio tailored to what you do. From musicians to restaurateurs, developers to designers - Linky has the right blocks, integrations, and templates for your audience."
+      />
+      <MinimalHubSection>
+        <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {niches.map((n) => {
+            const preview = NICHE_PREVIEW[n.slug];
+            const palette =
+              (n.recommendedTemplate
+                ? getTemplate(n.recommendedTemplate)
+                : null
+              )?.palette ?? templates[0].palette;
+            return (
+              <li key={n.slug}>
+                <Link
+                  href={`/i/for/${n.slug}`}
+                  className="group flex h-full flex-col rounded-2xl bg-white p-3 ring-1 ring-zinc-950/5 transition hover:shadow-sm hover:ring-zinc-950/10"
+                >
+                  {/* Cropped tailored page preview */}
+                  <div className="relative h-56 overflow-hidden rounded-xl">
+                    <ThemeMock
+                      palette={palette}
+                      name={preview?.name ?? n.name}
+                      rows={preview?.rows}
+                      size="thumb"
+                    />
+                    <div
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-linear-to-b from-transparent to-black/10"
+                    />
+                  </div>
+                  <div className="flex flex-1 flex-col px-3 pb-3 pt-4">
+                    <div className="text-lg font-semibold text-zinc-900">
+                      {n.name}
+                    </div>
+                    <p className="mt-1.5 flex-1 text-sm leading-relaxed text-zinc-500 line-clamp-2">
+                      {n.answer}
+                    </p>
+                    <span className="mt-3 text-sm font-medium text-zinc-900">
+                      Explore{' '}
+                      <span className="inline-block transition-transform group-hover:translate-x-0.5">
+                        →
+                      </span>
+                    </span>
+                  </div>
+                </Link>
+              </li>
+            );
+          })}
         </ul>
-      </PseoBand>
+      </MinimalHubSection>
     </div>
   );
 }

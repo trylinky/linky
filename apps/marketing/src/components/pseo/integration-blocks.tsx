@@ -73,8 +73,8 @@ export function IntegrationBlocks({
             key={key}
             className="bg-white rounded-2xl ring-1 ring-black/5 p-6 hover:ring-black/10 transition"
           >
-            <div className="mb-4 inline-flex size-11 items-center justify-center rounded-xl bg-[#FBEAE6]">
-              <Icon className="size-6 text-[#E8553F]" />
+            <div className="mb-4 inline-flex size-11 items-center justify-center rounded-xl bg-zinc-50 ring-1 ring-zinc-950/5">
+              <Icon className="size-6 text-zinc-900" strokeWidth={1.5} />
             </div>
             <div className="text-base font-semibold text-zinc-900">
               {copy.name}

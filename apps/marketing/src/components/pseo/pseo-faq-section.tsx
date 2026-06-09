@@ -10,9 +10,18 @@ import {
 import type { FaqEntry } from './pseo-faq';
 import { PseoBand, PseoSectionHeading } from './pseo-section';
 
-export function PseoFaqSection({ faqs }: { faqs: FaqEntry[] }) {
+export function PseoFaqSection({
+  faqs,
+  minimal = false,
+}: {
+  faqs: FaqEntry[];
+  minimal?: boolean;
+}) {
   return (
-    <PseoBand tone="beige">
+    <PseoBand
+      tone={minimal ? 'white' : 'beige'}
+      className={minimal ? 'border-t border-zinc-950/5' : undefined}
+    >
       <div className="grid md:grid-cols-2 gap-8 md:gap-12">
         <div>
           <PseoSectionHeading>Frequently asked questions</PseoSectionHeading>

@@ -22,7 +22,7 @@ const landingPageQuestions = [
   {
     question: 'Why do I need Linky?',
     answer:
-      'Linky is a singular link solution designed to bridge your audience to every aspect of your digital presence—encompassing who you are, what you do, and what matters to you. It simplifies the sharing process by consolidating multiple links into one, ensuring that your followers, visitors, and customers can effortlessly access all they need in a single location.',
+      'Linky is a singular link solution designed to bridge your audience to every aspect of your digital presence-encompassing who you are, what you do, and what matters to you. It simplifies the sharing process by consolidating multiple links into one, ensuring that your followers, visitors, and customers can effortlessly access all they need in a single location.',
   },
   {
     question: 'Is it free?',

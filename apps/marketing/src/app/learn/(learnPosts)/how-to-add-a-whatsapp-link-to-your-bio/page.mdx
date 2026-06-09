@@ -1,0 +1,26 @@
+import { ArticleTemplate } from '../../learn-template';
+
+export const metadata = {
+  title: 'How do I add a WhatsApp link to my bio?',
+  publishDate: '2026-05-24',
+  category: 'link-in-bio',
+};
+
+To add a WhatsApp link to your bio, use a **click-to-chat** link in the format `https://wa.me/<number>`, where `<number>` is your full phone number in international format with no `+`, spaces, or dashes. For example, a UK number `+44 7700 900123` becomes `https://wa.me/447700900123`. Tapping it opens a new WhatsApp chat with you.
+
+You can also pre-fill a message by adding `?text=`, e.g. `https://wa.me/447700900123?text=Hi`, which is handy for bookings or enquiries.
+
+## Add it to your link-in-bio page
+
+Most social profiles only allow one link, so the easiest way to share WhatsApp alongside everything else is to put it on a link-in-bio page:
+
+1. Create your `wa.me` link as above.
+2. Add a link block to your page labelled something clear, like "Message me on WhatsApp".
+3. Publish, and share your single link-in-bio URL in your bio.
+
+That way visitors can reach you on WhatsApp and still find your shop, socials, and content in one place. Build your page for [free](/i/pricing) and pick a [template](/i/templates) to match your brand.
+
+export default function MDXArticle(props) {
+return <ArticleTemplate meta={metadata}>{props.children}</ArticleTemplate>;
+
+}

@@ -1,6 +1,7 @@
 import { getLearnPosts } from './utils';
 import { LearnPost } from '@/app/learn/utils';
 import { MarketingContainer } from '@/components/marketing-container';
+import { MinimalHubHero } from '@/components/pseo/minimal-hub';
 import { Metadata } from 'next';
 import Link from 'next/link';
 
@@ -20,6 +21,9 @@ const learnPostCategories: Record<
   'link-in-bio': {
     title: 'Link in Bio',
   },
+  growth: {
+    title: 'Tips & Growth',
+  },
 };
 
 export default async function LearnLandingPage() {
@@ -35,45 +39,35 @@ export default async function LearnLandingPage() {
   );
 
   return (
-    <main>
-      <div className="w-full flex-auto bg-linear-to-b from-[#f9f9f8] to-[#f5f3ea]">
-        <MarketingContainer>
-          <div className="mx-auto max-w-2xl lg:max-w-none pt-32 pb-16">
-            <div>
-              <h1>
-                <span className="text-pretty text-5xl lg:text-6xl font-black text-black tracking-tight">
-                  Learn
-                </span>
-              </h1>
-              <div className="mt-6 max-w-3xl text-xl text-slate-900">
-                <p>Common questions and answers about Linky and link-in-bio.</p>
-              </div>
-            </div>
-          </div>
-        </MarketingContainer>
-      </div>
-      <MarketingContainer className="py-16">
-        <div className="divide-y divide-slate-200 space-y-8">
+    <main className="min-h-screen bg-white">
+      <MinimalHubHero
+        hideCta
+        eyebrow="Learn"
+        h1="Learn"
+        answer="Common questions and answers about Linky and link-in-bio."
+      />
+      <MarketingContainer className="py-16 md:py-24">
+        <div className="divide-y divide-zinc-950/5">
           {Object.entries(learnPostsByCategory).map(
             ([category, posts]: [string, LearnPost[]]) => {
               return (
-                <div key={category} className="pt-8">
-                  <h3 className="text-pretty text-2xl font-black text-slate-900 tracking-tight mb-8">
+                <div key={category} className="py-12 first:pt-0">
+                  <h2 className="mb-8 text-2xl font-semibold tracking-tight text-zinc-900">
                     {
                       learnPostCategories[
                         category as keyof typeof learnPostCategories
                       ].title
                     }
-                  </h3>
+                  </h2>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
                     {posts.map((post) => (
                       <article key={post.title}>
-                        <h2 className="font-display text-xl font-medium text-slate-800">
+                        <h3 className="text-lg font-medium text-zinc-700 transition-colors hover:text-zinc-900">
                           <Link href={`/i/learn/${post.slug}`}>
                             {post.title}
                           </Link>
-                        </h2>
+                        </h3>
                       </article>
                     ))}
                   </div>

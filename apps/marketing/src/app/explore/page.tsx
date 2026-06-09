@@ -1,13 +1,14 @@
 import { getFeaturedPages } from '@/actions/get-featured-pages';
 import { MarketingContainer } from '@/components/marketing-container';
+import { MinimalHubHero } from '@/components/pseo/minimal-hub';
 import { buildPageMetadata } from '@/lib/seo-metadata';
 import Image from 'next/image';
 import Link from 'next/link';
 
 export const metadata = buildPageMetadata({
-  title: 'Explore Linky pages — community link-in-bio examples',
+  title: 'Explore Linky pages - community link-in-bio examples',
   description:
-    'Browse real link-in-bio pages built with Linky — from creators and musicians to photographers and developers. Get inspired and start building your own.',
+    'Browse real link-in-bio pages built with Linky - from creators and musicians to photographers and developers. Get inspired and start building your own.',
   path: '/i/explore',
 });
 
@@ -15,53 +16,42 @@ export default async function ExploreLandingPage() {
   const featuredPages = await getFeaturedPages();
 
   return (
-    <main className="bg-[#FCFBF8]">
-      <div className="w-full flex-auto">
+    <main className="min-h-screen bg-white">
+      <MinimalHubHero
+        hideCta
+        eyebrow="Explore"
+        h1="Explore"
+        answer="Some of the best link-in-bio pages created by the Linky community - get inspired, then build your own."
+      />
+      <section className="py-16 md:py-24">
         <MarketingContainer>
-          <div className="mx-auto max-w-2xl lg:max-w-none pt-24 pb-8">
-            <div>
-              <h1>
-                <span className="text-pretty text-5xl lg:text-6xl font-black text-black tracking-tight">
-                  Explore
-                </span>
-              </h1>
-              <div className="mt-6 max-w-3xl text-xl text-slate-900">
-                <p>
-                  Explore some of the best link-in-bio pages created by the
-                  Linky community.
-                </p>
-              </div>
-            </div>
-          </div>
-        </MarketingContainer>
-      </div>
-      <MarketingContainer className="pt-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-2 gap-y-4 w-[calc(100%+2rem)] -ml-4">
-          {featuredPages.map((page) => {
-            return (
+          <div className="grid grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-3">
+            {featuredPages.map((page) => (
               <Link
                 key={page.id}
                 href={`/${page.slug}`}
-                className="bg-transparent hover:bg-slate-100 transition-colors px-4 py-4 rounded-xl"
+                className="rounded-2xl px-4 py-4 transition-colors hover:bg-zinc-50"
               >
                 <Image
                   src={`${process.env.NEXT_PUBLIC_APP_URL}/${page.slug}/opengraph-image`}
                   alt=""
                   width={1200}
                   height={630}
-                  className="rounded-xl"
+                  className="rounded-xl ring-1 ring-zinc-950/5"
                 />
-                <div className="flex flex-col mt-3">
-                  <h3 className="text-lg font-bold">{page.headerTitle}</h3>
-                  <p className="text-sm text-slate-500">
+                <div className="mt-3 flex flex-col">
+                  <h3 className="text-lg font-semibold text-zinc-900">
+                    {page.headerTitle}
+                  </h3>
+                  <p className="text-sm text-zinc-500">
                     {page.headerDescription}
                   </p>
                 </div>
               </Link>
-            );
-          })}
-        </div>
-      </MarketingContainer>
+            ))}
+          </div>
+        </MarketingContainer>
+      </section>
     </main>
   );
 }

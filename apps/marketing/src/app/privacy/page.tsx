@@ -1,7 +1,7 @@
 import { buildPageMetadata } from '@/lib/seo-metadata';
 
 export const metadata = buildPageMetadata({
-  title: 'Privacy Policy — Linky',
+  title: 'Privacy Policy - Linky',
   description:
     'Linky collects only the personal information you provide during sign-up and account use; this policy explains what we collect, how we use it, and your rights to access, correct, or delete your data.',
   path: '/i/privacy',
@@ -9,12 +9,13 @@ export const metadata = buildPageMetadata({
 
 export default function LegalPrivacyPage() {
   return (
-    <div className="bg-[#FCFBF8] px-6 py-32 lg:px-8">
-      <div className="mx-auto max-w-3xl text-base leading-7 text-gray-700">
-        <p className="text-base font-semibold leading-7 text-orange-600">
+    <div className="bg-white px-6 py-32 lg:px-8">
+      <div className="mx-auto max-w-3xl text-base leading-7 text-zinc-600">
+        <p className="flex items-center gap-2 text-sm font-medium text-zinc-500">
+          <span className="inline-block h-px w-6 bg-zinc-300" />
           Linky
         </p>
-        <h1 className="mt-2 text-3xl font-black font-serf tracking-tight text-gray-900 sm:text-4xl">
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl">
           Privacy Policy
         </h1>
         <p className="mt-6 text-xl leading-8">Last updated: March 3rd 2025</p>

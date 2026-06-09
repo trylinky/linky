@@ -1,0 +1,29 @@
+import { ArticleTemplate } from '../../learn-template';
+
+export const metadata = {
+  title: 'Why is my link in bio not working?',
+  publishDate: '2026-05-30',
+  category: 'link-in-bio',
+};
+
+If your link in bio isn't working, it's almost always one of a few simple causes. Work through these in order:
+
+## Common fixes
+
+- **Check for typos.** Make sure the URL is spelled correctly and includes no stray spaces. Copy and paste it rather than typing it by hand.
+- **Include the full address.** Some apps only make a link tappable when it starts with `https://` - paste the complete URL, not just the domain.
+- **Save your profile.** On Instagram, TikTok, and similar apps, links only go live after you tap **Save** on the edit screen.
+- **Put the link in the right field.** A URL typed into your bio *text* may not be clickable on every platform - use the dedicated **Website** or **Link** field where one exists.
+- **Wait a moment, then refresh.** New links and newly published pages can take a minute to appear. Close and reopen the app.
+- **Test in a private window.** Open the link in a browser you're not logged into to confirm the page itself loads.
+
+## If your link-in-bio page is the problem
+
+Make sure the page is **published**, not just saved as a draft, and that the username in the URL matches your page exactly. If you use a [custom domain](/i/learn/can-i-use-my-own-domain), check that its DNS is set up and verified.
+
+Still stuck? A reliable, well-hosted link-in-bio page avoids most of these issues - you can rebuild yours [free](/i/pricing) in a couple of minutes.
+
+export default function MDXArticle(props) {
+return <ArticleTemplate meta={metadata}>{props.children}</ArticleTemplate>;
+
+}

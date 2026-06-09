@@ -2,7 +2,7 @@ import type { FaqEntry } from '@/components/pseo/pseo-faq';
 
 export interface ContentSection {
   heading: string;
-  body: string; // 1–3 paragraphs of unique, answer-first prose
+  body: string; // 1-3 paragraphs of unique, answer-first prose
 }
 
 export interface IntegrationContent {

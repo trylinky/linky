@@ -1,0 +1,26 @@
+import { ArticleTemplate } from '../../learn-template';
+
+export const metadata = {
+  title: 'How often should I update my link in bio?',
+  publishDate: '2026-05-20',
+  category: 'growth',
+};
+
+Update the top of your link in bio every time your priority changes - a new release, product, video, or campaign. The rest of the page can stay put. As a rule of thumb, refresh the featured spot at least as often as you post important content, and review the whole page once a month.
+
+## What to change, and when
+
+- **Every new launch:** swap the top link to whatever you're promoting right now.
+- **Weekly-ish:** check that your most recent content is reachable in a tap.
+- **Monthly:** prune dead links, fix anything broken, and re-order based on what's getting clicks.
+
+## Let parts of it update themselves
+
+The easiest way to keep a page current is to use [live blocks](/i/integrations) that refresh on their own - a [Spotify "now playing" block](/i/learn/how-to-add-spotify-to-your-link-in-bio), your [latest Instagram post](/i/integrations/instagram), or your [TikTok](/i/integrations/tiktok). They keep the page feeling alive without any manual work, so you only update the parts that need a human decision.
+
+A stale link in bio quietly costs you clicks; a current one rewards every visitor with something new. Build a page that's easy to keep fresh for [free](/i/pricing).
+
+export default function MDXArticle(props) {
+return <ArticleTemplate meta={metadata}>{props.children}</ArticleTemplate>;
+
+}

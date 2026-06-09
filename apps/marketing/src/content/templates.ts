@@ -3,10 +3,10 @@ import { isPublishableTemplate } from '@/content/pseo-types';
 import type { ThemePalette } from '@/components/pseo/theme-mock';
 
 // Palettes mirror apps/frontend/lib/theme.ts defaultThemeSeeds (source of truth).
-// All h/s/l values are copied verbatim — do NOT round or alter.
+// All h/s/l values are copied verbatim - do NOT round or alter.
 // Note: Purple.colorLabelPrimary and Forest.colorLabelPrimary were l:100 in the source
 // (a pre-normalisation quirk); normalized here to l:1 (= white) to satisfy the HslColor
-// 0–1 contract. Rendering is identical.
+// 0-1 contract. Rendering is identical.
 // Lilac.colorBgBase has an extra `a` field in the source; only h/s/l are included here
 // to satisfy the HslColor shape.
 const PALETTES: Record<string, ThemePalette> = {
@@ -70,7 +70,7 @@ const TEMPLATES: TemplateContent[] = [
   {
     slug: 'classic',
     name: 'Classic',
-    h1: 'Classic — a minimal link in bio template',
+    h1: 'Classic - a minimal link in bio template',
     answer:
       'Classic is a clean, light-toned template built on an off-white background with near-black text, giving your page a timeless, professional look that never distracts from your links.',
     targetKeyword: 'minimal link in bio template',
@@ -78,7 +78,7 @@ const TEMPLATES: TemplateContent[] = [
     sections: [
       {
         heading: 'A palette designed for readability',
-        body: 'Classic uses a warm off-white page background (hue 60, very lightly saturated) paired with pure-white link cards and soft grey borders. The result is a page that feels airy and inviting without any distracting colour. Primary text sits at a near-black tone with a barely-there blue tint, while secondary text steps back to a medium grey — creating a clear visual hierarchy without needing any bold colour choices.',
+        body: 'Classic uses a warm off-white page background (hue 60, very lightly saturated) paired with pure-white link cards and soft grey borders. The result is a page that feels airy and inviting without any distracting colour. Primary text sits at a near-black tone with a barely-there blue tint, while secondary text steps back to a medium grey - creating a clear visual hierarchy without needing any bold colour choices.',
       },
       {
         heading: "What's included in the Classic theme",
@@ -86,11 +86,11 @@ const TEMPLATES: TemplateContent[] = [
       },
       {
         heading: 'Who Classic is best for',
-        body: 'Classic suits creators who prefer understated design — writers, photographers, consultants, and freelancers who want a professional first impression. The neutral tones also make Classic an excellent starting point if you plan to layer in a custom accent colour or swap in a distinctive profile photo without fighting the background.',
+        body: 'Classic suits creators who prefer understated design - writers, photographers, consultants, and freelancers who want a professional first impression. The neutral tones also make Classic an excellent starting point if you plan to layer in a custom accent colour or swap in a distinctive profile photo without fighting the background.',
       },
       {
         heading: 'Make it yours in the Linky editor',
-        body: "Open the Linky editor and select the Classic theme to start with this palette pre-loaded. From there you can swap any of the seven colour roles — for example, nudging the background towards cream or increasing the border contrast — without affecting the overall minimal feel. Add your links, profile photo, and a short bio, and you're ready to publish.",
+        body: "Open the Linky editor and select the Classic theme to start with this palette pre-loaded. From there you can swap any of the seven colour roles - for example, nudging the background towards cream or increasing the border contrast - without affecting the overall minimal feel. Add your links, profile photo, and a short bio, and you're ready to publish.",
       },
     ],
     faqs: [
@@ -102,7 +102,7 @@ const TEMPLATES: TemplateContent[] = [
       {
         question: 'Can I change the background colour?',
         answer:
-          'Absolutely. The Classic theme is just a starting point. In the editor you can adjust any of the seven colour roles — including swapping the warm off-white base for a pure white or a custom neutral — while keeping everything else in place.',
+          'Absolutely. The Classic theme is just a starting point. In the editor you can adjust any of the seven colour roles - including swapping the warm off-white base for a pure white or a custom neutral - while keeping everything else in place.',
       },
       {
         question: 'Will Classic look good on mobile?',
@@ -119,7 +119,7 @@ const TEMPLATES: TemplateContent[] = [
   {
     slug: 'violet',
     name: 'Violet',
-    h1: 'Violet — a purple link in bio template',
+    h1: 'Violet - a purple link in bio template',
     answer:
       'Violet is a deep-purple dark-mode template with layered indigo backgrounds and bright-white text, creating a bold, atmospheric look well-suited to musicians, creators, and brands that want a distinctive purple identity.',
     targetKeyword: 'purple link in bio template',
@@ -127,7 +127,7 @@ const TEMPLATES: TemplateContent[] = [
     sections: [
       {
         heading: 'A rich purple atmosphere',
-        body: 'The Violet theme wraps everything in deep indigo tones — the page base sits at hue 255 with roughly 20 % lightness, and link card backgrounds drop even darker to about 13 % lightness, creating a layered sense of depth. A muted violet border at 28 % lightness defines card edges without breaking the moody palette. The overall impression is bold without being garish — deep, jewel-like purple that rewards a slow scroll.',
+        body: 'The Violet theme wraps everything in deep indigo tones - the page base sits at hue 255 with roughly 20 % lightness, and link card backgrounds drop even darker to about 13 % lightness, creating a layered sense of depth. A muted violet border at 28 % lightness defines card edges without breaking the moody palette. The overall impression is bold without being garish - deep, jewel-like purple that rewards a slow scroll.',
       },
       {
         heading: "What's included in the Violet palette",
@@ -161,14 +161,14 @@ const TEMPLATES: TemplateContent[] = [
       {
         question: 'Will the white text on a dark background be accessible?',
         answer:
-          'The Violet theme is designed with high contrast in mind — pure white labels on a dark indigo background comfortably exceed the WCAG AA 4.5:1 contrast ratio for normal text, making your links easy to read for all visitors.',
+          'The Violet theme is designed with high contrast in mind - pure white labels on a dark indigo background comfortably exceed the WCAG AA 4.5:1 contrast ratio for normal text, making your links easy to read for all visitors.',
       },
     ],
   },
   {
     slug: 'midnight',
     name: 'Midnight',
-    h1: 'Midnight — a dark link in bio template',
+    h1: 'Midnight - a dark link in bio template',
     answer:
       'Midnight is a pure-black, achromatic dark-mode template with white text and a subtle dark-grey border, delivering the highest-contrast look available on Linky for creators who want a bold, no-colour aesthetic.',
     targetKeyword: 'dark link in bio template',
@@ -176,11 +176,11 @@ const TEMPLATES: TemplateContent[] = [
     sections: [
       {
         heading: 'Pure black, maximum contrast',
-        body: 'Midnight uses a pure-black page background (0 % lightness, zero saturation) and an equally black primary card background — so link cards appear flush with the page until the subtle dark-grey border at 16 % lightness draws a clean, understated outline. White labels at 100 % lightness stand out with striking clarity. The palette is entirely achromatic: there is not a single hue in the system, which makes any profile photo or link thumbnail pop dramatically against the background.',
+        body: 'Midnight uses a pure-black page background (0 % lightness, zero saturation) and an equally black primary card background - so link cards appear flush with the page until the subtle dark-grey border at 16 % lightness draws a clean, understated outline. White labels at 100 % lightness stand out with striking clarity. The palette is entirely achromatic: there is not a single hue in the system, which makes any profile photo or link thumbnail pop dramatically against the background.',
       },
       {
         heading: "What's in the Midnight palette",
-        body: 'All seven colour roles are shades of grey or pure black and white. The base and primary card are both solid black. The secondary surface is a light grey (90 % lightness) used for avatar placeholders. The border is a very dark grey (16 % lightness), just visible enough to define card edges. Both the primary and secondary labels are pure or near-white — the secondary label at 98 % lightness is almost identical to primary, keeping body text legible even at smaller sizes.',
+        body: 'All seven colour roles are shades of grey or pure black and white. The base and primary card are both solid black. The secondary surface is a light grey (90 % lightness) used for avatar placeholders. The border is a very dark grey (16 % lightness), just visible enough to define card edges. Both the primary and secondary labels are pure or near-white - the secondary label at 98 % lightness is almost identical to primary, keeping body text legible even at smaller sizes.',
       },
       {
         heading: 'Who Midnight is best for',
@@ -188,7 +188,7 @@ const TEMPLATES: TemplateContent[] = [
       },
       {
         heading: 'Making Midnight your own',
-        body: "Start from Midnight in the Linky editor and your page immediately takes on a high-fashion, editorial quality. From there, try nudging the border colour to a very dark navy or charcoal to add a hint of warmth without breaking the dark-mode feel. You can also introduce a single accent colour to link card backgrounds — the pure black canvas makes even a subtle accent pop. The template name and all copy is yours to replace; Midnight is simply the palette you're building on.",
+        body: "Start from Midnight in the Linky editor and your page immediately takes on a high-fashion, editorial quality. From there, try nudging the border colour to a very dark navy or charcoal to add a hint of warmth without breaking the dark-mode feel. You can also introduce a single accent colour to link card backgrounds - the pure black canvas makes even a subtle accent pop. The template name and all copy is yours to replace; Midnight is simply the palette you're building on.",
       },
     ],
     faqs: [
@@ -200,24 +200,24 @@ const TEMPLATES: TemplateContent[] = [
       {
         question: 'Can I add a colour accent to the Midnight theme?',
         answer:
-          'Yes. Because the Midnight base is pure black, adding a colour to a single role — such as the card background or border — creates a vivid accent effect. You can do this for any colour role in the editor.',
+          'Yes. Because the Midnight base is pure black, adding a colour to a single role - such as the card background or border - creates a vivid accent effect. You can do this for any colour role in the editor.',
       },
       {
         question: 'Is the black background true black on OLED screens?',
         answer:
-          "Yes. The Midnight background is set to 0 % lightness with zero saturation, which renders as #000000 — true black on all screens, including OLED displays where true black pixels are fully turned off.",
+          "Yes. The Midnight background is set to 0 % lightness with zero saturation, which renders as #000000 - true black on all screens, including OLED displays where true black pixels are fully turned off.",
       },
       {
         question: 'Is white text on a black background accessible?',
         answer:
-          'Pure white on pure black achieves a 21:1 contrast ratio — the theoretical maximum — far exceeding WCAG AAA requirements. Midnight is among the most accessible colour combinations possible for web content.',
+          'Pure white on pure black achieves a 21:1 contrast ratio - the theoretical maximum - far exceeding WCAG AAA requirements. Midnight is among the most accessible colour combinations possible for web content.',
       },
     ],
   },
   {
     slug: 'forest',
     name: 'Forest',
-    h1: 'Forest — a green link in bio template',
+    h1: 'Forest - a green link in bio template',
     answer:
       'Forest is an earthy, muted-green dark template with desaturated green backgrounds and a soft sage-green secondary label, evoking a natural, grounded aesthetic without relying on loud or artificial greens.',
     targetKeyword: 'green link in bio template',
@@ -225,11 +225,11 @@ const TEMPLATES: TemplateContent[] = [
     sections: [
       {
         heading: 'Earthy greens that feel grounded',
-        body: 'Forest builds its palette from hue 141 — a cool, mossy green — at medium-dark lightness values. The page base sits at 41 % lightness with low saturation (8 %), giving it the feel of a shaded clearing rather than a bright meadow. Link cards drop to 31 % lightness, creating a subtle depth between page and card. Because both the base and card are restrained in saturation, the template reads as natural and earthy rather than garish.',
+        body: 'Forest builds its palette from hue 141 - a cool, mossy green - at medium-dark lightness values. The page base sits at 41 % lightness with low saturation (8 %), giving it the feel of a shaded clearing rather than a bright meadow. Link cards drop to 31 % lightness, creating a subtle depth between page and card. Because both the base and card are restrained in saturation, the template reads as natural and earthy rather than garish.',
       },
       {
         heading: "What's included in the Forest palette",
-        body: "The seven Forest colour roles span two layers of muted green (base and primary card), a light-grey secondary surface for avatar placeholders, and a matching card border that mirrors the primary card colour for a seamless, inset look. Primary labels are white (100 % lightness), ensuring headline readability. The secondary label is a light sage green (hue 141, 84 % lightness, 41 % saturation) — a softer, warmer tone that reinforces the nature theme without competing with primary text. Tertiary labels are near-white.",
+        body: "The seven Forest colour roles span two layers of muted green (base and primary card), a light-grey secondary surface for avatar placeholders, and a matching card border that mirrors the primary card colour for a seamless, inset look. Primary labels are white (100 % lightness), ensuring headline readability. The secondary label is a light sage green (hue 141, 84 % lightness, 41 % saturation) - a softer, warmer tone that reinforces the nature theme without competing with primary text. Tertiary labels are near-white.",
       },
       {
         heading: 'Who Forest is best for',
@@ -237,7 +237,7 @@ const TEMPLATES: TemplateContent[] = [
       },
       {
         heading: 'Customising Forest in the editor',
-        body: 'Load Forest in the Linky editor and you have a ready-made nature palette that you can nudge in any direction — deeper towards a forest-floor dark green, lighter towards a spring sage, or slightly warmer towards an olive. Because the border and card background share the same colour by default, increasing the border lightness slightly creates a subtle card outline that adds refinement without breaking the earthy feel.',
+        body: 'Load Forest in the Linky editor and you have a ready-made nature palette that you can nudge in any direction - deeper towards a forest-floor dark green, lighter towards a spring sage, or slightly warmer towards an olive. Because the border and card background share the same colour by default, increasing the border lightness slightly creates a subtle card outline that adds refinement without breaking the earthy feel.',
       },
     ],
     faqs: [
@@ -266,7 +266,7 @@ const TEMPLATES: TemplateContent[] = [
   {
     slug: 'lilac',
     name: 'Lilac',
-    h1: 'Lilac — a pastel link in bio template',
+    h1: 'Lilac - a pastel link in bio template',
     answer:
       'Lilac is a soft, light-mode template built on a pale blue-violet background with near-white card surfaces and deep indigo text, delivering a gentle pastel aesthetic perfect for lifestyle, beauty, and wellness creators.',
     targetKeyword: 'pastel link in bio template',
@@ -274,15 +274,15 @@ const TEMPLATES: TemplateContent[] = [
     sections: [
       {
         heading: 'Soft pastels with a blue-violet character',
-        body: 'Lilac centres on hue 244–250 — a blue-leaning violet — expressed at high lightness values to keep everything airy and calm. The page base sits at 85 % lightness with full saturation (s: 1), creating a vivid but still gentle periwinkle wash. Card backgrounds step up to 92 % lightness, nearly white with a hint of blue-violet. The overall impression is fresh, soft, and distinctly feminine without being clichéd.',
+        body: 'Lilac centres on hue 244-250 - a blue-leaning violet - expressed at high lightness values to keep everything airy and calm. The page base sits at 85 % lightness with full saturation (s: 1), creating a vivid but still gentle periwinkle wash. Card backgrounds step up to 92 % lightness, nearly white with a hint of blue-violet. The overall impression is fresh, soft, and distinctly feminine without being clichéd.',
       },
       {
         heading: "What's included in the Lilac palette",
-        body: "The seven colour roles form a tight, harmonious family: a periwinkle page base, an almost-white primary card, a pure-black secondary surface (used for avatar placeholder areas), a medium-saturation blue-violet border at 76 % lightness, and a deep indigo primary label (hue 250, 18 % lightness, 32 % saturation). Notably, all three label roles — primary, secondary, and tertiary — share the same deep indigo value, which simplifies the palette and ensures consistent, readable text throughout.",
+        body: "The seven colour roles form a tight, harmonious family: a periwinkle page base, an almost-white primary card, a pure-black secondary surface (used for avatar placeholder areas), a medium-saturation blue-violet border at 76 % lightness, and a deep indigo primary label (hue 250, 18 % lightness, 32 % saturation). Notably, all three label roles - primary, secondary, and tertiary - share the same deep indigo value, which simplifies the palette and ensures consistent, readable text throughout.",
       },
       {
         heading: 'Who Lilac is best for',
-        body: 'Lilac appeals to lifestyle bloggers, beauty and skincare creators, wedding planners, florists, mental-health advocates, and any creator whose content evokes calm, care, and softness. The periwinkle-to-near-white gradient feels contemporary and Instagram-friendly. It also works well for small businesses in the wellness space — yoga instructors, therapists, and coaches — where a gentle, approachable tone builds trust.',
+        body: 'Lilac appeals to lifestyle bloggers, beauty and skincare creators, wedding planners, florists, mental-health advocates, and any creator whose content evokes calm, care, and softness. The periwinkle-to-near-white gradient feels contemporary and Instagram-friendly. It also works well for small businesses in the wellness space - yoga instructors, therapists, and coaches - where a gentle, approachable tone builds trust.',
       },
       {
         heading: 'Personalising Lilac in the editor',
@@ -298,7 +298,7 @@ const TEMPLATES: TemplateContent[] = [
       {
         question: 'Can I change the Lilac hue to a warmer purple or pink?',
         answer:
-          'Yes. The hue of each colour role is fully customisable in the editor. Shifting hue 244 towards 280–300 moves the palette from periwinkle towards true lavender or soft purple, while values around 320–340 take it towards rose and pink.',
+          'Yes. The hue of each colour role is fully customisable in the editor. Shifting hue 244 towards 280-300 moves the palette from periwinkle towards true lavender or soft purple, while values around 320-340 take it towards rose and pink.',
       },
       {
         question: 'Does Lilac suit a beauty or skincare brand page?',
@@ -315,15 +315,15 @@ const TEMPLATES: TemplateContent[] = [
   {
     slug: 'orange-punch',
     name: 'Orange Punch',
-    h1: 'Orange Punch — a bold, colourful link in bio template',
+    h1: 'Orange Punch - a bold, colourful link in bio template',
     answer:
-      'Orange Punch is a high-energy, multi-tonal template that pairs a deep navy background with vivid orange card surfaces, amber secondary accents, and mint-green text — an eye-catching combination built for creators who want maximum impact.',
+      'Orange Punch is a high-energy, multi-tonal template that pairs a deep navy background with vivid orange card surfaces, amber secondary accents, and mint-green text - an eye-catching combination built for creators who want maximum impact.',
     targetKeyword: 'colorful link in bio template',
     palette: PALETTES['orange-punch'],
     sections: [
       {
         heading: 'A bold palette built for impact',
-        body: 'Orange Punch is unlike any other Linky theme — it layers three distinct hue families into a single page. The background is a deep navy (hue 226, 10 % lightness, 48 % saturation), grounding the page in a dark, dramatic base. Link cards explode with a vivid warm orange (hue 13.5, 53 % lightness, 67 % saturation), and secondary surfaces shift to a rich amber-orange (hue 33, 48 % lightness, 95 % saturation). The contrast between the dark navy and bright orange is intentionally high-energy.',
+        body: 'Orange Punch is unlike any other Linky theme - it layers three distinct hue families into a single page. The background is a deep navy (hue 226, 10 % lightness, 48 % saturation), grounding the page in a dark, dramatic base. Link cards explode with a vivid warm orange (hue 13.5, 53 % lightness, 67 % saturation), and secondary surfaces shift to a rich amber-orange (hue 33, 48 % lightness, 95 % saturation). The contrast between the dark navy and bright orange is intentionally high-energy.',
       },
       {
         heading: "What's in the Orange Punch palette",
@@ -331,7 +331,7 @@ const TEMPLATES: TemplateContent[] = [
       },
       {
         heading: 'Who Orange Punch is best for',
-        body: "Orange Punch is designed for creators who want to stand out immediately — street-wear brands, tattoo artists, graphic designers, festival organisers, sports teams, and food creators who want their page to feel as vibrant as their content. The navy-and-orange combination has a strong sports-and-streetwear association, while the mint-green labels add a retro, neon-sign quality. This template won't suit understated brands, but for creators who want bold, it delivers.",
+        body: "Orange Punch is designed for creators who want to stand out immediately - street-wear brands, tattoo artists, graphic designers, festival organisers, sports teams, and food creators who want their page to feel as vibrant as their content. The navy-and-orange combination has a strong sports-and-streetwear association, while the mint-green labels add a retro, neon-sign quality. This template won't suit understated brands, but for creators who want bold, it delivers.",
       },
       {
         heading: 'Pushing Orange Punch further in the editor',

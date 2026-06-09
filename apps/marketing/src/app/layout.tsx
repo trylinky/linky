@@ -1,9 +1,7 @@
 import './globals.css';
 import MarketingFooter from '@/components/marketing-footer';
 import MarketingNavigation from '@/components/marketing-navigation';
-import { LoginWidget } from '@trylinky/common';
 import { buildOrganizationSchema, buildWebSiteSchema, serializeJsonLd } from '@trylinky/seo';
-import { Button } from '@trylinky/ui';
 import { Analytics } from '@vercel/analytics/react';
 import { Metadata } from 'next';
 import localFont from 'next/font/local';
@@ -79,23 +77,7 @@ export default async function RootLayout({
         />
       </head>
       <body className="min-h-screen antialiased bg-[#FBFAF7]">
-        <MarketingNavigation>
-          <>
-            <LoginWidget
-              trigger={
-                <Button variant="ghost" className="block rounded-full">
-                  Log in
-                </Button>
-              }
-            />
-            <LoginWidget
-              isSignup
-              trigger={
-                <Button className="block rounded-full">Get started</Button>
-              }
-            />
-          </>
-        </MarketingNavigation>
+        <MarketingNavigation />
         <main className="min-h-full">{children}</main>
         <MarketingFooter />
       </body>

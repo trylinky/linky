@@ -1,0 +1,25 @@
+import { ArticleTemplate } from '../../learn-template';
+
+export const metadata = {
+  title: 'How do I add multiple links to my Instagram bio?',
+  publishDate: '2026-06-08',
+  category: 'link-in-bio',
+};
+
+Instagram now lets you add up to **five** links to your profile. Open **Edit profile**, tap **Links**, choose **Add external link**, paste a URL and a title, and repeat for each one. They appear stacked under your bio.
+
+Five links is better than the old one-link limit, but it's still restrictive if you regularly share new content. A link-in-bio page removes the cap entirely: you get **unlimited** links plus rich blocks - music, video, your latest posts, a newsletter sign-up, a shop - all on one page you fully control. You also keep the same Instagram link forever and just update the page behind it, so you never have to edit your profile again.
+
+## When to use a link-in-bio page instead
+
+- You want **more than five** destinations, or you change them often.
+- You want links to look **branded**, with your colours, fonts, and photo.
+- You want to see **which links get clicked** (Instagram's native links show no analytics).
+- You want live content, like a [Spotify "now playing" block](/i/integrations/spotify) or your [latest Instagram post](/i/integrations/instagram).
+
+You can set this up for free - pick a [template](/i/templates), add your links, publish, and drop the single URL into your Instagram **Website** field.
+
+export default function MDXArticle(props) {
+return <ArticleTemplate meta={metadata}>{props.children}</ArticleTemplate>;
+
+}

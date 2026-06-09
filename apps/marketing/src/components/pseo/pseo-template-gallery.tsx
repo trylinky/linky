@@ -4,13 +4,21 @@ import { ThemeMock, type ThemePalette } from './theme-mock';
 export function TemplateGallery({
   templates,
   currentSlug,
+  columns = 4,
 }: {
   templates: { slug: string; name: string; palette: ThemePalette }[];
   currentSlug?: string;
+  columns?: 3 | 4;
 }) {
   const visible = templates.filter((t) => t.slug !== currentSlug);
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div
+      className={
+        columns === 3
+          ? 'grid grid-cols-2 sm:grid-cols-3 gap-6'
+          : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6'
+      }
+    >
       {visible.map((t) => (
         <Link
           key={t.slug}

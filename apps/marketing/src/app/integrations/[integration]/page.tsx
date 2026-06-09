@@ -1,12 +1,13 @@
 import realtimeBlocksImg from '@/assets/landing-page/realtime-blocks.png';
+import { MarketingContainer } from '@/components/marketing-container';
+import { MinimalHeading } from '@/components/minimal-heading';
 import { IntegrationBlocks } from '@/components/pseo/integration-blocks';
-import { IntegrationVisual } from '@/components/pseo/integration-visual';
+import { IntegrationGlance } from '@/components/pseo/integration-glance';
 import { DEFAULT_LINKY_BENEFITS, PseoBenefits } from '@/components/pseo/pseo-benefits';
 import { PseoFeatureImage } from '@/components/pseo/pseo-feature-image';
-import { PseoHero } from '@/components/pseo/pseo-hero';
+import { PseoFeatureSections } from '@/components/pseo/pseo-feature-sections';
 import { PseoLayout } from '@/components/pseo/pseo-layout';
-import { PseoProse } from '@/components/pseo/pseo-prose';
-import { PseoBand, PseoEyebrow, PseoSectionHeading } from '@/components/pseo/pseo-section';
+import { MinimalHero } from '@/components/pseo/pseo-minimal-hero';
 import { getIntegration, getIntegrationSlugs } from '@/content/integrations';
 import { buildPseoMetadata } from '@/lib/seo-metadata';
 import type { Metadata } from 'next';
@@ -39,38 +40,43 @@ export default async function IntegrationPage(props: {
   if (!c) notFound();
 
   return (
-    <PseoLayout faqs={c.faqs}>
-      <PseoHero
+    <PseoLayout faqs={c.faqs} minimal>
+      <MinimalHero
         eyebrow={`${c.name} integration`}
         h1={c.h1}
         answer={c.answer}
-        visual={<IntegrationVisual slug={c.slug} />}
+        secondaryHref="#blocks"
+        secondaryLabel="See the blocks"
         breadcrumbs={[
           { name: 'Home', url: 'https://lin.ky' },
           { name: 'Integrations', url: 'https://lin.ky/i/integrations' },
           { name: c.name, url: `https://lin.ky/i/integrations/${c.slug}` },
         ]}
+        visual={
+          <IntegrationGlance name={c.name} slug={c.slug} blockCopy={c.blockCopy} />
+        }
       />
 
-      <PseoBand tone="white">
-        <div className="mb-3">
-          <PseoEyebrow>What you can show</PseoEyebrow>
-        </div>
-        <div className="mt-3">
-          <PseoSectionHeading>
-            Live {c.name} content on your page
-          </PseoSectionHeading>
-        </div>
-        <p className="mt-4 text-lg leading-8 text-zinc-600 mb-8 max-w-[60ch]">
-          These blocks connect directly to {c.name} and refresh automatically —
-          your page always shows the latest.
-        </p>
-        <IntegrationBlocks blockCopy={c.blockCopy} />
-      </PseoBand>
+      <section
+        id="blocks"
+        className="scroll-mt-24 border-t border-zinc-950/5 bg-white py-20 md:py-28"
+      >
+        <MarketingContainer>
+          <MinimalHeading
+            eyebrow="What you can show"
+            heading={`Live ${c.name} content on your page`}
+            body={`These blocks connect directly to ${c.name} and refresh automatically - your page always shows the latest.`}
+          />
+          <div className="mt-12">
+            <IntegrationBlocks blockCopy={c.blockCopy} />
+          </div>
+        </MarketingContainer>
+      </section>
 
-      <PseoBenefits items={DEFAULT_LINKY_BENEFITS} />
+      <PseoBenefits items={DEFAULT_LINKY_BENEFITS} minimal />
 
       <PseoFeatureImage
+        minimal
         eyebrow="Drag and drop"
         heading="Build your page in minutes"
         body="Add any block from the editor, connect your accounts, and hit publish. Linky fetches the latest data from your integrations automatically so your page stays fresh without any manual work."
@@ -78,7 +84,11 @@ export default async function IntegrationPage(props: {
         imageAlt="Linky editor showing live integration blocks being arranged on a page"
       />
 
-      <PseoProse sections={c.sections} />
+      <PseoFeatureSections
+        sections={c.sections}
+        recipes={['blocks', 'page', 'analytics', 'social', 'editor', 'themes']}
+        minimal
+      />
     </PseoLayout>
   );
 }

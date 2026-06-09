@@ -4,7 +4,7 @@ const BASE = 'https://lin.ky';
 
 /**
  * Builds consistent, answer-first metadata for marketing pages. `description`
- * should lead with the direct answer to the page's target query — not a brand
+ * should lead with the direct answer to the page's target query - not a brand
  * tagline (GEO/AI-search best practice, June 2026).
  */
 export function buildPageMetadata(input: {
@@ -34,7 +34,7 @@ export function buildPageMetadata(input: {
 
 /**
  * Metadata for a programmatic SEO page. `path` is the CLEAN root path
- * (e.g. "/integrations/spotify") — canonical points there, not at /i/...,
+ * (e.g. "/integrations/spotify") - canonical points there, not at /i/...,
  * because the frontend rewrites the clean URL to the marketing route.
  */
 export function buildPseoMetadata(input: { title: string; description: string; path: string }): Metadata {

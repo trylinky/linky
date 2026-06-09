@@ -37,7 +37,7 @@ export const testimonialsData: Testimonial[] = [
   },
   {
     id: 4,
-    text: 'As a digital designer, it was essential to find a link-in-bio service that struck the right balance between simplicity & customisation – & Linky delivered perfectly! I really value how their platform complements my aesthetic while giving me the flexibility I need to showcase my work.',
+    text: 'As a digital designer, it was essential to find a link-in-bio service that struck the right balance between simplicity & customisation - & Linky delivered perfectly! I really value how their platform complements my aesthetic while giving me the flexibility I need to showcase my work.',
     author: 'de LVCɅ',
     linky: 'lin.ky/delucax99',
     imageUrl:

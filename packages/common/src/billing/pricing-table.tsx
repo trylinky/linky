@@ -31,30 +31,33 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 
-const tiers = [
-  // {
-  //   name: 'Free',
-  //   id: 'free',
-  //   description: 'The best way to get started',
-  //   priceMonthly: '0',
-  //   billingPeriod: 'free forever',
-  //   highlights: [
-  //     { description: 'Your own page', icon: GlobeAltIcon },
-  //     { description: 'Add up to 5 blocks', icon: CubeIcon },
-  //     {
-  //       description: 'Instagram integration',
-  //       icon: PuzzlePieceIcon,
-  //     },
-  //     {
-  //       description: 'Spotify integration',
-  //       icon: PuzzlePieceIcon,
-  //     },
-  //     {
-  //       description: 'Custom themes',
-  //       icon: PaintBrushIcon,
-  //     },
-  //   ],
-  // },
+interface Tier {
+  name: string;
+  id: string;
+  badge?: string;
+  description: string;
+  priceMonthly: string;
+  billingPeriod: string;
+  highlights: { description: string; icon: React.ComponentType<any> }[];
+}
+
+/** Marketing-only display tier; shown when `showFree` is set (e.g. the pricing page). */
+const FREE_TIER: Tier = {
+  name: 'Free',
+  id: 'free',
+  description: 'The best way to get started',
+  priceMonthly: '0',
+  billingPeriod: 'free forever',
+  highlights: [
+    { description: 'Your own page', icon: GlobeAltIcon },
+    { description: 'Add up to 5 blocks', icon: CubeIcon },
+    { description: 'Instagram integration', icon: PuzzlePieceIcon },
+    { description: 'Spotify integration', icon: PuzzlePieceIcon },
+    { description: 'Custom themes', icon: PaintBrushIcon },
+  ],
+};
+
+const tiers: Tier[] = [
   {
     name: 'Premium',
     id: 'premium',
@@ -114,9 +117,11 @@ const getReturnUrl = () => {
 export function PricingTable({
   isLoggedIn,
   onComplete,
+  showFree = false,
 }: {
   isLoggedIn: boolean;
   onComplete?: () => void;
+  showFree?: boolean;
 }) {
   const session = auth.useSession();
   const [upgradeEligibility, setUpgradeEligibility] =
@@ -235,7 +240,22 @@ export function PricingTable({
     }
   };
 
-  const getTierButton = (tier: (typeof tiers)[number]) => {
+  const getTierButton = (tier: Tier) => {
+    if (tier.id === 'free') {
+      const onFree =
+        !subscriptionData?.plan || subscriptionData.plan === 'freeLegacy';
+      return (
+        <Button
+          variant="outline"
+          size="lg"
+          disabled
+          className="w-full rounded-full"
+        >
+          {onFree ? 'Your current plan' : 'Free plan'}
+        </Button>
+      );
+    }
+
     if (tier.id === 'premium') {
       if (subscriptionData?.plan === 'team') {
         return (
@@ -364,8 +384,15 @@ export function PricingTable({
     }
   };
 
+  const displayTiers = showFree ? [FREE_TIER, ...tiers] : tiers;
+
   return (
-    <div className="mx-auto relative z-2 max-w-2xl">
+    <div
+      className={cn(
+        'mx-auto relative z-2',
+        showFree ? 'max-w-5xl px-4' : 'max-w-2xl'
+      )}
+    >
       {subscriptionData?.periodEnd && (
         <Alert className="rounded-2xl border-none shadow-xs ring-1 ring-gray-200 mb-8">
           <AlertTitle className="text-lg font-medium">
@@ -411,35 +438,40 @@ export function PricingTable({
             </AlertDescription>
           </Alert>
         )}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {tiers.map((tier) => {
+      <div
+        className={cn(
+          'grid grid-cols-1 gap-6',
+          showFree ? 'md:grid-cols-3' : 'lg:grid-cols-2'
+        )}
+      >
+        {displayTiers.map((tier) => {
           const tierButton = getTierButton(tier);
           return (
             <div
               key={tier.name}
               className={cn(
-                'rounded-2xl bg-white/50 p-8 shadow-xs ring-1 ring-gray-200/50',
-                tier.id === 'premium' && 'bg-white ring-0'
+                'rounded-3xl bg-white p-8 ring-1 ring-zinc-950/5 shadow-sm',
+                tier.id === 'premium' && 'ring-2 ring-zinc-900 shadow-md'
               )}
             >
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl font-serf font-semibold text-gray-900">
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
                   {tier.name}
                 </h2>
                 {tier.badge && (
-                  <span className="rounded-full bg-[#e26c1e] px-3 py-1 text-xs font-medium text-white">
+                  <span className="rounded-full bg-zinc-900 px-2.5 py-1 text-xs font-medium text-white">
                     {tier.badge}
                   </span>
                 )}
               </div>
-              <p className="mt-1 text-sm text-gray-500">{tier.description}</p>
+              <p className="mt-1 text-sm text-zinc-500">{tier.description}</p>
 
               <div className="mt-6">
                 <div className="flex items-baseline">
-                  <span className="text-4xl font-bold tracking-tight text-gray-900">
+                  <span className="text-4xl font-semibold tracking-tight text-zinc-900">
                     ${tier.priceMonthly}
                   </span>
-                  <span className="ml-2 text-sm text-gray-500">
+                  <span className="ml-2 text-sm text-zinc-500">
                     {tier.billingPeriod}
                   </span>
                 </div>
@@ -451,25 +483,40 @@ export function PricingTable({
                     <LoginWidget
                       isSignup
                       trigger={
-                        <Button
-                          variant="default"
-                          size="lg"
-                          className="w-full rounded-full bg-black text-white hover:bg-gray-800"
-                        >
-                          Get started
-                        </Button>
+                        tier.id === 'premium' ? (
+                          <Button
+                            variant="default"
+                            size="lg"
+                            className="w-full rounded-full bg-zinc-900 font-semibold text-white hover:bg-zinc-800"
+                          >
+                            Get Premium
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="lg"
+                            className="w-full rounded-full font-semibold"
+                          >
+                            {tier.id === 'free' ? 'Start for free' : 'Get Team'}
+                          </Button>
+                        )
                       }
                     />
                   )}
                 </div>
 
-                <ul className="mt-8 space-y-3">
+                <ul className="mt-8 space-y-3.5 border-t border-zinc-950/5 pt-6">
                   {tier.highlights.map((highlight) => (
                     <li
                       key={highlight.description}
-                      className="flex items-center gap-3 text-sm text-gray-600"
+                      className="flex items-center gap-3 text-sm text-zinc-600"
                     >
-                      <highlight.icon className="h-5 w-5 shrink-0 text-gray-400" />
+                      <span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-zinc-100">
+                        <highlight.icon
+                          className="size-3 text-zinc-700"
+                          strokeWidth={2}
+                        />
+                      </span>
                       {highlight.description}
                     </li>
                   ))}

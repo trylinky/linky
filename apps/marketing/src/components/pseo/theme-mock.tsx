@@ -1,4 +1,4 @@
-export interface HslColor { h: number; s: number; l: number } // s,l are 0–1 fractions
+export interface HslColor { h: number; s: number; l: number } // s,l are 0-1 fractions
 
 export interface ThemePalette {
   colorBgBase: HslColor;
@@ -16,8 +16,17 @@ export function hslToCss(c: HslColor): string {
 }
 
 /** A realistic, static link-in-bio preview rendered from a real theme palette. */
-export function ThemeMock({ palette, name, size = 'full' }: { palette: ThemePalette; name: string; size?: 'full' | 'thumb' }) {
-  const rows = ['Latest music', 'My shop', 'Newsletter'];
+export function ThemeMock({
+  palette,
+  name,
+  size = 'full',
+  rows = ['Latest music', 'My shop', 'Newsletter'],
+}: {
+  palette: ThemePalette;
+  name: string;
+  size?: 'full' | 'thumb';
+  rows?: string[];
+}) {
   return (
     <div
       className={size === 'thumb' ? 'rounded-xl p-4' : 'rounded-2xl p-8'}

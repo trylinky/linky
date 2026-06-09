@@ -6,7 +6,7 @@ export const MarketingContainer = (props: {
   children: ReactNode;
 }) => {
   return (
-    <div className={cn('max-w-6xl mx-auto px-4', props.className)}>
+    <div className={cn('max-w-5xl mx-auto px-4', props.className)}>
       {props.children}
     </div>
   );
