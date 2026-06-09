@@ -26,13 +26,20 @@ export type ReactionType = (typeof reactionTypes)[number];
 
 export interface ReactionBlockConfig {
   reactionType: ReactionType;
+  // Custom display label; empty/missing falls back to the type's default
+  label?: string;
 }
 ```
 
 - Default: `{ reactionType: 'love' }`.
-- Yup schema validates `reactionType` with `oneOf(reactionTypes)` and is
-  registered in the blocks config map (currently `schema: null`).
+- Yup schema validates `reactionType` with `oneOf(reactionTypes)` and
+  `label` as an optional string of at most 30 characters; it is registered
+  in the blocks config map (currently `schema: null`).
 - The dead `showLove` boolean is dropped from the type.
+- The block renders `label` when set (trimmed, non-empty); otherwise the
+  reaction type's default label ("Love", "Thumbs up", ...). The edit form
+  shows the default as the input's placeholder. The label is display-only;
+  the API never sees it.
 
 ### Backwards compatibility
 
