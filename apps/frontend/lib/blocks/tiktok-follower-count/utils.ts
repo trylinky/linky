@@ -1,4 +1,5 @@
-'use server';
+import { cacheLife, cacheTag } from 'next/cache';
+import 'server-only';
 
 import { decrypt, encrypt } from '@/lib/encrypt';
 import prisma from '@/lib/prisma';
@@ -69,7 +70,7 @@ const fetchTikTokData = async (
         },
       });
 
-      fetchTikTokData(
+      return fetchTikTokData(
         {
           accessToken: refreshTokenData.access_token,
           refreshToken: config.refreshToken,
@@ -107,6 +108,11 @@ const fetchTikTokData = async (
 };
 
 export const fetchData = async (blockId: string) => {
+  'use cache';
+
+  cacheLife('hours');
+  cacheTag(`block-${blockId}`);
+
   try {
     const block = await prisma.block.findUnique({
       where: { id: blockId },

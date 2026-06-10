@@ -1,4 +1,5 @@
-'use server';
+import { cacheLife, cacheTag } from 'next/cache';
+import 'server-only';
 
 import { decrypt, encrypt } from '@/lib/encrypt';
 import prisma from '@/lib/prisma';
@@ -68,7 +69,7 @@ const fetchInstagramData = async (
         },
       });
 
-      fetchInstagramData(
+      return fetchInstagramData(
         {
           accessToken: refreshTokenData.access_token,
           instagramUserId: config.instagramUserId,
@@ -99,6 +100,11 @@ const fetchInstagramData = async (
 };
 
 export const fetchData = async ({ blockId }: { blockId: string }) => {
+  'use cache';
+
+  cacheLife('hours');
+  cacheTag(`block-${blockId}`);
+
   try {
     const block = await prisma.block.findUnique({
       where: { id: blockId },

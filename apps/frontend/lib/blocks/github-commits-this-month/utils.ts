@@ -1,9 +1,14 @@
-'use server';
+import { cacheLife } from 'next/cache';
+import 'server-only';
 
 import { captureException } from '@sentry/nextjs';
 import { formatISO, sub } from 'date-fns';
 
 export const fetchGithubData = async (githubUsername: string) => {
+  'use cache';
+
+  cacheLife('hours');
+
   const currentDate = new Date();
   const oneMonthAgo = formatISO(
     sub(currentDate, {

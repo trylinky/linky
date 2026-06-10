@@ -1,6 +1,12 @@
+import { cacheLife } from 'next/cache';
+import 'server-only';
 import { captureException } from '@sentry/nextjs';
 
 export async function fetchData(spotifyAssetUrl: string) {
+  'use cache';
+
+  cacheLife('days');
+
   try {
     const req = await fetch(
       `https://open.spotify.com/oembed?url=${spotifyAssetUrl}`,

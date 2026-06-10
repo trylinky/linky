@@ -1,4 +1,5 @@
-'use server';
+import { cacheLife, cacheTag } from 'next/cache';
+import 'server-only';
 
 import { decrypt, encrypt } from '@/lib/encrypt';
 import prisma from '@/lib/prisma';
@@ -88,7 +89,7 @@ const fetchThreadsData = async (
         },
       });
 
-      fetchThreadsData(
+      return fetchThreadsData(
         {
           accessToken: refreshTokenData.access_token,
           threadsUserId: config.threadsUserId,
@@ -122,6 +123,11 @@ const fetchThreadsData = async (
 };
 
 export const fetchData = async (blockId: string) => {
+  'use cache';
+
+  cacheLife('hours');
+  cacheTag(`block-${blockId}`);
+
   try {
     const block = await prisma.block.findUnique({
       where: { id: blockId },
