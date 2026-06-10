@@ -40,12 +40,17 @@ export function Dialog({
             className={clsx(
               className,
               sizes[size],
-              'row-start-2 w-full min-w-0 rounded-t-3xl bg-white p-(--gutter) shadow-lg ring-1 ring-zinc-950/10 [--gutter:--spacing(8)] sm:mb-auto sm:rounded-2xl dark:bg-zinc-900 dark:ring-white/10 forced-colors:outline',
-              'max-h-[calc(100dvh-4rem)] overflow-y-auto',
+              'row-start-2 flex w-full min-w-0 flex-col rounded-t-3xl bg-white shadow-lg ring-1 ring-zinc-950/10 [--gutter:--spacing(8)] sm:mb-auto sm:rounded-2xl dark:bg-zinc-900 dark:ring-white/10 forced-colors:outline',
+              'max-h-[calc(100dvh-4rem)]',
               'transition duration-200 will-change-transform data-closed:translate-y-2 data-closed:opacity-0 data-enter:ease-out data-leave:ease-in'
             )}
           >
-            {children}
+            {/* Scrolling happens on this inner wrapper, never on the panel
+                itself — the panel keeps painting the background, so
+                overscroll can't expose the backdrop. */}
+            <div className="min-h-0 flex-1 overflow-y-auto p-(--gutter)">
+              {children}
+            </div>
           </Headless.DialogPanel>
         </div>
       </div>

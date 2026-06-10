@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from '@trylinky/ui/catalyst';
-import { Download, Loader2, Trash2 } from 'lucide-react';
+import { Download, Loader2, Trash2, TriangleAlert } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSWRConfig } from 'swr';
 
@@ -264,6 +264,17 @@ export function SidebarForms() {
         ))}
       </div>
 
+      {selectedGroup?.isDeleted && (
+        <div className="flex items-start gap-2.5 rounded-lg bg-amber-50 p-3 ring-1 ring-amber-600/20 ring-inset">
+          <TriangleAlert className="mt-0.5 size-4 shrink-0 text-amber-600" />
+          <p className="text-sm text-amber-900">
+            This form was removed from your page, so it&apos;s no longer
+            collecting responses. The responses it already collected stay
+            available here.
+          </p>
+        </div>
+      )}
+
       {selectedGroup && (
         <div className="flex items-center justify-between">
           <Catalyst.Text>
@@ -295,7 +306,8 @@ export function SidebarForms() {
           <Catalyst.Text>No responses yet.</Catalyst.Text>
         </div>
       ) : (
-        <Table dense striped className="w-full [--gutter:--spacing(4)]">
+        <div className="overflow-hidden rounded-xl border border-zinc-950/10 bg-white px-4 py-1">
+          <Table dense striped className="w-full [--gutter:--spacing(4)]">
           <TableHead>
             <TableRow>
               <TableHeader>Submitted</TableHeader>
@@ -335,7 +347,8 @@ export function SidebarForms() {
               </TableRow>
             ))}
           </TableBody>
-        </Table>
+          </Table>
+        </div>
       )}
 
       {nextCursor && (

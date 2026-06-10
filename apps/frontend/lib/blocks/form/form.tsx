@@ -41,7 +41,7 @@ const newField = (): FormBlockField => ({
 });
 
 const inputClasses =
-  'rounded-lg bg-white px-3 py-1.5 text-sm text-zinc-950 ring-1 ring-zinc-950/10 ring-inset placeholder:text-zinc-400 focus:ring-2 focus:ring-zinc-950 focus:outline-none';
+  'rounded-lg bg-white px-3 py-1.5 text-sm text-zinc-900 ring-1 ring-zinc-950/10 ring-inset placeholder:text-zinc-400 focus:ring-2 focus:ring-zinc-400 focus:outline-none';
 
 const iconButtonClasses =
   'grid size-8 shrink-0 place-items-center rounded-md text-zinc-400 hover:bg-zinc-950/5 hover:text-zinc-700 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-zinc-400';
@@ -137,12 +137,12 @@ const FieldList = () => {
         <section className="flex flex-col gap-3">
           <div className="flex items-baseline justify-between">
             <h3 className="text-sm font-semibold text-zinc-950">Fields</h3>
-            <p className="text-sm text-zinc-500 tabular-nums">
+            <p className="text-sm tracking-normal text-zinc-500">
               {values.fields.length} of {MAX_FORM_FIELDS}
             </p>
           </div>
 
-          <div className="divide-y divide-zinc-950/5 rounded-xl border border-zinc-950/10">
+          <div className="flex flex-col gap-2 rounded-xl bg-zinc-100/80 p-2">
             {values.fields.map((field, index) => {
               const rowErrors = Array.isArray(errors.fields)
                 ? (errors.fields[index] as
@@ -152,7 +152,10 @@ const FieldList = () => {
                 : undefined;
 
               return (
-                <div key={field.id} className="flex flex-col gap-3 p-4">
+                <div
+                  key={field.id}
+                  className="flex flex-col gap-3 rounded-lg bg-white p-4 shadow-xs ring-1 ring-zinc-950/5"
+                >
                   <div className="flex items-center gap-2">
                     <Field
                       name={`fields.${index}.label`}
@@ -283,21 +286,21 @@ const FieldList = () => {
                 </div>
               );
             })}
+
+            {values.fields.length < MAX_FORM_FIELDS && (
+              <button
+                type="button"
+                onClick={() => push(newField())}
+                className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-zinc-950/15 py-2 text-sm font-medium text-zinc-600 hover:border-zinc-950/25 hover:bg-white/60 hover:text-zinc-950"
+              >
+                <Plus className="size-4" />
+                Add field
+              </button>
+            )}
           </div>
 
           {typeof errors.fields === 'string' && (
             <p className="text-sm text-red-600">{errors.fields}</p>
-          )}
-
-          {values.fields.length < MAX_FORM_FIELDS && (
-            <button
-              type="button"
-              onClick={() => push(newField())}
-              className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-zinc-950/15 py-2 text-sm font-medium text-zinc-600 hover:border-zinc-950/25 hover:bg-zinc-950/2.5 hover:text-zinc-950"
-            >
-              <Plus className="size-4" />
-              Add field
-            </button>
           )}
 
           <p className="text-sm text-zinc-500">
@@ -348,7 +351,7 @@ const OptionsEditor = ({
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5 rounded-lg p-2 ring-1 ring-zinc-950/10 ring-inset focus-within:ring-2 focus-within:ring-zinc-950">
+    <div className="flex flex-wrap items-center gap-1.5 rounded-lg p-2 ring-1 ring-zinc-950/10 ring-inset focus-within:ring-2 focus-within:ring-zinc-400">
       {options.map((option) => (
         <span
           key={option}

@@ -13,6 +13,16 @@ interface Props extends BlockProps {
   href?: string;
 }
 
+// Clipping detection is opt-in per block type. Visual blocks (reactions,
+// link box, follower counts…) contain decorative or masked overflow that
+// reads as a false positive — only text-driven blocks get the badge.
+const CLIP_DETECTABLE_BLOCK_TYPES = new Set<string>([
+  'header',
+  'content',
+  'stack',
+  'form',
+]);
+
 export function CoreBlock({
   blockId,
   blockType,
@@ -30,7 +40,10 @@ export function CoreBlock({
   );
 
   const rootRef = useRef<HTMLDivElement>(null);
-  const isClipped = useContentClipping(rootRef, isEditable);
+  const isClipped = useContentClipping(
+    rootRef,
+    isEditable && CLIP_DETECTABLE_BLOCK_TYPES.has(blockType)
+  );
 
   const content = (
     <>
