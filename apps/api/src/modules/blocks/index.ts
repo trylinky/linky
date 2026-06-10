@@ -16,7 +16,11 @@ import {
 } from './service';
 import { createPosthogClient } from '@/lib/posthog';
 import prisma from '@/lib/prisma';
-import { pageIdCacheTag, revalidatePageCache } from '@/lib/revalidate';
+import {
+  blockCacheTag,
+  pageIdCacheTag,
+  revalidatePageCache,
+} from '@/lib/revalidate';
 import { FastifyInstance, FastifyReply } from 'fastify';
 import { FastifyRequest } from 'fastify';
 
@@ -236,7 +240,10 @@ async function deleteBlockHandler(
   try {
     await deleteBlockById(blockId, session.user.id);
 
-    void revalidatePageCache([pageIdCacheTag(block.pageId)]);
+    void revalidatePageCache([
+      pageIdCacheTag(block.pageId),
+      blockCacheTag(blockId),
+    ]);
 
     posthog?.capture({
       distinctId: session.user.id,
@@ -283,7 +290,10 @@ async function updateBlockDataHandler(
   try {
     const updatedBlock = await updateBlockData(blockId, newData);
 
-    void revalidatePageCache([pageIdCacheTag(updatedBlock.pageId)]);
+    void revalidatePageCache([
+      pageIdCacheTag(updatedBlock.pageId),
+      blockCacheTag(blockId),
+    ]);
 
     return response.status(200).send({
       id: updatedBlock.id,

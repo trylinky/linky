@@ -17,7 +17,18 @@ export function pageSlugCacheTag(slug: string, domain: string): string {
   return `page-slug-${slug}-${domain}`;
 }
 
+/**
+ * Integration-block data (follower counts, latest posts, …) is cached per
+ * block under this tag; revalidate it whenever the block or its linked
+ * integration changes.
+ */
+export function blockCacheTag(blockId: string): string {
+  return `block-${blockId}`;
+}
+
 const REVALIDATE_TIMEOUT_MS = 3000;
+// Keep in sync with MAX_TAGS_PER_REQUEST in apps/frontend/app/api/revalidate/route.ts
+const MAX_TAGS_PER_REQUEST = 20;
 
 /**
  * Tell the frontend to drop cached public-page data for the given tags.
@@ -33,24 +44,28 @@ export async function revalidatePageCache(tags: string[]): Promise<void> {
     return;
   }
 
-  try {
-    const res = await fetch(`${frontendUrl}/api/revalidate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-internal-api-key': process.env.INTERNAL_API_KEY as string,
-      },
-      body: JSON.stringify({ tags }),
-      signal: AbortSignal.timeout(REVALIDATE_TIMEOUT_MS),
-    });
+  for (let i = 0; i < tags.length; i += MAX_TAGS_PER_REQUEST) {
+    const batch = tags.slice(i, i + MAX_TAGS_PER_REQUEST);
 
-    if (!res.ok) {
-      console.error(
-        `Cache revalidation failed with status ${res.status} for tags: ${tags.join(', ')}`
-      );
+    try {
+      const res = await fetch(`${frontendUrl}/api/revalidate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-internal-api-key': process.env.INTERNAL_API_KEY as string,
+        },
+        body: JSON.stringify({ tags: batch }),
+        signal: AbortSignal.timeout(REVALIDATE_TIMEOUT_MS),
+      });
+
+      if (!res.ok) {
+        console.error(
+          `Cache revalidation failed with status ${res.status} for tags: ${batch.join(', ')}`
+        );
+      }
+    } catch (error) {
+      console.error('Cache revalidation request failed', error);
+      captureException(error);
     }
-  } catch (error) {
-    console.error('Cache revalidation request failed', error);
-    captureException(error);
   }
 }

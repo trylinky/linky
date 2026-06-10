@@ -2,6 +2,11 @@
 
 import prisma from '@/lib/prisma';
 import {
+  blockCacheTag,
+  pageIdCacheTag,
+  revalidatePageCache,
+} from '@/lib/revalidate';
+import {
   connectBlockSchema,
   disconnectBlockSchema,
   disconnectIntegrationSchema,
@@ -96,7 +101,20 @@ async function disconnectIntegrationHandler(
   }
 
   try {
+    const linkedBlocks = await prisma.block.findMany({
+      where: { integrationId },
+      select: { id: true, pageId: true },
+    });
+
     await disconnectIntegration(integrationId);
+
+    void revalidatePageCache([
+      ...linkedBlocks.map((block) => blockCacheTag(block.id)),
+      ...[...new Set(linkedBlocks.map((block) => block.pageId))].map(
+        pageIdCacheTag
+      ),
+    ]);
+
     return response.status(200).send({
       success: true,
     });
@@ -171,6 +189,11 @@ async function connectBlockHandler(
       },
     });
 
+    void revalidatePageCache([
+      blockCacheTag(blockId),
+      pageIdCacheTag(block.pageId),
+    ]);
+
     return response.status(200).send({
       success: true,
     });
@@ -216,6 +239,11 @@ async function disconnectBlockHandler(
       },
     },
   });
+
+  void revalidatePageCache([
+    blockCacheTag(blockId),
+    pageIdCacheTag(block.pageId),
+  ]);
 
   return response.status(200).send({
     success: true,

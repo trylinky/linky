@@ -5,6 +5,11 @@ import {
 } from './utils';
 import { decrypt, encrypt, isEncrypted } from '@/lib/encrypt';
 import prisma from '@/lib/prisma';
+import {
+  blockCacheTag,
+  pageIdCacheTag,
+  revalidatePageCache,
+} from '@/lib/revalidate';
 import { captureException } from '@sentry/node';
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
@@ -130,10 +135,15 @@ async function getThreadsCallbackHandler(
       if (decryptedState?.blockId) {
         const blockId = decryptedState.blockId;
 
-        await prisma.block.update({
+        const linkedBlock = await prisma.block.update({
           where: { id: blockId },
           data: { integrationId: integration.id },
         });
+
+        void revalidatePageCache([
+          blockCacheTag(blockId),
+          pageIdCacheTag(linkedBlock.pageId),
+        ]);
       }
     }
 
