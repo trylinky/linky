@@ -3,6 +3,7 @@
 import { PageThemePreview } from '@/app/components/PageThemePreview';
 import { defaultThemeSeeds } from '@/lib/theme';
 import { Label, RadioGroup, RadioGroupItem } from '@trylinky/ui';
+import { Check } from 'lucide-react';
 
 interface ThemeStepProps {
   currentThemeId: string;
@@ -11,34 +12,33 @@ interface ThemeStepProps {
 
 export function ThemeStep({ currentThemeId, setFieldValue }: ThemeStepProps) {
   return (
-    <div>
-      <RadioGroup
-        onValueChange={(val: string) => setFieldValue('themeId', val)}
-        value={currentThemeId} // Use value prop for controlled component
-        className="grid max-w-md grid-cols-2 gap-4 pt-2"
-      >
-        {Object.entries(defaultThemeSeeds).map(([themeName, themeValues]) => {
-          return (
-            <Label
-              key={themeValues.id} // Use themeValues.id for a more stable key if themeName can change
-              htmlFor={themeValues.id}
-              className="cursor-pointer [&:has([data-state=checked])>div]:border-primary"
-            >
-              <RadioGroupItem
-                value={themeValues.id}
-                id={themeValues.id}
-                className="sr-only"
-              />
-              <div className="items-center rounded-md border-2 border-muted p-1 hover:border-accent transition-colors">
-                <PageThemePreview themeValues={themeValues} />
-              </div>
-              <span className="block w-full p-2 text-center font-medium">
-                {themeName}
-              </span>
-            </Label>
-          );
-        })}
-      </RadioGroup>
-    </div>
+    <RadioGroup
+      onValueChange={(val: string) => setFieldValue('themeId', val)}
+      value={currentThemeId}
+      className="grid grid-cols-2 gap-3 lg:grid-cols-3"
+    >
+      {Object.entries(defaultThemeSeeds).map(([themeName, themeValues]) => (
+        <Label
+          key={themeValues.id}
+          htmlFor={themeValues.id}
+          className="group cursor-pointer"
+        >
+          <RadioGroupItem
+            value={themeValues.id}
+            id={themeValues.id}
+            className="sr-only"
+          />
+          <span className="relative block overflow-hidden rounded-xl ring-1 ring-slate-900/10 group-hover:ring-slate-900/25 group-has-[[data-state=checked]]:ring-2 group-has-[[data-state=checked]]:ring-slate-900 dark:ring-white/10 dark:group-hover:ring-white/25 dark:group-has-[[data-state=checked]]:ring-white">
+            <PageThemePreview themeValues={themeValues} />
+            <span className="absolute top-1.5 right-1.5 hidden size-5 items-center justify-center rounded-full bg-slate-900 text-white group-has-[[data-state=checked]]:flex dark:bg-white dark:text-slate-900">
+              <Check className="size-3" strokeWidth={3} />
+            </span>
+          </span>
+          <span className="mt-1.5 block text-center text-sm font-medium text-slate-700 dark:text-slate-300">
+            {themeName.replace(/([a-z])([A-Z])/g, '$1 $2')}
+          </span>
+        </Label>
+      ))}
+    </RadioGroup>
   );
 }

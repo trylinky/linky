@@ -1,9 +1,9 @@
 'use client';
 
-import { HandleStep } from './HandleStep';
+import { HandleStep, SlugAvailability } from './HandleStep';
 import { PagePreview } from './PagePreview';
 import { ThemeStep } from './ThemeStep';
-import { regexSlug } from '@/lib/slugs';
+import { isForbiddenSlug, isReservedSlug, regexSlug } from '@/lib/slugs';
 import { defaultThemeSeeds } from '@/lib/theme';
 import { captureException } from '@sentry/nextjs';
 import { InternalApi } from '@trylinky/common';
@@ -13,20 +13,21 @@ import {
   DialogTitle,
   Button,
   useToast,
+  cn,
 } from '@trylinky/ui';
-import { Formik, Form, FormikHelpers } from 'formik';
-import { Loader2 } from 'lucide-react';
+import { Formik, Form, FormikHelpers, useFormikContext } from 'formik';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import * as Yup from 'yup';
 
 const FormSchema = Yup.object().shape({
   pageSlug: Yup.string()
     .trim()
-    .required('Please provide a page slug')
+    .required('Please provide a page handle')
     .matches(
       regexSlug,
-      'Please only use lowercase letters, numbers, dashes and underscores'
+      'Please only use lowercase letters, numbers and underscores'
     ),
   themeId: Yup.string().required('Please select a theme'),
 });
@@ -42,116 +43,222 @@ interface Props {
   onClose?: () => void;
 }
 
+function useSlugAvailability(slug: string): SlugAvailability {
+  const [status, setStatus] = useState<SlugAvailability>('idle');
+
+  useEffect(() => {
+    if (!slug || !regexSlug.test(slug)) {
+      setStatus('idle');
+      return;
+    }
+
+    if (isForbiddenSlug(slug) || isReservedSlug(slug)) {
+      setStatus('taken');
+      return;
+    }
+
+    setStatus('checking');
+    let cancelled = false;
+    const timeout = setTimeout(async () => {
+      try {
+        const { isAvailable } = await InternalApi.get(
+          `/pages/internal/slug-availability?slug=${slug}`
+        );
+        if (!cancelled) setStatus(isAvailable ? 'available' : 'taken');
+      } catch (err) {
+        captureException(err);
+        if (!cancelled) setStatus('error');
+      }
+    }, 400);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
+  }, [slug]);
+
+  return status;
+}
+
 function WelcomeScreen({ onNext }: { onNext: () => void }) {
   return (
-    <div className="w-full p-4 md:p-6 flex flex-col bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 rounded-lg shadow-md transition-all">
-      <div className="flex flex-col items-center justify-center h-full text-center">
-        {/* Logo Illustration */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/assets/logo.png"
-          alt="Linky Logo"
-          className="mb-4 md:mb-6 w-16 h-16 md:w-24 md:h-24 drop-shadow-lg animate-fade-in rounded-xl"
-        />
-        {/* Heading */}
-        <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-slate-100">
-          Welcome to <span className="text-primary">Linky</span>
-        </h2>
-        {/* Subtitle */}
-        <p className="text-base md:text-lg text-slate-500 dark:text-slate-400 mt-2 max-w-md">
-          Let's get started with building your first page. We'll guide you
-          through the process step by step.
-        </p>
-        {/* Value Proposition */}
-        <p className="text-xs md:text-sm text-slate-400 mt-2">
-          Trusted by 3000+ creators
-        </p>
-        {/* Get Started Button */}
-        <Button
-          type="button"
-          onClick={onNext}
-          className="mt-4 md:mt-6 shadow-lg w-full md:w-auto"
-          size="xl"
-        >
-          Get Started
-        </Button>
-      </div>
+    <div className="flex w-full flex-col items-center justify-center bg-linear-to-br from-slate-50 via-white to-slate-100 p-6 text-center dark:from-slate-900 dark:via-slate-950 dark:to-slate-900">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/assets/logo.png"
+        alt="Linky Logo"
+        className="size-16 rounded-xl drop-shadow-lg md:size-24"
+      />
+      <h2 className="mt-4 text-2xl font-semibold tracking-tight text-balance text-slate-900 md:mt-6 md:text-3xl dark:text-slate-100">
+        Welcome to <span className="text-primary">Linky</span>
+      </h2>
+      <p className="mt-2 max-w-md text-base text-pretty text-slate-500 md:text-lg dark:text-slate-400">
+        Let's build your first page together. It only takes a minute.
+      </p>
+      <p className="mt-2 text-sm text-slate-400">Trusted by 3000+ creators.</p>
+      <Button
+        type="button"
+        onClick={onNext}
+        className="mt-6 w-full shadow-lg md:w-auto"
+        size="xl"
+      >
+        Get started
+      </Button>
     </div>
   );
 }
 
-function HandleScreen({
-  error,
-  touched,
-  pageSlug,
-  onNext,
+function StepShell({
+  eyebrow,
+  title,
+  description,
+  preview,
+  children,
 }: {
-  error?: string;
-  touched?: boolean;
-  pageSlug: string;
-  onNext: () => void;
+  eyebrow: string;
+  title: string;
+  description: string;
+  preview: ReactNode;
+  children: ReactNode;
 }) {
   return (
     <>
-      <div className="w-full md:w-1/2 p-4 md:p-6 flex flex-col border-r border-slate-200 dark:border-slate-700">
-        <div className="mb-4 md:mb-6">
-          <h2 className="text-xl md:text-2xl font-semibold text-slate-900 dark:text-slate-100">
-            Choose your page handle
-          </h2>
-          <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 mt-1">
-            This will be your page's unique web address on lin.ky.
+      <div className="flex w-full flex-col overflow-y-auto border-slate-200 md:w-1/2 md:border-r dark:border-slate-700">
+        {/* my-auto centers short content without breaking scroll on tall content */}
+        <div className="my-auto p-5 md:p-8">
+          <p className="text-xs font-medium text-slate-400 dark:text-slate-500">
+            {eyebrow}
           </p>
-        </div>
-        <div className="grow">
-          <HandleStep error={error} touched={touched} />
+          <h2 className="mt-1.5 text-2xl font-semibold tracking-tight text-balance text-slate-900 dark:text-slate-100">
+            {title}
+          </h2>
+          <p className="mt-1.5 text-sm text-pretty text-slate-500 dark:text-slate-400">
+            {description}
+          </p>
+          <div className="mt-6">{children}</div>
         </div>
       </div>
-      <div className="hidden md:flex w-1/2 flex-col items-center justify-center bg-slate-100 dark:bg-slate-900">
-        <PagePreview
-          pageSlug={pageSlug}
-          themeId={defaultThemeSeeds.Default.id}
-          currentStep={1}
-        />
-      </div>
+      <div className="hidden w-1/2 md:flex">{preview}</div>
     </>
   );
 }
 
-function ThemeScreen({
-  currentThemeId,
-  setFieldValue,
-  pageSlug,
+function NewPageForm({
+  currentStep,
+  setCurrentStep,
+  isFreshOnboarding,
+  onClose,
 }: {
-  currentThemeId: string;
-  setFieldValue: (field: string, value: any) => void;
-  pageSlug: string;
+  currentStep: number;
+  setCurrentStep: (step: number) => void;
+  isFreshOnboarding: boolean;
+  onClose?: () => void;
 }) {
+  const { values, errors, isSubmitting, setFieldValue } =
+    useFormikContext<FormValues>();
+  const availability = useSlugAvailability(values.pageSlug);
+
+  const totalSteps = isFreshOnboarding ? 3 : 2;
+  const handleStepNumber = isFreshOnboarding ? 2 : 1;
+  const themeStepNumber = isFreshOnboarding ? 3 : 2;
+
+  const slugReady =
+    !!values.pageSlug &&
+    regexSlug.test(values.pageSlug) &&
+    (availability === 'available' || availability === 'error');
+
   return (
-    <>
-      <div className="w-full md:w-1/2 p-4 md:p-6 flex flex-col border-r border-slate-200 dark:border-slate-700">
-        <div className="mb-4 md:mb-6">
-          <h2 className="text-xl md:text-2xl font-semibold text-slate-900 dark:text-slate-100">
-            Select a theme
-          </h2>
-          <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 mt-1">
-            Pick a visual style that best represents your page.
-          </p>
+    <Form className="flex h-[min(85svh,600px)] flex-col">
+      <div className="flex min-h-0 flex-1">
+        {currentStep === 1 && isFreshOnboarding && (
+          <WelcomeScreen onNext={() => setCurrentStep(2)} />
+        )}
+        {currentStep === handleStepNumber && (
+          <StepShell
+            eyebrow={`Step ${handleStepNumber} of ${totalSteps}`}
+            title="Claim your handle"
+            description="This will be your page's home on the internet."
+            preview={
+              <PagePreview
+                pageSlug={values.pageSlug}
+                themeId={defaultThemeSeeds.Default.id}
+              />
+            }
+          >
+            <HandleStep availability={availability} error={errors.pageSlug} />
+          </StepShell>
+        )}
+        {currentStep === themeStepNumber && (
+          <StepShell
+            eyebrow={`Step ${themeStepNumber} of ${totalSteps}`}
+            title="Pick your look"
+            description="Choose a starting theme — you can customize every detail later."
+            preview={
+              <PagePreview
+                pageSlug={values.pageSlug}
+                themeId={values.themeId}
+              />
+            }
+          >
+            <ThemeStep
+              currentThemeId={values.themeId}
+              setFieldValue={setFieldValue}
+            />
+          </StepShell>
+        )}
+      </div>
+
+      <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-5 py-3.5 md:px-6 dark:border-slate-700 dark:bg-slate-800/30">
+        <div className="flex items-center gap-1.5" aria-hidden="true">
+          {Array.from({ length: totalSteps }).map((_, index) => (
+            <span
+              key={index}
+              className={cn(
+                'h-1.5 rounded-full transition-all duration-300',
+                index + 1 === currentStep
+                  ? 'w-6 bg-slate-900 dark:bg-white'
+                  : 'w-1.5 bg-slate-300 dark:bg-slate-600'
+              )}
+            />
+          ))}
         </div>
-        <div className="grow">
-          <ThemeStep
-            currentThemeId={currentThemeId}
-            setFieldValue={setFieldValue}
-          />
+        <div className="flex items-center gap-2">
+          {currentStep === 1 && onClose && !isSubmitting && (
+            <Button type="button" variant="ghost" onClick={onClose}>
+              Cancel
+            </Button>
+          )}
+          {currentStep > 1 && (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setCurrentStep(currentStep - 1)}
+              disabled={isSubmitting}
+            >
+              Back
+            </Button>
+          )}
+          {currentStep === handleStepNumber && (
+            <Button
+              type="button"
+              onClick={() => setCurrentStep(currentStep + 1)}
+              disabled={!slugReady || isSubmitting}
+            >
+              Continue
+              <ArrowRight className="ml-2 size-4" />
+            </Button>
+          )}
+          {currentStep === themeStepNumber && (
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting && (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              )}
+              Create my page
+            </Button>
+          )}
         </div>
       </div>
-      <div className="hidden md:flex w-1/2 flex-col items-center justify-center bg-slate-100 dark:bg-slate-900">
-        <PagePreview
-          pageSlug={pageSlug}
-          themeId={currentThemeId}
-          currentStep={2}
-        />
-      </div>
-    </>
+    </Form>
   );
 }
 
@@ -161,8 +268,6 @@ export function NewPageDialog({ open, onOpenChange, onClose }: Props) {
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const isFreshOnboarding = searchParams.get('freshOnboarding') === 'true';
-
-  const totalSteps = isFreshOnboarding ? 3 : 2;
 
   useEffect(() => {
     if (isFreshOnboarding) {
@@ -216,7 +321,8 @@ export function NewPageDialog({ open, onOpenChange, onClose }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="md:max-w-2xl lg:max-w-3xl xl:max-w-4xl p-0! min-h-[550px]">
+      <DialogContent className="overflow-hidden p-0! md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
+        <DialogTitle className="sr-only">Create a new page</DialogTitle>
         <Formik<FormValues>
           initialValues={{
             pageSlug: '',
@@ -228,161 +334,12 @@ export function NewPageDialog({ open, onOpenChange, onClose }: Props) {
           validateOnChange={true}
           validateOnBlur={true}
         >
-          {({
-            isSubmitting,
-            values,
-            errors,
-            touched,
-            setFieldValue,
-            validateForm,
-            dirty,
-            setFieldError,
-          }) => (
-            <Form className="flex flex-col h-full">
-              <div className="flex flex-1">
-                {currentStep === 1 && isFreshOnboarding && (
-                  <WelcomeScreen onNext={() => setCurrentStep(2)} />
-                )}
-                {currentStep === (isFreshOnboarding ? 2 : 1) && (
-                  <HandleScreen
-                    error={errors.pageSlug}
-                    touched={touched.pageSlug}
-                    pageSlug={values.pageSlug}
-                    onNext={async () => {
-                      const formErrors = await validateForm();
-                      if (formErrors.pageSlug || !values.pageSlug) {
-                        if (!values.pageSlug)
-                          setFieldValue('pageSlug', '', true);
-                      } else {
-                        setCurrentStep(currentStep + 1);
-                      }
-                    }}
-                  />
-                )}
-                {currentStep === (isFreshOnboarding ? 3 : 2) && (
-                  <ThemeScreen
-                    currentThemeId={values.themeId}
-                    setFieldValue={setFieldValue}
-                    pageSlug={values.pageSlug}
-                  />
-                )}
-              </div>
-
-              {/* Footer: Navigation */}
-              <div className="p-4 md:p-6 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/30 flex justify-between items-center">
-                <div>
-                  {currentStep > 1 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setCurrentStep(currentStep - 1)}
-                      disabled={isSubmitting}
-                    >
-                      Back
-                    </Button>
-                  )}
-                  {currentStep === 1 && onClose && !isSubmitting && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={onClose}
-                      className="ml-auto mr-2 md:hidden"
-                    >
-                      Cancel
-                    </Button>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 ml-auto">
-                  {currentStep === 1 && onClose && !isSubmitting && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={onClose}
-                      className="hidden md:inline-flex"
-                    >
-                      Cancel
-                    </Button>
-                  )}
-                  {currentStep < totalSteps &&
-                    !(currentStep === 1 && isFreshOnboarding) && (
-                      <Button
-                        type="button"
-                        onClick={async () => {
-                          const formErrors = await validateForm();
-                          if (
-                            currentStep === (isFreshOnboarding ? 2 : 1) &&
-                            (formErrors.pageSlug || !values.pageSlug)
-                          ) {
-                            if (!values.pageSlug)
-                              setFieldValue('pageSlug', '', true);
-                          } else if (
-                            currentStep === (isFreshOnboarding ? 2 : 1)
-                          ) {
-                            // Check slug availability before proceeding
-                            try {
-                              const { isAvailable } = await InternalApi.get(
-                                `/pages/internal/slug-availability?slug=${values.pageSlug}`
-                              );
-                              if (!isAvailable) {
-                                toast({
-                                  variant: 'error',
-                                  title: 'Slug not available',
-                                  description:
-                                    'This handle is already taken. Please choose a different one.',
-                                });
-                                setFieldError(
-                                  'pageSlug',
-                                  'This handle is already taken'
-                                );
-                                return;
-                              }
-                              setCurrentStep(currentStep + 1);
-                            } catch (err) {
-                              captureException(err);
-                              toast({
-                                variant: 'error',
-                                title: 'Error checking slug availability',
-                                description: 'Please try again later.',
-                              });
-                            }
-                          } else if (
-                            currentStep === (isFreshOnboarding ? 3 : 2) &&
-                            formErrors.themeId
-                          ) {
-                            // Handle theme errors if any specific validation is needed before submit
-                          } else if (
-                            currentStep === (isFreshOnboarding ? 3 : 2)
-                          ) {
-                            setCurrentStep(currentStep + 1);
-                          }
-                        }}
-                        disabled={
-                          isSubmitting ||
-                          (currentStep === (isFreshOnboarding ? 2 : 1) &&
-                            (!values.pageSlug || !!errors.pageSlug))
-                        }
-                      >
-                        Next
-                      </Button>
-                    )}
-                  {currentStep === totalSteps && (
-                    <Button
-                      type="submit"
-                      disabled={
-                        isSubmitting ||
-                        (!dirty && Object.keys(errors).length === 0)
-                      }
-                    >
-                      {isSubmitting && (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      )}
-                      Create Page
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </Form>
-          )}
+          <NewPageForm
+            currentStep={currentStep}
+            setCurrentStep={setCurrentStep}
+            isFreshOnboarding={isFreshOnboarding}
+            onClose={onClose}
+          />
         </Formik>
       </DialogContent>
     </Dialog>

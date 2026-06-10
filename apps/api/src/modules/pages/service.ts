@@ -278,24 +278,24 @@ export async function createNewPage({
         metaTitle: `@${slug}`,
         config: [
           {
-            h: 5,
+            h: 6,
             i: headerSectionId,
             w: 12,
             x: 0,
             y: 0,
             moved: false,
-            static: true,
+            static: false,
           },
         ],
         mobileConfig: [
           {
-            h: 5,
+            h: 6,
             i: headerSectionId,
             w: 12,
             x: 0,
             y: 0,
             moved: false,
-            static: true,
+            static: false,
           },
         ],
         blocks: {

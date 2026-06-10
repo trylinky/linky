@@ -41,7 +41,7 @@ const newField = (): FormBlockField => ({
 });
 
 const inputClasses =
-  'rounded-lg bg-white px-3 py-1.5 text-sm text-zinc-900 ring-1 ring-zinc-950/10 ring-inset placeholder:text-zinc-400 focus:ring-2 focus:ring-zinc-400 focus:outline-none';
+  'rounded-lg border-0 bg-white px-3 py-1.5 text-sm text-zinc-900 ring-1 ring-zinc-950/10 ring-inset placeholder:text-zinc-400 focus:ring-2 focus:ring-zinc-400 focus:outline-none';
 
 const iconButtonClasses =
   'grid size-8 shrink-0 place-items-center rounded-md text-zinc-400 hover:bg-zinc-950/5 hover:text-zinc-700 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-zinc-400';
@@ -174,7 +174,7 @@ const FieldList = () => {
                         aria-label="Field type"
                         className={cn(
                           inputClasses,
-                          'col-span-full row-start-1 appearance-none pr-8'
+                          'col-span-full row-start-1 appearance-none bg-none pr-8'
                         )}
                         onChange={(event: ChangeEvent<HTMLSelectElement>) => {
                           const nextType = event.target.value;
@@ -397,7 +397,7 @@ const OptionsEditor = ({
           options.length === 0 ? 'Type an option and press Enter' : 'Add another…'
         }
         aria-label="Add option"
-        className="min-w-32 flex-1 bg-transparent p-0.5 text-sm text-zinc-950 placeholder:text-zinc-400 focus:outline-none"
+        className="min-w-32 flex-1 border-0 bg-transparent p-0.5 text-sm text-zinc-950 placeholder:text-zinc-400 focus:ring-0 focus:outline-none"
       />
     </div>
   );
