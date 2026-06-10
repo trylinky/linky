@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from '@trylinky/ui/catalyst';
+import { formatDistanceToNow } from 'date-fns';
 import { Download, Loader2, Trash2, TriangleAlert } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSWRConfig } from 'swr';
@@ -281,9 +282,10 @@ export function SidebarForms() {
             {selectedGroup.submissionCount}{' '}
             {selectedGroup.submissionCount === 1 ? 'response' : 'responses'}
             {selectedGroup.latestSubmissionAt &&
-              ` · latest ${new Date(
-                selectedGroup.latestSubmissionAt
-              ).toLocaleString()}`}
+              ` · latest response ${formatDistanceToNow(
+                new Date(selectedGroup.latestSubmissionAt),
+                { addSuffix: true }
+              )}`}
           </Catalyst.Text>
           <Button
             type="button"
