@@ -342,6 +342,30 @@ describe('listSubmissions', () => {
       'f-email': 'p2@example.com',
     });
   });
+
+  it('returns an empty page for a cursor that belongs to another block', async () => {
+    // A cursor row that doesn't match the where clause must not leak rows:
+    // Prisma positions on the cursor but still applies the filter, so the
+    // result is empty rather than another block's data.
+    const foreignSubmission = await prisma.formSubmission.findFirst({
+      where: { blockId },
+      select: { id: true },
+    });
+    expect(foreignSubmission).toBeTruthy();
+
+    const otherBlock = await prisma.block.create({
+      data: { type: 'form', config: {}, data: testFormConfig, pageId },
+    });
+
+    const result = await listSubmissions(
+      pageId,
+      otherBlock.id,
+      foreignSubmission!.id,
+      2
+    );
+    expect(result.submissions).toHaveLength(0);
+    expect(result.nextCursor).toBeNull();
+  });
 });
 
 describe('deleteSubmissionById', () => {

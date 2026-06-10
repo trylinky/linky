@@ -53,6 +53,9 @@ export async function submitFormResponse({
   }
 
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+  // Note: count-then-create is not atomic. Concurrent requests can briefly
+  // exceed RATE_LIMIT_MAX_PER_HOUR by the number of in-flight requests.
+  // Acceptable at 5/hr for this product; revisit if it needs to be strict.
   const recentCount = await prisma.formSubmission.count({
     where: {
       blockId,
@@ -95,6 +98,7 @@ export async function checkUserHasAccessToPage(
   const count = await prisma.page.count({
     where: {
       id: pageId,
+      deletedAt: null,
       organization: {
         members: {
           some: {
@@ -152,22 +156,33 @@ export async function getFormGroupsForPage(
 
   // Whatever remains belongs to deleted form blocks; title comes from the
   // latest submission's snapshot so collected data stays reachable.
-  for (const [blockId, counts] of countsByBlockId) {
-    const latest = await prisma.formSubmission.findFirst({
-      where: { blockId },
+  const orphanBlockIds = [...countsByBlockId.keys()];
+  if (orphanBlockIds.length > 0) {
+    // One query: the most recent snapshot per orphaned blockId.
+    const latestSnapshots = await prisma.formSubmission.findMany({
+      where: { blockId: { in: orphanBlockIds } },
       orderBy: { createdAt: 'desc' },
-      select: { fieldsSnapshot: true },
+      distinct: ['blockId'],
+      select: { blockId: true, fieldsSnapshot: true },
     });
+    const snapshotByBlockId = new Map(
+      latestSnapshots.map((submission) => [
+        submission.blockId,
+        submission.fieldsSnapshot as { title?: string | null } | null,
+      ])
+    );
 
-    const snapshot = latest?.fieldsSnapshot as { title?: string | null } | null;
+    for (const [blockId, counts] of countsByBlockId) {
+      const snapshot = snapshotByBlockId.get(blockId);
 
-    groups.push({
-      blockId,
-      title: snapshot?.title || 'Untitled form',
-      isDeleted: true,
-      submissionCount: counts._count._all,
-      latestSubmissionAt: counts._max.createdAt,
-    });
+      groups.push({
+        blockId,
+        title: snapshot?.title || 'Untitled form',
+        isDeleted: true,
+        submissionCount: counts._count._all,
+        latestSubmissionAt: counts._max.createdAt,
+      });
+    }
   }
 
   return groups;
