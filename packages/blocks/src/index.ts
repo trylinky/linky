@@ -1,4 +1,5 @@
 export * from './blocks/content/config';
+export * from './blocks/form/config';
 export * from './blocks/github-commits-this-month/config';
 export * from './blocks/header/config';
 export * from './blocks/image/config';
