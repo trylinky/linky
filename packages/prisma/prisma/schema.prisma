@@ -168,6 +168,7 @@ model Page {
   verifiedAt           DateTime?
   verificationRequests VerificationRequest[]
   orchestrations       Orchestration[]
+  formSubmissions      FormSubmission[]
   isFeatured           Boolean               @default(false)
   organization         Organization?         @relation(fields: [organizationId], references: [id])
   organizationId       String?
@@ -193,6 +194,24 @@ model Block {
 
   @@index([pageId])
   @@index([integrationId])
+}
+
+// Submissions are immutable write-once records — no updatedAt by design.
+model FormSubmission {
+  id             String   @id @default(uuid())
+  createdAt      DateTime @default(now())
+  page           Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  pageId         String
+  // Deliberately NOT a relation: submissions must survive block deletion.
+  // Orphaned submissions render in the dashboard via fieldsSnapshot.
+  blockId        String
+  answers        Json
+  fieldsSnapshot Json
+  visitorIp      String?
+
+  @@index([blockId, createdAt])
+  @@index([blockId, visitorIp, createdAt]) // rate-limit count query
+  @@index([pageId, blockId, createdAt])
 }
 
 model Integration {
