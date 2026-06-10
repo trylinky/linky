@@ -3,6 +3,7 @@
 import { EditBlockToolbar } from './EditBlockToolbar';
 import { BlockProps } from '@/lib/blocks/ui';
 import { cn } from '@trylinky/ui';
+import { TriangleAlert } from 'lucide-react';
 import Link from 'next/link';
 import { ReactNode, useEffect, useRef, useState } from 'react';
 
@@ -52,7 +53,8 @@ export function CoreBlock({
         <EditBlockToolbar blockId={blockId} blockType={blockType} />
       )}
       {isEditable && isClipped && (
-        <span className="pointer-events-none absolute right-2 bottom-2 z-10 rounded-md bg-zinc-950/70 px-1.5 py-0.5 text-xs font-medium text-white">
+        <span className="pointer-events-none absolute right-2 bottom-2 z-10 inline-flex items-center gap-1 rounded-md bg-zinc-950/70 px-1.5 py-0.5 text-xs font-medium text-white">
+          <TriangleAlert className="size-3" />
           Content clipped
         </span>
       )}
