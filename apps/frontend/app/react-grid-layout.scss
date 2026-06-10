@@ -9,7 +9,7 @@
   transform: translate(1px, 0);
   will-change: position, width, height, transform;
 
-  @screen sm {
+  @media (min-width: 640px) {
     transform: unset;
 
     .block-toolbar {
@@ -35,7 +35,7 @@
 
   &.react-draggable {
     &:hover {
-      background: theme('colors.sys.bg.primary' / 10%);
+      background: hsl(var(--color-sys-bg-primary) / 10%);
     }
     > div {
       transition: transform 250ms ease;
@@ -45,7 +45,7 @@
     transition: none;
     z-index: 30;
     will-change: transform;
-    box-shadow: theme('boxShadow.2xl');
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
     transform-origin: left top;
 
     > div {
@@ -53,12 +53,12 @@
     }
 
     ~ .react-grid-placeholder {
-      background: theme('colors.sys.bg.primary' / 90%) !important;
+      background: hsl(var(--color-sys-bg-primary) / 90%) !important;
     }
   }
 
   &.dropping {
-    background: theme('colors.sys.bg.primary' / 50%) !important;
+    background: hsl(var(--color-sys-bg-primary) / 50%) !important;
     // visibility: hidden;
   }
 
@@ -87,8 +87,8 @@
       bottom: 3px;
       width: 10px;
       height: 10px;
-      border-right: 2px solid theme('colors.sys.label.primary');
-      border-bottom: 2px solid theme('colors.sys.label.primary');
+      border-right: 2px solid hsl(var(--color-sys-label-primary));
+      border-bottom: 2px solid hsl(var(--color-sys-label-primary));
     }
 
     &.react-resizable-handle-sw {
