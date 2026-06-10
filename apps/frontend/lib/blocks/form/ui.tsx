@@ -9,7 +9,7 @@ import { FormEvent, FunctionComponent, useState } from 'react';
 import useSWR from 'swr';
 
 const inputClasses =
-  'min-w-0 w-full appearance-none rounded-md border-0 bg-sys-bg-primary px-3 py-1.5 text-base text-sys-label-primary shadow-xs ring-1 ring-inset ring-sys-bg-secondary/50 placeholder:text-gray-400 focus:ring-sys-bg-secondary/90 sm:text-sm sm:leading-6';
+  'min-w-0 w-full appearance-none rounded-md border border-sys-bg-border bg-sys-bg-primary px-3 py-1.5 text-base text-sys-label-primary placeholder:text-sys-label-primary/40 focus:border-sys-label-primary/60 focus:outline-none sm:text-sm sm:leading-6';
 
 export const FormBlock: FunctionComponent<BlockProps> = (props) => {
   const { data } = useSWR<{ blockData: FormBlockConfig }>(
@@ -143,7 +143,7 @@ const FieldInput = ({ field }: { field: FormBlockField }) => {
           type="checkbox"
           name={field.id}
           required={field.required}
-          className="h-4 w-4 rounded"
+          className="size-4 rounded [accent-color:hsl(var(--color-sys-label-primary))]"
         />
         {field.label}
         {field.required && <span aria-hidden="true">*</span>}

@@ -4,7 +4,7 @@ import { EditBlockToolbar } from './EditBlockToolbar';
 import { BlockProps } from '@/lib/blocks/ui';
 import { cn } from '@trylinky/ui';
 import Link from 'next/link';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 
 interface Props extends BlockProps {
   className?: string;
@@ -29,11 +29,19 @@ export function CoreBlock({
     className
   );
 
+  const rootRef = useRef<HTMLDivElement>(null);
+  const isClipped = useContentClipping(rootRef, isEditable);
+
   const content = (
     <>
       {children}
       {isEditable && blockType !== 'default' && (
         <EditBlockToolbar blockId={blockId} blockType={blockType} />
+      )}
+      {isEditable && isClipped && (
+        <span className="pointer-events-none absolute right-2 bottom-2 z-10 rounded-md bg-zinc-950/70 px-1.5 py-0.5 text-xs font-medium text-white">
+          Content clipped
+        </span>
       )}
     </>
   );
@@ -51,5 +59,46 @@ export function CoreBlock({
     );
   }
 
-  return <div className={classes}>{content}</div>;
+  return (
+    <div ref={rootRef} className={classes}>
+      {content}
+    </div>
+  );
+}
+
+// Watches the block's box in edit mode and reports whether its content
+// overflows the clipped bounds (so the editor can flag hidden content).
+function useContentClipping(
+  ref: React.RefObject<HTMLDivElement | null>,
+  enabled: boolean
+) {
+  const [isClipped, setIsClipped] = useState(false);
+
+  useEffect(() => {
+    if (!enabled) return;
+    const element = ref.current;
+    if (!element) return;
+
+    const measure = () => {
+      // +1 tolerance: fractional layout sizes cause off-by-one scrollHeight.
+      setIsClipped(
+        element.scrollHeight > element.clientHeight + 1 ||
+          element.scrollWidth > element.clientWidth + 1
+      );
+    };
+
+    measure();
+
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    // Content can resize without the box resizing (e.g. async data) — watch
+    // the children too.
+    for (const child of Array.from(element.children)) {
+      observer.observe(child);
+    }
+
+    return () => observer.disconnect();
+  }, [ref, enabled]);
+
+  return isClipped;
 }
