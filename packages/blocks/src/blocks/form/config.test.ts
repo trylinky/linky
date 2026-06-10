@@ -51,6 +51,13 @@ describe('FormBlockSchema', () => {
     ).rejects.toThrow('unique');
   });
 
+  it('rejects field ids with unsafe characters', async () => {
+    const fields = [{ ...validField, id: 'bad id!' }];
+    await expect(
+      FormBlockSchema.validate({ ...validConfig, fields }, { strict: true })
+    ).rejects.toThrow('letters, numbers');
+  });
+
   it('rejects a field without a label', async () => {
     const fields = [{ ...validField, label: '' }];
     await expect(

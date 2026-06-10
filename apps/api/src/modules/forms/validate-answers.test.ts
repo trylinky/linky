@@ -79,6 +79,14 @@ describe('validateAnswers', () => {
     expect(result.ok).toBe(false);
   });
 
+  it('rejects any answer to a select field whose config has no options (malformed config)', () => {
+    const malformed: FormBlockField[] = [
+      { id: 'f-pick', type: 'select', label: 'Pick', required: false },
+    ];
+    const result = validateAnswers(malformed, { 'f-pick': 'anything' });
+    expect(result.ok).toBe(false);
+  });
+
   it('rejects oversize answers', () => {
     const result = validateAnswers(fields, {
       'f-email': 'alex@example.com',

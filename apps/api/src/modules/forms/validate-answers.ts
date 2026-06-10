@@ -36,6 +36,9 @@ export function validateAnswers(
   for (const field of fields) {
     const value = raw[field.id];
 
+    // Checkbox answers are always recorded (true/false) — unlike optional
+    // text fields, which are omitted when empty — so the dashboard can
+    // distinguish "unchecked" from "field didn't exist yet".
     if (field.type === 'checkbox') {
       const checked = value === true;
       if (field.required && !checked) {

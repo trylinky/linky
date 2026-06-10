@@ -53,7 +53,10 @@ export const FormBlockSchema = Yup.object().shape({
   fields: Yup.array()
     .of(
       Yup.object().shape({
-        id: Yup.string().max(64, 'Field ids can be at most 64 characters').required(),
+        id: Yup.string()
+          .max(64, 'Field ids can be at most 64 characters')
+          .matches(/^[a-zA-Z0-9_-]+$/, 'Field ids can only contain letters, numbers, hyphens and underscores')
+          .required(),
         type: Yup.string()
           .oneOf([...formFieldTypes])
           .required(),
