@@ -12,6 +12,7 @@ import analyticsRoutes from '@/modules/analytics';
 import assetsRoutes from '@/modules/assets';
 import billingRoutes from '@/modules/billing';
 import flagsRoutes from '@/modules/flags';
+import formsRoutes from '@/modules/forms';
 import integrationsRoutes from '@/modules/integrations';
 import orchestratorsRoutes from '@/modules/orchestrators';
 import organizationsRoutes from '@/modules/organizations';
@@ -72,6 +73,7 @@ fastify.register(assetsRoutes, { prefix: '/assets' });
 fastify.register(orchestratorsRoutes, { prefix: '/orchestrators' });
 fastify.register(analyticsRoutes, { prefix: '/analytics' });
 fastify.register(flagsRoutes, { prefix: '/flags' });
+fastify.register(formsRoutes, { prefix: '/forms' });
 fastify.register(organizationsRoutes, { prefix: '/organizations' });
 fastify.register(billingRoutes, { prefix: '/billing' });
 
