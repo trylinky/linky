@@ -1,4 +1,5 @@
 import { EditForm as ContentEditForm } from './content/form';
+import { EditForm as FormBlockForm } from './form/form';
 import { EditForm as GithubCommitsThisMonthForm } from './github-commits-this-month/form';
 import { EditForm as HeaderForm } from './header/form';
 import { EditForm as ImageForm } from './image/form';
@@ -38,4 +39,5 @@ export const editForms: Record<Blocks, JSXElementConstructor<any>> = {
   'tiktok-follower-count': TikTokFollowerCountForm,
   'tiktok-latest-post': TikTokLatestPostForm,
   reactions: ReactionForm,
+  form: FormBlockForm,
 };

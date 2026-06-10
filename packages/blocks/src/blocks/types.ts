@@ -16,4 +16,5 @@ export type Blocks =
   | 'threads-follower-count'
   | 'tiktok-follower-count'
   | 'tiktok-latest-post'
-  | 'reactions';
+  | 'reactions'
+  | 'form';

@@ -1,3 +1,4 @@
+import { FormBlock } from './form/ui';
 import { GitHubCommitsThisMonth } from './github-commits-this-month/ui-client';
 import { Image } from './image/ui';
 import { InstagramLatestPost } from './instagram-latest-post/ui-client';
@@ -93,5 +94,7 @@ export function renderBlock(block: any, pageId: string, isEditMode: boolean) {
       return <TikTokLatestPost {...sharedProps} />;
     case 'reactions':
       return <Reactions {...sharedProps} />;
+    case 'form':
+      return <FormBlock {...sharedProps} />;
   }
 }

@@ -1,4 +1,5 @@
 import { ContentSchema, contentBlockDefaults } from './content/config';
+import { FormBlockSchema, formBlockDefaults } from './form/config';
 import {
   GithubCommitsThisMonthSchema,
   githubCommitsThisMonthBlockDefaults,
@@ -117,5 +118,10 @@ export const blocks: Record<
   reactions: {
     defaults: reactionBlockDefaults,
     schema: ReactionSchema,
+  },
+  form: {
+    defaults: formBlockDefaults,
+    schema: FormBlockSchema,
+    isBeta: true,
   },
 };

@@ -1,3 +1,4 @@
+import blockFormIcon from '@/app/assets/ui/type-form.svg';
 import dragIcon from '@/app/assets/ui/drag.svg';
 import blockContentIcon from '@/app/assets/ui/type-content.svg';
 import blockGithubCommitsThisMonthIcon from '@/app/assets/ui/type-github-commits-this-month.svg';
@@ -190,6 +191,15 @@ export const config: Record<
     drag: {
       w: 4,
       h: 4,
+    },
+  },
+  form: {
+    title: 'Form',
+    label: 'Collect responses from your visitors',
+    icon: blockFormIcon,
+    drag: {
+      w: 12,
+      h: 10,
     },
   },
 };
