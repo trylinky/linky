@@ -214,6 +214,11 @@ export function SidebarForms() {
         deriveColumns(allSubmissions),
         allSubmissions
       );
+    } catch {
+      toast({
+        title: 'Export failed part-way through. Please try again.',
+        variant: 'error',
+      });
     } finally {
       setIsExporting(false);
     }

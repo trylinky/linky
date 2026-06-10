@@ -11,6 +11,9 @@ import {
 import { Type } from '@fastify/type-provider-typebox';
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 const postSubmissionSchema = {
   body: Type.Object({
     // Bounds mirror the form limits (MAX_FORM_FIELDS fields, 5000-char
@@ -123,6 +126,12 @@ async function listSubmissionsHandler(
     return response
       .status(400)
       .send({ error: { message: 'blockId is required' } });
+  }
+
+  if (cursor && !UUID_REGEX.test(cursor)) {
+    return response
+      .status(400)
+      .send({ error: { message: 'Invalid cursor' } });
   }
 
   const hasAccess = await checkUserHasAccessToPage(pageId, session.user.id);

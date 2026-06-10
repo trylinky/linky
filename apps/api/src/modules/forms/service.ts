@@ -218,30 +218,20 @@ export async function deleteSubmissionById(
   submissionId: string,
   userId: string
 ) {
-  const submission = await prisma.formSubmission.findUnique({
-    where: { id: submissionId },
-    select: {
-      id: true,
+  // Single atomic query: ownership check folded into the where clause, so a
+  // concurrent double-delete can't race between a find and a delete.
+  const { count } = await prisma.formSubmission.deleteMany({
+    where: {
+      id: submissionId,
       page: {
-        select: {
-          organization: {
-            select: {
-              members: {
-                where: { userId },
-                select: { id: true },
-              },
-            },
+        organization: {
+          members: {
+            some: { userId },
           },
         },
       },
     },
   });
 
-  if (!submission || !submission.page.organization?.members.length) {
-    return false;
-  }
-
-  await prisma.formSubmission.delete({ where: { id: submissionId } });
-
-  return true;
+  return count > 0;
 }
