@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc index.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "typescript": "^5",
@@ -16,5 +17,8 @@
       "types": "./src/index.ts",
       "default": "./src/index.ts"
     }
+  },
+  "devDependencies": {
+    "vitest": "^3.0.0"
   }
 }

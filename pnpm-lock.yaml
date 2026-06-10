@@ -453,6 +453,10 @@ importers:
       yup:
         specifier: ^1.4.0
         version: 1.7.1
+    devDependencies:
+      vitest:
+        specifier: ^3.0.0
+        version: 3.2.6(@types/debug@4.1.12)(@types/node@22.8.7)(lightningcss@1.32.0)(sass@1.94.2)(terser@5.44.1)
 
   packages/common:
     dependencies:
