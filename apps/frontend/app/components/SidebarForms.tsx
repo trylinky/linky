@@ -295,7 +295,7 @@ export function SidebarForms() {
           <Catalyst.Text>No responses yet.</Catalyst.Text>
         </div>
       ) : (
-        <Table dense className="w-full">
+        <Table dense striped className="w-full [--gutter:--spacing(4)]">
           <TableHead>
             <TableRow>
               <TableHeader>Submitted</TableHeader>
