@@ -307,7 +307,7 @@ export function SidebarForms() {
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-zinc-950/10 bg-white px-4">
-          <Table dense striped bleed className="w-full [--gutter:--spacing(4)]">
+          <Table dense striped bleed className="[--gutter:--spacing(4)]">
           <TableHead>
             <TableRow>
               <TableHeader>Submitted</TableHeader>
