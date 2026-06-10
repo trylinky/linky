@@ -18,7 +18,7 @@ import {
   useFormikContext,
 } from 'formik';
 import { ChevronDown, ChevronUp, Loader2, Plus, Trash2, X } from 'lucide-react';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 const MAX_SELECT_OPTIONS = 20;
 
@@ -319,17 +319,32 @@ const OptionsEditor = ({
 }) => {
   const [draft, setDraft] = useState('');
 
+  // Blur (committing a draft) and a chip's remove click can fire in the same
+  // tick, both closing over the same stale `options` prop — the second commit
+  // would silently overwrite the first. Route every read/write through a ref
+  // that always holds the latest committed list.
+  const latestOptions = useRef(options);
+  useEffect(() => {
+    latestOptions.current = options;
+  }, [options]);
+
+  const commit = (next: string[]) => {
+    latestOptions.current = next;
+    onCommit(next);
+  };
+
   const addOption = (value: string) => {
+    const current = latestOptions.current;
     const trimmed = value.trim();
     setDraft('');
     if (
       !trimmed ||
-      options.includes(trimmed) ||
-      options.length >= MAX_SELECT_OPTIONS
+      current.includes(trimmed) ||
+      current.length >= MAX_SELECT_OPTIONS
     ) {
       return;
     }
-    onCommit([...options, trimmed]);
+    commit([...current, trimmed]);
   };
 
   return (
@@ -344,7 +359,11 @@ const OptionsEditor = ({
             type="button"
             aria-label={`Remove option ${option}`}
             onClick={() =>
-              onCommit(options.filter((existing) => existing !== option))
+              commit(
+                latestOptions.current.filter(
+                  (existing) => existing !== option
+                )
+              )
             }
             className="grid size-4 place-items-center rounded-sm text-zinc-400 hover:bg-zinc-950/10 hover:text-zinc-700"
           >
@@ -365,9 +384,9 @@ const OptionsEditor = ({
           } else if (
             event.key === 'Backspace' &&
             draft === '' &&
-            options.length > 0
+            latestOptions.current.length > 0
           ) {
-            onCommit(options.slice(0, -1));
+            commit(latestOptions.current.slice(0, -1));
           }
         }}
         onBlur={() => addOption(draft)}

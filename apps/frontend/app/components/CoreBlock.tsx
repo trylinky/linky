@@ -89,15 +89,31 @@ function useContentClipping(
 
     measure();
 
-    const observer = new ResizeObserver(measure);
-    observer.observe(element);
-    // Content can resize without the box resizing (e.g. async data) — watch
-    // the children too.
-    for (const child of Array.from(element.children)) {
-      observer.observe(child);
-    }
+    const resizeObserver = new ResizeObserver(measure);
+    const observeChildren = () => {
+      // Content can resize without the box resizing (e.g. async data) — watch
+      // the children too. Re-observing an element is a no-op, so this is safe
+      // to call again whenever the child list changes.
+      for (const child of Array.from(element.children)) {
+        resizeObserver.observe(child);
+      }
+    };
 
-    return () => observer.disconnect();
+    resizeObserver.observe(element);
+    observeChildren();
+
+    // Children mounted after first paint (SWR-fetched block content) would
+    // otherwise go unobserved until the box itself resizes.
+    const mutationObserver = new MutationObserver(() => {
+      observeChildren();
+      measure();
+    });
+    mutationObserver.observe(element, { childList: true, subtree: true });
+
+    return () => {
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
+    };
   }, [ref, enabled]);
 
   return isClipped;
