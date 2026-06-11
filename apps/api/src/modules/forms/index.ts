@@ -16,14 +16,14 @@ const UUID_REGEX =
 
 const postSubmissionSchema = {
   body: Type.Object({
-    // Bounds mirror the form limits (MAX_FORM_FIELDS fields, 5000-char
-    // textarea cap) so oversized payloads are rejected before parsing
-    // work in the service.
-    answers: Type.Record(
-      Type.String({ maxLength: 64 }),
-      Type.Union([Type.String({ maxLength: 5001 }), Type.Boolean()]),
-      { maxProperties: 10 }
-    ),
+    // Answer values are deliberately untyped here: Fastify's AJV runs with
+    // coerceTypes, and a string|boolean union coerces booleans through the
+    // string branch (true -> "true"), which broke checkbox answers. Per-field
+    // type and length validation happens in validateAnswers; overall payload
+    // size is capped by maxProperties and the route's bodyLimit.
+    answers: Type.Record(Type.String({ maxLength: 64 }), Type.Unknown(), {
+      maxProperties: 10,
+    }),
     website: Type.Optional(Type.String({ maxLength: 200 })),
   }),
 };
@@ -44,7 +44,7 @@ export default async function formsRoutes(fastify: FastifyInstance) {
 async function postSubmissionHandler(
   request: FastifyRequest<{
     Params: { blockId: string };
-    Body: { answers: Record<string, string | boolean>; website?: string };
+    Body: { answers: Record<string, unknown>; website?: string };
   }>,
   response: FastifyReply
 ) {

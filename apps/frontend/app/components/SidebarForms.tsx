@@ -4,6 +4,13 @@ import { InternalApi } from '@trylinky/common';
 import { Button, toast } from '@trylinky/ui';
 import * as Catalyst from '@trylinky/ui/catalyst';
 import {
+  DescriptionDetails,
+  DescriptionList,
+  DescriptionTerm,
+  Dialog,
+  DialogActions,
+  DialogBody,
+  DialogTitle,
   Table,
   TableBody,
   TableCell,
@@ -12,8 +19,8 @@ import {
   TableRow,
 } from '@trylinky/ui/catalyst';
 import { formatDistanceToNow } from 'date-fns';
-import { Download, Loader2, Trash2, TriangleAlert } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Download, Eye, Loader2, Trash2, TriangleAlert } from 'lucide-react';
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { useSWRConfig } from 'swr';
 
 interface FormGroup {
@@ -105,6 +112,9 @@ export function SidebarForms() {
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [submissionsLoading, setSubmissionsLoading] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [viewedSubmission, setViewedSubmission] = useState<Submission | null>(
+    null
+  );
 
   useEffect(() => {
     if (!pageId) return;
@@ -323,28 +333,46 @@ export function SidebarForms() {
           </TableHead>
           <TableBody>
             {submissions.map((submission) => (
-              <TableRow key={submission.id}>
+              <TableRow
+                key={submission.id}
+                onClick={() => setViewedSubmission(submission)}
+                className="cursor-pointer hover:bg-stone-50"
+              >
                 <TableCell className="whitespace-nowrap text-stone-500">
                   {new Date(submission.createdAt).toLocaleString()}
                 </TableCell>
                 {columns.map((column) => (
-                  <TableCell
-                    key={column.id}
-                    className="max-w-[240px] truncate"
-                    title={formatAnswer(submission.answers[column.id])}
-                  >
+                  <TableCell key={column.id} className="max-w-[240px] truncate">
                     {formatAnswer(submission.answers[column.id])}
                   </TableCell>
                 ))}
                 <TableCell>
-                  <button
-                    type="button"
-                    aria-label="Delete response"
-                    onClick={() => handleDelete(submission.id)}
-                    className="rounded p-1 text-stone-400 hover:bg-stone-100 hover:text-red-600"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  <div className="flex items-center gap-1">
+                    {/* Keyboard-accessible path to the dialog; the row
+                        onClick is a pointer convenience only. */}
+                    <button
+                      type="button"
+                      aria-label="View response"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setViewedSubmission(submission);
+                      }}
+                      className="rounded p-1 text-stone-400 hover:bg-stone-100 hover:text-stone-700"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Delete response"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleDelete(submission.id);
+                      }}
+                      className="rounded p-1 text-stone-400 hover:bg-stone-100 hover:text-red-600"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
@@ -368,6 +396,42 @@ export function SidebarForms() {
           Load more
         </Button>
       )}
+
+      <Dialog
+        open={viewedSubmission !== null}
+        onClose={() => setViewedSubmission(null)}
+      >
+        {viewedSubmission && (
+          <>
+            <DialogTitle>
+              Response from{' '}
+              {new Date(viewedSubmission.createdAt).toLocaleString()}
+            </DialogTitle>
+            <DialogBody>
+              <DescriptionList>
+                {columns.map((column) => (
+                  <Fragment key={column.id}>
+                    <DescriptionTerm>{column.label}</DescriptionTerm>
+                    <DescriptionDetails className="whitespace-pre-wrap break-words">
+                      {formatAnswer(viewedSubmission.answers[column.id]) ||
+                        '—'}
+                    </DescriptionDetails>
+                  </Fragment>
+                ))}
+              </DescriptionList>
+            </DialogBody>
+            <DialogActions>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setViewedSubmission(null)}
+              >
+                Close
+              </Button>
+            </DialogActions>
+          </>
+        )}
+      </Dialog>
     </div>
   );
 }
