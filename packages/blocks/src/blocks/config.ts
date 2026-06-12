@@ -122,6 +122,5 @@ export const blocks: Record<
   form: {
     defaults: formBlockDefaults,
     schema: FormBlockSchema,
-    isBeta: true,
   },
 };
