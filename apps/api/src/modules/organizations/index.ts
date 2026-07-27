@@ -5,10 +5,7 @@ import prisma from '@/lib/prisma';
 import { FastifyInstance, FastifyReply } from 'fastify';
 import { FastifyRequest } from 'fastify';
 
-export default async function organizationsRoutes(
-  fastify: FastifyInstance,
-  opts: any
-) {
+export default async function organizationsRoutes(fastify: FastifyInstance) {
   fastify.get(
     '/me',
     { schema: getOrgsForCurrentUserSchema },

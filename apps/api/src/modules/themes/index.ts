@@ -4,10 +4,7 @@ import { getThemesForOrganization } from '@/modules/themes/service';
 import { FastifyInstance, FastifyReply } from 'fastify';
 import { FastifyRequest } from 'fastify';
 
-export default async function themesRoutes(
-  fastify: FastifyInstance,
-  opts: any
-) {
+export default async function themesRoutes(fastify: FastifyInstance) {
   fastify.get('/me/team', getThemesForCurrentTeamHandler);
 }
 

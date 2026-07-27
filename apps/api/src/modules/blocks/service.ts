@@ -170,7 +170,7 @@ export async function updateBlockData(blockId: string, newData: object) {
     });
 
     return updatedBlock;
-  } catch (error) {
+  } catch {
     throw new Error('Error updating block data');
   }
 }

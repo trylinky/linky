@@ -1,6 +1,5 @@
 'use client';
 
-import { auth } from '@trylinky/common';
 import {
   Dialog,
   DialogContent,

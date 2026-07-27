@@ -25,7 +25,7 @@ export function EditTeamSettingsGeneral({ onCancel, initialValues }: Props) {
 
   const onSubmit = async (
     values: FormValues,
-    { setSubmitting, setFieldError }: FormikHelpers<FormValues>
+    { setSubmitting }: FormikHelpers<FormValues>
   ) => {
     setSubmitting(true);
 
@@ -68,7 +68,7 @@ export function EditTeamSettingsGeneral({ onCancel, initialValues }: Props) {
       onSubmit={onSubmit}
       enableReinitialize
     >
-      {({ isSubmitting, values, setFieldValue, errors }) => (
+      {({ isSubmitting, errors }) => (
         <Form className="w-full flex flex-col">
           <div className="border-b border-white/10 pb-12">
             <div>

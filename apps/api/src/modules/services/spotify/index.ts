@@ -25,10 +25,7 @@ interface SpotifyUserInfoResponse {
   [key: string]: any;
 }
 
-export default async function spotifyServiceRoutes(
-  fastify: FastifyInstance,
-  opts: any
-) {
+export default async function spotifyServiceRoutes(fastify: FastifyInstance) {
   fastify.get('/', getSpotifyRedirectHandler);
   fastify.get('/callback', getSpotifyCallbackHandler);
 }

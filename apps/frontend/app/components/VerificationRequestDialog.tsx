@@ -105,7 +105,7 @@ function VerificationRequestForm({
       onSubmit={onSubmit}
       enableReinitialize
     >
-      {({ isSubmitting, values, setFieldValue, errors }) => (
+      {({ errors }) => (
         <Form className="w-full flex flex-col">
           <div className="mt-4">
             <FormField

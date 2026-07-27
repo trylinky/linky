@@ -23,7 +23,7 @@ export async function createNewPage(input: NewPageInput) {
     return null;
   }
 
-  const { user, session: sessionData } = session.data ?? {};
+  const { session: sessionData } = session.data ?? {};
 
   await track('pageCreated', {
     teamId: sessionData?.activeOrganizationId ?? 'unknown',

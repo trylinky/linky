@@ -75,7 +75,13 @@ export async function getPageLoadHandler(
   const plan = page.organization?.subscription?.plan;
   const isPaid = plan === 'premium' || plan === 'team';
 
-  const { organization, publishedAt, verifiedAt, ...rest } = page;
+  // `_organization` is destructured only to keep it out of `rest`.
+  const {
+    organization: _organization,
+    publishedAt,
+    verifiedAt,
+    ...rest
+  } = page;
 
   return response.status(200).send({
     ...rest,

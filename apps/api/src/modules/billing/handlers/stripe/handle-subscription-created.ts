@@ -2,10 +2,7 @@ import { prices } from '@/lib/plans';
 import prisma from '@/lib/prisma';
 import { stripeClient } from '@/lib/stripe';
 import { createNewSubscription } from '@/modules/billing/utils/create-new-subscription';
-import {
-  sendMagicLinkEmail,
-  sendSubscriptionUpgradedTeamEmail,
-} from '@/modules/notifications/service';
+import { sendSubscriptionUpgradedTeamEmail } from '@/modules/notifications/service';
 import { createNewOrganization } from '@/modules/organizations/utils';
 import { sendSlackMessage } from '@/modules/slack/service';
 import { captureMessage } from '@sentry/node';

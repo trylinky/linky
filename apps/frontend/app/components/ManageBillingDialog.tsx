@@ -7,7 +7,6 @@ import {
   DialogContent,
   DialogTitle,
 } from '@trylinky/ui';
-import { router } from 'better-auth/api';
 import { useRouter } from 'next/navigation';
 
 interface Props {

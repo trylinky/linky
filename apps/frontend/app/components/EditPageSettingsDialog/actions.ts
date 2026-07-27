@@ -53,7 +53,7 @@ export const fetchTeamThemes = async () => {
     };
   }
 
-  const { user, session: sessionData } = session?.data ?? {};
+  const { session: sessionData } = session?.data ?? {};
 
   const themes = await prisma.theme.findMany({
     where: {

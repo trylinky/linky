@@ -11,11 +11,9 @@ const generateRandomCode = () => {
 
 const createPage = async ({
   organizationId,
-  userId,
   tiktokUsername,
 }: {
   organizationId: string;
-  userId: string;
   tiktokUsername: string;
 }) => {
   let newPageSlug = tiktokUsername;
@@ -661,7 +659,6 @@ export async function orchestrateTikTok({
 
   const page = await createPage({
     organizationId,
-    userId,
     tiktokUsername: tiktokData?.profile?.username,
   });
 

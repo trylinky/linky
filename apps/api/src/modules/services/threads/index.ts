@@ -28,10 +28,7 @@ interface ThreadsUserInfoResponse {
   id: string;
 }
 
-export default async function threadsServiceRoutes(
-  fastify: FastifyInstance,
-  opts: any
-) {
+export default async function threadsServiceRoutes(fastify: FastifyInstance) {
   fastify.get('/', getThreadsRedirectHandler);
   fastify.get('/callback', getThreadsCallbackHandler);
 }

@@ -1,6 +1,6 @@
 import { getPageTheme } from '@/app/lib/actions/page-actions';
 import prisma from '@/lib/prisma';
-import { HeaderBlockConfig, headerBlockDefaults } from '@trylinky/blocks';
+import { HeaderBlockConfig } from '@trylinky/blocks';
 import 'server-only';
 
 const getPageId = async (pageSlug: string) => {

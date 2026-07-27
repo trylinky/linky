@@ -7,12 +7,7 @@ import {
   revalidatePageCache,
 } from '@/lib/revalidate';
 import { captureException } from '@sentry/node';
-import {
-  FastifyInstance,
-  FastifyReply,
-  FastifyRequest,
-  RouteOptions,
-} from 'fastify';
+import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
 // Define TikTok user info response type
 interface TikTokUserInfoResponse {
@@ -32,8 +27,7 @@ interface EncryptedState {
 }
 
 export default async function tiktokServiceRoutes(
-  fastify: FastifyInstance,
-  opts: RouteOptions
+  fastify: FastifyInstance
 ): Promise<void> {
   fastify.get('/', getTiktokRedirectHandler);
   fastify.get('/callback', getTiktokCallbackHandler);

@@ -29,10 +29,11 @@ export const baseConfig = [
     },
     rules: {
       // Unused code is usually a leftover, and occasionally a bug (an import
-      // or destructured value someone meant to use). Warn for now; the
-      // existing violations are being cleared incrementally.
+      // or destructured value someone meant to use). Enforced: there are no
+      // violations left. Prefix with _ for a binding that is deliberately
+      // unused, e.g. a key destructured only to keep it out of a rest object.
       '@typescript-eslint/no-unused-vars': [
-        'warn',
+        'error',
         {
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_',

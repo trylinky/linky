@@ -181,7 +181,7 @@ export function SidebarAnalytics() {
               </div>
             ) : (
               <div className="space-y-3">
-                {analyticsData.locations.map((location, index) => (
+                {analyticsData.locations.map((location) => (
                   <div
                     key={location.location}
                     className="flex items-center gap-2"

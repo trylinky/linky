@@ -7,6 +7,9 @@ import { auth, getSession } from '@/app/lib/auth';
 import prisma from '@/lib/prisma';
 import { headers } from 'next/headers';
 
+// NOTE: this handler validates access and then does nothing - see the TODO
+// at the end. `values` is unused because the update was never implemented.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const updateGeneralTeamSettings = async (values: FormValues) => {
   const session = await getSession({
     fetchOptions: { headers: await headers() },
@@ -67,14 +70,8 @@ export const createTeamInvite = async (values: TeamInviteFormValues) => {
     };
   }
 
-  const org = await auth.organization.getFullOrganization({
-    query: {
-      organizationId: session.data?.session.activeOrganizationId ?? '',
-    },
-  });
-
   try {
-    const invite = await auth.organization.inviteMember({
+    await auth.organization.inviteMember({
       email: values.email,
       role: 'member',
     });

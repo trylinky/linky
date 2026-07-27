@@ -20,7 +20,6 @@ interface Props {
 export function FormInput({
   name,
   placeholder,
-  initialValue,
   hasError,
   type = 'text',
   ariaInvalid,
@@ -55,8 +54,6 @@ export function FormInput({
 export function FormInputWithPrefix({
   name,
   placeholder,
-  initialValue,
-  hasError,
   type = 'text',
   fieldType = 'input',
   ariaInvalid,

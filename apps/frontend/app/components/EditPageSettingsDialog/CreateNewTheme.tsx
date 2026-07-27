@@ -294,7 +294,6 @@ export function CreateEditThemeForm({
 function ColorField({
   id,
   label,
-  variable,
   onChange,
   value,
 }: {

@@ -1,5 +1,4 @@
 import { EditFormProps } from '../types';
-import { FormField } from '@/components/FormField';
 import { useLoadScript } from '@react-google-maps/api';
 import { captureException } from '@sentry/nextjs';
 import { MapBlockConfig, mapThemes } from '@trylinky/blocks';
@@ -55,7 +54,7 @@ export function EditForm({
       onSubmit={handleSubmit}
       enableReinitialize={true}
     >
-      {({ values, isSubmitting, errors }) => (
+      {({ isSubmitting }) => (
         <Form className="w-full flex flex-col gap-2">
           <GoogleMapsAutoCompleteInput />
 
@@ -83,7 +82,7 @@ export function EditForm({
 const GoogleMapsAutoCompleteInput = () => {
   const { submitForm, setFieldValue } = useFormikContext();
   const [input, setInput] = useState('');
-  const [open, setOpen] = useState(false);
+  const [, setOpen] = useState(false);
   const [predictions, setPredictions] = useState<
     google.maps.places.QueryAutocompletePrediction[]
   >([]);
@@ -167,7 +166,7 @@ const GoogleMapsAutoCompleteInput = () => {
             <CommandItem
               key={prediction.description}
               value={prediction.description}
-              onSelect={(currentValue) => {
+              onSelect={() => {
                 handleSelect(prediction.description);
                 setOpen(false);
               }}
@@ -182,8 +181,8 @@ const GoogleMapsAutoCompleteInput = () => {
 };
 
 const MapThemeSelect = () => {
-  const { values, setFieldValue } = useFormikContext<MapBlockConfig>();
-  const [open, setOpen] = useState(false);
+  const { setFieldValue } = useFormikContext<MapBlockConfig>();
+  const [, setOpen] = useState(false);
 
   return (
     <Command>

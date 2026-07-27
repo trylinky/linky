@@ -28,7 +28,7 @@ export function EditForm({
       onSubmit={onSubmit}
       enableReinitialize={true}
     >
-      {({ isSubmitting, setValues, errors }) => (
+      {({ isSubmitting, setValues }) => (
         <Form className="w-full flex flex-col">
           <FormFileUpload
             htmlFor="image-src"

@@ -217,12 +217,10 @@ export async function checkUserHasAccessToPage(pageId: string, userId: string) {
 export async function createNewPage({
   slug,
   themeId,
-  userId,
   organizationId,
 }: {
   slug: string;
   themeId: string;
-  userId: string;
   organizationId: string;
 }) {
   const existingPage = await prisma.page.findUnique({

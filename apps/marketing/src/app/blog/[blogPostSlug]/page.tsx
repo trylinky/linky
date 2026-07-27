@@ -8,7 +8,7 @@ import { authors } from '@/lib/cms/authors';
 import { getBlogPost } from '@/lib/cms/get-blog-post-by-slug';
 import { getBlogPosts } from '@/lib/cms/get-blog-posts';
 import { RichText } from '@graphcms/rich-text-react-renderer';
-import { ElementNode, RichTextContent } from '@graphcms/rich-text-types';
+import { ElementNode } from '@graphcms/rich-text-types';
 import slugify from '@sindresorhus/slugify';
 import { buildBreadcrumbSchema, serializeJsonLd } from '@trylinky/seo';
 import { Metadata } from 'next';

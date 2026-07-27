@@ -12,7 +12,6 @@ export function EditForm({
   initialValues,
   onSave,
   onClose,
-  blockId,
 }: EditFormProps<WaitlistEmailBlockConfig>) {
   const onSubmit = async (
     values: WaitlistEmailBlockConfig,
@@ -34,7 +33,7 @@ export function EditForm({
       onSubmit={onSubmit}
       enableReinitialize={true}
     >
-      {({ isSubmitting, setFieldValue, errors }) => (
+      {({ isSubmitting, errors }) => (
         <Form className="w-full flex flex-col gap-2">
           <FormField
             label="Title"

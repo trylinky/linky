@@ -40,7 +40,7 @@ export function ShareDialog({ open, onOpenChange }: ShareDialogProps) {
       setTimeout(() => {
         setCopied(false);
       }, 2000);
-    } catch (err) {
+    } catch {
       toast({
         title: 'Failed to copy',
         description: 'Please try again',

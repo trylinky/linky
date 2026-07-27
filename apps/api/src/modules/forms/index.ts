@@ -77,7 +77,7 @@ async function postSubmissionHandler(
           error: { message: 'Validation failed', fields: result.errors },
         });
     }
-  } catch (error) {
+  } catch {
     return response.status(500).send({
       error: { message: 'Sorry, there was an error submitting the form' },
     });

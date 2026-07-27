@@ -56,7 +56,7 @@ export function TeamSwitcher({ usersOrganizations }: Props) {
       router.refresh();
 
       mutate('/pages/me');
-    } catch (error) {
+    } catch {
       toast({
         title: 'Unable to switch team',
         variant: 'error',

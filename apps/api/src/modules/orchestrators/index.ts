@@ -10,10 +10,7 @@ import { orchestrateTikTok } from '@/modules/orchestrators/tiktok';
 import { FastifyInstance, FastifyReply } from 'fastify';
 import { FastifyRequest } from 'fastify';
 
-export default async function orchestratorsRoutes(
-  fastify: FastifyInstance,
-  opts: any
-) {
+export default async function orchestratorsRoutes(fastify: FastifyInstance) {
   fastify.post(
     '/create',
     { schema: orchestratorCreateSchema },

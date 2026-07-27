@@ -8,7 +8,6 @@ import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { LoginWidget } from '@trylinky/common';
 import { Button } from '@trylinky/ui';
 import Image from 'next/image';
-import Link from 'next/link';
 
 const RAINBOW = [
   '#8CC640',

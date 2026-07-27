@@ -1,7 +1,6 @@
 import { ThemeMock, type ThemePalette } from './theme-mock';
 import analyticsImg from '@/assets/landing-page/analytics.png';
 import previewA from '@/assets/landing-page/previews/3.png';
-import previewB from '@/assets/landing-page/previews/9.png';
 import realtimeBlocksImg from '@/assets/landing-page/realtime-blocks.png';
 import {
   GithubCommitsThisMonthMockup,

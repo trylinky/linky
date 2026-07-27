@@ -32,10 +32,7 @@ interface InstagramUserInfoResponse {
   username: string;
 }
 
-export default async function instagramServiceRoutes(
-  fastify: FastifyInstance,
-  opts: any
-) {
+export default async function instagramServiceRoutes(fastify: FastifyInstance) {
   // These are using the old Instagram Basic Display API and will stop
   // working in December 2024
   fastify.get('/', getInstagramLegacyRedirectHandler);

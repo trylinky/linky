@@ -34,7 +34,7 @@ export function EditTeamSettingsMembers({ onCancel, members, invites }: Props) {
 
   const onSubmit = async (
     values: TeamInviteFormValues,
-    { setSubmitting, setFieldError }: FormikHelpers<TeamInviteFormValues>
+    { setSubmitting }: FormikHelpers<TeamInviteFormValues>
   ) => {
     setSubmitting(true);
 
@@ -175,7 +175,7 @@ export function EditTeamSettingsMembers({ onCancel, members, invites }: Props) {
           onSubmit={onSubmit}
           enableReinitialize
         >
-          {({ isSubmitting, values, setFieldValue, errors }) => (
+          {({ isSubmitting, errors }) => (
             <Form className="w-full flex flex-col mt-4">
               <div>
                 <FormField

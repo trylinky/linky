@@ -70,7 +70,6 @@ const InstagramLogo = () => {
 };
 
 export function EditForm({
-  onSave,
   integration,
   blockId,
 }: EditFormProps<InstagramFollowerCountBlockConfig>) {

@@ -21,8 +21,6 @@ export async function getSlugAvailabilityHandler(
 ): Promise<Static<(typeof getSlugAvailabilitySchema.response)[200]>> {
   const { slug } = request.query;
 
-  const headers = request.headers;
-
   const page = await prisma.page.count({
     where: {
       deletedAt: null,

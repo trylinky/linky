@@ -44,7 +44,7 @@ import { captureException } from '@sentry/node';
 import { FastifyInstance, FastifyReply } from 'fastify';
 import { FastifyRequest } from 'fastify';
 
-export default async function pagesRoutes(fastify: FastifyInstance, opts: any) {
+export default async function pagesRoutes(fastify: FastifyInstance) {
   fastify.get(
     '/me',
     { schema: getCurrentUserTeamPagesSchema },
@@ -345,7 +345,6 @@ async function createPageHandler(
     const res = await createNewPage({
       slug,
       themeId,
-      userId: session.user.id,
       organizationId: session.activeOrganizationId,
     });
 

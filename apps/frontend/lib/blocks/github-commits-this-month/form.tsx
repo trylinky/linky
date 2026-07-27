@@ -6,16 +6,13 @@ import {
 } from '@trylinky/blocks';
 import { Button } from '@trylinky/ui';
 import { Form, Formik, FormikHelpers } from 'formik';
-import { Loader2, Router } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
 
 export function EditForm({
   initialValues,
   onSave,
   onClose,
 }: EditFormProps<GithubCommitsThisMonthBlockConfig>) {
-  const router = useRouter();
   const onSubmit = async (
     values: GithubCommitsThisMonthBlockConfig,
     { setSubmitting }: FormikHelpers<GithubCommitsThisMonthBlockConfig>

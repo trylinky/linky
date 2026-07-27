@@ -140,11 +140,11 @@ fastify.addHook('onSend', async (request, reply) => {
   }
 });
 
-fastify.addHook('onRequest', async (request, reply) => {
+fastify.addHook('onRequest', async (request) => {
   request.startTime = Date.now();
 });
 
-fastify.addHook('onResponse', async (request, reply) => {
+fastify.addHook('onResponse', async (request) => {
   if (request.startTime) {
     const responseTime = Date.now() - request.startTime;
     if (responseTime > 200) {

@@ -31,10 +31,7 @@ import {
 } from './handlers/upgrade-trial';
 import { FastifyInstance } from 'fastify';
 
-export default async function billingRoutes(
-  fastify: FastifyInstance,
-  opts: any
-) {
+export default async function billingRoutes(fastify: FastifyInstance) {
   fastify.post(
     '/stripe-webhook',
     { config: { rawBody: true } },

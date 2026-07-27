@@ -21,10 +21,7 @@ import { Blocks, blocks } from '@trylinky/blocks';
 import { FastifyInstance, FastifyReply } from 'fastify';
 import { FastifyRequest } from 'fastify';
 
-export default async function integrationsRoutes(
-  fastify: FastifyInstance,
-  opts: any
-) {
+export default async function integrationsRoutes(fastify: FastifyInstance) {
   fastify.get(
     '/me',
     { schema: getCurrentUserTeamIntegrationsSchema },

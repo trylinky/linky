@@ -7,7 +7,6 @@ import {
   SubscriptionCancelledEmail,
   SubscriptionUpgradedEmail,
   TrialEndingSoonEmail,
-  TrialFinishedEmail,
   TrialFinishedEmailText,
   WelcomeEmail,
 } from '@trylinky/notifications';

@@ -1,6 +1,5 @@
 'use client';
 
-import { useSession } from '@/app/lib/auth';
 import { hideOnboardingTour } from '@/app/lib/auth-actions';
 import { useTour } from '@reactour/tour';
 import { captureException } from '@sentry/nextjs';
@@ -14,16 +13,13 @@ import {
   DialogHeader,
   DialogTitle,
   Button,
-  useIsMobile,
 } from '@trylinky/ui';
 import { useState } from 'react';
 import useSWR from 'swr';
 
 export function UserOnboardingDialog() {
   const [dialogOpen, setDialogOpen] = useState(true);
-  const { data: session } = useSession();
   const { setIsOpen } = useTour();
-  const isMobile = useIsMobile();
 
   const { data: userFlags } = useSWR<{ flags: Partial<UserFlag>[] }>(
     `/flags/me`,

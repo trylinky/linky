@@ -21,7 +21,7 @@ interface IconSelectProps {
 }
 
 export function IconSelect({ onIconChange, initialValue }: IconSelectProps) {
-  const [open, setOpen] = useState(false);
+  const [, setOpen] = useState(false);
 
   const [selectedIcon, setSelectedIcon] = useState<Icon | null>(null);
 

@@ -10,7 +10,7 @@ import {
 } from './handlers/hide-onboarding-tour';
 import { FastifyInstance } from 'fastify';
 
-export default async function flagsRoutes(fastify: FastifyInstance, opts: any) {
+export default async function flagsRoutes(fastify: FastifyInstance) {
   fastify.get(
     '/me',
     { schema: getFlagsForCurrentUserSchema },

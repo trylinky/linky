@@ -8,10 +8,7 @@ import { MultipartFile, MultipartValue } from '@fastify/multipart';
 import { FastifyInstance, FastifyReply } from 'fastify';
 import { FastifyRequest } from 'fastify';
 
-export default async function assetsRoutes(
-  fastify: FastifyInstance,
-  opts: any
-) {
+export default async function assetsRoutes(fastify: FastifyInstance) {
   fastify.post('/upload', postUploadAssetHandler);
 }
 

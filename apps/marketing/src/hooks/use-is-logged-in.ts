@@ -25,7 +25,7 @@ export function useIsLoggedIn() {
         } else {
           setIsLoggedIn(false);
         }
-      } catch (error) {
+      } catch {
         setIsLoggedIn(false);
       }
     };
