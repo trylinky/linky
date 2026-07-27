@@ -38,6 +38,14 @@ You can self-host Linky if you would like to run it yourself.
 - [Local Development](./docs/local-development.md)
 - [Self-hosting](./docs/self-hosting.md)
 
+## Contributing
+
+Contributions are welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md) to get set
+up and to know what CI will check.
+
+Found a security issue? Please report it privately, per
+[SECURITY.md](./SECURITY.md).
+
 ## License
 
 Please see the [LICENSE](https://github.com/tryglow/glow/blob/main/LICENSE) file for more information.

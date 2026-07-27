@@ -1,7 +1,4 @@
-# Self-hosting Guide
-
-> [!WARNING]
-> This guide is currently a work in progress.
+# Local Development
 
 This guide will help you get Linky running locally. Follow these steps to get your instance up and running.
 
@@ -103,34 +100,47 @@ docker-compose up -d
 1. Install dependencies:
 
 ```bash
-npm install
+pnpm install
 ```
 
-2. Generate Prisma client:
+2. Create the schema. `db push` syncs the database to `schema.prisma` and
+   generates the client:
 
 ```bash
-cd packages/prisma
-npx prisma generate
+cd packages/prisma && pnpm prisma db push && cd ../..
 ```
 
-3. Run database migrations:
-
-```bash
-npm run dev:migrate
-```
+> [!NOTE]
+> Prefer `db push` locally. `pnpm dev:migrate` runs `prisma migrate dev`, which
+> compares against the migration history and will offer to reset the database
+> if it finds a mismatch.
 
 ## Step 5: Building the Application
 
-Build all packages and applications:
+Start every app in watch mode:
 
 ```bash
-turbo dev
+pnpm dev
 ```
 
 Turbo will start the API and the frontend application on the following ports:
 
 - Frontend: http://localhost:3000
 - API: http://localhost:3001
+
+## Step 6: Running the checks
+
+The same four checks run in CI on every pull request:
+
+```bash
+pnpm typecheck
+pnpm lint
+pnpm test
+pnpm prettier --check "apps/**/*.{ts,tsx}" "packages/**/*.{ts,tsx}"
+```
+
+`pnpm test` includes DB-backed integration tests for the API, so the database
+from Step 3 needs to be running and `DATABASE_URL` set in `.env.local`.
 
 ## Security Considerations
 
