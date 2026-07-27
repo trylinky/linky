@@ -33,8 +33,30 @@ import Fastify, { FastifyInstance, FastifyRequest } from 'fastify';
 import FastifyBetterAuth from 'fastify-better-auth';
 import fastifyRawBody from 'fastify-raw-body';
 
-export const fastify: FastifyInstance =
-  Fastify().withTypeProvider<TypeBoxTypeProvider>();
+export const fastify: FastifyInstance = Fastify({
+  /**
+   * Fastify's logger defaults to false, which makes `fastify.log.*` a silent
+   * no-op — the boot failure handler and the /api/auth error branch were both
+   * writing to nowhere.
+   *
+   * Per-request logging stays off so this doesn't suddenly add two lines per
+   * request to the hosted deployment's log volume; the slow-request hook below
+   * already covers the interesting case. Set LOG_REQUESTS=true to turn it on.
+   */
+  logger: {
+    level: process.env.LOG_LEVEL ?? 'info',
+    redact: {
+      paths: [
+        'req.headers.cookie',
+        'req.headers.authorization',
+        'req.headers["x-api-key"]',
+        'res.headers["set-cookie"]',
+      ],
+      censor: '[redacted]',
+    },
+  },
+  disableRequestLogging: process.env.LOG_REQUESTS !== 'true',
+}).withTypeProvider<TypeBoxTypeProvider>();
 
 await fastify.register(fastifyCompress);
 await fastify.register(fastifySensible);
@@ -129,7 +151,7 @@ fastify.addHook('onResponse', async (request, reply) => {
   if (request.startTime) {
     const responseTime = Date.now() - request.startTime;
     if (responseTime > 200) {
-      console.log(`Request to ${request.raw.url} took ${responseTime}ms`);
+      request.log.warn({ url: request.raw.url, responseTime }, 'Slow request');
     }
   }
 });

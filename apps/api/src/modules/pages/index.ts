@@ -40,6 +40,7 @@ import {
   getSlugAvailabilityHandler,
   getSlugAvailabilitySchema,
 } from '@/modules/pages/handlers/get-slug-availability';
+import { captureException } from '@sentry/node';
 import { FastifyInstance, FastifyReply } from 'fastify';
 import { FastifyRequest } from 'fastify';
 
@@ -365,8 +366,16 @@ async function createPageHandler(
       slug: res.slug,
     });
   } catch (error) {
-    console.log('error', error);
-    return response.status(400).send(error);
+    // Don't hand the raw error back to the caller — it can carry stack traces
+    // and database detail.
+    request.log.error({ err: error }, 'Failed to create page');
+    captureException(error);
+
+    return response.status(400).send({
+      error: {
+        message: 'Sorry, there was an error creating this page',
+      },
+    });
   }
 }
 
