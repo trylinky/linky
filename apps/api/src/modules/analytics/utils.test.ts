@@ -15,7 +15,7 @@ describe('getIpAddress', () => {
     vi.unstubAllEnvs();
   });
 
-  it('returns the client IP from x-forwarded-for even when NODE_ENV is development', () => {
+  it('returns the client IP even when NODE_ENV is development', () => {
     // Regression test: a NODE_ENV === 'development' short-circuit used to
     // return 127.0.0.1 for every request. Because the API build inlines
     // process.env at bundle time, a non-production build env baked that
@@ -24,15 +24,51 @@ describe('getIpAddress', () => {
     vi.stubEnv('NODE_ENV', 'development');
 
     const request = buildRequest({
-      headers: { 'x-forwarded-for': '198.51.100.23, 172.16.0.1' },
+      headers: { 'x-forwarded-for': '198.51.100.23' },
     });
 
     expect(getIpAddress(request)).toBe('198.51.100.23');
   });
 
-  it('returns the first entry of x-forwarded-for, trimmed', () => {
+  it('prefers cf-connecting-ip, which Cloudflare will not let a client forge', () => {
     const request = buildRequest({
-      headers: { 'x-forwarded-for': ' 198.51.100.23 , 172.16.0.1' },
+      headers: {
+        'cf-connecting-ip': '198.51.100.23',
+        'x-forwarded-for': '1.2.3.4, 198.51.100.23',
+      },
+    });
+
+    expect(getIpAddress(request)).toBe('198.51.100.23');
+  });
+
+  it('ignores a spoofed x-forwarded-for prefix and uses the nearest proxy hop', () => {
+    // A caller sending `X-Forwarded-For: 1.2.3.4` gets it *prepended* to the
+    // real value by the proxy. Trusting the leftmost entry would let anyone
+    // pick their own rate-limit bucket on every request.
+    const request = buildRequest({
+      headers: { 'x-forwarded-for': '1.2.3.4, 203.0.113.9' },
+    });
+
+    expect(getIpAddress(request)).toBe('203.0.113.9');
+  });
+
+  it('gives a forged header no way to change the bucket', () => {
+    const real = '203.0.113.9';
+
+    const forged = ['1.2.3.4', '5.6.7.8', 'not-an-ip'].map((spoof) =>
+      getIpAddress(
+        buildRequest({
+          headers: { 'x-forwarded-for': `${spoof}, ${real}` },
+        })
+      )
+    );
+
+    expect(forged).toEqual([real, real, real]);
+  });
+
+  it('handles a single-entry x-forwarded-for, trimmed', () => {
+    const request = buildRequest({
+      headers: { 'x-forwarded-for': ' 198.51.100.23 ' },
     });
 
     expect(getIpAddress(request)).toBe('198.51.100.23');
