@@ -20,7 +20,7 @@ const dynamoDb = DynamoDBDocumentClient.from(client);
 
 const TABLE_NAME = process.env.REACTIONS_TABLE_NAME;
 
-const MAX_ALLOWED_REACTIONS_PER_IP = 16;
+export const MAX_ALLOWED_REACTIONS_PER_IP = 16;
 
 export const REACTION_TYPES = [
   'love',
@@ -174,18 +174,22 @@ export async function incrementReaction({
   ]);
 
   // Check if any operations failed
-  const failures = results.filter(result => result.status === 'rejected');
-  
+  const failures = results.filter((result) => result.status === 'rejected');
+
   if (failures.length > 0) {
     // Log the failures for monitoring but don't attempt complex rollbacks
     // as they could make the situation worse in a distributed system
     const failureDetails = failures.map((failure, index) => ({
       operation: index === 0 ? 'individual entry' : 'totals',
-      error: failure.status === 'rejected' ? failure.reason : 'unknown'
+      error: failure.status === 'rejected' ? failure.reason : 'unknown',
     }));
-    
-    captureException(new Error(`Reaction update failures: ${JSON.stringify(failureDetails)}`));
-    throw new Error(`Failed to update reactions: ${failures.length} operation(s) failed`);
+
+    captureException(
+      new Error(`Reaction update failures: ${JSON.stringify(failureDetails)}`)
+    );
+    throw new Error(
+      `Failed to update reactions: ${failures.length} operation(s) failed`
+    );
   }
 }
 
@@ -200,33 +204,36 @@ export async function reactToResource(
     ipAddress,
   });
 
-  if (
-    currentReactionsForPage.current[reactionType] >=
-    MAX_ALLOWED_REACTIONS_PER_IP
-  ) {
+  const currentForType = currentReactionsForPage.current[reactionType] ?? 0;
+  const totalForType = currentReactionsForPage.total[reactionType] ?? 0;
+
+  // `increment` is client-supplied, so the cap has to bound the amount that
+  // actually gets written — checking it only before applying let a single
+  // request add an arbitrary number of reactions.
+  const remainingAllowance = Math.max(
+    MAX_ALLOWED_REACTIONS_PER_IP - currentForType,
+    0
+  );
+  const appliedIncrement = Math.min(increment, remainingAllowance);
+
+  if (appliedIncrement <= 0) {
     return {
-      error: 'Max reactions reached',
-      total: {
-        [reactionType]: currentReactionsForPage.total[reactionType],
-      },
-      current: {
-        [reactionType]: currentReactionsForPage.current[reactionType],
-      },
+      total: { [reactionType]: totalForType },
+      current: { [reactionType]: currentForType },
     };
   }
 
-  await incrementReaction({ pageId, increment, ipAddress, reactionType });
+  await incrementReaction({
+    pageId,
+    increment: appliedIncrement,
+    ipAddress,
+    reactionType,
+  });
 
   // We could probably also refetch the latest data here, but this saves
   // an extra call to the database
   return {
-    total: {
-      [reactionType]:
-        (currentReactionsForPage.total[reactionType] ?? 0) + increment,
-    },
-    current: {
-      [reactionType]:
-        (currentReactionsForPage.current[reactionType] ?? 0) + increment,
-    },
+    total: { [reactionType]: totalForType + appliedIncrement },
+    current: { [reactionType]: currentForType + appliedIncrement },
   };
 }

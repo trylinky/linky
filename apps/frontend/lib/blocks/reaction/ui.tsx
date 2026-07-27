@@ -148,12 +148,15 @@ export const Reactions: FunctionComponent<BlockProps> = (props) => {
           reactionType,
         });
 
-        if (response.error) {
-          throw new Error(response.error);
+        // The endpoint returns the new { total, current } at the top level.
+        // Reading `.data` here wrote undefined into the SWR cache, which reset
+        // the allowance check below on the following click.
+        if (!response?.total || !response?.current) {
+          throw new Error('Reaction was not recorded');
         }
 
         pendingClicksRef.current = 0;
-        await mutate(response.data, { revalidate: false });
+        await mutate(response, { revalidate: false });
       } catch (error) {
         console.error('Error reacting to resource:', error);
         pendingClicksRef.current = 0;
