@@ -1,6 +1,7 @@
 'use strict';
 
 import {
+  createBlockSchema,
   deleteBlockSchema,
   getBlockSchema,
   getEnabledBlockSchema,
@@ -28,7 +29,7 @@ export default async function blocksRoutes(
   fastify: FastifyInstance,
   opts: any
 ) {
-  fastify.post('/add', postCreateBlockHandler);
+  fastify.post('/add', { schema: createBlockSchema }, postCreateBlockHandler);
   fastify.get('/:blockId', { schema: getBlockSchema }, getBlockHandler);
   fastify.delete(
     '/:blockId',

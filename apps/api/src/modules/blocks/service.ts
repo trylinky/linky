@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma';
+import { isAdminUser } from '@/lib/roles';
 import { blocks, Blocks } from '@trylinky/blocks';
 import { Prisma, User } from '@trylinky/prisma';
 
@@ -63,7 +64,7 @@ export async function getEnabledBlocks(user: Pick<User, 'role'>) {
 
   Object.entries(blocks).forEach(([key, block]) => {
     if (block.isBeta) {
-      if (user?.role === 'admin') {
+      if (isAdminUser(user)) {
         enabledBlocks.push(key as Blocks);
       }
     } else {

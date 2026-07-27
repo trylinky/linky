@@ -29,6 +29,7 @@ import {
   pageSlugCacheTag,
   revalidatePageCache,
 } from '@/lib/revalidate';
+import { isAdminUser } from '@/lib/roles';
 import {
   getPageLoadHandler,
   getPageLoadSchema,
@@ -329,7 +330,7 @@ async function createPageHandler(
       },
     });
 
-    if (user?.role !== 'ADMIN') {
+    if (!isAdminUser(user)) {
       return response.status(400).send({
         error: {
           message: 'You have reached the maximum number of pages',
