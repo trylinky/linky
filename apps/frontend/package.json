@@ -30,7 +30,7 @@
     "@trylinky/ui": "workspace:*",
     "@vercel/analytics": "^1.5.0",
     "@vercel/functions": "^2.0.0",
-    "better-auth": "^1.4.3",
+    "better-auth": "^1.6.25",
     "date-fns": "^4.1.0",
     "formik": "^2.4.6",
     "formik-validator-zod": "^2.0.1",

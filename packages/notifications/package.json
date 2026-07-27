@@ -19,8 +19,9 @@
     "react-dom": "19.0.0"
   },
   "devDependencies": {
-    "react-email": "3.0.7",
+    "@react-email/ui": "^6.9.1",
     "@types/react": "19.0.10",
-    "@types/react-dom": "19.0.4"
+    "@types/react-dom": "19.0.4",
+    "react-email": "6.9.1"
   }
 }

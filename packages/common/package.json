@@ -10,7 +10,7 @@
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@trylinky/ui": "workspace:*",
-    "better-auth": "1.4.3",
+    "better-auth": "1.6.25",
     "next": "16.2.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
