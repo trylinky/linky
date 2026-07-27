@@ -5,7 +5,6 @@ import {
   Container,
   Head,
   Html,
-  Img,
   Preview,
   Section,
   Text,
@@ -44,15 +43,6 @@ const MagicLinkEmail = ({ url }: MagicLinkEmailProps) => (
 );
 
 export default MagicLinkEmail;
-
-const heading = {
-  fontSize: '24px',
-  letterSpacing: '-0.5px',
-  lineHeight: '1.3',
-  fontWeight: '400',
-  color: '#484848',
-  padding: '17px 0 0',
-};
 
 const buttonContainer = {
   padding: '27px 0 27px',

@@ -58,7 +58,7 @@ declare global {
   function _getCachedLocation(): string | null {
     try {
       return sessionStorage.getItem(LOCATION_STORAGE_KEY);
-    } catch (error) {
+    } catch {
       return null;
     }
   }
@@ -66,7 +66,7 @@ declare global {
   function _setCachedLocation(location: string): void {
     try {
       sessionStorage.setItem(LOCATION_STORAGE_KEY, location);
-    } catch (error) {
+    } catch {
       // ignore storage errors (private mode, disabled storage)
     }
   }
@@ -88,7 +88,7 @@ declare global {
 
       _setCachedLocation(data.location);
       return data.location;
-    } catch (error) {
+    } catch {
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       return timezones[timezone as keyof typeof timezones];
     }
@@ -122,7 +122,7 @@ declare global {
 
       try {
         item = JSON.parse(serializedItem);
-      } catch (error) {
+      } catch {
         return null;
       }
 
@@ -284,7 +284,7 @@ declare global {
         navigator.languages && navigator.languages.length
           ? navigator.languages[0]
           : navigator.language || 'en';
-    } catch (error) {
+    } catch {
       // ignore error
     }
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { auth } from '../auth/auth';
-import { Button } from '@trylinky/ui';
+import { Button, cn } from '@trylinky/ui';
 import { ReactNode } from 'react';
 
 type EnabledProviders = 'google' | 'twitter' | 'tiktok';
@@ -77,30 +77,24 @@ const providerConfigs: Record<
 interface Props {
   provider: EnabledProviders;
   className?: string;
-  variant?: 'glow' | 'default';
-  size?: 'lg' | 'md';
   onClick?: () => Promise<void>;
   disabled?: boolean;
-  shouldRedirect?: boolean;
   redirectTo?: string;
 }
 
 export function LoginProviderButton({
   provider,
   className,
-  variant = 'default',
-  size = 'md',
   onClick,
   disabled,
   redirectTo,
-  shouldRedirect = true,
 }: Props) {
   const prov = providerConfigs[provider];
 
   return (
     <Button
       type="submit"
-      className="w-full"
+      className={cn('w-full', className)}
       variant="secondary"
       onClick={async () => {
         if (disabled) {

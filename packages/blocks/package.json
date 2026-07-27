@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc index.ts",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "lint": "eslint ."
   },
   "dependencies": {
     "typescript": "^5",

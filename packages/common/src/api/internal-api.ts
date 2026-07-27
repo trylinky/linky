@@ -27,7 +27,7 @@ export class PublicApi {
       return {
         success: false,
       };
-    } catch (error) {
+    } catch {
       return {
         success: false,
       };
@@ -54,7 +54,7 @@ export class InternalApi {
       return {
         success: false,
       };
-    } catch (error) {
+    } catch {
       return {
         success: false,
       };
@@ -79,7 +79,7 @@ export class InternalApi {
       return {
         success: false,
       };
-    } catch (error) {
+    } catch {
       return {
         success: false,
       };

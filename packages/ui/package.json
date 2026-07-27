@@ -59,5 +59,8 @@
       "types": "./src/catalyst/index.ts",
       "default": "./src/catalyst/index.ts"
     }
+  },
+  "scripts": {
+    "lint": "eslint ."
   }
 }
