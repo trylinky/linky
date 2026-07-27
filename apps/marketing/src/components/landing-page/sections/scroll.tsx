@@ -8,8 +8,55 @@ import iconThreads from '@/assets/landing-page/integration-icons/icon-threads.pn
 import iconTiktok from '@/assets/landing-page/integration-icons/icon-tiktok.png';
 import iconTwitch from '@/assets/landing-page/integration-icons/icon-twitch.png';
 import iconYoutube from '@/assets/landing-page/integration-icons/icon-youtube.png';
-import { motion, useTransform, useScroll } from 'framer-motion';
+import { motion, useTransform, useScroll, MotionValue } from 'framer-motion';
 import React from 'react';
+
+/**
+ * One icon, as its own component so the useTransform calls sit at the top
+ * level of a component rather than inside a .map callback. The transforms are
+ * unchanged - this only moves where the hooks are called.
+ */
+function FloatingIcon({
+  index,
+  src,
+  style,
+  scrollYProgress,
+}: {
+  index: number;
+  src: string;
+  style: React.CSSProperties;
+  scrollYProgress: MotionValue<number>;
+}) {
+  // Animate from outside the viewport to their position
+  const y = useTransform(
+    scrollYProgress,
+    [0, 0.3 + index * 0.05],
+    [index % 2 === 0 ? -120 : 120, 0]
+  );
+  const opacity = useTransform(
+    scrollYProgress,
+    [0.1 + index * 0.05, 0.4 + index * 0.05],
+    [0, 1]
+  );
+
+  return (
+    <motion.img
+      src={src}
+      alt=""
+      style={{
+        position: 'absolute',
+        width: 64,
+        height: 64,
+        ...style,
+        y,
+        opacity,
+        zIndex: 1,
+      }}
+      aria-hidden="true"
+      draggable={false}
+    />
+  );
+}
 
 // FloatingIcons component
 export function FloatingIcons() {
@@ -36,37 +83,15 @@ export function FloatingIcons() {
       ref={ref}
       className="pointer-events-none sticky top-0 w-full h-screen z-0"
     >
-      {icons.map((icon, i) => {
-        // Animate from outside the viewport to their position
-        const y = useTransform(
-          scrollYProgress,
-          [0, 0.3 + i * 0.05],
-          [i % 2 === 0 ? -120 : 120, 0]
-        );
-        const opacity = useTransform(
-          scrollYProgress,
-          [0.1 + i * 0.05, 0.4 + i * 0.05],
-          [0, 1]
-        );
-        return (
-          <motion.img
-            key={i}
-            src={icon.src.src}
-            alt=""
-            style={{
-              position: 'absolute',
-              width: 64,
-              height: 64,
-              ...icon.style,
-              y,
-              opacity,
-              zIndex: 1,
-            }}
-            aria-hidden="true"
-            draggable={false}
-          />
-        );
-      })}
+      {icons.map((icon, i) => (
+        <FloatingIcon
+          key={i}
+          index={i}
+          src={icon.src.src}
+          style={icon.style}
+          scrollYProgress={scrollYProgress}
+        />
+      ))}
     </div>
   );
 }
