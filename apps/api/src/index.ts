@@ -7,7 +7,7 @@ import marketingRoutes from './modules/marketing';
 import pagesRoutes from './modules/pages';
 import tiktokServiceRoutes from './modules/services/tiktok';
 import { authenticateDecorator } from '@/decorators/authenticate';
-import { trustedOrigins } from '@/lib/origins';
+import { isTrustedOrigin } from '@/lib/origins';
 import analyticsRoutes from '@/modules/analytics';
 import assetsRoutes from '@/modules/assets';
 import billingRoutes from '@/modules/billing';
@@ -22,13 +22,13 @@ import spotifyServiceRoutes from '@/modules/services/spotify';
 import threadsServiceRoutes from '@/modules/services/threads';
 import themesRoutes from '@/modules/themes';
 import fastifyCompress from '@fastify/compress';
-import cors from '@fastify/cors';
+import cors, { FastifyCorsOptions } from '@fastify/cors';
 import fastifyMultipart from '@fastify/multipart';
 import fastifySensible from '@fastify/sensible';
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import * as Sentry from '@sentry/node';
 import 'dotenv/config';
-import Fastify, { FastifyInstance } from 'fastify';
+import Fastify, { FastifyInstance, FastifyRequest } from 'fastify';
 import FastifyBetterAuth from 'fastify-better-auth';
 import fastifyRawBody from 'fastify-raw-body';
 
@@ -52,14 +52,35 @@ await fastify.register(fastifyMultipart, {
   },
 });
 
-await fastify.register(cors, {
-  origin: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
-  exposedHeaders: ['Content-Length'], // Expose specific headers
-  credentials: true,
-  maxAge: 86400, // Cache preflight response for 24 hours
-});
+/**
+ * CORS is decided per request, because the API serves two different kinds of
+ * caller:
+ *
+ *  - First-party app surfaces (the editor, admin, marketing) are in
+ *    `trustedOrigins` and need credentialed requests so the session cookie is
+ *    sent and the response is readable.
+ *
+ *  - Public pages on user custom domains, whose origin we can't enumerate.
+ *    These only ever call session-free endpoints (reactions, form
+ *    submissions), so they get CORS *without* credentials.
+ *
+ * Reflecting the origin without credentials is safe: no cookie is attached, so
+ * an untrusted caller can only reach data that is already public. Echoing an
+ * arbitrary origin *with* credentials would let any site read a logged-in
+ * user's data.
+ */
+await fastify.register(
+  cors,
+  () =>
+    async (request: FastifyRequest): Promise<FastifyCorsOptions> => ({
+      origin: true, // reflect; @fastify/cors also sets `Vary: Origin`
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
+      exposedHeaders: ['Content-Length'], // Expose specific headers
+      credentials: isTrustedOrigin(request.headers.origin),
+      maxAge: 86400, // Cache preflight response for 24 hours
+    })
+);
 
 fastify.register(coreRoutes);
 fastify.register(marketingRoutes, { prefix: '/marketing' });

@@ -3,7 +3,7 @@
 import { BlockProps } from '../ui';
 import { CoreBlock } from '@/components/CoreBlock';
 import { FormBlockConfig, FormBlockField } from '@trylinky/blocks';
-import { InternalApi, internalApiFetcher } from '@trylinky/common';
+import { PublicApi, internalApiFetcher } from '@trylinky/common';
 import { toast } from '@trylinky/ui';
 import { FormEvent, FunctionComponent, useState } from 'react';
 import useSWR from 'swr';
@@ -55,13 +55,10 @@ export const FormBlock: FunctionComponent<BlockProps> = (props) => {
     setIsSubmitting(true);
 
     try {
-      const res = await InternalApi.post(
-        `/forms/${props.blockId}/submissions`,
-        {
-          answers,
-          website: (formData.get('website') as string) ?? '',
-        }
-      );
+      const res = await PublicApi.post(`/forms/${props.blockId}/submissions`, {
+        answers,
+        website: (formData.get('website') as string) ?? '',
+      });
 
       if (res?.success) {
         setSubmitted(true);
@@ -88,7 +85,10 @@ export const FormBlock: FunctionComponent<BlockProps> = (props) => {
         </p>
         <button
           type="button"
-          onClick={() => { setRound((r) => r + 1); setSubmitted(false); }}
+          onClick={() => {
+            setRound((r) => r + 1);
+            setSubmitted(false);
+          }}
           className="text-sm text-sys-label-secondary underline"
         >
           Submit another response
@@ -105,7 +105,11 @@ export const FormBlock: FunctionComponent<BlockProps> = (props) => {
         </h2>
       )}
 
-      <form key={round} onSubmit={handleSubmit} className="flex w-full flex-col gap-3">
+      <form
+        key={round}
+        onSubmit={handleSubmit}
+        className="flex w-full flex-col gap-3"
+      >
         {fields.map((field) => (
           <FieldInput key={field.id} field={field} />
         ))}

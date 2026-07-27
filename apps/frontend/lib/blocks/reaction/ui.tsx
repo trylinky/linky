@@ -15,16 +15,30 @@ import {
   ReactionType,
   defaultReactionType,
 } from '@trylinky/blocks';
-import { InternalApi, internalApiFetcher } from '@trylinky/common';
+import {
+  PublicApi,
+  internalApiFetcher,
+  publicApiFetcher,
+} from '@trylinky/common';
 import { motion } from 'framer-motion';
-import { ComponentType, FunctionComponent, useEffect, useRef, useState } from 'react';
+import {
+  ComponentType,
+  FunctionComponent,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import useSWR from 'swr';
 
 export const reactionMeta: Record<
   ReactionType,
   {
     label: string;
-    icon: ComponentType<{ className?: string; width?: number; height?: number }>;
+    icon: ComponentType<{
+      className?: string;
+      width?: number;
+      height?: number;
+    }>;
     gradientFrom: string;
     gradientTo: string;
   }
@@ -88,7 +102,7 @@ export const Reactions: FunctionComponent<BlockProps> = (props) => {
   const { data, mutate } = useSWR<{
     current: { [reactionType: string]: number };
     total: { [reactionType: string]: number };
-  }>(pageId ? `/reactions?pageId=${pageId}` : null, internalApiFetcher);
+  }>(pageId ? `/reactions?pageId=${pageId}` : null, publicApiFetcher);
 
   const serverCount = data?.total?.[reactionType];
 
@@ -128,7 +142,7 @@ export const Reactions: FunctionComponent<BlockProps> = (props) => {
 
       isSubmittingRef.current = true;
       try {
-        const response = await InternalApi.post('/reactions', {
+        const response = await PublicApi.post('/reactions', {
           pageId,
           increment: incrementAmount,
           reactionType,
@@ -168,7 +182,11 @@ export const Reactions: FunctionComponent<BlockProps> = (props) => {
           />
         </div>
         <div className="mr-8 flex justify-center z-10">
-          <ReactionIcon className="fill-sys-label-primary" width={40} height={40} />
+          <ReactionIcon
+            className="fill-sys-label-primary"
+            width={40}
+            height={40}
+          />
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-full">
           <motion.div
