@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma';
 import { stripeClient } from '@/lib/stripe';
+import { canManageBilling } from '@/modules/organizations/utils';
 import { captureException } from '@sentry/node';
 import { FastifyReply } from 'fastify';
 import { FastifyRequest } from 'fastify';
@@ -40,17 +41,9 @@ export async function cancelSubscriptionHandler(
     return response.notFound();
   }
 
-  const membership = await prisma.member.findFirst({
-    where: {
-      organizationId: session?.activeOrganizationId,
-      userId: session?.user.id,
-      role: {
-        in: ['admin', 'owner'],
-      },
-    },
-  });
-
-  if (!membership) {
+  if (
+    !(await canManageBilling(session?.activeOrganizationId, session?.user.id))
+  ) {
     return response.unauthorized();
   }
 

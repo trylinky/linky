@@ -33,6 +33,35 @@ export async function hasAvailableSeat(
   return memberCount < seats;
 }
 
+/** Organization roles allowed to manage billing. */
+const BILLING_ROLES = ['admin', 'owner'];
+
+/**
+ * Whether the user may manage the organization's billing.
+ *
+ * Note this is Member.role (owner/admin/member), the role *within* an
+ * organization — not User.role, which is the site-wide one.
+ */
+export async function canManageBilling(
+  organizationId: string | undefined,
+  userId: string | undefined
+): Promise<boolean> {
+  if (!organizationId || !userId) {
+    return false;
+  }
+
+  const membership = await prisma.member.findFirst({
+    where: {
+      organizationId,
+      userId,
+      role: { in: BILLING_ROLES },
+    },
+    select: { id: true },
+  });
+
+  return membership !== null;
+}
+
 /**
  * Helper function to create a new organization
  */

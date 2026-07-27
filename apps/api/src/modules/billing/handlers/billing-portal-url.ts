@@ -1,6 +1,27 @@
 import prisma from '@/lib/prisma';
 import { stripeClient } from '@/lib/stripe';
+import { canManageBilling } from '@/modules/organizations/utils';
 import { FastifyRequest, FastifyReply } from 'fastify';
+
+const defaultReturnUrl = () => `${process.env.APP_FRONTEND_URL}/edit`;
+
+/** Only allows a return_url on our own frontend origin. */
+export function safeReturnUrl(redirectTo: string | undefined): string {
+  const fallback = defaultReturnUrl();
+
+  if (!redirectTo) {
+    return fallback;
+  }
+
+  try {
+    const target = new URL(redirectTo);
+    const appOrigin = new URL(process.env.APP_FRONTEND_URL as string).origin;
+
+    return target.origin === appOrigin ? target.toString() : fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 export const getBillingPortalUrlSchema = {
   response: {
@@ -20,6 +41,15 @@ export async function getBillingPortalUrlHandler(
 ) {
   const session = await request.server.authenticate(request, response);
 
+  // The portal can cancel the subscription and change the payment method, so
+  // it needs the same admin/owner gate as the cancel endpoint. Without this,
+  // any member of the organization could cancel by going through the portal.
+  if (
+    !(await canManageBilling(session.activeOrganizationId, session.user.id))
+  ) {
+    return response.unauthorized();
+  }
+
   const subscription = await prisma.subscription.findFirst({
     where: {
       referenceId: session?.activeOrganizationId,
@@ -32,15 +62,16 @@ export async function getBillingPortalUrlHandler(
     });
   }
 
-  const { redirectTo } = request.body;
-
   const customer = await stripeClient.customers.retrieve(
     subscription.stripeCustomerId
   );
 
   const billingPortalUrl = await stripeClient.billingPortal.sessions.create({
     customer: customer.id,
-    return_url: redirectTo,
+    // `redirectTo` is caller-supplied, so it is only honoured when it points
+    // back at our own frontend — otherwise Stripe would bounce the user to an
+    // arbitrary site on the way out of the portal.
+    return_url: safeReturnUrl(request.body?.redirectTo),
   });
 
   return response.status(200).send({
