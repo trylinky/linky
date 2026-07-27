@@ -105,7 +105,7 @@ async function postCreateBlockHandler(
     where: {
       deletedAt: null,
       organization: {
-        id: session.currentOrganizationId,
+        id: session.activeOrganizationId,
         members: {
           some: {
             userId: session.user.id,

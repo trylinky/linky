@@ -1,9 +1,13 @@
 import fastify from '@/index';
 import { auth } from '@/lib/auth';
-import { HttpError } from '@fastify/sensible';
 import { captureException } from '@sentry/node';
 import { fromNodeHeaders } from 'better-auth/node';
 import { FastifyReply, FastifyRequest } from 'fastify';
+
+export interface AuthenticatedSession {
+  user: { id: string };
+  activeOrganizationId: string;
+}
 
 export async function authenticateDecorator(
   request: FastifyRequest,
@@ -13,14 +17,7 @@ export async function authenticateDecorator(
   } = {
     throwError: true,
   }
-): Promise<
-  | {
-      user: { id: string };
-      activeOrganizationId: string;
-    }
-  | HttpError
-  | null
-> {
+): Promise<AuthenticatedSession | null> {
   try {
     const session = await auth.api.getSession({
       headers: fromNodeHeaders(request.headers),

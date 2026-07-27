@@ -30,11 +30,13 @@ export async function getPageBySlugOrDomainHandler(
 ): Promise<Static<(typeof getPageBySlugOrDomainSchema.response)[200]>> {
   const { slug, domain } = request.query;
 
-  const headers = request.headers;
+  const isInternalCaller = await request.server.authenticateApiKey(
+    request,
+    response,
+    { throwError: false }
+  );
 
-  const apiKey = headers['x-api-key'];
-
-  if (!apiKey || apiKey !== process.env.INTERNAL_API_KEY) {
+  if (!isInternalCaller) {
     return response.forbidden();
   }
 

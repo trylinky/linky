@@ -7,6 +7,7 @@ import marketingRoutes from './modules/marketing';
 import pagesRoutes from './modules/pages';
 import tiktokServiceRoutes from './modules/services/tiktok';
 import { authenticateDecorator } from '@/decorators/authenticate';
+import { authenticateApiKeyDecorator } from '@/decorators/authenticate-api-key';
 import { isTrustedOrigin } from '@/lib/origins';
 import analyticsRoutes from '@/modules/analytics';
 import assetsRoutes from '@/modules/assets';
@@ -108,6 +109,7 @@ fastify.register(spotifyServiceRoutes, {
 // fastify.register(FastifyBetterAuth, { auth });
 
 fastify.decorate('authenticate', authenticateDecorator);
+fastify.decorate('authenticateApiKey', authenticateApiKeyDecorator);
 
 Sentry.setupFastifyErrorHandler(fastify);
 

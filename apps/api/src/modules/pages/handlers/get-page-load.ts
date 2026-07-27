@@ -38,11 +38,13 @@ export async function getPageLoadHandler(
 ): Promise<Static<(typeof getPageLoadSchema.response)[200]>> {
   const { pageId } = request.params;
 
-  const headers = request.headers;
+  const isInternalCaller = await request.server.authenticateApiKey(
+    request,
+    response,
+    { throwError: false }
+  );
 
-  const apiKey = headers['x-api-key'];
-
-  if (!apiKey || apiKey !== process.env.INTERNAL_API_KEY) {
+  if (!isInternalCaller) {
     return response.forbidden();
   }
 
