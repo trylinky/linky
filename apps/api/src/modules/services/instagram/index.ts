@@ -1,10 +1,6 @@
 import { decrypt, encrypt, isEncrypted } from '@/lib/encrypt';
 import prisma from '@/lib/prisma';
-import {
-  blockCacheTag,
-  pageIdCacheTag,
-  revalidatePageCache,
-} from '@/lib/revalidate';
+import { linkIntegrationToBlock } from '@/modules/integrations/service';
 import {
   requestLongLivedToken,
   requestLongLivedTokenLegacy,
@@ -148,17 +144,14 @@ async function getInstagramCallbackHandler(
       const decryptedState = await decrypt<{ blockId: string }>(state);
 
       if (decryptedState?.blockId) {
-        const blockId = decryptedState.blockId;
-
-        const linkedBlock = await prisma.block.update({
-          where: { id: blockId },
-          data: { integrationId: integration.id },
+        // Scoped to the caller: the block id comes from a query string they
+        // control, so an unscoped update would let them attach this
+        // integration to someone else's block.
+        await linkIntegrationToBlock({
+          blockId: decryptedState.blockId,
+          integrationId: integration.id,
+          userId: session.user.id,
         });
-
-        void revalidatePageCache([
-          blockCacheTag(blockId),
-          pageIdCacheTag(linkedBlock.pageId),
-        ]);
       }
     }
 
@@ -273,17 +266,14 @@ async function getInstagramLegacyCallbackHandler(
       const decryptedState = await decrypt<{ blockId: string }>(state);
 
       if (decryptedState?.blockId) {
-        const blockId = decryptedState.blockId;
-
-        const linkedBlock = await prisma.block.update({
-          where: { id: blockId },
-          data: { integrationId: integration.id },
+        // Scoped to the caller: the block id comes from a query string they
+        // control, so an unscoped update would let them attach this
+        // integration to someone else's block.
+        await linkIntegrationToBlock({
+          blockId: decryptedState.blockId,
+          integrationId: integration.id,
+          userId: session.user.id,
         });
-
-        void revalidatePageCache([
-          blockCacheTag(blockId),
-          pageIdCacheTag(linkedBlock.pageId),
-        ]);
       }
     }
 
