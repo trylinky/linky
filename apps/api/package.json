@@ -53,7 +53,7 @@
   },
   "scripts": {
     "dev": "dotenvx run -f ../../.env.local -- tsx watch src",
-    "test": "vitest run",
+    "test": "dotenvx run --quiet -f ../../.env.local --ignore=MISSING_ENV_FILE -- vitest run",
     "start:api": "node dist/index.js",
     "build:api": "node build.js && pnpm run sentry:sourcemaps",
     "typecheck": "tsc --noEmit",

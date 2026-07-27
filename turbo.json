@@ -212,6 +212,10 @@
     },
     "test": {
       "dependsOn": ["^prisma:generate"],
+      // apps/api has DB-backed integration tests. Turbo's strict env mode
+      // withholds anything not declared here, so without these the suite
+      // silently falls back to whatever .env.local points at.
+      "env": ["DATABASE_URL", "DIRECT_URL"],
       "outputs": []
     }
   }
