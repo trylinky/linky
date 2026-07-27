@@ -116,7 +116,7 @@ importers:
         version: link:../../packages/prisma
       better-auth:
         specifier: ^1.4.3
-        version: 1.4.3(next@16.2.4(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.2))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        version: 1.4.3(next@16.2.4(@opentelemetry/api@1.9.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.2))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -129,9 +129,6 @@ importers:
       fastify:
         specifier: ^5.1.0
         version: 5.6.2
-      fastify-better-auth:
-        specifier: ^1.2.0
-        version: 1.2.0(better-auth@1.4.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(fastify@5.6.2)
       fastify-cli:
         specifier: ^7.0.1
         version: 7.4.1
@@ -5747,13 +5744,6 @@ packages:
   fast-xml-parser@5.2.5:
     resolution: {integrity: sha512-pfX9uG9Ki0yekDHx2SiuRIyFdyAr1kMIMitPvb0YBo8SUfKvia7w7FIyd/l6av85pFYRhZscS75MwMnbvY+hcQ==}
     hasBin: true
-
-  fastify-better-auth@1.2.0:
-    resolution: {integrity: sha512-Jx27gm7caq6kd3gmTPpg9FsYtHIoDyjJ2L1/e0f8vxRP7W9PowwTxvm8dNuiGy0MZ3N2kUwfirqBf1HrlzjIgg==}
-    engines: {node: '>= 23.10.0'}
-    peerDependencies:
-      better-auth: 1.x
-      fastify: 5.x
 
   fastify-cli@7.4.1:
     resolution: {integrity: sha512-7Jsfj2uLuGWvnxjrGDrHWpSm65+OcVx0ZbTD2wwkz6Wt6KjGm6+ZYwwpdXdwAlzbJYq+LCEMNvDJc4485AQ1vQ==}
@@ -13279,25 +13269,6 @@ snapshots:
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
 
-  better-auth@1.4.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
-    dependencies:
-      '@better-auth/core': 1.4.3(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.18)(better-call@1.1.0)(jose@6.1.2)(kysely@0.28.8)(nanostores@1.1.0)
-      '@better-auth/telemetry': 1.4.3(@better-auth/core@1.4.3(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.18)(better-call@1.1.0)(jose@6.1.2)(kysely@0.28.8)(nanostores@1.1.0))
-      '@better-auth/utils': 0.3.0
-      '@better-fetch/fetch': 1.1.18
-      '@noble/ciphers': 2.0.1
-      '@noble/hashes': 2.0.1
-      '@standard-schema/spec': 1.0.0
-      better-call: 1.1.0
-      defu: 6.1.4
-      jose: 6.1.2
-      kysely: 0.28.8
-      nanostores: 1.1.0
-      zod: 4.1.13
-    optionalDependencies:
-      react: 19.0.0
-      react-dom: 19.0.0(react@19.0.0)
-
   better-call@1.1.0:
     dependencies:
       '@better-auth/utils': 0.3.0
@@ -14252,12 +14223,6 @@ snapshots:
   fast-xml-parser@5.2.5:
     dependencies:
       strnum: 2.1.1
-
-  fastify-better-auth@1.2.0(better-auth@1.4.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(fastify@5.6.2):
-    dependencies:
-      better-auth: 1.4.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      fastify: 5.6.2
-      fastify-plugin: 5.1.0
 
   fastify-cli@7.4.1:
     dependencies:

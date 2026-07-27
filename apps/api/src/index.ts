@@ -30,7 +30,6 @@ import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import * as Sentry from '@sentry/node';
 import 'dotenv/config';
 import Fastify, { FastifyInstance, FastifyRequest } from 'fastify';
-import FastifyBetterAuth from 'fastify-better-auth';
 import fastifyRawBody from 'fastify-raw-body';
 
 export const fastify: FastifyInstance = Fastify({
@@ -127,8 +126,6 @@ fastify.register(threadsServiceRoutes, { prefix: '/services/threads' });
 fastify.register(spotifyServiceRoutes, {
   prefix: '/services/spotify',
 });
-
-// fastify.register(FastifyBetterAuth, { auth });
 
 fastify.decorate('authenticate', authenticateDecorator);
 fastify.decorate('authenticateApiKey', authenticateApiKeyDecorator);
