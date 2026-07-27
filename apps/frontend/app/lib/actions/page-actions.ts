@@ -94,7 +94,10 @@ export async function getPageBlocks(pageId: string) {
  * ---------------------------------------------------------------------------
  */
 
-export async function getPublicPageBySlugOrDomain(slug: string, domain: string) {
+export async function getPublicPageBySlugOrDomain(
+  slug: string,
+  domain: string
+) {
   'use cache';
   cacheLife('days');
   cacheTag(`page-slug-${slug}-${domain}`);

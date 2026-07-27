@@ -49,7 +49,10 @@ export function ArticleTemplate({ children, meta }: Props) {
               itemProp="acceptedAnswer"
               itemType="https://schema.org/Answer"
             >
-              <div itemProp="text" className="prose prose-lg prose-zinc max-w-3xl">
+              <div
+                itemProp="text"
+                className="prose prose-lg prose-zinc max-w-3xl"
+              >
                 {children}
               </div>
             </div>

@@ -1,6 +1,6 @@
+import type { ThemePalette } from '@/components/pseo/theme-mock';
 import type { TemplateContent } from '@/content/pseo-types';
 import { isPublishableTemplate } from '@/content/pseo-types';
-import type { ThemePalette } from '@/components/pseo/theme-mock';
 
 // Palettes mirror apps/frontend/lib/theme.ts defaultThemeSeeds (source of truth).
 // All h/s/l values are copied verbatim - do NOT round or alter.
@@ -228,7 +228,7 @@ const TEMPLATES: TemplateContent[] = [
       },
       {
         heading: "What's included in the Classic theme",
-        body: "The palette ships with seven colour roles: a warm off-white base, white card backgrounds, a light-grey secondary surface, a near-white border, a near-black primary label, a dark-grey secondary label, and an almost-white tertiary label. Together they form a versatile neutral system that works well for personal portfolios, freelance creatives, and anyone who wants their content to do the talking rather than the colour scheme.",
+        body: 'The palette ships with seven colour roles: a warm off-white base, white card backgrounds, a light-grey secondary surface, a near-white border, a near-black primary label, a dark-grey secondary label, and an almost-white tertiary label. Together they form a versatile neutral system that works well for personal portfolios, freelance creatives, and anyone who wants their content to do the talking rather than the colour scheme.',
       },
       {
         heading: 'Who Classic is best for',
@@ -277,7 +277,7 @@ const TEMPLATES: TemplateContent[] = [
       },
       {
         heading: "What's included in the Violet palette",
-        body: "Seven colour roles make up the Violet system: two distinct indigo-purple dark backgrounds (base and primary card), a pure-black secondary surface, a soft violet border, and a white primary label. Secondary labels draw from a light lavender-grey (hue 293, ~76 % lightness, low saturation) that adds a subtle gender-neutral purple note without competing with the white headlines. Tertiary labels match the near-white of the other dark themes.",
+        body: 'Seven colour roles make up the Violet system: two distinct indigo-purple dark backgrounds (base and primary card), a pure-black secondary surface, a soft violet border, and a white primary label. Secondary labels draw from a light lavender-grey (hue 293, ~76 % lightness, low saturation) that adds a subtle gender-neutral purple note without competing with the white headlines. Tertiary labels match the near-white of the other dark themes.',
       },
       {
         heading: 'Who Violet is best for',
@@ -351,7 +351,7 @@ const TEMPLATES: TemplateContent[] = [
       {
         question: 'Is the black background true black on OLED screens?',
         answer:
-          "Yes. The Midnight background is set to 0 % lightness with zero saturation, which renders as #000000 - true black on all screens, including OLED displays where true black pixels are fully turned off.",
+          'Yes. The Midnight background is set to 0 % lightness with zero saturation, which renders as #000000 - true black on all screens, including OLED displays where true black pixels are fully turned off.',
       },
       {
         question: 'Is white text on a black background accessible?',
@@ -375,7 +375,7 @@ const TEMPLATES: TemplateContent[] = [
       },
       {
         heading: "What's included in the Forest palette",
-        body: "The seven Forest colour roles span two layers of muted green (base and primary card), a light-grey secondary surface for avatar placeholders, and a matching card border that mirrors the primary card colour for a seamless, inset look. Primary labels are white (100 % lightness), ensuring headline readability. The secondary label is a light sage green (hue 141, 84 % lightness, 41 % saturation) - a softer, warmer tone that reinforces the nature theme without competing with primary text. Tertiary labels are near-white.",
+        body: 'The seven Forest colour roles span two layers of muted green (base and primary card), a light-grey secondary surface for avatar placeholders, and a matching card border that mirrors the primary card colour for a seamless, inset look. Primary labels are white (100 % lightness), ensuring headline readability. The secondary label is a light sage green (hue 141, 84 % lightness, 41 % saturation) - a softer, warmer tone that reinforces the nature theme without competing with primary text. Tertiary labels are near-white.',
       },
       {
         heading: 'Who Forest is best for',
@@ -424,7 +424,7 @@ const TEMPLATES: TemplateContent[] = [
       },
       {
         heading: "What's included in the Lilac palette",
-        body: "The seven colour roles form a tight, harmonious family: a periwinkle page base, an almost-white primary card, a pure-black secondary surface (used for avatar placeholder areas), a medium-saturation blue-violet border at 76 % lightness, and a deep indigo primary label (hue 250, 18 % lightness, 32 % saturation). Notably, all three label roles - primary, secondary, and tertiary - share the same deep indigo value, which simplifies the palette and ensures consistent, readable text throughout.",
+        body: 'The seven colour roles form a tight, harmonious family: a periwinkle page base, an almost-white primary card, a pure-black secondary surface (used for avatar placeholder areas), a medium-saturation blue-violet border at 76 % lightness, and a deep indigo primary label (hue 250, 18 % lightness, 32 % saturation). Notably, all three label roles - primary, secondary, and tertiary - share the same deep indigo value, which simplifies the palette and ensures consistent, readable text throughout.',
       },
       {
         heading: 'Who Lilac is best for',
@@ -452,7 +452,8 @@ const TEMPLATES: TemplateContent[] = [
           'Lilac is one of the best-performing themes for beauty and skincare creators. The soft, high-lightness palette reads as clean and premium without requiring any design work beyond loading the template and adding your links.',
       },
       {
-        question: 'Is the Lilac template accessible for visitors with colour vision deficiencies?',
+        question:
+          'Is the Lilac template accessible for visitors with colour vision deficiencies?',
         answer:
           'The primary text (deep indigo at 18 % lightness on a near-white card) achieves strong contrast and is readable for most colour vision types. If you need to optimise further, the editor lets you darken the labels or increase card contrast.',
       },
@@ -491,7 +492,8 @@ const TEMPLATES: TemplateContent[] = [
           'Yes. Orange Punch is included on all Linky plans, including the free tier. Bold themes are available to every user.',
       },
       {
-        question: 'Can I tone down the Orange Punch palette for a less intense look?',
+        question:
+          'Can I tone down the Orange Punch palette for a less intense look?',
         answer:
           'Absolutely. You can reduce the saturation of the orange card colour, lighten the base navy, or swap the mint-green labels for white to create a more restrained version while keeping the overall structure.',
       },
@@ -501,7 +503,8 @@ const TEMPLATES: TemplateContent[] = [
           'Orange Punch is a strong fit for food and beverage brands, particularly those in the hot sauce, craft beer, juice, or street food space. The warm orange tones evoke appetite and energy, and the navy ground creates a premium contrast.',
       },
       {
-        question: 'Will the mint-green text on an orange background be readable?',
+        question:
+          'Will the mint-green text on an orange background be readable?',
         answer:
           'The mint-green primary label at 69 % lightness on an orange card (53 % lightness) is designed for medium-contrast readability in keeping with the bold, expressive character of the theme. If you need higher contrast, swapping the label to white or near-white will maximise legibility.',
       },
@@ -526,7 +529,7 @@ const TEMPLATES: TemplateContent[] = [
       },
       {
         heading: 'Who Ocean is best for',
-        body: "Blue is the most universally trusted colour in branding, and Ocean leans into that. It suits software engineers, SaaS founders, finance and crypto creators, travel bloggers, divers, surfers, and sailing accounts - anyone whose audience associates blue with reliability, depth, or the sea itself. If your existing brand colour is in the blue family, Ocean will feel on-brand the moment you load it.",
+        body: 'Blue is the most universally trusted colour in branding, and Ocean leans into that. It suits software engineers, SaaS founders, finance and crypto creators, travel bloggers, divers, surfers, and sailing accounts - anyone whose audience associates blue with reliability, depth, or the sea itself. If your existing brand colour is in the blue family, Ocean will feel on-brand the moment you load it.',
       },
       {
         heading: 'Customising Ocean in the editor',
@@ -1231,7 +1234,8 @@ const TEMPLATES: TemplateContent[] = [
           'Vapor is intentionally a statement theme. If you love the aesthetic but want it quieter, lowering the saturation of the magenta cards and cyan accent in the editor produces a softer, pastel-vaporwave variant that keeps the character at lower volume.',
       },
       {
-        question: 'Can I change the magenta and cyan to different neon colours?',
+        question:
+          'Can I change the magenta and cyan to different neon colours?',
         answer:
           'Yes. The card, secondary surface, and label hues are all independently adjustable, so you can build any two- or three-colour neon combination - pink and yellow, purple and green, or a classic Miami orange and teal.',
       },
@@ -1294,5 +1298,6 @@ const TEMPLATES: TemplateContent[] = [
 ];
 
 export const templates = TEMPLATES.filter(isPublishableTemplate);
-export const getTemplate = (slug: string) => templates.find((t) => t.slug === slug) ?? null;
+export const getTemplate = (slug: string) =>
+  templates.find((t) => t.slug === slug) ?? null;
 export const getTemplateSlugs = () => templates.map((t) => t.slug);

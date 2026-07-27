@@ -1,22 +1,22 @@
+import { ThemeMock, type ThemePalette } from './theme-mock';
 import analyticsImg from '@/assets/landing-page/analytics.png';
-import realtimeBlocksImg from '@/assets/landing-page/realtime-blocks.png';
 import previewA from '@/assets/landing-page/previews/3.png';
 import previewB from '@/assets/landing-page/previews/9.png';
+import realtimeBlocksImg from '@/assets/landing-page/realtime-blocks.png';
 import {
   GithubCommitsThisMonthMockup,
   InstagramLatestPostMockup,
   LinkBoxMockup,
   SpotifyPlayingNowMockup,
 } from '@/components/landing-page/ui-mockups';
-import { ExpandableText } from '@/components/pseo/expandable-text';
 import { MarketingContainer } from '@/components/marketing-container';
+import { ExpandableText } from '@/components/pseo/expandable-text';
 import type { ContentSection } from '@/content/pseo-types';
 import { templates } from '@/content/templates';
 import { cn } from '@trylinky/ui';
 import type { StaticImageData } from 'next/image';
 import Image from 'next/image';
 import type { ReactNode } from 'react';
-import { ThemeMock, type ThemePalette } from './theme-mock';
 
 export type SectionVisual =
   | 'themes'
@@ -49,13 +49,7 @@ function Caption({ children }: { children: ReactNode }) {
   );
 }
 
-function FramedShot({
-  src,
-  alt,
-}: {
-  src: StaticImageData;
-  alt: string;
-}) {
+function FramedShot({ src, alt }: { src: StaticImageData; alt: string }) {
   return (
     <div className="mx-auto max-w-md rounded-2xl bg-white p-3 ring-1 ring-black/5 shadow-xl shadow-zinc-900/10">
       <Image
@@ -73,7 +67,13 @@ function PhoneMini({ shot }: { shot: StaticImageData }) {
   return (
     <div className="mx-auto w-full max-w-[250px] rounded-[2.2rem] bg-zinc-950 p-2 shadow-2xl shadow-zinc-900/25 ring-1 ring-black/10">
       <div className="overflow-hidden rounded-[1.7rem] bg-white">
-        <Image src={shot} alt="A live Linky page" width={1170} height={2532} className="h-full w-full object-cover" />
+        <Image
+          src={shot}
+          alt="A live Linky page"
+          width={1170}
+          height={2532}
+          className="h-full w-full object-cover"
+        />
       </div>
     </div>
   );

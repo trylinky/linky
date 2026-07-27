@@ -9,9 +9,9 @@ import { HowItWorks } from '@/components/landing-page/sections/how-it-works';
 import { IntegrationsCloud } from '@/components/landing-page/sections/integrations-cloud';
 import { TemplatesStrip } from '@/components/landing-page/sections/templates-strip';
 import { TestimonialsSection } from '@/components/landing-page/sections/testimonials';
-import { MinimalCta } from '@/components/pseo/pseo-minimal-cta';
-import { MinimalHeading } from '@/components/minimal-heading';
 import { MarketingContainer } from '@/components/marketing-container';
+import { MinimalHeading } from '@/components/minimal-heading';
+import { MinimalCta } from '@/components/pseo/pseo-minimal-cta';
 import Link from 'next/link';
 
 export default function LandingPage() {
@@ -30,7 +30,10 @@ export default function LandingPage() {
       <section className="border-t border-zinc-950/5 bg-white py-20 md:py-28">
         <MarketingContainer>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-12">
-            <MinimalHeading eyebrow="FAQ" heading="Frequently asked questions" />
+            <MinimalHeading
+              eyebrow="FAQ"
+              heading="Frequently asked questions"
+            />
             <div className="flex w-full flex-1 flex-col items-start gap-4">
               <FrequentlyAskedQuestions questionSet="landing-page" />
               <Link

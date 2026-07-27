@@ -104,12 +104,13 @@ export default async function TemplatePage(props: {
 
       <section className="border-t border-zinc-950/5 bg-[#FAFAF9] py-20 md:py-28">
         <MarketingContainer>
-          <MinimalSectionHeading
-            eyebrow="Gallery"
-            heading="More templates"
-          />
+          <MinimalSectionHeading eyebrow="Gallery" heading="More templates" />
           <div className="mt-10">
-            <TemplateGallery templates={templates} currentSlug={c.slug} columns={3} />
+            <TemplateGallery
+              templates={templates}
+              currentSlug={c.slug}
+              columns={3}
+            />
           </div>
         </MarketingContainer>
       </section>

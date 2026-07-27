@@ -12,7 +12,10 @@ export function HubConfetti() {
     { c: '#733B97', t: '74%', l: '72%', s: 10, r: true },
   ];
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-0">
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 -z-0"
+    >
       {shapes.map((sh, i) => (
         <span
           key={i}

@@ -51,7 +51,9 @@ export function EditForm({
               ← Cancel
             </Button>
             <Button type="submit">
-              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isSubmitting && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Save
             </Button>
           </div>

@@ -1,6 +1,6 @@
+import prisma from '@/lib/prisma';
 import { cacheLife, cacheTag } from 'next/cache';
 import 'server-only';
-import prisma from '@/lib/prisma';
 
 export async function verifyVerificationStatus(pageId: string) {
   'use cache';

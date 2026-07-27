@@ -1,6 +1,5 @@
-import { FunctionComponent } from 'react';
-
 import { fetchData } from './utils';
+import { FunctionComponent } from 'react';
 
 interface Props {
   spotifyAssetUrl: string;

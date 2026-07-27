@@ -101,7 +101,7 @@ const INTEGRATIONS: IntegrationContent[] = [
       {
         question: 'Do I need a Business or Creator Instagram account?',
         answer:
-          'Yes. Instagram\'s API only provides access to posts and follower data for Business and Creator accounts. Personal accounts are not supported by the API, so you will need to switch your account type in the Instagram app before connecting.',
+          "Yes. Instagram's API only provides access to posts and follower data for Business and Creator accounts. Personal accounts are not supported by the API, so you will need to switch your account type in the Instagram app before connecting.",
       },
       {
         question: 'How many posts can the Latest Post block show?',
@@ -144,7 +144,7 @@ const INTEGRATIONS: IntegrationContent[] = [
     sections: [
       {
         heading: 'What your TikTok blocks show',
-        body: 'Linky\'s TikTok integration offers two blocks. The Follower Count block surfaces your real audience size - a key credibility metric when you are pitching brand deals or driving sign-ups from other channels. The Latest Post block previews your most recent TikTok, putting your content front and centre for anyone who finds your link in bio from a bio link, QR code, or email signature.',
+        body: "Linky's TikTok integration offers two blocks. The Follower Count block surfaces your real audience size - a key credibility metric when you are pitching brand deals or driving sign-ups from other channels. The Latest Post block previews your most recent TikTok, putting your content front and centre for anyone who finds your link in bio from a bio link, QR code, or email signature.",
       },
       {
         heading: 'How to add TikTok to your Linky page',
@@ -152,7 +152,7 @@ const INTEGRATIONS: IntegrationContent[] = [
       },
       {
         heading: 'Why TikTok creators rely on a strong link page',
-        body: 'TikTok\'s algorithm regularly pushes content to new audiences who have never seen your profile before. When a viral moment drives a spike in profile visits, your link in bio is the only place those curious viewers can go deeper. A page that immediately shows your follower count and latest video gives that traffic a compelling reason to follow and explore - turning viral views into lasting growth on other platforms.',
+        body: "TikTok's algorithm regularly pushes content to new audiences who have never seen your profile before. When a viral moment drives a spike in profile visits, your link in bio is the only place those curious viewers can go deeper. A page that immediately shows your follower count and latest video gives that traffic a compelling reason to follow and explore - turning viral views into lasting growth on other platforms.",
       },
       {
         heading: 'Round out your page with links and other content',
@@ -176,7 +176,8 @@ const INTEGRATIONS: IntegrationContent[] = [
           'The block displays the most recently published public video on your TikTok profile. Private or deleted videos will not appear.',
       },
       {
-        question: 'Can I show both my follower count and latest post at the same time?',
+        question:
+          'Can I show both my follower count and latest post at the same time?',
         answer:
           'Absolutely. You can add both TikTok blocks to the same page and arrange them however you like in the Linky editor. Many creators place the Latest Post block near the top and the Follower Count in a more subtle position below their main links.',
       },
@@ -201,7 +202,7 @@ const INTEGRATIONS: IntegrationContent[] = [
     sections: [
       {
         heading: 'What your Threads block shows',
-        body: 'Linky\'s Threads integration currently offers a Follower Count block that pulls your audience size from the Threads API, refreshing about once a minute. As Threads continues to grow and expand its developer platform, this is a straightforward way to signal your presence on the platform to visitors who may not yet know you are there.',
+        body: "Linky's Threads integration currently offers a Follower Count block that pulls your audience size from the Threads API, refreshing about once a minute. As Threads continues to grow and expand its developer platform, this is a straightforward way to signal your presence on the platform to visitors who may not yet know you are there.",
       },
       {
         heading: 'How to add your Threads follower count to Linky',
@@ -228,7 +229,8 @@ const INTEGRATIONS: IntegrationContent[] = [
           'No. The Threads integration is strictly read-only. Linky reads your public follower count but has no ability to create posts or take any action on your Threads account.',
       },
       {
-        question: 'Do I need a separate Threads account, or is it linked to Instagram?',
+        question:
+          'Do I need a separate Threads account, or is it linked to Instagram?',
         answer:
           'Threads accounts are tied to an Instagram account at creation, but you authorise Linky separately via the Threads OAuth flow. You do not need to connect your Instagram account first - the two integrations in Linky are independent.',
       },
@@ -299,5 +301,6 @@ const INTEGRATIONS: IntegrationContent[] = [
 ];
 
 export const integrations = INTEGRATIONS.filter(isPublishableIntegration);
-export const getIntegration = (slug: string) => integrations.find((i) => i.slug === slug) ?? null;
+export const getIntegration = (slug: string) =>
+  integrations.find((i) => i.slug === slug) ?? null;
 export const getIntegrationSlugs = () => integrations.map((i) => i.slug);

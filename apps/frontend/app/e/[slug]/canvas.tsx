@@ -62,7 +62,9 @@ export function EditorCanvas({ children }: { children: ReactNode[] }) {
   const l = typeof bg?.l === 'number' ? bg.l : 1;
   const isDarkTheme = l < 0.5;
   // Panel/card lightness: a shade of the page color, offset for separation.
-  const panelL = isDarkTheme ? Math.max(l * 0.5, 0.12) : Math.min(l + 0.06, 0.98);
+  const panelL = isDarkTheme
+    ? Math.max(l * 0.5, 0.12)
+    : Math.min(l + 0.06, 0.98);
   const cardL = isDarkTheme ? Math.max(l * 0.72, 0.18) : 1;
   const sp = (s * 100).toFixed(1);
   const glassPanel = `hsl(${h}deg ${sp}% ${(panelL * 100).toFixed(1)}% / ${isDarkTheme ? 0.66 : 0.8})`;

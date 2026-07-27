@@ -126,7 +126,9 @@ describe('validateAnswers', () => {
       { id: 'f-consent', type: 'checkbox', label: 'Consent', required: true },
     ];
     expect(validateAnswers(requiredConsent, {}).ok).toBe(false);
-    expect(validateAnswers(requiredConsent, { 'f-consent': true }).ok).toBe(true);
+    expect(validateAnswers(requiredConsent, { 'f-consent': true }).ok).toBe(
+      true
+    );
   });
 
   it('rejects non-string values for text fields', () => {

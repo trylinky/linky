@@ -5,7 +5,6 @@ const config = {
   semi: true,
   singleQuote: true,
   plugins: ['@trivago/prettier-plugin-sort-imports'],
-  skipDestructiveCodeActions: false,
 };
 
 module.exports = config;

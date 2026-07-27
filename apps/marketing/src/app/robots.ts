@@ -1,5 +1,5 @@
-import type { MetadataRoute } from 'next';
 import { AI_CRAWLERS } from '@trylinky/seo';
+import type { MetadataRoute } from 'next';
 
 // NOTE: with basePath '/i' this serves at lin.ky/i/robots.txt, which crawlers do
 // not read - the authoritative robots.txt for lin.ky is apps/frontend/app/robots.ts.

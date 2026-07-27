@@ -1,17 +1,17 @@
 'use client';
 
-import { useEditModeContext } from '@/app/contexts/Edit';
 import { PageSwitcher } from '@/app/components/PageSwitcher';
 import { TeamSwitcher } from '@/app/components/TeamSwitcher';
 import { UserWidget } from '@/app/components/UserWidget';
+import { useEditModeContext } from '@/app/contexts/Edit';
 import { auth } from '@/app/lib/auth';
-import * as Catalyst from '@trylinky/ui/catalyst';
-import { internalApiFetcher } from '@trylinky/common';
-import type { Page } from '@trylinky/prisma';
 import {
   ComputerDesktopIcon,
   DevicePhoneMobileIcon,
 } from '@heroicons/react/24/outline';
+import { internalApiFetcher } from '@trylinky/common';
+import type { Page } from '@trylinky/prisma';
+import * as Catalyst from '@trylinky/ui/catalyst';
 import { usePathname } from 'next/navigation';
 import useSWR from 'swr';
 

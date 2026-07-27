@@ -276,18 +276,21 @@ const createTiktokIntegration = async ({
 
 const refreshTikTokToken = async (refreshToken: string) => {
   try {
-    const response = await fetch('https://open.tiktokapis.com/v2/oauth/token/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        client_key: process.env.TIKTOK_CLIENT_KEY!,
-        client_secret: process.env.TIKTOK_CLIENT_SECRET!,
-        grant_type: 'refresh_token',
-        refresh_token: refreshToken,
-      }),
-    });
+    const response = await fetch(
+      'https://open.tiktokapis.com/v2/oauth/token/',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          client_key: process.env.TIKTOK_CLIENT_KEY!,
+          client_secret: process.env.TIKTOK_CLIENT_SECRET!,
+          grant_type: 'refresh_token',
+          refresh_token: refreshToken,
+        }),
+      }
+    );
 
     const data = (await response.json()) as any;
 
@@ -306,11 +309,11 @@ const refreshTikTokToken = async (refreshToken: string) => {
   }
 };
 
-const fetchTikTokProfile = async ({ 
-  accessToken, 
+const fetchTikTokProfile = async ({
+  accessToken,
   refreshToken,
-  userId 
-}: { 
+  userId,
+}: {
   accessToken: string;
   refreshToken?: string;
   userId?: string;
@@ -336,7 +339,12 @@ const fetchTikTokProfile = async ({
   let { data, error } = await makeRequest(currentAccessToken);
 
   // If token expired and we have refresh token, try to refresh
-  if (error && error.code === 'access_token_invalid' && refreshToken && userId) {
+  if (
+    error &&
+    error.code === 'access_token_invalid' &&
+    refreshToken &&
+    userId
+  ) {
     const newTokens = await refreshTikTokToken(refreshToken);
 
     if (newTokens) {

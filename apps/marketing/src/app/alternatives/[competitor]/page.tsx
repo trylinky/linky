@@ -92,7 +92,9 @@ export default async function AlternativePage(props: {
         breadcrumbs={breadcrumbs}
         secondaryHref="#comparison"
         secondaryLabel="See the comparison"
-        visual={<ComparisonGlance competitor={c.competitor} rows={c.comparison} />}
+        visual={
+          <ComparisonGlance competitor={c.competitor} rows={c.comparison} />
+        }
       />
 
       <section
@@ -106,7 +108,11 @@ export default async function AlternativePage(props: {
             body="A fair look at how the two compare, feature by feature."
           />
           <div className="mt-10">
-            <ComparisonTable competitor={c.competitor} rows={c.comparison} minimal />
+            <ComparisonTable
+              competitor={c.competitor}
+              rows={c.comparison}
+              minimal
+            />
           </div>
         </MarketingContainer>
       </section>

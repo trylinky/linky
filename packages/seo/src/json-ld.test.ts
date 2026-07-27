@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import {
   buildBreadcrumbSchema,
   buildFaqSchema,
@@ -8,14 +7,22 @@ import {
   personInputFromPage,
   serializeJsonLd,
 } from './json-ld';
+import { describe, expect, it } from 'vitest';
 
 describe('buildProfilePageSchema', () => {
   it('wraps a Person as the mainEntity and omits empty fields', () => {
-    const schema = buildProfilePageSchema({ name: 'Jane', url: 'https://lin.ky/jane' });
+    const schema = buildProfilePageSchema({
+      name: 'Jane',
+      url: 'https://lin.ky/jane',
+    });
     expect(schema).toEqual({
       '@context': 'https://schema.org',
       '@type': 'ProfilePage',
-      mainEntity: { '@type': 'Person', name: 'Jane', url: 'https://lin.ky/jane' },
+      mainEntity: {
+        '@type': 'Person',
+        name: 'Jane',
+        url: 'https://lin.ky/jane',
+      },
     });
   });
 
@@ -37,7 +44,14 @@ describe('buildProfilePageSchema', () => {
 
 describe('personInputFromPage', () => {
   const blocks = [
-    { type: 'header', data: { title: 'Jane Doe', description: 'Berlin photographer', avatar: { src: 'https://x/a.png' } } },
+    {
+      type: 'header',
+      data: {
+        title: 'Jane Doe',
+        description: 'Berlin photographer',
+        avatar: { src: 'https://x/a.png' },
+      },
+    },
     { type: 'link-box', data: { link: 'https://instagram.com/jane' } },
     { type: 'link-bar', data: { link: 'https://tiktok.com/@jane' } },
     { type: 'content', data: { html: 'hi' } },
@@ -54,13 +68,24 @@ describe('personInputFromPage', () => {
   });
 
   it('returns null when there is no header title', () => {
-    expect(personInputFromPage({ blocks: [{ type: 'content', data: {} }] }, 'https://lin.ky/x')).toBeNull();
+    expect(
+      personInputFromPage(
+        { blocks: [{ type: 'content', data: {} }] },
+        'https://lin.ky/x'
+      )
+    ).toBeNull();
   });
 });
 
 describe('buildOrganizationSchema / buildWebSiteSchema', () => {
   it('builds an Organization', () => {
-    expect(buildOrganizationSchema({ name: 'Linky', url: 'https://lin.ky', logo: 'https://lin.ky/assets/og.png' })).toEqual({
+    expect(
+      buildOrganizationSchema({
+        name: 'Linky',
+        url: 'https://lin.ky',
+        logo: 'https://lin.ky/assets/og.png',
+      })
+    ).toEqual({
       '@context': 'https://schema.org',
       '@type': 'Organization',
       name: 'Linky',
@@ -70,7 +95,9 @@ describe('buildOrganizationSchema / buildWebSiteSchema', () => {
   });
 
   it('builds a WebSite', () => {
-    expect(buildWebSiteSchema({ name: 'Linky', url: 'https://lin.ky' })).toEqual({
+    expect(
+      buildWebSiteSchema({ name: 'Linky', url: 'https://lin.ky' })
+    ).toEqual({
       '@context': 'https://schema.org',
       '@type': 'WebSite',
       name: 'Linky',
@@ -86,15 +113,27 @@ describe('buildBreadcrumbSchema', () => {
       { name: 'Blog', url: 'https://lin.ky/i/blog' },
     ]);
     expect(schema.itemListElement).toEqual([
-      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://lin.ky' },
-      { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://lin.ky/i/blog' },
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://lin.ky',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Blog',
+        item: 'https://lin.ky/i/blog',
+      },
     ]);
   });
 });
 
 describe('serializeJsonLd', () => {
   it('escapes < to prevent breaking out of the script tag', () => {
-    expect(serializeJsonLd({ a: '</script><b>' })).toBe('{"a":"\\u003c/script>\\u003cb>"}');
+    expect(serializeJsonLd({ a: '</script><b>' })).toBe(
+      '{"a":"\\u003c/script>\\u003cb>"}'
+    );
   });
 });
 
@@ -109,8 +148,19 @@ describe('buildFaqSchema', () => {
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
       mainEntity: [
-        { '@type': 'Question', name: 'What is Linky?', acceptedAnswer: { '@type': 'Answer', text: 'A link-in-bio builder.' } },
-        { '@type': 'Question', name: 'Is it free?', acceptedAnswer: { '@type': 'Answer', text: 'Yes, with paid upgrades.' } },
+        {
+          '@type': 'Question',
+          name: 'What is Linky?',
+          acceptedAnswer: { '@type': 'Answer', text: 'A link-in-bio builder.' },
+        },
+        {
+          '@type': 'Question',
+          name: 'Is it free?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Yes, with paid upgrades.',
+          },
+        },
       ],
     });
   });

@@ -1,8 +1,8 @@
 import previewLeft from '@/assets/landing-page/previews/5.png';
 import previewRight from '@/assets/landing-page/previews/12.png';
 import { MarketingContainer } from '@/components/marketing-container';
-import { Button } from '@trylinky/ui';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
+import { Button } from '@trylinky/ui';
 import Image from 'next/image';
 import Link from 'next/link';
 

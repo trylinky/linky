@@ -29,7 +29,8 @@ function buildIndexInput(page: any): PageIndexInput {
 }
 
 function canonicalUrlFor(page: any, domainParam: string): string {
-  const isCustom = page.customDomain && page.customDomain === decodeURIComponent(domainParam);
+  const isCustom =
+    page.customDomain && page.customDomain === decodeURIComponent(domainParam);
   return isCustom
     ? `https://${page.customDomain}`
     : `https://${process.env.NEXT_PUBLIC_ROOT_DOMAIN}/${page.slug}`;
@@ -41,7 +42,10 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const params = await props.params;
 
-  const corePage = await getPublicPageBySlugOrDomain(params.slug, params.domain);
+  const corePage = await getPublicPageBySlugOrDomain(
+    params.slug,
+    params.domain
+  );
 
   if (!corePage) {
     return {};
@@ -90,7 +94,10 @@ export type InitialDataUsersIntegrations = Pick<
 export default async function Page(props: { params: Promise<Params> }) {
   const params = await props.params;
 
-  const corePage = await getPublicPageBySlugOrDomain(params.slug, params.domain);
+  const corePage = await getPublicPageBySlugOrDomain(
+    params.slug,
+    params.domain
+  );
 
   if (!corePage) {
     return notFound();
@@ -120,8 +127,12 @@ export default async function Page(props: { params: Promise<Params> }) {
 
   const indexable = shouldIndexPage(buildIndexInput(page));
 
-  const personInput = indexable ? personInputFromPage({ blocks: page.blocks }, canonicalUrl) : null;
-  const profileSchema = personInput ? buildProfilePageSchema(personInput) : null;
+  const personInput = indexable
+    ? personInputFromPage({ blocks: page.blocks }, canonicalUrl)
+    : null;
+  const profileSchema = personInput
+    ? buildProfilePageSchema(personInput)
+    : null;
 
   const pageLayout = layout as unknown as PageConfig;
   const mergedIds = [...pageLayout.sm, ...pageLayout.xxs].map((item) => item.i);

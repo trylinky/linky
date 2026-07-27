@@ -3,7 +3,10 @@ import { MarketingContainer } from '@/components/marketing-container';
 import { MinimalHeading } from '@/components/minimal-heading';
 import { IntegrationBlocks } from '@/components/pseo/integration-blocks';
 import { IntegrationGlance } from '@/components/pseo/integration-glance';
-import { DEFAULT_LINKY_BENEFITS, PseoBenefits } from '@/components/pseo/pseo-benefits';
+import {
+  DEFAULT_LINKY_BENEFITS,
+  PseoBenefits,
+} from '@/components/pseo/pseo-benefits';
 import { PseoFeatureImage } from '@/components/pseo/pseo-feature-image';
 import { PseoFeatureSections } from '@/components/pseo/pseo-feature-sections';
 import { PseoLayout } from '@/components/pseo/pseo-layout';
@@ -53,7 +56,11 @@ export default async function IntegrationPage(props: {
           { name: c.name, url: `https://lin.ky/i/integrations/${c.slug}` },
         ]}
         visual={
-          <IntegrationGlance name={c.name} slug={c.slug} blockCopy={c.blockCopy} />
+          <IntegrationGlance
+            name={c.name}
+            slug={c.slug}
+            blockCopy={c.blockCopy}
+          />
         }
       />
 

@@ -1,5 +1,5 @@
-import { CheckIcon } from '@heroicons/react/20/solid';
 import type { ComparisonRow } from '@/content/pseo-types';
+import { CheckIcon } from '@heroicons/react/20/solid';
 
 export function ComparisonTable({
   competitor,

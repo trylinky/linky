@@ -15,7 +15,12 @@ export function MinimalHeading({
   className?: string;
 }) {
   return (
-    <div className={cn(center && 'flex flex-col items-center text-center', className)}>
+    <div
+      className={cn(
+        center && 'flex flex-col items-center text-center',
+        className
+      )}
+    >
       {eyebrow && (
         <p className="flex items-center gap-2 text-sm font-medium text-zinc-500">
           <span className="inline-block h-px w-6 bg-zinc-300" />

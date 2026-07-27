@@ -31,7 +31,10 @@ export default async function EditorCanvasPage(props: {
       {page.blocks
         .filter((block: Block) => mergedIds.includes(block.id))
         .map((block: Block) => (
-          <section key={block.id} style={{ fontFamily: 'var(--font-sys-body)' }}>
+          <section
+            key={block.id}
+            style={{ fontFamily: 'var(--font-sys-body)' }}
+          >
             {renderBlock(block, page.id, true)}
           </section>
         ))}

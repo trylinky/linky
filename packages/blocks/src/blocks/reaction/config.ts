@@ -26,6 +26,10 @@ export const reactionBlockDefaults: ReactionBlockConfig = {
 };
 
 export const ReactionSchema = Yup.object().shape({
-  reactionType: Yup.string().oneOf([...reactionTypes]).required(),
-  label: Yup.string().max(30, 'Labels can be at most 30 characters').notRequired(),
+  reactionType: Yup.string()
+    .oneOf([...reactionTypes])
+    .required(),
+  label: Yup.string()
+    .max(30, 'Labels can be at most 30 characters')
+    .notRequired(),
 });

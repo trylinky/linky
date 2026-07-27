@@ -1,7 +1,11 @@
 import './globals.css';
 import MarketingFooter from '@/components/marketing-footer';
 import MarketingNavigation from '@/components/marketing-navigation';
-import { buildOrganizationSchema, buildWebSiteSchema, serializeJsonLd } from '@trylinky/seo';
+import {
+  buildOrganizationSchema,
+  buildWebSiteSchema,
+  serializeJsonLd,
+} from '@trylinky/seo';
 import { Analytics } from '@vercel/analytics/react';
 import { Metadata } from 'next';
 import localFont from 'next/font/local';
@@ -72,7 +76,9 @@ export default async function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: serializeJsonLd(buildWebSiteSchema({ name: 'Linky', url: 'https://lin.ky' })),
+            __html: serializeJsonLd(
+              buildWebSiteSchema({ name: 'Linky', url: 'https://lin.ky' })
+            ),
           }}
         />
       </head>

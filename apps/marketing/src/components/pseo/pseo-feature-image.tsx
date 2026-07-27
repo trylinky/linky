@@ -1,5 +1,5 @@
-import Image, { StaticImageData } from 'next/image';
 import { PseoBand, PseoEyebrow, PseoSectionHeading } from './pseo-section';
+import Image, { StaticImageData } from 'next/image';
 
 export function PseoFeatureImage({
   eyebrow,

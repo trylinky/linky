@@ -1,6 +1,6 @@
+import { captureException } from '@sentry/nextjs';
 import { cacheLife } from 'next/cache';
 import 'server-only';
-import { captureException } from '@sentry/nextjs';
 
 export async function fetchData(spotifyAssetUrl: string) {
   'use cache';

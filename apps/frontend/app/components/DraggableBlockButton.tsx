@@ -1,6 +1,6 @@
-import blockFormIcon from '@/app/assets/ui/type-form.svg';
 import dragIcon from '@/app/assets/ui/drag.svg';
 import blockContentIcon from '@/app/assets/ui/type-content.svg';
+import blockFormIcon from '@/app/assets/ui/type-form.svg';
 import blockGithubCommitsThisMonthIcon from '@/app/assets/ui/type-github-commits-this-month.svg';
 import blockHeaderIcon from '@/app/assets/ui/type-header.svg';
 import blockImageIcon from '@/app/assets/ui/type-image.svg';

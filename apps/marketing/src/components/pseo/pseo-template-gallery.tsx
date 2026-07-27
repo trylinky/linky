@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import { ThemeMock, type ThemePalette } from './theme-mock';
+import Link from 'next/link';
 
 export function TemplateGallery({
   templates,

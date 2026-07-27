@@ -28,7 +28,7 @@ const ALTERNATIVES: AlternativeContent[] = [
       },
       {
         heading: 'Who should choose Linky',
-        body: 'Linky is a strong fit for creators who want their page to feel alive - musicians who want Spotify playback, developers who want to show recent commits, creators with active Instagram or TikTok accounts. It is also a good option for small teams that need a shared workspace without enterprise pricing. If a plain list of links is all you need and you are happy on Linktree\'s free tier, there may be less reason to switch; but if you have outgrown that model, Linky is worth a look.',
+        body: "Linky is a strong fit for creators who want their page to feel alive - musicians who want Spotify playback, developers who want to show recent commits, creators with active Instagram or TikTok accounts. It is also a good option for small teams that need a shared workspace without enterprise pricing. If a plain list of links is all you need and you are happy on Linktree's free tier, there may be less reason to switch; but if you have outgrown that model, Linky is worth a look.",
       },
     ],
     faqs: [
@@ -50,7 +50,7 @@ const ALTERNATIVES: AlternativeContent[] = [
       {
         question: 'Does Linky support custom domains?',
         answer:
-          'Yes. Custom domains are available on the Premium plan ($4/month) and above. You point your domain to Linky\'s servers and the page is served under your own URL.',
+          "Yes. Custom domains are available on the Premium plan ($4/month) and above. You point your domain to Linky's servers and the page is served under your own URL.",
       },
       {
         question: 'Does Linky have analytics?',
@@ -101,7 +101,7 @@ const ALTERNATIVES: AlternativeContent[] = [
       },
       {
         heading: 'Where Linky stands out',
-        body: 'Linky is purpose-built around live content blocks. Its Instagram block pulls in your latest post and follower count; the Spotify block shows what you are currently listening to or your most recently played track; the TikTok block displays follower count and recent posts; the GitHub block shows recent commits. These make a Linky page feel current without daily maintenance.\n\nLinky\'s theming system lets you pick custom colour palettes and fonts, giving your page a distinct look that matches your brand. Custom domains are available on the Premium plan at $4/month, which also includes unlimited pages and blocks, a verification badge, private pages, and analytics. The Team plan ($14/month) adds a shared workspace for up to five collaborators and support for Google Analytics and Facebook Pixel.',
+        body: "Linky is purpose-built around live content blocks. Its Instagram block pulls in your latest post and follower count; the Spotify block shows what you are currently listening to or your most recently played track; the TikTok block displays follower count and recent posts; the GitHub block shows recent commits. These make a Linky page feel current without daily maintenance.\n\nLinky's theming system lets you pick custom colour palettes and fonts, giving your page a distinct look that matches your brand. Custom domains are available on the Premium plan at $4/month, which also includes unlimited pages and blocks, a verification badge, private pages, and analytics. The Team plan ($14/month) adds a shared workspace for up to five collaborators and support for Google Analytics and Facebook Pixel.",
       },
       {
         heading: 'What Beacons is genuinely good at',
@@ -113,7 +113,7 @@ const ALTERNATIVES: AlternativeContent[] = [
       },
       {
         heading: 'Who should choose Linky',
-        body: 'Linky is a good fit for creators and developers who want a live, content-rich page and do not need a built-in storefront. Musicians, visual artists, developers, and anyone with active social accounts that they want surfaced directly on their page will get the most from Linky\'s live-data blocks. Teams that collaborate on a shared page benefit from the Team plan\'s workspace and seat management.',
+        body: "Linky is a good fit for creators and developers who want a live, content-rich page and do not need a built-in storefront. Musicians, visual artists, developers, and anyone with active social accounts that they want surfaced directly on their page will get the most from Linky's live-data blocks. Teams that collaborate on a shared page benefit from the Team plan's workspace and seat management.",
       },
     ],
     faqs: [
@@ -125,7 +125,7 @@ const ALTERNATIVES: AlternativeContent[] = [
       {
         question: 'Can I move my page from Beacons to Linky?',
         answer:
-          'There is no one-click import, but it is straightforward to recreate your links and social blocks in Linky\'s editor. Most link-in-bio pages can be rebuilt in a short sitting.',
+          "There is no one-click import, but it is straightforward to recreate your links and social blocks in Linky's editor. Most link-in-bio pages can be rebuilt in a short sitting.",
       },
       {
         question: 'How is Linky different from Beacons?',
@@ -205,7 +205,7 @@ const ALTERNATIVES: AlternativeContent[] = [
       {
         question: 'Can I import my Bio.link page to Linky?',
         answer:
-          'There is no automated import from Bio.link. You recreate your links in Linky\'s editor, which is quick since most link-in-bio pages have a small number of entries.',
+          "There is no automated import from Bio.link. You recreate your links in Linky's editor, which is quick since most link-in-bio pages have a small number of entries.",
       },
       {
         question: 'How is Linky different from Bio.link?',
@@ -266,7 +266,7 @@ const ALTERNATIVES: AlternativeContent[] = [
       },
       {
         heading: 'Where Linky stands out',
-        body: 'Linky is purpose-built for link-in-bio pages. Its editor is structured around blocks that work together out of the box, and its live integrations are the standout feature: Spotify shows your currently-playing track or most recently played track; Instagram surfaces your most recent post and follower count; TikTok shows follower count and recent posts; GitHub displays recent commit activity. These update automatically, so your page always reflects your current output.\n\nLinky\'s theming system provides custom colour palettes and font choices without requiring design skills. Custom domains are included in the Premium plan at $4/month, along with unlimited blocks, unlimited pages, a verification badge, private pages, and analytics. The Team plan at $14/month adds a shared workspace for up to five people and support for Google Analytics and Facebook Pixel.',
+        body: "Linky is purpose-built for link-in-bio pages. Its editor is structured around blocks that work together out of the box, and its live integrations are the standout feature: Spotify shows your currently-playing track or most recently played track; Instagram surfaces your most recent post and follower count; TikTok shows follower count and recent posts; GitHub displays recent commit activity. These update automatically, so your page always reflects your current output.\n\nLinky's theming system provides custom colour palettes and font choices without requiring design skills. Custom domains are included in the Premium plan at $4/month, along with unlimited blocks, unlimited pages, a verification badge, private pages, and analytics. The Team plan at $14/month adds a shared workspace for up to five people and support for Google Analytics and Facebook Pixel.",
       },
       {
         heading: 'What Carrd is genuinely good at',
@@ -300,7 +300,7 @@ const ALTERNATIVES: AlternativeContent[] = [
       {
         question: 'Does Linky support custom domains like Carrd?',
         answer:
-          'Yes. Custom domains are available on Linky\'s Premium plan ($4/month). You connect your domain in settings; no technical setup beyond a DNS change is required.',
+          "Yes. Custom domains are available on Linky's Premium plan ($4/month). You connect your domain in settings; no technical setup beyond a DNS change is required.",
       },
       {
         question: 'Does Linky work well on mobile?',
@@ -312,7 +312,8 @@ const ALTERNATIVES: AlternativeContent[] = [
       {
         feature: 'Purpose-built for link-in-bio',
         linky: 'Yes - editor and blocks optimised for bio pages',
-        competitor: 'General one-page site builder; bio-link is a use case, not the focus',
+        competitor:
+          'General one-page site builder; bio-link is a use case, not the focus',
       },
       {
         feature: 'Live social/music blocks',
@@ -342,12 +343,12 @@ const ALTERNATIVES: AlternativeContent[] = [
     competitor: 'Later',
     h1: 'Linky: a Later link-in-bio alternative with live blocks and custom domains',
     answer:
-      'Linky is a standalone link-in-bio builder with live Spotify, Instagram, TikTok, and GitHub blocks, custom theming, and custom domains - a focused alternative to Later\'s link-in-bio feature for creators who do not need a full social scheduling suite.',
+      "Linky is a standalone link-in-bio builder with live Spotify, Instagram, TikTok, and GitHub blocks, custom theming, and custom domains - a focused alternative to Later's link-in-bio feature for creators who do not need a full social scheduling suite.",
     targetKeyword: 'later link in bio alternative',
     sections: [
       {
         heading: 'What to look for in a Later link-in-bio alternative',
-        body: 'Later is primarily a social media scheduling platform; its link-in-bio tool (Linkin.bio) is one feature within a broader suite aimed at marketing teams. When evaluating alternatives, consider whether you actually use Later\'s scheduling features or mainly use Linkin.bio in isolation. A dedicated link-in-bio tool may offer deeper block variety, better theming options, and a simpler pricing model if scheduling is not part of your workflow.',
+        body: "Later is primarily a social media scheduling platform; its link-in-bio tool (Linkin.bio) is one feature within a broader suite aimed at marketing teams. When evaluating alternatives, consider whether you actually use Later's scheduling features or mainly use Linkin.bio in isolation. A dedicated link-in-bio tool may offer deeper block variety, better theming options, and a simpler pricing model if scheduling is not part of your workflow.",
       },
       {
         heading: 'Where Linky stands out',
@@ -359,7 +360,7 @@ const ALTERNATIVES: AlternativeContent[] = [
       },
       {
         heading: 'Getting started with Linky',
-        body: 'Getting started with Linky is quick: sign up, claim your username, and the editor is ready immediately. Add a links block for your main URLs, connect your Instagram and Spotify accounts for live blocks, choose a theme, and go. If you need your own domain, upgrade to Premium and connect it through the settings panel. Once live, update the link in your Instagram bio, TikTok bio, and anywhere else you currently point to Later\'s Linkin.bio URL.',
+        body: "Getting started with Linky is quick: sign up, claim your username, and the editor is ready immediately. Add a links block for your main URLs, connect your Instagram and Spotify accounts for live blocks, choose a theme, and go. If you need your own domain, upgrade to Premium and connect it through the settings panel. Once live, update the link in your Instagram bio, TikTok bio, and anywhere else you currently point to Later's Linkin.bio URL.",
       },
       {
         heading: 'Who should choose Linky over Later',
@@ -373,9 +374,9 @@ const ALTERNATIVES: AlternativeContent[] = [
           'Yes - Linky has a free plan. Premium is $4/month and includes custom domains, unlimited blocks and pages, a verification badge, private pages, and analytics. Team is $14/month with shared workspaces and up to five seats.',
       },
       {
-        question: 'Can I move from Later\'s Linkin.bio to Linky?',
+        question: "Can I move from Later's Linkin.bio to Linky?",
         answer:
-          'Yes. There is no automated import, but recreating your links and adding live blocks in Linky\'s editor is straightforward. Once your page is live, update the link in your social bios from your Later Linkin.bio URL to your new Linky URL.',
+          "Yes. There is no automated import, but recreating your links and adding live blocks in Linky's editor is straightforward. Once your page is live, update the link in your social bios from your Later Linkin.bio URL to your new Linky URL.",
       },
       {
         question: 'How is Linky different from Later?',
@@ -385,7 +386,7 @@ const ALTERNATIVES: AlternativeContent[] = [
       {
         question: 'Does Linky integrate with Instagram like Later does?',
         answer:
-          'Linky\'s Instagram block pulls in your latest post and follower count automatically. It does not offer a full social scheduling workflow - if you need to schedule posts, you would use a separate scheduling tool alongside Linky.',
+          "Linky's Instagram block pulls in your latest post and follower count automatically. It does not offer a full social scheduling workflow - if you need to schedule posts, you would use a separate scheduling tool alongside Linky.",
       },
       {
         question: 'Does Linky support team collaboration?',
@@ -424,5 +425,6 @@ const ALTERNATIVES: AlternativeContent[] = [
 ];
 
 export const alternatives = ALTERNATIVES.filter(isPublishableAlternative);
-export const getAlternative = (slug: string) => alternatives.find((a) => a.slug === slug) ?? null;
+export const getAlternative = (slug: string) =>
+  alternatives.find((a) => a.slug === slug) ?? null;
 export const getAlternativeSlugs = () => alternatives.map((a) => a.slug);

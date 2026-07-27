@@ -13,7 +13,10 @@ const MAX_TAG_LENGTH = 256;
 export async function POST(request: NextRequest) {
   const apiKey = request.headers.get('x-internal-api-key');
 
-  if (!process.env.INTERNAL_API_KEY || apiKey !== process.env.INTERNAL_API_KEY) {
+  if (
+    !process.env.INTERNAL_API_KEY ||
+    apiKey !== process.env.INTERNAL_API_KEY
+  ) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -32,7 +35,9 @@ export async function POST(request: NextRequest) {
     tags.length > MAX_TAGS_PER_REQUEST ||
     !tags.every(
       (tag): tag is string =>
-        typeof tag === 'string' && tag.length > 0 && tag.length <= MAX_TAG_LENGTH
+        typeof tag === 'string' &&
+        tag.length > 0 &&
+        tag.length <= MAX_TAG_LENGTH
     )
   ) {
     return NextResponse.json(

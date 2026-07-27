@@ -1,8 +1,8 @@
-import type { ReactNode } from 'react';
+import { PseoCtaCard } from './pseo-cta-card';
 import type { FaqEntry } from './pseo-faq';
 import { PseoFaqSection } from './pseo-faq-section';
-import { PseoCtaCard } from './pseo-cta-card';
 import { MinimalCta } from './pseo-minimal-cta';
+import type { ReactNode } from 'react';
 
 export function PseoLayout({
   faqs,

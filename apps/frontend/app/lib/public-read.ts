@@ -9,7 +9,10 @@ import 'server-only';
  * endpoints (slug-or-domain, load) require the `x-api-key` header — that comes from an
  * env var, not request data, so it is still cache-safe.
  */
-export async function publicApiFetch(path: string, requestOptions: RequestInit = {}) {
+export async function publicApiFetch(
+  path: string,
+  requestOptions: RequestInit = {}
+) {
   return fetch(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
     method: 'GET',
     ...requestOptions,

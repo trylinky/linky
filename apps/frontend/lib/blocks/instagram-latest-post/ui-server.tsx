@@ -1,8 +1,7 @@
+import { fetchData } from './utils';
 import { formatDistance } from 'date-fns';
 import Link from 'next/link';
 import { FunctionComponent } from 'react';
-
-import { fetchData } from './utils';
 
 export const InstagramLogo = ({ stroke = '#fff' }) => {
   return (

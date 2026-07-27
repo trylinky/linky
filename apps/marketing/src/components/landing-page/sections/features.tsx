@@ -10,9 +10,9 @@ import {
   UserGroupIcon,
 } from '@heroicons/react/24/outline';
 import { cn } from '@trylinky/ui';
-import type { ComponentType, SVGProps } from 'react';
 import Image, { StaticImageData } from 'next/image';
 import Link from 'next/link';
+import type { ComponentType, SVGProps } from 'react';
 
 function FramedShot({ src, alt }: { src: StaticImageData; alt: string }) {
   return (
@@ -135,7 +135,8 @@ const MORE_FEATURES: {
   {
     Icon: GlobeAltIcon,
     title: 'Custom domains',
-    description: 'Use your own domain name to make your page more professional.',
+    description:
+      'Use your own domain name to make your page more professional.',
   },
   {
     Icon: LockClosedIcon,
@@ -145,7 +146,8 @@ const MORE_FEATURES: {
   {
     Icon: DocumentTextIcon,
     title: 'Forms',
-    description: 'Collect emails, phone numbers, and more with a built-in form builder.',
+    description:
+      'Collect emails, phone numbers, and more with a built-in form builder.',
   },
   {
     Icon: PaintBrushIcon,
@@ -155,7 +157,8 @@ const MORE_FEATURES: {
   {
     Icon: CheckBadgeIcon,
     title: 'Verified pages',
-    description: 'Get a badge to show your audience that your page is the real you.',
+    description:
+      'Get a badge to show your audience that your page is the real you.',
   },
   {
     Icon: UserGroupIcon,

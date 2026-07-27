@@ -11,8 +11,18 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 const RAINBOW = [
-  '#8CC640', '#07B151', '#2FBBB3', '#2357BC', '#4C489B', '#733B97',
-  '#AF3A94', '#D52127', '#F36621', '#F6851E', '#FBB40F', '#FCED23',
+  '#8CC640',
+  '#07B151',
+  '#2FBBB3',
+  '#2357BC',
+  '#4C489B',
+  '#733B97',
+  '#AF3A94',
+  '#D52127',
+  '#F36621',
+  '#F6851E',
+  '#FBB40F',
+  '#FCED23',
 ];
 
 const AVATARS = [
@@ -32,7 +42,10 @@ function HeroConfetti() {
     { c: '#2FBBB3', t: '60%', l: '93%', s: 10, r: false },
   ];
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-0">
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 -z-0"
+    >
       {shapes.map((sh, i) => (
         <span
           key={i}

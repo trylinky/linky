@@ -1,8 +1,7 @@
-import { cacheLife } from 'next/cache';
-import 'server-only';
-
 import { captureException } from '@sentry/nextjs';
 import { formatISO, sub } from 'date-fns';
+import { cacheLife } from 'next/cache';
+import 'server-only';
 
 export const fetchGithubData = async (githubUsername: string) => {
   'use cache';

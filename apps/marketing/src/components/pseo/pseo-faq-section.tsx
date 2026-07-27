@@ -1,5 +1,7 @@
 'use client';
 
+import type { FaqEntry } from './pseo-faq';
+import { PseoBand, PseoSectionHeading } from './pseo-section';
 import { buildFaqSchema, serializeJsonLd } from '@trylinky/seo';
 import {
   Accordion,
@@ -7,8 +9,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@trylinky/ui';
-import type { FaqEntry } from './pseo-faq';
-import { PseoBand, PseoSectionHeading } from './pseo-section';
 
 export function PseoFaqSection({
   faqs,

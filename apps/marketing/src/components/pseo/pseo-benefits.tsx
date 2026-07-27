@@ -1,3 +1,4 @@
+import { MarketingContainer } from '@/components/marketing-container';
 import {
   BoltIcon,
   ChartBarIcon,
@@ -6,7 +7,6 @@ import {
   PaintBrushIcon,
   RectangleStackIcon,
 } from '@heroicons/react/24/outline';
-import { MarketingContainer } from '@/components/marketing-container';
 import type { ComponentType, SVGProps } from 'react';
 
 export interface BenefitItem {
@@ -80,7 +80,10 @@ export function PseoBenefits({
             {items.map((item) => (
               <div key={item.title}>
                 <div className="inline-flex size-11 items-center justify-center rounded-xl bg-white ring-1 ring-zinc-950/5">
-                  <item.Icon className="size-6 text-zinc-900" strokeWidth={1.5} />
+                  <item.Icon
+                    className="size-6 text-zinc-900"
+                    strokeWidth={1.5}
+                  />
                 </div>
                 <dt className="mt-5 text-base font-semibold text-zinc-900">
                   {item.title}

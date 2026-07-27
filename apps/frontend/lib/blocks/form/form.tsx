@@ -128,8 +128,7 @@ export function EditForm({
 }
 
 const FieldList = () => {
-  const { values, errors, setFieldValue } =
-    useFormikContext<FormBlockConfig>();
+  const { values, errors, setFieldValue } = useFormikContext<FormBlockConfig>();
 
   return (
     <FieldArray name="fields">
@@ -180,10 +179,7 @@ const FieldList = () => {
                           const nextType = event.target.value;
                           setFieldValue(`fields.${index}.type`, nextType);
                           if (nextType !== 'select') {
-                            setFieldValue(
-                              `fields.${index}.options`,
-                              undefined
-                            );
+                            setFieldValue(`fields.${index}.options`, undefined);
                           }
                         }}
                       >
@@ -363,9 +359,7 @@ const OptionsEditor = ({
             aria-label={`Remove option ${option}`}
             onClick={() =>
               commit(
-                latestOptions.current.filter(
-                  (existing) => existing !== option
-                )
+                latestOptions.current.filter((existing) => existing !== option)
               )
             }
             className="grid size-4 place-items-center rounded-sm text-zinc-400 hover:bg-zinc-950/10 hover:text-zinc-700"
@@ -394,7 +388,9 @@ const OptionsEditor = ({
         }}
         onBlur={() => addOption(draft)}
         placeholder={
-          options.length === 0 ? 'Type an option and press Enter' : 'Add another…'
+          options.length === 0
+            ? 'Type an option and press Enter'
+            : 'Add another…'
         }
         aria-label="Add option"
         className="min-w-32 flex-1 border-0 bg-transparent p-0.5 text-sm text-zinc-950 placeholder:text-zinc-400 focus:ring-0 focus:outline-none"

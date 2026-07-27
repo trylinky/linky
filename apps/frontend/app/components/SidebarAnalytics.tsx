@@ -101,130 +101,127 @@ export function SidebarAnalytics() {
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {dataPoints.map((dataPoint) => (
-            <div key={dataPoint.key}>
-              <Card className="shadow-none h-full">
-                <CardContent>
-                  <div className="flex flex-col gap-0 mt-4 mb-4">
-                    {isLoading ? (
-                      <>
-                        <Skeleton className="h-8 w-24 mb-2" />
-                        <Skeleton className="h-4 w-32" />
-                      </>
-                    ) : (
-                      <>
-                        <span className="text-3xl font-bold">
-                          {dataPoint.key === 'total_views'
-                            ? analyticsData.stats.totals.views
-                            : analyticsData.stats.totals.uniqueVisitors}
-                        </span>
-                        <span className="text-sm text-neutral-500">
-                          {dataPoint.name}
-                        </span>
-                      </>
-                    )}
-                  </div>
-                  <ChartContainer config={chartConfig}>
-                    {isLoading ? (
-                      <div className="h-[120px] flex items-center justify-center">
-                        <Skeleton className="h-[100px] w-full" />
-                      </div>
-                    ) : (
-                      <AreaChart
-                        accessibilityLayer
-                        data={analyticsData.stats.data}
-                      >
-                        <CartesianGrid vertical={false} />
-                        <XAxis
-                          dataKey="date"
-                          tickLine={false}
-                          axisLine={false}
-                          tickMargin={8}
-                          tickFormatter={(value) => {
-                            const date = new Date(value);
-                            return date.toLocaleDateString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                            });
-                          }}
-                        />
-                        <ChartTooltip
-                          cursor={false}
-                          content={<ChartTooltipContent indicator="line" />}
-                        />
-                        <Area
-                          dataKey={dataPoint.key}
-                          type="natural"
-                          fill="#aec8ff"
-                          fillOpacity={0.4}
-                        />
-                      </AreaChart>
-                    )}
-                  </ChartContainer>
-                  <span className="text-xs text-neutral-500 block">
-                    {dataPoint.description}
-                  </span>
-                </CardContent>
-              </Card>
-            </div>
-          ))}
+          <div key={dataPoint.key}>
+            <Card className="shadow-none h-full">
+              <CardContent>
+                <div className="flex flex-col gap-0 mt-4 mb-4">
+                  {isLoading ? (
+                    <>
+                      <Skeleton className="h-8 w-24 mb-2" />
+                      <Skeleton className="h-4 w-32" />
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-3xl font-bold">
+                        {dataPoint.key === 'total_views'
+                          ? analyticsData.stats.totals.views
+                          : analyticsData.stats.totals.uniqueVisitors}
+                      </span>
+                      <span className="text-sm text-neutral-500">
+                        {dataPoint.name}
+                      </span>
+                    </>
+                  )}
+                </div>
+                <ChartContainer config={chartConfig}>
+                  {isLoading ? (
+                    <div className="h-[120px] flex items-center justify-center">
+                      <Skeleton className="h-[100px] w-full" />
+                    </div>
+                  ) : (
+                    <AreaChart
+                      accessibilityLayer
+                      data={analyticsData.stats.data}
+                    >
+                      <CartesianGrid vertical={false} />
+                      <XAxis
+                        dataKey="date"
+                        tickLine={false}
+                        axisLine={false}
+                        tickMargin={8}
+                        tickFormatter={(value) => {
+                          const date = new Date(value);
+                          return date.toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                          });
+                        }}
+                      />
+                      <ChartTooltip
+                        cursor={false}
+                        content={<ChartTooltipContent indicator="line" />}
+                      />
+                      <Area
+                        dataKey={dataPoint.key}
+                        type="natural"
+                        fill="#aec8ff"
+                        fillOpacity={0.4}
+                      />
+                    </AreaChart>
+                  )}
+                </ChartContainer>
+                <span className="text-xs text-neutral-500 block">
+                  {dataPoint.description}
+                </span>
+              </CardContent>
+            </Card>
+          </div>
+        ))}
       </div>
 
-          <Card className="shadow-none">
-            <CardContent>
-              <div className="flex flex-col gap-0 mt-4 mb-4">
-                <span className="text-lg font-semibold mb-4">
-                  Top Locations
-                </span>
-                {isLoading ? (
-                  <div className="space-y-2">
-                    <Skeleton className="h-8 w-full" />
-                    <Skeleton className="h-8 w-full" />
-                    <Skeleton className="h-8 w-full" />
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {analyticsData.locations.map((location, index) => (
-                      <div
-                        key={location.location}
-                        className="flex items-center gap-2"
-                      >
-                        <Image
-                          src={`https://flag.vercel.app/s/${location.location}.svg`}
-                          alt={location.location}
-                          width={20}
-                          height={15}
-                          className="rounded-sm"
-                        />
-                        <div className="flex-1 h-8 relative">
-                          <div
-                            className="absolute inset-y-0 left-0 bg-stone-100 rounded"
-                            style={{
-                              width: `${(location.hits / Math.max(...analyticsData.locations.map((l) => l.hits))) * 100}%`,
-                            }}
-                          />
-                          <div className="absolute inset-y-0 left-2 flex items-center">
-                            <span className="text-sm font-medium">
-                              {location.location}
-                            </span>
-                          </div>
-                          <div className="absolute inset-y-0 right-2 flex items-center">
-                            <span className="text-sm text-stone-500">
-                              {Math.round(
-                                (location.hits /
-                                  analyticsData.stats.totals.views) *
-                                  100
-                              )}
-                              %
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+      <Card className="shadow-none">
+        <CardContent>
+          <div className="flex flex-col gap-0 mt-4 mb-4">
+            <span className="text-lg font-semibold mb-4">Top Locations</span>
+            {isLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full" />
               </div>
-            </CardContent>
-          </Card>
+            ) : (
+              <div className="space-y-3">
+                {analyticsData.locations.map((location, index) => (
+                  <div
+                    key={location.location}
+                    className="flex items-center gap-2"
+                  >
+                    <Image
+                      src={`https://flag.vercel.app/s/${location.location}.svg`}
+                      alt={location.location}
+                      width={20}
+                      height={15}
+                      className="rounded-sm"
+                    />
+                    <div className="flex-1 h-8 relative">
+                      <div
+                        className="absolute inset-y-0 left-0 bg-stone-100 rounded"
+                        style={{
+                          width: `${(location.hits / Math.max(...analyticsData.locations.map((l) => l.hits))) * 100}%`,
+                        }}
+                      />
+                      <div className="absolute inset-y-0 left-2 flex items-center">
+                        <span className="text-sm font-medium">
+                          {location.location}
+                        </span>
+                      </div>
+                      <div className="absolute inset-y-0 right-2 flex items-center">
+                        <span className="text-sm text-stone-500">
+                          {Math.round(
+                            (location.hits / analyticsData.stats.totals.views) *
+                              100
+                          )}
+                          %
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

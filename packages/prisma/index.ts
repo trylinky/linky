@@ -1,7 +1,3 @@
-export { PrismaClient } from './src/generated/client';
-export type { Prisma } from './src/generated/client';
-export * from './src/generated/enums';
-
 import type { AccountModel } from './src/generated/models/Account';
 import type { BlockModel } from './src/generated/models/Block';
 import type { IntegrationModel } from './src/generated/models/Integration';
@@ -17,6 +13,10 @@ import type { UserModel } from './src/generated/models/User';
 import type { UserFlagModel } from './src/generated/models/UserFlag';
 import type { VerificationModel } from './src/generated/models/Verification';
 import type { VerificationRequestModel } from './src/generated/models/VerificationRequest';
+
+export { PrismaClient } from './src/generated/client';
+export type { Prisma } from './src/generated/client';
+export * from './src/generated/enums';
 
 export type Account = AccountModel;
 export type Block = BlockModel;

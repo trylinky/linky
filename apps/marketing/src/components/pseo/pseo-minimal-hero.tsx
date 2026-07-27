@@ -24,7 +24,10 @@ function HeroConfetti() {
     { c: '#8CC640', t: '82%', l: '60%', s: 10, r: true },
   ];
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-0">
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 -z-0"
+    >
       {shapes.map((sh, i) => (
         <span
           key={i}
@@ -99,7 +102,9 @@ export function MinimalHero({
                         {c.name}
                       </Link>
                     ) : (
-                      <span className="font-medium text-zinc-400">{c.name}</span>
+                      <span className="font-medium text-zinc-400">
+                        {c.name}
+                      </span>
                     )}
                   </span>
                 ))}

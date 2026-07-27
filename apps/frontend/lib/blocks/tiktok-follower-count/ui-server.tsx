@@ -1,7 +1,6 @@
-import { FunctionComponent } from 'react';
-
-import Link from 'next/link';
 import { fetchData } from './utils';
+import Link from 'next/link';
+import { FunctionComponent } from 'react';
 
 export const TikTokLogo = ({ fill = '#fff' }) => {
   return (

@@ -41,7 +41,12 @@ export function isPublishableIntegration(c: IntegrationContent): boolean {
 }
 
 export function isPublishableTemplate(c: TemplateContent): boolean {
-  return c.h1.trim() !== '' && c.answer.trim() !== '' && c.sections.length >= 4 && c.faqs.length >= 3;
+  return (
+    c.h1.trim() !== '' &&
+    c.answer.trim() !== '' &&
+    c.sections.length >= 4 &&
+    c.faqs.length >= 3
+  );
 }
 
 export interface ComparisonRow {

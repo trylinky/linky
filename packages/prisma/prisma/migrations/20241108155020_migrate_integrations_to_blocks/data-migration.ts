@@ -1,6 +1,5 @@
-import { Prisma } from '@prisma/client';
-
 import prisma from '../../../lib/prisma';
+import { Prisma } from '@prisma/client';
 
 // Get all of the integrations
 // Get the team for the integration

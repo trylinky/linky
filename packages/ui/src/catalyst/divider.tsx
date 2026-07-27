@@ -1,6 +1,6 @@
 'use client';
 
-import clsx from 'clsx'
+import clsx from 'clsx';
 
 export function Divider({
   soft = false,
@@ -18,5 +18,5 @@ export function Divider({
         !soft && 'border-zinc-950/10 dark:border-white/10'
       )}
     />
-  )
+  );
 }

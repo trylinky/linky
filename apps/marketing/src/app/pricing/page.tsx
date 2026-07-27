@@ -86,7 +86,10 @@ export default async function PricingPage() {
       <section className="border-t border-zinc-950/5 bg-white py-20 md:py-28">
         <MarketingContainer>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-12">
-            <MinimalHeading eyebrow="FAQ" heading="Frequently asked questions" />
+            <MinimalHeading
+              eyebrow="FAQ"
+              heading="Frequently asked questions"
+            />
             <div className="flex w-full flex-1 flex-col items-start gap-4">
               <FrequentlyAskedQuestions questionSet="pricing" />
             </div>

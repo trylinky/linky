@@ -27,14 +27,18 @@ export function shouldIndexPage(page: PageIndexInput): boolean {
   if (!page.publishedAt) return false;
 
   const hasStrongSignal =
-    page.isPaid || Boolean(page.customDomain) || Boolean(page.verifiedAt) || page.isFeatured;
+    page.isPaid ||
+    Boolean(page.customDomain) ||
+    Boolean(page.verifiedAt) ||
+    page.isFeatured;
   if (!hasStrongSignal) return false;
 
   const header = page.blocks.find((b) => b.type === 'header');
   const headerTitle = asTrimmedString(header?.data?.title);
   const headerDescription = asTrimmedString(header?.data?.description);
   const nonHeaderBlocks = page.blocks.filter((b) => b.type !== 'header').length;
-  const hasDescription = asTrimmedString(page.metaDescription) !== '' || headerDescription !== '';
+  const hasDescription =
+    asTrimmedString(page.metaDescription) !== '' || headerDescription !== '';
 
   return headerTitle !== '' && nonHeaderBlocks >= 1 && hasDescription;
 }

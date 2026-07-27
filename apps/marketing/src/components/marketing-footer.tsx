@@ -111,7 +111,10 @@ const linkColumns = [
     links: [
       { label: 'Blog', href: '/i/blog' },
       { label: 'Explore', href: '/i/explore' },
-      { label: 'What is a link in bio?', href: '/i/learn/what-is-a-link-in-bio' },
+      {
+        label: 'What is a link in bio?',
+        href: '/i/learn/what-is-a-link-in-bio',
+      },
       { label: 'AI Headshots', href: 'https://starkie.ai' },
     ],
   },
@@ -130,7 +133,11 @@ export default function MarketingFooter() {
         <div className="flex flex-col gap-16 py-24 md:py-32 lg:flex-row lg:gap-16">
           {/* Brand block */}
           <div className="flex flex-col gap-6 lg:w-64 lg:shrink-0">
-            <Link href="/" aria-label="Homepage" className="flex items-center gap-2">
+            <Link
+              href="/"
+              aria-label="Homepage"
+              className="flex items-center gap-2"
+            >
               <BrandLogo />
               <span className="text-lg font-semibold tracking-tight text-white">
                 Linky

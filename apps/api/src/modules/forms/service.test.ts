@@ -1,4 +1,3 @@
-import prisma from '@/lib/prisma';
 import {
   checkUserHasAccessToPage,
   deleteSubmissionById,
@@ -6,6 +5,7 @@ import {
   listSubmissions,
   submitFormResponse,
 } from './service';
+import prisma from '@/lib/prisma';
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -311,7 +311,10 @@ describe('listSubmissions', () => {
           pageId,
           blockId: paginationBlock.id,
           answers: { 'f-email': `p${i}@example.com` },
-          fieldsSnapshot: { title: 'Contact me', fields: testFormConfig.fields },
+          fieldsSnapshot: {
+            title: 'Contact me',
+            fields: testFormConfig.fields,
+          },
           visitorIp: IP,
           createdAt: new Date(base - i * 1000),
         },

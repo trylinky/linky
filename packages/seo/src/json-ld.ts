@@ -7,12 +7,19 @@ export interface PersonInput {
 }
 
 export function buildProfilePageSchema(input: PersonInput) {
-  const person: Record<string, unknown> = { '@type': 'Person', name: input.name };
+  const person: Record<string, unknown> = {
+    '@type': 'Person',
+    name: input.name,
+  };
   if (input.description) person.description = input.description;
   if (input.image) person.image = input.image;
   if (input.url) person.url = input.url;
   if (input.sameAs?.length) person.sameAs = input.sameAs;
-  return { '@context': 'https://schema.org', '@type': 'ProfilePage', mainEntity: person };
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ProfilePage',
+    mainEntity: person,
+  };
 }
 
 const LINK_BLOCK_TYPES = new Set(['link-box', 'link-bar']);
@@ -22,14 +29,22 @@ interface PageLike {
 }
 
 /** Derives Person schema input from a page's header + link blocks. Pure. */
-export function personInputFromPage(page: PageLike, pageUrl: string): PersonInput | null {
+export function personInputFromPage(
+  page: PageLike,
+  pageUrl: string
+): PersonInput | null {
   const header = page.blocks.find((b) => b.type === 'header');
-  const name = typeof header?.data?.title === 'string' ? header.data.title.trim() : '';
+  const name =
+    typeof header?.data?.title === 'string' ? header.data.title.trim() : '';
   if (!name) return null;
 
-  const rawDesc = typeof header?.data?.description === 'string' ? header.data.description.trim() : '';
+  const rawDesc =
+    typeof header?.data?.description === 'string'
+      ? header.data.description.trim()
+      : '';
   const avatar = header?.data?.avatar as { src?: unknown } | undefined;
-  const image = typeof avatar?.src === 'string' && avatar.src ? avatar.src : undefined;
+  const image =
+    typeof avatar?.src === 'string' && avatar.src ? avatar.src : undefined;
 
   const sameAs = page.blocks
     .filter((b) => LINK_BLOCK_TYPES.has(b.type))
@@ -45,14 +60,32 @@ export function personInputFromPage(page: PageLike, pageUrl: string): PersonInpu
   };
 }
 
-export function buildOrganizationSchema(input: { name: string; url: string; logo?: string }) {
-  const org: Record<string, unknown> = { '@context': 'https://schema.org', '@type': 'Organization', name: input.name, url: input.url };
+export function buildOrganizationSchema(input: {
+  name: string;
+  url: string;
+  logo?: string;
+}) {
+  const org: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: input.name,
+    url: input.url,
+  };
   if (input.logo) org.logo = input.logo;
   return org;
 }
 
-export function buildWebSiteSchema(input: { name: string; url: string; searchUrlTemplate?: string }) {
-  const site: Record<string, unknown> = { '@context': 'https://schema.org', '@type': 'WebSite', name: input.name, url: input.url };
+export function buildWebSiteSchema(input: {
+  name: string;
+  url: string;
+  searchUrlTemplate?: string;
+}) {
+  const site: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: input.name,
+    url: input.url,
+  };
   if (input.searchUrlTemplate) {
     site.potentialAction = {
       '@type': 'SearchAction',
@@ -63,15 +96,24 @@ export function buildWebSiteSchema(input: { name: string; url: string; searchUrl
   return site;
 }
 
-export function buildBreadcrumbSchema(crumbs: Array<{ name: string; url: string }>) {
+export function buildBreadcrumbSchema(
+  crumbs: Array<{ name: string; url: string }>
+) {
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
-    itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: c.url })),
+    itemListElement: crumbs.map((c, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: c.name,
+      item: c.url,
+    })),
   };
 }
 
-export function buildFaqSchema(faqs: Array<{ question: string; answer: string }>) {
+export function buildFaqSchema(
+  faqs: Array<{ question: string; answer: string }>
+) {
   return {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',

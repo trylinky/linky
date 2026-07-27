@@ -5,7 +5,6 @@ import { generalPageSettingsSchema } from './shared';
 import VerificationRequestDialog from '@/app/components/VerificationRequestDialog';
 import { captureException } from '@sentry/nextjs';
 import { InternalApi } from '@trylinky/common';
-import * as Catalyst from '@trylinky/ui/catalyst';
 import {
   Button,
   Dialog,
@@ -16,6 +15,7 @@ import {
   DialogTitle,
   useToast,
 } from '@trylinky/ui';
+import * as Catalyst from '@trylinky/ui/catalyst';
 import { Field as FormikField, Form, Formik, FormikHelpers } from 'formik';
 import { withZodSchema } from 'formik-validator-zod';
 import { Loader2 } from 'lucide-react';

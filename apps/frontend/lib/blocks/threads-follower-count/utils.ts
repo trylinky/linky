@@ -1,10 +1,9 @@
-import { cacheLife, cacheTag } from 'next/cache';
-import 'server-only';
-
 import { decrypt, encrypt } from '@/lib/encrypt';
 import prisma from '@/lib/prisma';
 import { captureException } from '@sentry/nextjs';
 import { ThreadsIntegrationConfig } from '@trylinky/blocks';
+import { cacheLife, cacheTag } from 'next/cache';
+import 'server-only';
 
 async function refreshLongLivedToken({ accessToken }: { accessToken: string }) {
   const options = {

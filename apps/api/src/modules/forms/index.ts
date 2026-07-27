@@ -1,6 +1,5 @@
 'use strict';
 
-import { getIpAddress } from '@/modules/analytics/utils';
 import {
   checkUserHasAccessToPage,
   deleteSubmissionById,
@@ -8,6 +7,7 @@ import {
   listSubmissions,
   submitFormResponse,
 } from './service';
+import { getIpAddress } from '@/modules/analytics/utils';
 import { Type } from '@fastify/type-provider-typebox';
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
@@ -129,9 +129,7 @@ async function listSubmissionsHandler(
   }
 
   if (cursor && !UUID_REGEX.test(cursor)) {
-    return response
-      .status(400)
-      .send({ error: { message: 'Invalid cursor' } });
+    return response.status(400).send({ error: { message: 'Invalid cursor' } });
   }
 
   const hasAccess = await checkUserHasAccessToPage(pageId, session.user.id);

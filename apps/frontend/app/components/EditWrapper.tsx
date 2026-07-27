@@ -186,10 +186,9 @@ export function EditWrapper({ children, layoutProps }: Props) {
       // Persist the layout with the new block BEFORE router.refresh() so
       // the server-rendered children and the saved layout agree about
       // which blocks exist on this page.
-      const layoutResponse = await InternalApi.post(
-        `/pages/${pageId}/layout`,
-        { newLayout: layoutWithNewBlock }
-      );
+      const layoutResponse = await InternalApi.post(`/pages/${pageId}/layout`, {
+        newLayout: layoutWithNewBlock,
+      });
 
       if (layoutResponse.error) {
         toast({
@@ -222,7 +221,10 @@ export function EditWrapper({ children, layoutProps }: Props) {
     };
   }, []);
 
-  const handleLayoutChange = (newLayout: Layout[], _currentLayouts: Layouts) => {
+  const handleLayoutChange = (
+    newLayout: Layout[],
+    _currentLayouts: Layouts
+  ) => {
     if (newLayout.length === 0 || !layout) return;
     if (newLayout.some((block) => block.i === 'tmp-block')) return;
     // While a drop is mid-flight, handleAddNewBlock owns the layout save.

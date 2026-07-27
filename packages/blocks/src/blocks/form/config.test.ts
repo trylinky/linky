@@ -73,9 +73,7 @@ describe('FormBlockSchema', () => {
   });
 
   it('rejects a select field with fewer than 2 options', async () => {
-    const fields = [
-      { ...validField, type: 'select', options: ['Only one'] },
-    ];
+    const fields = [{ ...validField, type: 'select', options: ['Only one'] }];
     await expect(
       FormBlockSchema.validate({ ...validConfig, fields }, { strict: true })
     ).rejects.toThrow('at least 2 options');

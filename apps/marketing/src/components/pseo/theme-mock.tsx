@@ -1,4 +1,8 @@
-export interface HslColor { h: number; s: number; l: number } // s,l are 0-1 fractions
+export interface HslColor {
+  h: number;
+  s: number;
+  l: number;
+} // s,l are 0-1 fractions
 
 export interface ThemePalette {
   colorBgBase: HslColor;
@@ -33,9 +37,22 @@ export function ThemeMock({
       style={{ backgroundColor: hslToCss(palette.colorBgBase) }}
     >
       <div className="mx-auto flex max-w-xs flex-col items-center gap-3">
-        <div className="h-16 w-16 rounded-full" style={{ backgroundColor: hslToCss(palette.colorBgSecondary) }} />
-        <div className="text-lg font-bold" style={{ color: hslToCss(palette.colorLabelPrimary) }}>{name}</div>
-        <div className="text-sm" style={{ color: hslToCss(palette.colorLabelSecondary) }}>your link in bio</div>
+        <div
+          className="h-16 w-16 rounded-full"
+          style={{ backgroundColor: hslToCss(palette.colorBgSecondary) }}
+        />
+        <div
+          className="text-lg font-bold"
+          style={{ color: hslToCss(palette.colorLabelPrimary) }}
+        >
+          {name}
+        </div>
+        <div
+          className="text-sm"
+          style={{ color: hslToCss(palette.colorLabelSecondary) }}
+        >
+          your link in bio
+        </div>
         <div className="mt-2 flex w-full flex-col gap-2">
           {rows.map((row) => (
             <div

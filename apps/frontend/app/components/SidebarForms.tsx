@@ -268,9 +268,7 @@ export function SidebarForms() {
           >
             {group.title}
             {group.isDeleted && ' (deleted form)'}
-            <span className="ml-2 text-stone-500">
-              {group.submissionCount}
-            </span>
+            <span className="ml-2 text-stone-500">{group.submissionCount}</span>
           </button>
         ))}
       </div>
@@ -320,63 +318,66 @@ export function SidebarForms() {
       ) : (
         <div className="overflow-hidden rounded-xl border border-zinc-950/10 bg-white px-4">
           <Table dense striped bleed className="[--gutter:--spacing(4)]">
-          <TableHead>
-            <TableRow>
-              <TableHeader>Submitted</TableHeader>
-              {columns.map((column) => (
-                <TableHeader key={column.id}>{column.label}</TableHeader>
-              ))}
-              <TableHeader>
-                <span className="sr-only">Actions</span>
-              </TableHeader>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {submissions.map((submission) => (
-              <TableRow
-                key={submission.id}
-                onClick={() => setViewedSubmission(submission)}
-                className="cursor-pointer hover:bg-stone-50"
-              >
-                <TableCell className="whitespace-nowrap text-stone-500">
-                  {new Date(submission.createdAt).toLocaleString()}
-                </TableCell>
+            <TableHead>
+              <TableRow>
+                <TableHeader>Submitted</TableHeader>
                 {columns.map((column) => (
-                  <TableCell key={column.id} className="max-w-[240px] truncate">
-                    {formatAnswer(submission.answers[column.id])}
-                  </TableCell>
+                  <TableHeader key={column.id}>{column.label}</TableHeader>
                 ))}
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    {/* Keyboard-accessible path to the dialog; the row
-                        onClick is a pointer convenience only. */}
-                    <button
-                      type="button"
-                      aria-label="View response"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        setViewedSubmission(submission);
-                      }}
-                      className="rounded p-1 text-stone-400 hover:bg-stone-100 hover:text-stone-700"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Delete response"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        handleDelete(submission.id);
-                      }}
-                      className="rounded p-1 text-stone-400 hover:bg-stone-100 hover:text-red-600"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </TableCell>
+                <TableHeader>
+                  <span className="sr-only">Actions</span>
+                </TableHeader>
               </TableRow>
-            ))}
-          </TableBody>
+            </TableHead>
+            <TableBody>
+              {submissions.map((submission) => (
+                <TableRow
+                  key={submission.id}
+                  onClick={() => setViewedSubmission(submission)}
+                  className="cursor-pointer hover:bg-stone-50"
+                >
+                  <TableCell className="whitespace-nowrap text-stone-500">
+                    {new Date(submission.createdAt).toLocaleString()}
+                  </TableCell>
+                  {columns.map((column) => (
+                    <TableCell
+                      key={column.id}
+                      className="max-w-[240px] truncate"
+                    >
+                      {formatAnswer(submission.answers[column.id])}
+                    </TableCell>
+                  ))}
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      {/* Keyboard-accessible path to the dialog; the row
+                        onClick is a pointer convenience only. */}
+                      <button
+                        type="button"
+                        aria-label="View response"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setViewedSubmission(submission);
+                        }}
+                        className="rounded p-1 text-stone-400 hover:bg-stone-100 hover:text-stone-700"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        aria-label="Delete response"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleDelete(submission.id);
+                        }}
+                        className="rounded p-1 text-stone-400 hover:bg-stone-100 hover:text-red-600"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
           </Table>
         </div>
       )}
@@ -413,8 +414,7 @@ export function SidebarForms() {
                   <Fragment key={column.id}>
                     <DescriptionTerm>{column.label}</DescriptionTerm>
                     <DescriptionDetails className="whitespace-pre-wrap break-words">
-                      {formatAnswer(viewedSubmission.answers[column.id]) ||
-                        '—'}
+                      {formatAnswer(viewedSubmission.answers[column.id]) || '—'}
                     </DescriptionDetails>
                   </Fragment>
                 ))}

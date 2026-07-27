@@ -4,9 +4,9 @@ import { PageSwitcher } from '@/app/components/PageSwitcher';
 import { TeamSwitcher } from '@/app/components/TeamSwitcher';
 import { UserWidget } from '@/app/components/UserWidget';
 import { auth } from '@/app/lib/auth';
-import * as Catalyst from '@trylinky/ui/catalyst';
 import { internalApiFetcher } from '@trylinky/common';
 import type { Page } from '@trylinky/prisma';
+import * as Catalyst from '@trylinky/ui/catalyst';
 import { usePathname } from 'next/navigation';
 import useSWR from 'swr';
 

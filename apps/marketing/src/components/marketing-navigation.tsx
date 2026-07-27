@@ -126,7 +126,10 @@ export default function MarketingNavigation() {
                   <ChevronDownIcon className="size-4" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-60 rounded-2xl p-2">
+              <DropdownMenuContent
+                align="start"
+                className="w-60 rounded-2xl p-2"
+              >
                 {INTEGRATIONS.map((i) => (
                   <DropdownMenuItem key={i.href} asChild className="rounded-lg">
                     <Link href={i.href} className="flex items-center gap-3">
@@ -163,7 +166,10 @@ export default function MarketingNavigation() {
                   <ChevronDownIcon className="size-4" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-52 rounded-2xl p-2">
+              <DropdownMenuContent
+                align="start"
+                className="w-52 rounded-2xl p-2"
+              >
                 {RESOURCES.map(({ href, Icon, title }) => (
                   <DropdownMenuItem key={href} asChild className="rounded-lg">
                     <Link href={href} className="flex items-center gap-3">

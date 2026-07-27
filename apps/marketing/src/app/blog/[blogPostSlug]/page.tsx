@@ -376,7 +376,10 @@ export default async function BlogPostPage({
             buildBreadcrumbSchema([
               { name: 'Home', url: 'https://lin.ky' },
               { name: 'Blog', url: 'https://lin.ky/i/blog' },
-              { name: blogPost.title, url: `https://lin.ky/i/blog/${blogPost.slug}` },
+              {
+                name: blogPost.title,
+                url: `https://lin.ky/i/blog/${blogPost.slug}`,
+              },
             ])
           ),
         }}

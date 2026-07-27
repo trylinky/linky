@@ -1,6 +1,9 @@
 import { MarketingContainer } from '@/components/marketing-container';
 import { MinimalHeading } from '@/components/minimal-heading';
-import { IntegrationBlocks, isRealBlock } from '@/components/pseo/integration-blocks';
+import {
+  IntegrationBlocks,
+  isRealBlock,
+} from '@/components/pseo/integration-blocks';
 import { INTEGRATION_LOGOS } from '@/components/pseo/integration-logos';
 import { PseoBenefits } from '@/components/pseo/pseo-benefits';
 import { PseoFeatureSections } from '@/components/pseo/pseo-feature-sections';

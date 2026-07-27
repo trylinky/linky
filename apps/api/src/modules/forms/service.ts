@@ -1,5 +1,5 @@
-import prisma from '@/lib/prisma';
 import { validateAnswers } from './validate-answers';
+import prisma from '@/lib/prisma';
 import { FormBlockConfig } from '@trylinky/blocks';
 
 const RATE_LIMIT_MAX_PER_HOUR = 5;
@@ -91,10 +91,7 @@ export async function submitFormResponse({
   return { status: 'ok' };
 }
 
-export async function checkUserHasAccessToPage(
-  pageId: string,
-  userId: string
-) {
+export async function checkUserHasAccessToPage(pageId: string, userId: string) {
   const count = await prisma.page.count({
     where: {
       id: pageId,

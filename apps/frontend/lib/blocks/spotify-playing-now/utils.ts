@@ -1,11 +1,10 @@
-import { cacheLife, cacheTag } from 'next/cache';
-import 'server-only';
-
 import { decrypt, encrypt } from '@/lib/encrypt';
 import prisma from '@/lib/prisma';
 import { captureException, captureMessage } from '@sentry/nextjs';
 import { SpotifyIntegrationConfig } from '@trylinky/blocks';
+import { cacheLife, cacheTag } from 'next/cache';
 import safeAwait from 'safe-await';
+import 'server-only';
 
 /**
  * Refreshes the Spotify access token using the provided refresh token.

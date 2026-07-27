@@ -1,8 +1,8 @@
-import { EditModeContextProvider } from '@/app/contexts/Edit';
 import { RenderPageTheme } from '@/app/[domain]/[slug]/render-page-theme';
-import { EditorNavbar } from '@/app/e/[slug]/editor-navbar';
-import { EditorMobileSidebar } from '@/app/e/[slug]/editor-mobile-sidebar';
 import { LinkyProviders } from '@/app/components/LinkyProviders';
+import { EditModeContextProvider } from '@/app/contexts/Edit';
+import { EditorMobileSidebar } from '@/app/e/[slug]/editor-mobile-sidebar';
+import { EditorNavbar } from '@/app/e/[slug]/editor-navbar';
 import { getEnabledBlocks } from '@/app/lib/actions/blocks';
 import { getTeamIntegrations } from '@/app/lib/actions/integrations';
 import {
@@ -44,15 +44,21 @@ export default async function EditorLayout(props: {
 
   // Owner data (mirrors today's owner branch in app/[domain]/[slug]/layout.tsx)
   // All six reads are independent — fetch them in a single batch.
-  const [integrations, enabledBlocks, pageSettings, { blocks }, pageLayout, pageTheme] =
-    await Promise.all([
-      getTeamIntegrations(),
-      getEnabledBlocks(),
-      getPageSettings(page.id),
-      getPageBlocks(page.id),
-      getPageLayout(page.id),
-      getPageTheme(page.id),
-    ]);
+  const [
+    integrations,
+    enabledBlocks,
+    pageSettings,
+    { blocks },
+    pageLayout,
+    pageTheme,
+  ] = await Promise.all([
+    getTeamIntegrations(),
+    getEnabledBlocks(),
+    getPageSettings(page.id),
+    getPageBlocks(page.id),
+    getPageLayout(page.id),
+    getPageTheme(page.id),
+  ]);
 
   const initialData: Record<string, any> = {
     [`/pages/${page.id}/layout`]: pageLayout,
@@ -68,7 +74,11 @@ export default async function EditorLayout(props: {
   }
 
   return (
-    <LinkyProviders currentUserIsOwner pageId={page.id} value={{ fallback: initialData }}>
+    <LinkyProviders
+      currentUserIsOwner
+      pageId={page.id}
+      value={{ fallback: initialData }}
+    >
       <EditModeContextProvider>
         <RenderPageTheme pageId={page.id} />
         <Catalyst.StackedLayout

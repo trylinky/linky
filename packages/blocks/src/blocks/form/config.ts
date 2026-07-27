@@ -43,7 +43,9 @@ export const formBlockDefaults: FormBlockConfig = {
 };
 
 export const FormBlockSchema = Yup.object().shape({
-  title: Yup.string().max(100, 'Titles can be at most 100 characters').notRequired(),
+  title: Yup.string()
+    .max(100, 'Titles can be at most 100 characters')
+    .notRequired(),
   submitLabel: Yup.string()
     .max(40, 'Button labels can be at most 40 characters')
     .required('A submit button label is required'),
@@ -55,7 +57,10 @@ export const FormBlockSchema = Yup.object().shape({
       Yup.object().shape({
         id: Yup.string()
           .max(64, 'Field ids can be at most 64 characters')
-          .matches(/^[a-zA-Z0-9_-]+$/, 'Field ids can only contain letters, numbers, hyphens and underscores')
+          .matches(
+            /^[a-zA-Z0-9_-]+$/,
+            'Field ids can only contain letters, numbers, hyphens and underscores'
+          )
           .required(),
         type: Yup.string()
           .oneOf([...formFieldTypes])

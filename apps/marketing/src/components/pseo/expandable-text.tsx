@@ -29,10 +29,7 @@ export function ExpandableText({
 
   return (
     <div>
-      <p
-        ref={ref}
-        className={cn(className, !expanded && clampClass)}
-      >
+      <p ref={ref} className={cn(className, !expanded && clampClass)}>
         {children}
       </p>
       {clamped && (

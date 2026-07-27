@@ -1,10 +1,10 @@
+import { buildFaqSchema, serializeJsonLd } from '@trylinky/seo';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from '@trylinky/ui';
-import { buildFaqSchema, serializeJsonLd } from '@trylinky/seo';
 
 export interface FaqEntry {
   question: string;
@@ -25,7 +25,9 @@ export function PseoFaq({ faqs }: { faqs: FaqEntry[] }) {
       </Accordion>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildFaqSchema(faqs)) }}
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd(buildFaqSchema(faqs)),
+        }}
       />
     </section>
   );

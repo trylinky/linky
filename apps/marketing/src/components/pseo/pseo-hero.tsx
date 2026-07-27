@@ -1,4 +1,3 @@
-import wallStyles from '@/components/landing-page/call-to-action-block.module.css';
 import preview1 from '@/assets/landing-page/previews/1.png';
 import preview2 from '@/assets/landing-page/previews/2.png';
 import preview3 from '@/assets/landing-page/previews/3.png';
@@ -14,6 +13,7 @@ import preview12 from '@/assets/landing-page/previews/12.png';
 import preview13 from '@/assets/landing-page/previews/13.png';
 import preview14 from '@/assets/landing-page/previews/14.png';
 import preview15 from '@/assets/landing-page/previews/15.png';
+import wallStyles from '@/components/landing-page/call-to-action-block.module.css';
 import { MarketingContainer } from '@/components/marketing-container';
 import { buildBreadcrumbSchema, serializeJsonLd } from '@trylinky/seo';
 import { Button, cn } from '@trylinky/ui';
@@ -27,8 +27,20 @@ export interface HeroBreadcrumb {
 }
 
 const SHOTS: StaticImageData[] = [
-  preview1, preview2, preview3, preview4, preview5, preview6, preview7,
-  preview8, preview9, preview10, preview11, preview12, preview13, preview14,
+  preview1,
+  preview2,
+  preview3,
+  preview4,
+  preview5,
+  preview6,
+  preview7,
+  preview8,
+  preview9,
+  preview10,
+  preview11,
+  preview12,
+  preview13,
+  preview14,
   preview15,
 ];
 
