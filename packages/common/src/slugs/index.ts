@@ -1,3 +1,13 @@
+/**
+ * Slugs that cannot be claimed for a page.
+ *
+ * This list used to be duplicated between apps/api and apps/frontend as two
+ * 836-line files that had already drifted apart: the API blocked 'explore' and
+ * the frontend did not, and the frontend reserved 'linky' while the API did
+ * not. The union of both is used here, so the client-side check and the
+ * server-side check finally agree.
+ */
+
 const FORBIDDEN_SLUGS_REGEXPS = [
   // Meteor app routes
   'page-not-found',
@@ -825,7 +835,7 @@ export function isForbiddenSlug(slug: string): boolean {
 }
 
 export function isReservedSlug(slug: string): boolean {
-  const reservedSlugs = ['onedash', 'glow'];
+  const reservedSlugs = ['onedash', 'glow', 'linky'];
 
   if (reservedSlugs.includes(slug.toLowerCase())) {
     return true;

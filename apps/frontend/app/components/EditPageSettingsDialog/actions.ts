@@ -5,7 +5,7 @@ import { FormValues as GeneralPageSettingsFormValues } from './EditPageSettingsG
 import { designPageSettingsSchema, generalPageSettingsSchema } from './shared';
 import { getSession } from '@/app/lib/auth';
 import prisma from '@/lib/prisma';
-import { isForbiddenSlug, isReservedSlug } from '@/lib/slugs';
+import { isForbiddenSlug, isReservedSlug } from '@trylinky/common/slugs';
 import { revalidateTag } from 'next/cache';
 import { headers } from 'next/headers';
 

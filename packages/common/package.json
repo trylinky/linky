@@ -4,7 +4,8 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -20,12 +21,17 @@
   "devDependencies": {
     "@types/node": "22.8.7",
     "@types/react": "^19.0.10",
-    "@types/react-dom": "^19.0.4"
+    "@types/react-dom": "^19.0.4",
+    "vitest": "^3.0.0"
   },
   "exports": {
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./slugs": {
+      "types": "./src/slugs/index.ts",
+      "default": "./src/slugs/index.ts"
     }
   }
 }

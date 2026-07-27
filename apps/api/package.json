@@ -25,6 +25,7 @@
     "@sindresorhus/slugify": "^2.2.1",
     "@slack/web-api": "^7.8.0",
     "@trylinky/blocks": "workspace:*",
+    "@trylinky/common": "workspace:*",
     "@trylinky/notifications": "workspace:*",
     "@trylinky/prisma": "workspace:*",
     "better-auth": "^1.4.3",

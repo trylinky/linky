@@ -3,10 +3,14 @@
 import { HandleStep, SlugAvailability } from './HandleStep';
 import { PagePreview } from './PagePreview';
 import { ThemeStep } from './ThemeStep';
-import { isForbiddenSlug, isReservedSlug, regexSlug } from '@/lib/slugs';
 import { defaultThemeSeeds } from '@/lib/theme';
 import { captureException } from '@sentry/nextjs';
 import { InternalApi } from '@trylinky/common';
+import {
+  isForbiddenSlug,
+  isReservedSlug,
+  regexSlug,
+} from '@trylinky/common/slugs';
 import {
   Dialog,
   DialogContent,

@@ -105,6 +105,9 @@ importers:
       '@trylinky/blocks':
         specifier: workspace:*
         version: link:../../packages/blocks
+      '@trylinky/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@trylinky/notifications':
         specifier: workspace:*
         version: link:../../packages/notifications
@@ -497,6 +500,9 @@ importers:
       '@types/react-dom':
         specifier: ^19.0.4
         version: 19.0.4(@types/react@19.0.10)
+      vitest:
+        specifier: ^3.0.0
+        version: 3.2.6(@types/debug@4.1.12)(@types/node@22.8.7)(lightningcss@1.32.0)(sass@1.94.2)(terser@5.44.1)
 
   packages/notifications:
     dependencies:
