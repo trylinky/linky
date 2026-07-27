@@ -105,7 +105,9 @@ export async function deleteBlockById(id: string, userId: string) {
   const userHasAccess = await checkUserHasAccessToBlock(id, userId);
 
   if (!userHasAccess) {
-    return new Error('User does not have access to this block');
+    // Returning the error meant the caller saw a truthy value it ignored and
+    // the delete went ahead anyway.
+    throw new Error('User does not have access to this block');
   }
 
   const deletedBlock = await prisma.block.delete({

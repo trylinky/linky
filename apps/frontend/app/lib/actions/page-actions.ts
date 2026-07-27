@@ -2,9 +2,14 @@ import { apiServerFetch } from '@/app/lib/api-server';
 import { publicApiFetch } from '@/app/lib/public-read';
 import { cacheLife, cacheTag } from 'next/cache';
 
+// A slug or domain containing an & or # would otherwise truncate the query
+// string and resolve the wrong page (or none).
+const slugOrDomainQuery = (slug: string, domain: string) =>
+  `slug=${encodeURIComponent(slug)}&domain=${encodeURIComponent(domain)}`;
+
 export async function getPageIdBySlugOrDomain(slug: string, domain: string) {
   const res = await apiServerFetch(
-    `/pages/internal/slug-or-domain?slug=${slug}&domain=${domain}`,
+    `/pages/internal/slug-or-domain?${slugOrDomainQuery(slug, domain)}`,
     {
       method: 'GET',
       headers: {
@@ -103,7 +108,7 @@ export async function getPublicPageBySlugOrDomain(
   cacheTag(`page-slug-${slug}-${domain}`);
 
   const res = await publicApiFetch(
-    `/pages/internal/slug-or-domain?slug=${slug}&domain=${domain}`,
+    `/pages/internal/slug-or-domain?${slugOrDomainQuery(slug, domain)}`,
     {
       headers: {
         'x-api-key': process.env.INTERNAL_API_KEY as string,

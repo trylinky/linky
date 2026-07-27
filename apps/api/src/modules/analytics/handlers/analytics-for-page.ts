@@ -6,6 +6,8 @@ import { Static, Type } from '@fastify/type-provider-typebox';
 import { captureException } from '@sentry/node';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
+const MINIMUM_PAGE_AGE_DAYS = 3;
+
 export const getPageAnalyticsSchema = {
   params: Type.Object({
     pageId: Type.String(),
@@ -67,11 +69,11 @@ export async function getPageAnalyticsHandler(
     return response.status(404).send({});
   }
 
-  // If the page was created less than 7 days ago, return null
-  if (
-    new Date(page.createdAt).getTime() >
-    new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).getTime()
-  ) {
+  // Too new to have meaningful analytics yet. The comment here used to say
+  // 7 days while the code used 3; 3 is the behaviour that shipped.
+  const minimumAgeMs = MINIMUM_PAGE_AGE_DAYS * 24 * 60 * 60 * 1000;
+
+  if (new Date(page.createdAt).getTime() > Date.now() - minimumAgeMs) {
     return response.status(400).send({
       error: {
         code: 'NOT_ENOUGH_DATA',

@@ -72,7 +72,11 @@ export async function generateMetadata(
         `${process.env.NEXT_PUBLIC_APP_URL}/${page?.slug}/opengraph-image`,
       ],
     },
-    title: `${page?.metaTitle} - Linky` || parentMeta.title?.absolute,
+    // A template literal is always truthy, so `|| parentMeta...` never ran and
+    // a page without a metaTitle rendered the string "null - Linky".
+    title: page?.metaTitle
+      ? `${page.metaTitle} - Linky`
+      : parentMeta.title?.absolute,
     description: page?.metaDescription || parentMeta.description,
     alternates: {
       canonical: canonicalUrlFor(page, params.domain),
