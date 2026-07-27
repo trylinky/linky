@@ -1,5 +1,6 @@
 'use strict';
 
+import { canUploadAsset } from '@/modules/assets/authorization';
 import { assetContexts } from '@/modules/assets/constants';
 import { uploadAsset } from '@/modules/assets/service';
 import { isObjKey } from '@/modules/assets/utils';
@@ -18,7 +19,7 @@ async function postUploadAssetHandler(
   request: FastifyRequest,
   response: FastifyReply
 ) {
-  await request.server.authenticate(request, response);
+  const session = await request.server.authenticate(request, response);
 
   const data = await request.file();
 
@@ -47,6 +48,23 @@ async function postUploadAssetHandler(
     return response.status(400).send({
       error: {
         message: 'Invalid asset context',
+      },
+    });
+  }
+
+  // referenceId chooses the S3 key prefix, so it has to be something the
+  // caller actually owns.
+  const isAllowed = await canUploadAsset({
+    context,
+    referenceId,
+    userId: session.user.id,
+    organizationId: session.activeOrganizationId,
+  });
+
+  if (!isAllowed) {
+    return response.status(403).send({
+      error: {
+        message: 'You do not have access to upload against this reference',
       },
     });
   }
