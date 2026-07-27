@@ -2,14 +2,11 @@
 
 import { FormValues } from './EditTeamSettingsGeneralForm';
 import { TeamInviteFormValues } from './EditTeamSettingsMembersForm';
-import { teamInviteSchema } from './shared';
+import { generalTeamSettingsSchema, teamInviteSchema } from './shared';
 import { auth, getSession } from '@/app/lib/auth';
 import prisma from '@/lib/prisma';
 import { headers } from 'next/headers';
 
-// NOTE: this handler validates access and then does nothing - see the TODO
-// at the end. `values` is unused because the update was never implemented.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const updateGeneralTeamSettings = async (values: FormValues) => {
   const session = await getSession({
     fetchOptions: { headers: await headers() },
@@ -31,7 +28,17 @@ export const updateGeneralTeamSettings = async (values: FormValues) => {
     };
   }
 
-  const team = await prisma.organization.findFirst({
+  const validatedValues = generalTeamSettingsSchema.safeParse(values);
+
+  if (!validatedValues.success) {
+    return {
+      error: { message: validatedValues.error.errors[0].message },
+    };
+  }
+
+  // Scoped to a membership the caller actually holds, so this cannot rename
+  // another organization.
+  const { count } = await prisma.organization.updateMany({
     where: {
       id: orgId,
       members: {
@@ -40,15 +47,18 @@ export const updateGeneralTeamSettings = async (values: FormValues) => {
         },
       },
     },
+    data: {
+      name: validatedValues.data.name,
+    },
   });
 
-  if (!team) {
+  if (count === 0) {
     return {
       error: { message: 'You must be in a team to update team settings' },
     };
   }
 
-  // TODO: Update team settings
+  return { success: true };
 };
 
 export const createTeamInvite = async (values: TeamInviteFormValues) => {
