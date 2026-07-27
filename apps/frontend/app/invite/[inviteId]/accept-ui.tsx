@@ -20,9 +20,20 @@ export function LoggedInAcceptInviteUI({ inviteId }: { inviteId: string }) {
       return;
     }
 
-    await auth.organization.acceptInvitation({
+    // The API enforces seats and invite validity; this is the authoritative
+    // result, so don't navigate as if it succeeded when it didn't.
+    const { error: acceptError } = await auth.organization.acceptInvitation({
       invitationId: inviteId,
     });
+
+    if (acceptError) {
+      toast({
+        title: 'Sorry, there was an error accepting your invite',
+        description: acceptError.message,
+      });
+
+      return;
+    }
 
     router.push('/edit');
   };

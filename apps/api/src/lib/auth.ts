@@ -8,10 +8,12 @@ import {
   sendWelcomeEmail,
   sendWelcomeFollowUpEmail,
 } from '@/modules/notifications/service';
+import { hasAvailableSeat } from '@/modules/organizations/utils';
 import { sendNewUserSlackMessage } from '@/modules/slack/service';
 import { PrismaClient } from '@trylinky/prisma';
 import { betterAuth, BetterAuthPlugin } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
+import { APIError } from 'better-auth/api';
 import { admin, magicLink, organization } from 'better-auth/plugins';
 
 export const auth = betterAuth({
@@ -104,6 +106,26 @@ export const auth = betterAuth({
     admin() as unknown as BetterAuthPlugin,
     organization({
       allowUserToCreateOrganization: false,
+      organizationHooks: {
+        /**
+         * Seat enforcement has to live here, not in the caller. The frontend
+         * checked seats in a server action and then called
+         * `organization.acceptInvitation` separately, so anyone hitting the
+         * better-auth endpoint directly joined regardless of the plan limit.
+         * This hook is awaited before the invitation is accepted, so throwing
+         * aborts the join.
+         */
+        beforeAcceptInvitation: async ({ organization: invitedTo }) => {
+          if (await hasAvailableSeat(invitedTo.id)) {
+            return;
+          }
+
+          throw new APIError('FORBIDDEN', {
+            message:
+              'This team has reached the maximum number of seats for its plan.',
+          });
+        },
+      },
       sendInvitationEmail: async (data) => {
         const inviteLink = `${process.env.APP_FRONTEND_URL}/invite/${data.id}`;
 
