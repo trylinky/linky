@@ -13,7 +13,7 @@ import {
   AvatarImage,
   cn,
 } from '@trylinky/ui';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface IconSelectProps {
   onIconChange: (iconSrc: string) => void;
@@ -34,9 +34,18 @@ export function IconSelect({ onIconChange, initialValue }: IconSelectProps) {
     }
   }, [initialValue]);
 
+  // Held in a ref so the effect below depends only on the selection. Callers
+  // pass an inline callback, so depending on it directly would re-notify on
+  // every parent render rather than only when the icon actually changes.
+  const onIconChangeRef = useRef(onIconChange);
+
+  useEffect(() => {
+    onIconChangeRef.current = onIconChange;
+  });
+
   useEffect(() => {
     if (selectedIcon) {
-      onIconChange(selectedIcon.value);
+      onIconChangeRef.current(selectedIcon.value);
     }
   }, [selectedIcon]);
 

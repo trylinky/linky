@@ -16,12 +16,12 @@ export default [
       ...nextPlugin.configs.recommended.rules,
       ...nextPlugin.configs['core-web-vitals'].rules,
       // jsx-a11y and react-hooks were registered here with no rules enabled,
-      // so neither ever ran. rules-of-hooks catches genuine runtime crashes
-      // and is currently clean, so it is an error; exhaustive-deps has a few
-      // pre-existing violations and warns.
+      // so neither ever ran. Both are enforced now that the codebase is
+      // clean; the one deliberate exhaustive-deps exception carries an
+      // inline disable explaining why.
       ...reactHooksPlugin.configs.recommended.rules,
       'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn',
+      'react-hooks/exhaustive-deps': 'error',
     },
   },
 ];

@@ -1,7 +1,7 @@
 'use client';
 
 import { WidthProvideRGL } from '@/components/WidthProvider';
-import { ReactNode, useMemo } from 'react';
+import { ReactNode } from 'react';
 import { Layout, Responsive, ResponsiveProps } from 'react-grid-layout';
 
 export interface PageConfig {
@@ -14,6 +14,15 @@ interface Props {
   children: ReactNode[];
   isPotentiallyMobile: boolean;
 }
+
+/**
+ * WidthProvideRGL returns a component *type*, so it has to keep a stable
+ * identity - rebuilding it on render would unmount and remount the whole grid.
+ * Both variants are built once at module scope, which keeps that guarantee
+ * without a useMemo whose dependency array had to lie about what it read.
+ */
+const ResponsiveGridDesktop = WidthProvideRGL(Responsive, false);
+const ResponsiveGridMobile = WidthProvideRGL(Responsive, true);
 
 export default function Grid({ layout, children, isPotentiallyMobile }: Props) {
   const defaultLayoutProps: ResponsiveProps = {
@@ -35,10 +44,9 @@ export default function Grid({ layout, children, isPotentiallyMobile }: Props) {
     isDroppable: false,
   };
 
-  const ResponsiveReactGridLayout = useMemo(
-    () => WidthProvideRGL(Responsive, isPotentiallyMobile),
-    []
-  );
+  const ResponsiveReactGridLayout = isPotentiallyMobile
+    ? ResponsiveGridMobile
+    : ResponsiveGridDesktop;
 
   return (
     <ResponsiveReactGridLayout

@@ -93,6 +93,11 @@ export function EditWrapper({ children, layoutProps }: Props) {
     if (nextToAddBlock) {
       handleAddNewBlock([], nextToAddBlock, null, true);
     }
+    // handleAddNewBlock is intentionally omitted: it is redefined on every
+    // render, so depending on it would re-run this effect - and add the block
+    // again - on renders where nextToAddBlock has not changed. This should
+    // fire only when a new block is queued.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nextToAddBlock]);
 
   const handleAddNewBlock = async (
