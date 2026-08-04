@@ -49,7 +49,7 @@ Single Worker, `compatibility_flags = ["nodejs_compat"]`, on a recent `compatibi
 Cloudflare edge     │
   api.lin.ky ──→ Worker (Hono) ──┼─ aws4fetch ──→ S3 (assets) + DynamoDB (reactions)
                     ├─ fetch ─────→ Tinybird, Stripe, Resend, Slack, PostHog
-                    └─ KV ────────→ better-auth rate-limit store
+                    └─ Rate Limiting binding → /api/auth/* throttling
 ```
 
 ### Framework mapping
@@ -83,7 +83,7 @@ This is the highest-risk part of the migration.
 
 ### Config vars stay on `process.env`
 
-There are 127 `process.env` reads across 37 files (46 distinct vars). Under `nodejs_compat`, Wrangler populates `process.env` from `[vars]` and secrets, so those reads are left alone. Only genuine _bindings_ — Hyperdrive, KV — move to `c.env`.
+There are 127 `process.env` reads across 37 files (46 distinct vars). Under `nodejs_compat`, Wrangler populates `process.env` from `[vars]` and secrets, so those reads are left alone. Only genuine _bindings_ — Hyperdrive, the Rate Limiting binding — move to `c.env`.
 
 If `process.env` population turns out not to be available at the chosen `compatibility_date`, the fallback is a one-file shim re-exporting `import { env } from 'cloudflare:workers'`. Confirm during the spike (§7).
 
@@ -110,7 +110,8 @@ export function runWithPrisma<T>(prisma: PrismaClient, fn: () => T): T {
 }
 
 export default new Proxy({} as PrismaClient, {
-  get: (_, prop) => Reflect.get(als.getStore()?.prisma ?? fallbackClient(), prop),
+  get: (_, prop) =>
+    Reflect.get(als.getStore()?.prisma ?? fallbackClient(), prop),
 });
 ```
 
@@ -127,7 +128,18 @@ app.use('*', (c, next) => runWithPrisma(createPrisma(c.env), next));
 
 ### better-auth rate limiting
 
-`rateLimit: { window: 10, max: 100 }` currently uses better-auth's **in-memory** store. On Render's single instance that worked; across Worker isolates each isolate keeps its own counter, silently weakening the limit. It gets a `secondaryStorage` backed by a KV namespace.
+`rateLimit: { window: 10, max: 100 }` currently uses better-auth's **in-memory** store. On Render's single instance that worked; across Worker isolates each isolate keeps its own counter, silently weakening the limit.
+
+**Revised during implementation — the original KV plan was wrong twice over.** This section first specified a `secondaryStorage` backed by a KV namespace. Two problems surfaced in Task 6:
+
+1. **KV cannot express the window.** Cloudflare KV rejects any `expirationTtl` below 60 seconds, in production and in miniflare. With `window: 10` and no `increment` method on the adapter, better-auth falls back to `legacyConsume`, which calls `put(..., { expirationTtl: 10 })` — an uncaught throw on the first request to `/api/auth/*`. KV is also eventually consistent, so any limit built on it is a per-colo approximation rather than a global one.
+2. **`secondaryStorage` silently relocates sessions.** Merely configuring it diverts _all_ session storage into it unless `storeSessionInDatabase: true` is set — verified in better-auth 1.6.25's `internal-adapter.mjs`, where the Postgres write is gated behind `executeMainFn`. That would have moved live sessions out of Postgres and broken §6's cutover guarantee that sessions survive the flip and a rollback.
+
+**What was built instead:** Cloudflare's native **Rate Limiting binding**, which supports a 10-second period and so preserves the existing 100-per-10s ceiling exactly. better-auth's own rate limiting is disabled (`rateLimit: { enabled: false }`), and a Hono middleware in front of `/api/auth/*` calls the binding and returns 429. No `secondaryStorage`, no KV namespace, sessions untouched in Postgres.
+
+The binding's `namespace_id` is user-chosen (any integer unique within the account), not an account-provisioned resource — no pre-deploy provisioning step.
+
+Form submission rate limiting is already DB-backed (`modules/forms/service.ts`) and needs no change.
 
 Form submission rate limiting is already DB-backed (`modules/forms/service.ts`) and needs no change.
 
