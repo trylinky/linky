@@ -27,7 +27,8 @@
     "src/**/*.d.ts",
     "types/**/*.d.ts",
     "packages/notifications/**/*.ts",
-    "@trylinky/notifications"
+    "@trylinky/notifications",
+    "scripts/**/*.ts"
   ], // Include TypeScript files in the src directory
   "exclude": ["node_modules", "dist", "build"] // Exclude unnecessary directories
 }

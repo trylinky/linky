@@ -66,3 +66,33 @@ jobs:
 
       - name: Test
         run: pnpm test
+
+  deploy:
+    name: Deploy the API worker
+    needs: verify
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # The worker bundles the generated Prisma client (both the Node and the
+      # workerd output), so it has to exist before wrangler builds.
+      - name: Generate the Prisma client
+        run: pnpm prisma:generate
+        working-directory: packages/prisma
+
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: apps/api

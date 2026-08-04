@@ -50,6 +50,7 @@
     "deploy": "wrangler deploy",
     "test": "dotenvx run --quiet -f ../../.env.local --ignore=MISSING_ENV_FILE -- vitest run",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "smoke": "node --experimental-strip-types scripts/smoke.ts"
   }
 }
