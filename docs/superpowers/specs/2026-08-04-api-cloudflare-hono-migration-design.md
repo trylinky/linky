@@ -99,15 +99,31 @@ Today every client is a module-scope singleton built from `process.env`: `lib/pr
 | `betterAuth(...)` instance                  | **per request**                                           | holds the Prisma adapter, so it inherits Prisma's lifetime                            |
 | Stripe, Resend, `aws4fetch` signer, PostHog | module scope                                              | pure JS over `fetch`, no persistent socket                                            |
 
-Mechanically:
+**40 files import `@/lib/prisma` as a default singleton.** Threading it as a parameter would rewrite nearly every file in the app and couple the framework swap to a large unrelated refactor. Instead, request scoping goes through `AsyncLocalStorage` (provided by `nodejs_compat`, and the mechanism Sentry itself uses for request context on Workers):
 
-- `lib/prisma.ts` exports `createPrisma(env)` instead of a default singleton.
-- A middleware sets `c.set('prisma', createPrisma(c.env))`.
-- Each `service.ts` takes `prisma` as its first argument instead of importing it.
+```ts
+// lib/prisma.ts
+const als = new AsyncLocalStorage<{ prisma: PrismaClient }>();
 
-This threads a parameter through service signatures — invasive in line count, trivial in logic — and makes services independently testable without module mocking.
+export function runWithPrisma<T>(prisma: PrismaClient, fn: () => T): T {
+  return als.run({ prisma }, fn);
+}
 
-`lib/auth.ts` becomes `createAuth({ prisma, kv })`.
+export default new Proxy({} as PrismaClient, {
+  get: (_, prop) => Reflect.get(als.getStore()?.prisma ?? fallbackClient(), prop),
+});
+```
+
+```ts
+// middleware, registered before every route
+app.use('*', (c, next) => runWithPrisma(createPrisma(c.env), next));
+```
+
+**All 40 import sites stay byte-identical.** The migration diff stays proportional to the framework swap.
+
+`fallbackClient()` lazily constructs a client from `process.env.DATABASE_URL` when no store is set, so the existing `service.test.ts` files — which call services directly, outside any request — keep working untouched.
+
+`lib/auth.ts` becomes `createAuth({ kv })`, constructed per request in the same middleware; it reads Prisma through the same proxy.
 
 ### better-auth rate limiting
 
@@ -206,13 +222,16 @@ Also drop `@fastify/basic-auth` and `cross-env`, which are already declared but 
 
 Five test files touch routes: `lib/origins.test.ts`, `modules/forms/routes.test.ts`, `decorators/authenticate-api-key.test.ts`, `modules/billing/handlers/billing-portal-url.test.ts`. The remainder are pure unit tests and do not move.
 
-The per-request-client refactor pays for itself here. The app becomes `createApp(env)`, and tests pass:
+The app becomes `createApp()`, and route tests supply a fake env to `app.request()`:
 
 ```ts
-createApp({ HYPERDRIVE: { connectionString: process.env.DATABASE_URL } });
+const env = { HYPERDRIVE: { connectionString: process.env.DATABASE_URL } };
+const response = await app.request('/forms/…', { method: 'POST', body }, env);
 ```
 
 The only Hyperdrive surface the code uses is `.connectionString`, so a plain object satisfies it and the DB-backed tests keep hitting local Postgres exactly as they do today. `fileParallelism: false` stays.
+
+Service-level tests (`forms/service.test.ts`, `reactions/service.test.ts`, `integrations/service.test.ts`) call services directly with no request in flight; the `fallbackClient()` path in `lib/prisma.ts` means they need **no changes at all**.
 
 **Accepted limitation:** these run in Node, not workerd, so they will not catch Node-only APIs slipping through, bundle-size overruns, or isolate I/O violations.
 
@@ -270,8 +289,8 @@ Sequence:
 
 Then, roughly in order:
 
-1. Scaffold — `wrangler.jsonc`, `Env` types, `createApp(env)`, middleware (CORS, Cache-Control, timing, auth), `/api/auth/*`, `core` routes. Prove `/ping` and `/session/me` work deployed.
-2. Client lifecycle refactor — `createPrisma`, `createAuth`, `prisma` threaded through service signatures. Largest single diff; land it before route porting so Tier A modules are ported once, not twice.
+1. Client lifecycle — `createPrisma(env)`, the `AsyncLocalStorage` proxy in `lib/prisma.ts`, `createAuth({ kv })`. Land this **first and on its own**: it is the one change that must be right before anything else is ported, and because the 40 import sites are untouched it can ship against the existing Fastify app and stay green.
+2. Scaffold — `wrangler.jsonc`, `Env` types, `createApp()`, middleware (ALS, CORS, Cache-Control, timing, auth), `/api/auth/*`, `core` routes. Prove `/ping` and `/session/me` work deployed.
 3. Cross-cutting swaps — Sentry, `encrypt.ts` → WebCrypto, Slack → `fetch`, PostHog `waitUntil`, email `html` rendering.
 4. Tier B rewrites — `aws4fetch` + `dynamo-marshal` (reactions), WASM image pipeline (assets), Stripe webhook. Each with tests before the port where an existing test file covers it.
 5. Tier A modules — port in batches, keeping the test suite green.
