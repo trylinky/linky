@@ -1,10 +1,4 @@
-// TODO(Task 6): replace this placeholder with
-// `import type { AuthenticatedSession } from '@/middleware/authenticate';`
-// once that module exists, and delete the inline interface below.
-export interface AuthenticatedSession {
-  user: { id: string };
-  activeOrganizationId: string;
-}
+import type { AuthenticatedSession } from '@/middleware/authenticate';
 
 export interface Env {
   HYPERDRIVE: { connectionString: string };
