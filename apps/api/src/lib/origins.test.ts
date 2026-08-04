@@ -1,5 +1,5 @@
-import cors, { FastifyCorsOptions } from '@fastify/cors';
-import Fastify, { FastifyInstance, FastifyRequest } from 'fastify';
+import { corsMiddleware } from '@/middleware/cors';
+import { Hono } from 'hono';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 // The CORS policy is security-critical: reflecting an arbitrary origin *with*
@@ -10,128 +10,96 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 const TRUSTED = 'https://app.example.com';
 const CUSTOM_DOMAIN = 'https://someones-custom-domain.com';
 
-async function buildApp(trustedOrigins: string[]): Promise<FastifyInstance> {
-  const app = Fastify();
+function buildApp(trustedOrigins: string[]) {
+  vi.stubEnv('TRUSTED_ORIGINS', trustedOrigins.join(','));
+  vi.stubEnv('APP_FRONTEND_URL', '');
 
-  await app.register(
-    cors,
-    () =>
-      async (request: FastifyRequest): Promise<FastifyCorsOptions> => {
-        const origin = request.headers.origin;
-
-        return {
-          origin: true,
-          methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-          allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
-          exposedHeaders: ['Content-Length'],
-          credentials: !origin || trustedOrigins.includes(origin),
-          maxAge: 86400,
-        };
-      }
-  );
-
-  app.get('/ping', async () => ({ ping: 'pong' }));
-  await app.ready();
+  const app = new Hono();
+  app.use('*', corsMiddleware);
+  app.get('/ping', (c) => c.json({ ping: 'pong' }));
 
   return app;
 }
 
-let app: FastifyInstance;
-
-afterEach(async () => {
-  await app?.close();
+afterEach(() => {
+  vi.unstubAllEnvs();
 });
 
 describe('CORS policy', () => {
   it('allows credentials for a trusted first-party origin', async () => {
-    app = await buildApp([TRUSTED]);
+    const app = buildApp([TRUSTED]);
 
-    const response = await app.inject({
-      method: 'GET',
-      url: '/ping',
+    const response = await app.request('/ping', {
       headers: { origin: TRUSTED },
     });
 
-    expect(response.headers['access-control-allow-origin']).toBe(TRUSTED);
-    expect(response.headers['access-control-allow-credentials']).toBe('true');
+    expect(response.headers.get('access-control-allow-origin')).toBe(TRUSTED);
+    expect(response.headers.get('access-control-allow-credentials')).toBe(
+      'true'
+    );
   });
 
   it('never allows credentials for an untrusted origin', async () => {
-    app = await buildApp([TRUSTED]);
+    const app = buildApp([TRUSTED]);
 
-    const response = await app.inject({
-      method: 'GET',
-      url: '/ping',
+    const response = await app.request('/ping', {
       headers: { origin: 'https://evil.example.com' },
     });
 
-    expect(
-      response.headers['access-control-allow-credentials']
-    ).toBeUndefined();
+    expect(response.headers.get('access-control-allow-credentials')).toBeNull();
   });
 
   it('still serves custom domains, just without credentials', async () => {
     // Published pages live on user-owned domains we cannot enumerate. They must
     // keep reaching public endpoints (reactions, form submissions) — those need
     // no session, so a non-credentialed allow is enough.
-    app = await buildApp([TRUSTED]);
+    const app = buildApp([TRUSTED]);
 
-    const response = await app.inject({
-      method: 'GET',
-      url: '/ping',
+    const response = await app.request('/ping', {
       headers: { origin: CUSTOM_DOMAIN },
     });
 
-    expect(response.statusCode).toBe(200);
-    expect(response.headers['access-control-allow-origin']).toBe(CUSTOM_DOMAIN);
-    expect(
-      response.headers['access-control-allow-credentials']
-    ).toBeUndefined();
+    expect(response.status).toBe(200);
+    expect(response.headers.get('access-control-allow-origin')).toBe(
+      CUSTOM_DOMAIN
+    );
+    expect(response.headers.get('access-control-allow-credentials')).toBeNull();
   });
 
   it('does not allow credentials on an untrusted preflight', async () => {
-    app = await buildApp([TRUSTED]);
+    const app = buildApp([TRUSTED]);
 
-    const response = await app.inject({
+    const response = await app.request('/ping', {
       method: 'OPTIONS',
-      url: '/ping',
       headers: {
         origin: 'https://evil.example.com',
         'access-control-request-method': 'DELETE',
       },
     });
 
-    expect(
-      response.headers['access-control-allow-credentials']
-    ).toBeUndefined();
+    expect(response.headers.get('access-control-allow-credentials')).toBeNull();
   });
 
   it('varies on origin so a credentialed response is never cached for another origin', async () => {
-    app = await buildApp([TRUSTED]);
+    const app = buildApp([TRUSTED]);
 
-    const response = await app.inject({
-      method: 'GET',
-      url: '/ping',
+    const response = await app.request('/ping', {
       headers: { origin: TRUSTED },
     });
 
-    expect(String(response.headers.vary)).toContain('Origin');
+    expect(String(response.headers.get('vary'))).toContain('Origin');
   });
 });
 
-// The list is built once at module load from the environment, so each case
-// needs a fresh module registry.
-async function loadOrigins(env: Record<string, string | undefined>) {
-  vi.resetModules();
-
-  const previous = { ...process.env };
-  Object.assign(process.env, env);
-
-  try {
-    return await import('./origins');
-  } finally {
-    process.env = previous;
+// The trusted-origins list is computed per call rather than at module load
+// (see getTrustedOrigins in ./origins), so isolating a case from the next one
+// only requires stubbing env vars — no module reload needed.
+function loadOrigins(env: Record<string, string | undefined>) {
+  for (const [key, value] of Object.entries(env)) {
+    vi.stubEnv(key, value);
   }
+
+  return import('./origins');
 }
 
 describe('trusted origin resolution', () => {
@@ -178,7 +146,7 @@ describe('trusted origin resolution', () => {
   });
 
   it('lets a self-hosted deployment define its own origins', async () => {
-    const { isTrustedOrigin, trustedOrigins } = await loadOrigins({
+    const { isTrustedOrigin, getTrustedOrigins } = await loadOrigins({
       TRUSTED_ORIGINS: 'https://links.mysite.com, https://mysite.com',
       APP_FRONTEND_URL: undefined,
     });
@@ -186,7 +154,7 @@ describe('trusted origin resolution', () => {
     expect(isTrustedOrigin('https://links.mysite.com')).toBe(true);
     expect(isTrustedOrigin('https://mysite.com')).toBe(true);
     // Configured origins replace the hosted defaults rather than adding to them
-    expect(trustedOrigins).not.toContain('https://lin.ky');
+    expect(getTrustedOrigins()).not.toContain('https://lin.ky');
   });
 
   it('normalises configured entries to a bare origin', async () => {
@@ -199,12 +167,12 @@ describe('trusted origin resolution', () => {
   });
 
   it('ignores unparseable entries instead of trusting them', async () => {
-    const { trustedOrigins } = await loadOrigins({
+    const { getTrustedOrigins } = await loadOrigins({
       TRUSTED_ORIGINS: 'not a url,,https://ok.example.com',
       APP_FRONTEND_URL: undefined,
     });
 
-    expect(trustedOrigins).toEqual(['https://ok.example.com']);
+    expect(getTrustedOrigins()).toEqual(['https://ok.example.com']);
   });
 
   it('treats a missing Origin header as trusted (non-browser callers)', async () => {
@@ -214,5 +182,26 @@ describe('trusted origin resolution', () => {
     });
 
     expect(isTrustedOrigin(undefined)).toBe(true);
+  });
+});
+
+describe('lazy evaluation', () => {
+  it('reads the environment at call time, not at module load', async () => {
+    // On Workers, module scope can run before env is populated. If the list
+    // were computed at import, it would be permanently empty.
+    vi.resetModules();
+    const previous = { ...process.env };
+    delete process.env.APP_FRONTEND_URL;
+    delete process.env.TRUSTED_ORIGINS;
+
+    const { isTrustedOrigin } = await import('./origins');
+
+    process.env.APP_FRONTEND_URL = 'https://app.example.com';
+
+    try {
+      expect(isTrustedOrigin('https://app.example.com')).toBe(true);
+    } finally {
+      process.env = previous;
+    }
   });
 });

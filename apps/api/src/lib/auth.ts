@@ -1,4 +1,4 @@
-import { trustedOrigins } from '@/lib/origins';
+import { getTrustedOrigins } from '@/lib/origins';
 import prisma from '@/lib/prisma';
 import { createContact } from '@/lib/resend';
 import { createUserInitialFlags, handleUserCreated } from '@/lib/user-created';
@@ -24,7 +24,7 @@ export const auth = betterAuth({
     window: 10, // time window in seconds
     max: 100, // max requests in the window
   },
-  trustedOrigins,
+  trustedOrigins: getTrustedOrigins(),
   database: prismaAdapter(prisma as PrismaClient, {
     provider: 'postgresql',
   }),
