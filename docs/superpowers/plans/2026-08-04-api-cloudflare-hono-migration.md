@@ -21,6 +21,8 @@
 - Prettier config is repo-root `prettier.config.js` with `@trivago/prettier-plugin-sort-imports`. Run `pnpm prettier --write` on touched files before committing; CI checks formatting.
 - Worker compressed bundle limit is **10 MB**. Check with `pnpm wrangler deploy --dry-run --outdir=/tmp/wsize` after any task that adds a dependency.
 - `compatibility_date` is `2026-07-01`; `compatibility_flags` is `["nodejs_compat"]`. Do not change these without re-running Task 1.
+- **Never import Prisma from a subpath.** Every consumer uses the bare specifier `@trylinky/prisma`; the `workerd` export condition (Task 2 Step 3) picks the right client per runtime. In `packages/prisma/package.json`'s `exports`, `workerd` must be listed **before** `default` — `default` matches unconditionally, so listing it first silently wins on workerd and crashes the Worker at startup.
+- Provisioned Cloudflare resources — use these, do not create new ones: Hyperdrive `962b7339d781499985faa016771f2c6a` (`linky-production`, PlanetScale origin, query caching disabled).
 - Commit messages follow the repo convention: lowercase `type: summary`, imperative, no scope. Types in use: `feat`, `fix`, `docs`, `refactor`, `chore`, `test`.
 
 ---
@@ -55,6 +57,37 @@
 ---
 
 ## Task 1: De-risking spike — Hyperdrive, Prisma and `process.env` on workerd
+
+> **✅ COMPLETE — 2026-08-04. Do not re-run.** Findings below; they amend Tasks 2, 3 and 7.
+> Full evidence in `.superpowers/sdd/2026-08-04-api-cloudflare-hono-migration/task-1-report.md`.
+>
+> **Resolved, no action needed:**
+>
+> - `AsyncLocalStorage` works on workerd, including across `await` boundaries. Task 3's design holds.
+> - `process.env` **is** populated from Wrangler `vars` at `compatibility_date` 2026-07-01.
+>   The `cloudflare:workers` env shim is **not needed** — Task 2 Step 4 and Task 7 Step 6 drop it.
+> - Per-request Prisma construction survives consecutive requests with no isolate I/O errors.
+> - `node:crypto`'s `createCipheriv`/`pbkdf2Sync` exist under `nodejs_compat` (Task 5 moves to
+>   WebCrypto regardless; this is FYI).
+> - **Production Postgres is PlanetScale** (`us-east-3.pg.psdb.cloud`), not Render. Only the API
+>   compute was on Render. The spec's "private-network Postgres blocks the migration" prerequisite
+>   never applied and is closed.
+> - Hyperdrive config created: **`962b7339d781499985faa016771f2c6a`** (`linky-production`),
+>   `origin_connection_limit` 15. Query caching was on by default and has been **disabled** —
+>   the API's cache-tag revalidation system cannot purge a Hyperdrive cache, so leaving it on
+>   would have added unpurgeable staleness to page edits.
+>
+> **Blocker found — Prisma 7 cannot run on workerd as currently generated.** The generated client
+> builds its query compiler with `new WebAssembly.Module(bytes)` at request time; workerd forbids
+> runtime WASM codegen categorically and no compatibility flag lifts it. It also calls
+> `fileURLToPath(import.meta.url)` at module load, which is `undefined` for bundled non-entry
+> modules. Both are fixed by the generator's documented `runtime = "workerd"` option
+> (corroborated upstream at prisma/prisma#28657). Prisma 7.0.1 is fine; no version bump.
+>
+> A single workerd-targeted client would break plain Node — where `apps/api`'s vitest DB tests
+> run — because Node's ESM loader does not understand the `?module` resource query. So the package
+> needs **two generator outputs selected by a `workerd` export condition**, which keeps every
+> existing `@trylinky/prisma` import specifier unchanged. **This work is now Task 2, Steps 1-4.**
 
 Throwaway code. Its only output is a decision. **If this task fails, stop and re-plan — every later task assumes its findings.**
 
@@ -185,19 +218,24 @@ git commit -m "docs: record cloudflare migration spike findings"
 
 ---
 
-## Task 2: Worker scaffold and Wrangler config
+## Task 2: A workerd-targeted Prisma client, plus the Worker scaffold
 
-Adds Wrangler and the Worker config **without removing Fastify**. The existing app still runs and all tests still pass at the end of this task.
+Two deliverables that must land together: `@trylinky/prisma` gains a second, workerd-targeted
+client (without which no Worker can run a query at all — see Task 1's findings), and `apps/api`
+gains its Wrangler config. Adds Wrangler **without removing Fastify** — the existing app still
+runs and all tests still pass at the end of this task.
 
 **Files:**
 
-- Create: `apps/api/wrangler.jsonc`, `apps/api/src/env.ts`, `apps/api/.dev.vars.example`
-- Modify: `apps/api/package.json`, `apps/api/tsconfig.json`, `.gitignore`
+- Create: `packages/prisma/index.workerd.ts`, `apps/api/wrangler.jsonc`, `apps/api/src/env.ts`, `apps/api/.dev.vars.example`
+- Modify: `packages/prisma/prisma/schema.prisma`, `packages/prisma/package.json`, `apps/api/package.json`, `apps/api/tsconfig.json`, `.gitignore`
 
 **Interfaces:**
 
-- Consumes: the Hyperdrive id from Task 1 Step 2
-- Produces: `Env` and `Variables` interfaces from `src/env.ts`, imported by every later task:
+- Consumes: the Hyperdrive id and KV id below (both already provisioned — do not create new ones)
+- Produces:
+  - `@trylinky/prisma` resolving to a **workerd**-targeted client under Wrangler and a **Node**-targeted one everywhere else, via the same bare specifier. No call site anywhere in the repo changes.
+  - `Env` and `Variables` interfaces from `src/env.ts`, imported by every later task:
 
   ```ts
   export interface Env {
@@ -210,22 +248,114 @@ Adds Wrangler and the Worker config **without removing Fastify**. The existing a
   export type AppBindings = { Bindings: Env; Variables: Variables };
   ```
 
-- [ ] **Step 1: Install Wrangler and Worker types**
+- [ ] **Step 1: Add the second Prisma generator block**
+
+In `packages/prisma/prisma/schema.prisma`, leave the existing `generator client` block exactly as
+it is and add a second one below it. One `pnpm prisma:generate` call produces both outputs.
+
+```prisma
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated"
+}
+
+// Prisma's default output compiles its WASM query compiler at request time via
+// `new WebAssembly.Module(bytes)`, which workerd forbids outright. The workerd
+// target instead emits a real query_compiler_bg.wasm and imports it statically.
+// It also avoids `fileURLToPath(import.meta.url)`, which is undefined for
+// bundled non-entry modules. Both failures are fatal at import or first query.
+generator clientWorkerd {
+  provider = "prisma-client"
+  output   = "../src/generated-workerd"
+  runtime  = "workerd"
+}
+```
+
+Add `src/generated-workerd` alongside the existing `src/generated` entry in whatever gitignores
+the generated output (check `packages/prisma/.gitignore` and the repo-root `.gitignore`).
+
+- [ ] **Step 2: Create `packages/prisma/index.workerd.ts`**
+
+A line-for-line mirror of the existing `index.ts`, with every `./src/generated/...` path changed
+to `./src/generated-workerd/...`. Read `index.ts` first and mirror it exactly — it re-exports the
+client, the enums, and a list of model types, and the two files must stay in sync.
+
+```ts
+// Mirror of index.ts against the workerd-targeted generator output. Selected
+// automatically by the "workerd" export condition in package.json; nothing
+// imports this file by path.
+export { PrismaClient } from './src/generated-workerd/client';
+export type { Prisma } from './src/generated-workerd/client';
+export * from './src/generated-workerd/enums';
+// ...plus every model type index.ts re-exports, sourced from
+// ./src/generated-workerd/models/* instead of ./src/generated/models/*
+```
+
+- [ ] **Step 3: Add the `workerd` export condition**
+
+In `packages/prisma/package.json`:
+
+```json
+  "exports": {
+    ".": {
+      "workerd": "./index.workerd.ts",
+      "default": "./index.ts"
+    },
+    "./types": "./types.ts"
+  }
+```
+
+**Condition order is load-bearing and has been verified empirically.** `default` matches
+unconditionally, so if it is listed first it wins even on workerd and the Worker crashes at
+startup with the `import.meta.url` error. `workerd` MUST come before `default`.
+
+`./types` stays a plain string — it exports only types, so it needs no workerd variant.
+
+- [ ] **Step 4: Verify both clients resolve correctly**
+
+```bash
+cd packages/prisma && pnpm prisma:generate
+ls src/generated-workerd/query_compiler_bg.wasm    # must exist, ~1.8MB
+grep -c "decodeBase64AsWasm" src/generated-workerd/internal/class.ts   # must be 0
+grep -c "decodeBase64AsWasm" src/generated/internal/class.ts           # must be >0
+```
+
+Then confirm the Node side still works through the bare specifier:
+
+```bash
+cd ../../apps/api && pnpm test
+```
+
+Expected: the existing suite passes unchanged. It runs under vitest in Node, which does not set
+the `workerd` condition, so it must resolve to `./index.ts` and the Node client. If any DB-backed
+test now fails with `The loaded wasm module was unexpectedly undefined`, the condition order in
+Step 3 is wrong.
+
+The workerd side is proven at the end of Task 7, when the Worker first boots. Do not try to
+verify it here — there is no Worker yet.
+
+- [ ] **Step 5: Install Wrangler and Worker types**
 
 ```bash
 cd apps/api
 pnpm add -D wrangler @cloudflare/workers-types
 ```
 
-- [ ] **Step 2: Create the KV namespace for better-auth rate limiting**
+- [ ] **Step 6: Use the existing KV namespace**
+
+A KV namespace and the Hyperdrive config are **already provisioned** — do not create new ones.
+
+```bash
+pnpm wrangler kv namespace list
+```
+
+Find the `AUTH_RATE_LIMIT` namespace and record its id. If none exists, create it:
 
 ```bash
 pnpm wrangler kv namespace create AUTH_RATE_LIMIT
 ```
 
-Record the returned id.
-
-- [ ] **Step 3: Write `wrangler.jsonc`**
+- [ ] **Step 7: Write `wrangler.jsonc`**
 
 ```jsonc
 {
@@ -242,14 +372,22 @@ Record the returned id.
     "API_BASE_URL": "https://api.lin.ky",
     "NEXT_PUBLIC_BASE_URL": "https://lin.ky",
   },
-  "hyperdrive": [{ "binding": "HYPERDRIVE", "id": "PASTE_HYPERDRIVE_ID" }],
+  "hyperdrive": [
+    { "binding": "HYPERDRIVE", "id": "962b7339d781499985faa016771f2c6a" },
+  ],
   "kv_namespaces": [{ "binding": "AUTH_RATE_LIMIT", "id": "PASTE_KV_ID" }],
 }
 ```
 
+The Hyperdrive id above is real and already provisioned (`linky-production`, PlanetScale origin,
+query caching disabled). Use it verbatim. Only the KV id needs filling in from Step 6.
+
+No `define` key is needed — that workaround was only for Prisma's Node-targeted output, and
+Task 2 Step 1 replaces it with the workerd target on the Worker side.
+
 Note: no `routes` key yet. The route for `api.lin.ky/*` is added at cutover (Task 18), not before — adding it now would take production traffic.
 
-- [ ] **Step 4: Write `src/env.ts`**
+- [ ] **Step 8: Write `src/env.ts`**
 
 ```ts
 import type { AuthenticatedSession } from '@/middleware/authenticate';
@@ -275,20 +413,10 @@ export interface AuthenticatedSession {
 }
 ```
 
-**If Task 1 Step 4 found `processEnvPopulated` to be `false`,** also create `src/lib/env-shim.ts`:
+No env shim is needed. Task 1 confirmed Wrangler populates `process.env` from `vars` and secrets
+at this `compatibility_date`, so the 127 existing `process.env` reads work untouched.
 
-```ts
-import { env as workerEnv } from 'cloudflare:workers';
-
-// Wrangler does not populate process.env at this compatibility_date, so
-// mirror vars and secrets onto it once at module load. Every existing
-// process.env read in the app then works unchanged.
-Object.assign(process.env, workerEnv);
-```
-
-and import it as the first line of `src/index.ts` in Task 4. If `processEnvPopulated` was `true`, skip this file entirely.
-
-- [ ] **Step 5: Point tsconfig at Worker types**
+- [ ] **Step 9: Point tsconfig at Worker types**
 
 In `apps/api/tsconfig.json`, change:
 
@@ -304,7 +432,7 @@ to:
 
 `node` stays because `nodejs_compat` provides `Buffer`, `process`, `node:crypto` and `node:async_hooks`, all of which the code uses.
 
-- [ ] **Step 6: Add `.dev.vars.example` and gitignore the real one**
+- [ ] **Step 10: Add `.dev.vars.example` and gitignore the real one**
 
 `apps/api/.dev.vars.example`:
 
@@ -326,26 +454,37 @@ AWS_REGION=
 REACTIONS_TABLE_NAME=
 ```
 
+Also note the local Hyperdrive override for `wrangler dev`, used from Task 7 onward:
+
+```
+# Wrangler dev points the HYPERDRIVE binding at local Postgres via this env var.
+# (The WRANGLER_-prefixed form still works but is deprecated.)
+CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=postgresql://glow_user:KGfUZosCOm@localhost:5432/glow_development
+```
+
 Append to the repo-root `.gitignore`:
 
 ```
 apps/api/.dev.vars
 ```
 
-- [ ] **Step 7: Verify nothing broke**
+- [ ] **Step 11: Verify nothing broke**
 
 ```bash
 cd apps/api && pnpm typecheck && pnpm test && pnpm lint
 ```
 
-Expected: all pass. Fastify is still the running app; this task only added config.
+Expected: all pass. Fastify is still the running app; this task only added config and a second
+Prisma output. If `pnpm test` fails on wasm resolution, revisit Step 3's condition order.
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 12: Commit**
 
 ```bash
 git add apps/api/wrangler.jsonc apps/api/src/env.ts apps/api/.dev.vars.example \
-        apps/api/package.json apps/api/tsconfig.json .gitignore pnpm-lock.yaml
-git commit -m "chore: add wrangler config and worker env types"
+        apps/api/package.json apps/api/tsconfig.json .gitignore pnpm-lock.yaml \
+        packages/prisma/prisma/schema.prisma packages/prisma/package.json \
+        packages/prisma/index.workerd.ts
+git commit -m "feat: add a workerd-targeted prisma client and the worker scaffold"
 ```
 
 ---
@@ -1511,7 +1650,7 @@ export default {
 };
 ```
 
-If Task 1 found `processEnvPopulated` to be `false`, add `import '@/lib/env-shim';` as the **first** line.
+No env shim import is needed — Task 1 confirmed `process.env` is populated natively.
 
 Delete `apps/api/build.js` and `apps/api/cjs-shim.ts`.
 
