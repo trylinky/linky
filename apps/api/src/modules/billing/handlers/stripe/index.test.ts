@@ -1,6 +1,6 @@
 import { createApp } from '@/app';
 import { stripeClient } from '@/lib/stripe';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 const env = {
   HYPERDRIVE: { connectionString: process.env.DATABASE_URL as string },
@@ -14,20 +14,11 @@ const env = {
 const SECRET = 'whsec_test_secret';
 
 describe('POST /billing/stripe-webhook', () => {
-  beforeEach(() => {
-    // Signature verification is pure local crypto and nothing in these two
-    // cases should ever reach a Stripe API or the database — fail loudly
-    // instead of silently making a real network call if that ever changes.
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(() => {
-        throw new Error('unexpected real fetch call in stripe webhook test');
-      })
-    );
-  });
-
+  // Signature verification is pure local crypto and nothing in these two
+  // cases should ever reach a Stripe API or the database — the global fetch
+  // tripwire in vitest.setup.ts fails loudly instead of silently making a
+  // real network call if that ever changes.
   afterEach(() => {
-    vi.unstubAllGlobals();
     vi.unstubAllEnvs();
   });
 

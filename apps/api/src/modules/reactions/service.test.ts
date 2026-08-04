@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // DynamoDB is the only external dependency here; stub it at the client
 // boundary (the aws4fetch-backed dynamo module) so the allowance logic can
@@ -51,18 +51,9 @@ describe('reactToResource', () => {
     batchGetItem.mockReset();
     updateItem.mockReset();
     // ./dynamo is mocked above, so nothing here should ever hit the network.
-    // Fail loudly instead of silently making a real DynamoDB call against
-    // production data if that mock is ever bypassed.
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(() => {
-        throw new Error('unexpected real fetch call in reactions unit test');
-      })
-    );
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
+    // The global fetch tripwire in vitest.setup.ts fails loudly instead of
+    // silently making a real DynamoDB call against production data if that
+    // mock is ever bypassed.
   });
 
   it('applies a normal debounced click batch as-is', async () => {
