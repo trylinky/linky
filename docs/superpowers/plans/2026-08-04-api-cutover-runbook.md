@@ -320,6 +320,11 @@ more disruptive than it is.
 
 Only once the Worker has run clean for ~7 days past Step 5 with no rollback:
 
+- [ ] Commit the top-level `routes` key added to `wrangler.jsonc` in Step 5. It was added by hand
+      at cutover time so it could be deployed and rolled back quickly without waiting on a review —
+      that's fine for the cutover itself, but left uncommitted (or, worse, applied only through the
+      Cloudflare dashboard rather than this file) it means the production `api.lin.ky/*` route lives
+      only in the dashboard and isn't reviewable in git. Now that the flip is proven, commit it.
 - [ ] Delete the Render service
 - [ ] Remove the `api-next.lin.ky` DNS record
 - [ ] Remove its Stripe webhook endpoint (the one registered in Step 3)
