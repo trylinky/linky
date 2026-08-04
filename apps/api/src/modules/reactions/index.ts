@@ -1,16 +1,26 @@
-'use strict';
-
+import type { AppBindings } from '@/env';
 import {
-  getReactionsSchema,
   getReactionsHandler,
+  getReactionsQuerySchema,
 } from '@/modules/reactions/handlers/get-reactions';
 import {
+  postReactionsBodySchema,
   postReactionsHandler,
-  postReactionsSchema,
 } from '@/modules/reactions/handlers/post-reactions';
-import { FastifyInstance } from 'fastify';
+import { tbValidator } from '@hono/typebox-validator';
+import { Hono } from 'hono';
 
-export default async function reactionsRoutes(fastify: FastifyInstance) {
-  fastify.get('/', { schema: getReactionsSchema }, getReactionsHandler);
-  fastify.post('/', { schema: postReactionsSchema }, postReactionsHandler);
-}
+const reactionsRoutes = new Hono<AppBindings>();
+
+reactionsRoutes.get(
+  '/',
+  tbValidator('query', getReactionsQuerySchema),
+  getReactionsHandler
+);
+reactionsRoutes.post(
+  '/',
+  tbValidator('json', postReactionsBodySchema),
+  postReactionsHandler
+);
+
+export default reactionsRoutes;

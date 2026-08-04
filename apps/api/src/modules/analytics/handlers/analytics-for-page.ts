@@ -2,7 +2,7 @@ import prisma from '@/lib/prisma';
 import { fetchTopLocations } from '@/modules/analytics/service';
 import { fetchStats } from '@/modules/analytics/service';
 import { checkUserHasAccessToPage } from '@/modules/pages/service';
-import { Static, Type } from '@fastify/type-provider-typebox';
+import { Static, Type } from '@sinclair/typebox';
 import { captureException } from '@sentry/cloudflare';
 import { FastifyReply, FastifyRequest } from 'fastify';
 

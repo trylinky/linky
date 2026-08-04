@@ -8,7 +8,7 @@ import {
   submitFormResponse,
 } from './service';
 import { getIpAddress } from '@/modules/analytics/utils';
-import { Type } from '@fastify/type-provider-typebox';
+import { Type } from '@sinclair/typebox';
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
 const UUID_REGEX =
@@ -51,7 +51,18 @@ async function postSubmissionHandler(
   const { blockId } = request.params;
   const { answers, website } = request.body;
 
-  const ipAddress = getIpAddress(request);
+  // getIpAddress now takes a Hono Context (Task 12) — this module is still
+  // Fastify and gets ported in a later task. Interim adapter exposing only
+  // the `.req.header()` surface getIpAddress reads, so the precedence logic
+  // stays in one place rather than being duplicated here.
+  const ipAddress = getIpAddress({
+    req: {
+      header: (name: string) => {
+        const value = request.headers[name];
+        return Array.isArray(value) ? value[0] : value;
+      },
+    },
+  } as never);
 
   try {
     const result = await submitFormResponse({

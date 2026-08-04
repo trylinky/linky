@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma';
-import { Static, Type } from '@fastify/type-provider-typebox';
+import { Static, Type } from '@sinclair/typebox';
 import { FastifyRequest, FastifyReply } from 'fastify';
 
 export const getSlugAvailabilitySchema = {

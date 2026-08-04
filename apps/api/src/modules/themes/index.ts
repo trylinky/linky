@@ -1,20 +1,19 @@
-'use strict';
-
+import type { AppBindings } from '@/env';
+import { requireSession } from '@/middleware/authenticate';
 import { getThemesForOrganization } from '@/modules/themes/service';
-import { FastifyInstance, FastifyReply } from 'fastify';
-import { FastifyRequest } from 'fastify';
+import type { Context } from 'hono';
+import { Hono } from 'hono';
 
-export default async function themesRoutes(fastify: FastifyInstance) {
-  fastify.get('/me/team', getThemesForCurrentTeamHandler);
-}
+const themesRoutes = new Hono<AppBindings>();
 
-async function getThemesForCurrentTeamHandler(
-  request: FastifyRequest,
-  response: FastifyReply
-) {
-  const session = await request.server.authenticate(request, response);
+themesRoutes.get('/me/team', getThemesForCurrentTeamHandler);
+
+async function getThemesForCurrentTeamHandler(c: Context<AppBindings>) {
+  const session = requireSession(c);
 
   const themes = await getThemesForOrganization(session.activeOrganizationId);
 
-  return response.status(200).send(themes);
+  return c.json(themes, 200);
 }
+
+export default themesRoutes;

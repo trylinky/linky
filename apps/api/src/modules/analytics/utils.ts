@@ -1,4 +1,5 @@
-import { FastifyRequest } from 'fastify';
+import type { AppBindings } from '@/env';
+import type { Context } from 'hono';
 
 /**
  * Resolves the client IP for abuse controls (form submission rate limiting,
@@ -20,27 +21,19 @@ import { FastifyRequest } from 'fastify';
  *
  * No NODE_ENV short-circuit here: the API bundle inlines process.env at build
  * time, so an env-dependent branch can get baked into production. In local dev
- * there are no proxy headers, so request.ip already resolves to 127.0.0.1 via
- * the fallback chain.
+ * there are no proxy headers, so this already falls through to
+ * DEFAULT_IP_ADDRESS below.
  */
 const DEFAULT_IP_ADDRESS = '127.0.0.1';
 
-function firstHeaderValue(value: string | string[] | undefined): string | null {
-  if (Array.isArray(value)) {
-    return value[0]?.trim() || null;
-  }
-
-  return value?.trim() || null;
-}
-
-export const getIpAddress = (request: FastifyRequest): string => {
-  const cloudflareIp = firstHeaderValue(request.headers['cf-connecting-ip']);
+export const getIpAddress = (c: Context<AppBindings>): string => {
+  const cloudflareIp = c.req.header('cf-connecting-ip')?.trim();
 
   if (cloudflareIp) {
     return cloudflareIp;
   }
 
-  const xForwardedFor = firstHeaderValue(request.headers['x-forwarded-for']);
+  const xForwardedFor = c.req.header('x-forwarded-for')?.trim();
 
   if (xForwardedFor) {
     const hops = xForwardedFor
@@ -56,11 +49,5 @@ export const getIpAddress = (request: FastifyRequest): string => {
     }
   }
 
-  const xRealIp = firstHeaderValue(request.headers['x-real-ip']);
-
-  if (xRealIp) {
-    return xRealIp;
-  }
-
-  return request.ip || DEFAULT_IP_ADDRESS;
+  return c.req.header('x-real-ip')?.trim() || DEFAULT_IP_ADDRESS;
 };

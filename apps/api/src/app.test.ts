@@ -48,3 +48,24 @@ describe('app shell', () => {
     expect(response.status).toBe(404);
   });
 });
+
+describe('ported modules — batch 1', () => {
+  it('rejects an unauthenticated flags read', async () => {
+    const response = await createApp().request('/flags/me', {}, env);
+    expect(response.status).toBe(401);
+  });
+
+  it('404s a reaction read for an unknown page', async () => {
+    const response = await createApp().request(
+      '/reactions?pageId=00000000-0000-0000-0000-000000000000',
+      {},
+      env
+    );
+    expect(response.status).toBe(404);
+  });
+
+  it('400s a reaction read with no pageId', async () => {
+    const response = await createApp().request('/reactions', {}, env);
+    expect(response.status).toBe(400);
+  });
+});

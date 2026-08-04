@@ -1,49 +1,15 @@
+import type { AppBindings } from '@/env';
 import prisma from '@/lib/prisma';
-import { FastifyRequest, FastifyReply } from 'fastify';
+import { requireSession } from '@/middleware/authenticate';
+import type { Context } from 'hono';
 
-export const getFlagsForCurrentUserSchema = {
-  response: {
-    200: {
-      type: 'object',
-      properties: {
-        flags: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              key: { type: 'string' },
-              value: { type: 'boolean' },
-            },
-          },
-        },
-      },
-      additionalProperties: false,
-    },
-    404: {
-      type: 'object',
-      properties: {},
-      additionalProperties: false,
-    },
-  },
-};
-
-export async function getFlagsForCurrentUserHandler(
-  request: FastifyRequest,
-  response: FastifyReply
-) {
-  const session = await request.server.authenticate(request, response);
+export async function getFlagsForCurrentUserHandler(c: Context<AppBindings>) {
+  const session = requireSession(c);
 
   const userFlags = await prisma.userFlag.findMany({
-    where: {
-      userId: session?.user.id,
-    },
-    select: {
-      key: true,
-      value: true,
-    },
+    where: { userId: session.user.id },
+    select: { key: true, value: true },
   });
 
-  return response.status(200).send({
-    flags: userFlags,
-  });
+  return c.json({ flags: userFlags }, 200);
 }

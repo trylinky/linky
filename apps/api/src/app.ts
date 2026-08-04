@@ -7,6 +7,10 @@ import { requireAuthRateLimit } from '@/middleware/rate-limit';
 import { requestContext } from '@/middleware/request-context';
 import { timing } from '@/middleware/timing';
 import coreRoutes from '@/modules/core';
+import flagsRoutes from '@/modules/flags';
+import marketingRoutes from '@/modules/marketing';
+import reactionsRoutes from '@/modules/reactions';
+import themesRoutes from '@/modules/themes';
 import { Hono } from 'hono';
 
 export function createApp() {
@@ -29,6 +33,10 @@ export function createApp() {
   );
 
   app.route('/', coreRoutes);
+  app.route('/marketing', marketingRoutes);
+  app.route('/themes', themesRoutes);
+  app.route('/reactions', reactionsRoutes);
+  app.route('/flags', flagsRoutes);
 
   return app;
 }
