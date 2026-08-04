@@ -3227,7 +3227,7 @@ The largest batch by route count (`pages` has 9, `billing` is deferred to Task 1
 
 Nine routes across `index.ts` and three files in `handlers/`. Apply the Task 12 pattern to each. Two specifics:
 
-- `get-page-slug-or-domain.ts` and `get-page-load.ts` set their own `Cache-Control` — preserve that, since the `cacheControl` middleware only fills in a default when the route set none. In Hono: `c.header('Cache-Control', '...')` before returning.
+- ~~`get-page-slug-or-domain.ts` and `get-page-load.ts` set their own `Cache-Control`~~ — **wrong, corrected during Task 14.** Verified across the full git history of both files: neither ever set a `Cache-Control` header. Both fall through to the global `no-store` default. Do not add one; that would be scope creep.
 - `get-slug-availability.ts` takes a query param; use `tbValidator('query', ...)`.
 
 - [ ] **Step 2: Port `organizations` and `integrations`**
