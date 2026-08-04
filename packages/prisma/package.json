@@ -15,7 +15,10 @@
     "typescript": "^5"
   },
   "exports": {
-    ".": "./index.ts",
+    ".": {
+      "workerd": "./index.workerd.ts",
+      "default": "./index.ts"
+    },
     "./types": "./types.ts"
   }
 }

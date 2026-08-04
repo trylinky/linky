@@ -1,0 +1,19 @@
+# Copy to .dev.vars for `wrangler dev`. Mirrors the API-relevant subset of
+# the repo-root .env.local. Never commit .dev.vars.
+DATABASE_URL=postgresql://glow_user:KGfUZosCOm@localhost:5432/glow_development
+APP_ENV=development
+APP_FRONTEND_URL=http://localhost:3000
+API_BASE_URL=http://localhost:3001
+ENCRYPTION_KEY=
+INTERNAL_API_KEY=
+STRIPE_API_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+RESEND_API_KEY=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_REGION=
+REACTIONS_TABLE_NAME=
+
+# Wrangler dev points the HYPERDRIVE binding at local Postgres via this env var.
+# (The WRANGLER_-prefixed form still works but is deprecated.)
+CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=postgresql://glow_user:KGfUZosCOm@localhost:5432/glow_development

@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "linky-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "limits": { "cpu_ms": 30000 },
+  "vars": {
+    "APP_ENV": "production",
+    "APP_FRONTEND_URL": "https://lin.ky",
+    "API_BASE_URL": "https://api.lin.ky",
+    "NEXT_PUBLIC_BASE_URL": "https://lin.ky",
+  },
+  "hyperdrive": [
+    { "binding": "HYPERDRIVE", "id": "962b7339d781499985faa016771f2c6a" },
+  ],
+  "kv_namespaces": [
+    { "binding": "AUTH_RATE_LIMIT", "id": "8b445579ed994833826ab40616934b4c" },
+  ],
+}

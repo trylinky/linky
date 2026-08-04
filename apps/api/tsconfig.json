@@ -18,7 +18,7 @@
     "resolveJsonModule": true, // Enable importing JSON files
     "noEmit": true, // Disable emitting compiled JavaScript files
     "isolatedModules": true, // Ensure each file is treated as a module
-    "types": ["node"], // Include Node.js types
+    "types": ["node", "@cloudflare/workers-types"], // Include Node.js types
     "allowJs": true, // Allow JavaScript files in the project
     "forceConsistentCasingInFileNames": true // Ensure consistent file casing
   },

@@ -6,6 +6,17 @@ generator client {
   output   = "../src/generated"
 }
 
+// Prisma's default output compiles its WASM query compiler at request time via
+// `new WebAssembly.Module(bytes)`, which workerd forbids outright. The workerd
+// target instead emits a real query_compiler_bg.wasm and imports it statically.
+// It also avoids `fileURLToPath(import.meta.url)`, which is undefined for
+// bundled non-entry modules. Both failures are fatal at import or first query.
+generator clientWorkerd {
+  provider = "prisma-client"
+  output   = "../src/generated-workerd"
+  runtime  = "workerd"
+}
+
 datasource db {
   provider = "postgresql"
 }

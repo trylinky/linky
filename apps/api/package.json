@@ -45,11 +45,13 @@
     "zod": "^3.2"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260804.1",
     "@types/node": "22.8.7",
     "@types/react": "^19.0.10",
     "fastify-tsconfig": "^2.0.0",
     "typescript": "^5",
-    "vitest": "^3.0.0"
+    "vitest": "^3.0.0",
+    "wrangler": "^4.118.0"
   },
   "scripts": {
     "dev": "dotenvx run -f ../../.env.local -- tsx watch src",
