@@ -18,7 +18,6 @@
     "@fastify/cors": "^10.0.1",
     "@fastify/multipart": "^9.0.1",
     "@fastify/sensible": "^6.0.1",
-    "@fastify/type-provider-typebox": "^5.1.0",
     "@hono/typebox-validator": "^1.1.0",
     "@jsquash/jpeg": "^1.6.0",
     "@jsquash/png": "^3.1.1",
@@ -48,6 +47,7 @@
     "safe-await": "^2.0.0",
     "stripe": "^17.3.1",
     "tsx": "^4.16.0",
+    "typebox": "^1.3.10",
     "wasm-feature-detect": "^1.8.0",
     "zod": "^3.2"
   },

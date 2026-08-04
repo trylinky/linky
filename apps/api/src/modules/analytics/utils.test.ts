@@ -62,6 +62,13 @@ describe('getIpAddress', () => {
     expect(getIpAddress(context)).toBe('203.0.113.9');
   });
 
+  // The pre-port Fastify version had a separate "falls back to the socket
+  // address when no proxy headers are set" case, asserting on
+  // FastifyRequest.ip. There's no Hono/Workers equivalent to fake — a
+  // Context has no socket-level IP, only headers — so that fallback rung is
+  // gone from the implementation too: with no CF-Connecting-IP, no
+  // X-Forwarded-For, and no X-Real-IP, getIpAddress now falls straight
+  // through to DEFAULT_IP_ADDRESS, which is exactly what this test covers.
   it('falls back to 127.0.0.1 when nothing is available', () => {
     const context = buildContext({});
 

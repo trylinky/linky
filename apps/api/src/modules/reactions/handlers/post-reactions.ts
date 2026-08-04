@@ -1,4 +1,4 @@
-import type { ValidatedContext } from '@/lib/hono-context';
+import type { AppBindings } from '@/env';
 import { getIpAddress } from '@/modules/analytics/utils';
 import {
   DEFAULT_REACTION_TYPE,
@@ -6,7 +6,19 @@ import {
   REACTION_TYPES,
   reactToResource,
 } from '@/modules/reactions/service';
-import { Static, Type } from '@sinclair/typebox';
+import { tbValidator } from '@hono/typebox-validator';
+import { createFactory } from 'hono/factory';
+// Built with `typebox`, NOT `@sinclair/typebox`: @hono/typebox-validator
+// peer-depends on `typebox` (a newer, differently-branded rewrite by the
+// same author) and its `Static<T>` only recognizes that package's schema
+// types. Feed it an `@sinclair/typebox` schema instead and it still
+// type-checks and validates at runtime, but every property in `c.req.valid()`
+// silently comes back optional — required-field checks fall through the
+// TypeScript side entirely while looking correct. Verified in
+// task-12-report.md, "Fix round 1".
+import { Type } from 'typebox';
+
+const factory = createFactory<AppBindings>();
 
 export const postReactionsBodySchema = Type.Object({
   pageId: Type.String(),
@@ -24,19 +36,23 @@ export const postReactionsBodySchema = Type.Object({
   ),
 });
 
-export async function postReactionsHandler(
-  c: ValidatedContext<'json', Static<typeof postReactionsBodySchema>>
-) {
-  const { pageId, increment, reactionType } = c.req.valid('json');
+// See the comment in get-reactions.ts: the handler stays inline in this
+// same `createHandlers` call so `c.req.valid('json')` is inferred from the
+// validator immediately above it, not asserted against a hand-written type.
+export const postReactionsHandlers = factory.createHandlers(
+  tbValidator('json', postReactionsBodySchema),
+  async (c) => {
+    const { pageId, increment, reactionType } = c.req.valid('json');
 
-  const ipAddress = getIpAddress(c);
+    const ipAddress = getIpAddress(c);
 
-  const reactions = await reactToResource(
-    pageId,
-    increment,
-    ipAddress,
-    reactionType ?? DEFAULT_REACTION_TYPE
-  );
+    const reactions = await reactToResource(
+      pageId,
+      increment,
+      ipAddress,
+      reactionType ?? DEFAULT_REACTION_TYPE
+    );
 
-  return c.json(reactions, 200);
-}
+    return c.json(reactions, 200);
+  }
+);

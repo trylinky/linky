@@ -66,9 +66,6 @@ importers:
       '@fastify/sensible':
         specifier: ^6.0.1
         version: 6.0.3
-      '@fastify/type-provider-typebox':
-        specifier: ^5.1.0
-        version: 5.2.0(@sinclair/typebox@0.34.41)
       '@hono/typebox-validator':
         specifier: ^1.1.0
         version: 1.1.0(hono@4.13.0)(typebox@1.3.10)
@@ -156,6 +153,9 @@ importers:
       tsx:
         specifier: ^4.16.0
         version: 4.20.6
+      typebox:
+        specifier: ^1.3.10
+        version: 1.3.10
       wasm-feature-detect:
         specifier: ^1.8.0
         version: 1.8.0
@@ -237,7 +237,7 @@ importers:
         version: link:../../packages/ui
       '@vercel/analytics':
         specifier: ^1.5.0
-        version: 1.5.0(next@16.2.4(@opentelemetry/api@1.9.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.2))(react@19.0.0)
+        version: 1.5.0(next@16.2.4(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.2))(react@19.0.0)
       '@vercel/functions':
         specifier: ^2.0.0
         version: 2.2.13(@aws-sdk/credential-provider-web-identity@3.972.67)
@@ -400,7 +400,7 @@ importers:
         version: link:../../packages/ui
       '@vercel/analytics':
         specifier: ^1.5.0
-        version: 1.5.0(next@16.2.4(@opentelemetry/api@1.9.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.2))(react@19.0.0)
+        version: 1.5.0(next@16.2.4(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.2))(react@19.0.0)
       better-auth:
         specifier: ^1.6.25
         version: 1.6.25(@cloudflare/workers-types@5.20260804.1)(@opentelemetry/api@1.9.1)(@prisma/client@7.0.1(prisma@7.0.1(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3))(typescript@5.6.3))(mysql2@3.15.3)(next@16.2.4(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.2))(pg@8.16.3)(prisma@7.0.1(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(vitest@3.2.6(@types/debug@4.1.12)(@types/node@22.8.7)(lightningcss@1.32.0)(sass@1.94.2)(terser@5.49.0))
@@ -1734,11 +1734,6 @@ packages:
 
   '@fastify/sensible@6.0.3':
     resolution: {integrity: sha512-Iyn8698hp/e5+v8SNBBruTa7UfrMEP52R16dc9jMpqSyEcPsvWFQo+R6WwHCUnJiLIsuci2ZoEZ7ilrSSCPIVg==}
-
-  '@fastify/type-provider-typebox@5.2.0':
-    resolution: {integrity: sha512-RoUFTQNYlaVM/gXosFqlrUAD/JHC+OXLcj4DxNoMOag2GI7OydfCt+3vdT+6D2daJwhGAdkpxB0wLNqS7gf4CQ==}
-    peerDependencies:
-      '@sinclair/typebox': '>=0.26 <=0.34'
 
   '@floating-ui/core@1.7.3':
     resolution: {integrity: sha512-sGnvb5dmrJaKEZ+LDIpguvdX3bDlEllmv4/ClQ9awcmCZrlx5jQyyMWFM5kBI+EyNOCDDiKk8il0zeuX3Zlg/w==}
@@ -9010,10 +9005,6 @@ snapshots:
       type-is: 1.6.18
       vary: 1.1.2
 
-  '@fastify/type-provider-typebox@5.2.0(@sinclair/typebox@0.34.41)':
-    dependencies:
-      '@sinclair/typebox': 0.34.41
-
   '@floating-ui/core@1.7.3':
     dependencies:
       '@floating-ui/utils': 0.2.10
@@ -11541,7 +11532,7 @@ snapshots:
 
   '@ungap/structured-clone@1.3.0': {}
 
-  '@vercel/analytics@1.5.0(next@16.2.4(@opentelemetry/api@1.9.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.2))(react@19.0.0)':
+  '@vercel/analytics@1.5.0(next@16.2.4(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.2))(react@19.0.0)':
     optionalDependencies:
       next: 16.2.4(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.2)
       react: 19.0.0
