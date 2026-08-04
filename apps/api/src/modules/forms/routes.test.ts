@@ -1,15 +1,25 @@
-import formsRoutes from './index';
+import { createApp } from '@/app';
 import prisma from '@/lib/prisma';
-import Fastify, { FastifyInstance } from 'fastify';
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 // Route-level tests: the service has its own coverage in service.test.ts,
-// but the Fastify body schema runs BEFORE the service sees the payload, so
-// schema-layer behavior (e.g. AJV type coercion) is only observable here.
+// but the TypeBox body validator runs BEFORE the service sees the payload,
+// so schema-layer behavior (e.g. the absence of AJV-style type coercion) is
+// only observable here.
 
 const suffix = randomUUID().slice(0, 8);
 const IP = '198.51.100.21';
+
+const env = {
+  HYPERDRIVE: { connectionString: process.env.DATABASE_URL as string },
+  // Cloudflare's native Rate Limiting binding, not KV — see the comment on
+  // `AUTH_RATE_LIMIT` in env.ts. `limit()` always succeeds here so these
+  // tests aren't rate-limited against each other.
+  AUTH_RATE_LIMIT: {
+    limit: async () => ({ success: true }),
+  },
+} as unknown as Parameters<ReturnType<typeof createApp>['request']>[2];
 
 const testFormConfig = {
   title: 'Contact me',
@@ -21,7 +31,7 @@ const testFormConfig = {
   ],
 };
 
-let app: FastifyInstance;
+let app: ReturnType<typeof createApp>;
 let organizationId: string;
 let pageId: string;
 let blockId: string;
@@ -50,13 +60,10 @@ beforeAll(async () => {
   });
   blockId = block.id;
 
-  app = Fastify();
-  await app.register(formsRoutes, { prefix: '/forms' });
-  await app.ready();
+  app = createApp();
 });
 
 afterAll(async () => {
-  await app.close();
   await prisma.formSubmission.deleteMany({ where: { pageId } });
   await prisma.block.deleteMany({ where: { pageId } });
   await prisma.page.delete({ where: { id: pageId } });
@@ -65,18 +72,24 @@ afterAll(async () => {
 
 describe('POST /forms/:blockId/submissions', () => {
   it('accepts a checked required checkbox and stores it as a boolean', async () => {
-    const response = await app.inject({
-      method: 'POST',
-      url: `/forms/${blockId}/submissions`,
-      headers: { 'x-forwarded-for': IP },
-      payload: {
-        answers: { 'f-email': 'visitor@example.com', 'f-agree': true },
-        website: '',
+    const response = await app.request(
+      `/forms/${blockId}/submissions`,
+      {
+        method: 'POST',
+        headers: {
+          'x-forwarded-for': IP,
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          answers: { 'f-email': 'visitor@example.com', 'f-agree': true },
+          website: '',
+        }),
       },
-    });
+      env
+    );
 
-    expect(response.statusCode).toBe(200);
-    expect(response.json()).toEqual({ success: true });
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ success: true });
 
     const stored = await prisma.formSubmission.findFirst({
       where: { blockId },
@@ -92,19 +105,59 @@ describe('POST /forms/:blockId/submissions', () => {
   });
 
   it('rejects an unchecked required checkbox', async () => {
-    const response = await app.inject({
-      method: 'POST',
-      url: `/forms/${blockId}/submissions`,
-      headers: { 'x-forwarded-for': IP },
-      payload: {
-        answers: { 'f-email': 'visitor@example.com', 'f-agree': false },
-        website: '',
+    const response = await app.request(
+      `/forms/${blockId}/submissions`,
+      {
+        method: 'POST',
+        headers: {
+          'x-forwarded-for': IP,
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          answers: { 'f-email': 'visitor@example.com', 'f-agree': false },
+          website: '',
+        }),
       },
-    });
+      env
+    );
 
-    expect(response.statusCode).toBe(400);
-    expect(response.json().error.fields).toMatchObject({
+    expect(response.status).toBe(400);
+    const body = (await response.json()) as {
+      error: { fields: Record<string, string> };
+    };
+    expect(body.error.fields).toMatchObject({
       'f-agree': 'I agree is required',
     });
+  });
+
+  it('stores a checkbox answer as a real boolean, not the string "true"', async () => {
+    // Fastify's AJV ran with coerceTypes, which turned booleans into strings
+    // through a string|boolean union. Hono's TypeBox validator does not
+    // coerce. This pins the corrected behaviour so it cannot silently
+    // regress.
+    const response = await app.request(
+      `/forms/${blockId}/submissions`,
+      {
+        method: 'POST',
+        headers: {
+          'x-forwarded-for': '198.51.100.99',
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          answers: { 'f-email': 'bool@example.com', 'f-agree': true },
+          website: '',
+        }),
+      },
+      env
+    );
+
+    expect(response.status).toBe(200);
+
+    const stored = await prisma.formSubmission.findFirst({
+      where: { pageId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    expect((stored?.answers as Record<string, unknown>)['f-agree']).toBe(true);
   });
 });
