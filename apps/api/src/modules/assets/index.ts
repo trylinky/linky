@@ -21,11 +21,17 @@ const MAX_FILE_BYTES = 10 * 1024 * 1024;
 // sees the whole request body, not just the file part. Its job is to stop an
 // oversized request from being buffered into memory (and on into the WASM
 // encode pipeline in service.ts) at all — same instrument forms/index.ts
-// uses for its submission cap, chosen because it counts real bytes off the
-// request stream rather than trusting a client-supplied `content-length`.
-// The per-file `MAX_FILE_BYTES` check after `parseBody()` below is what
-// actually reproduces the old 10MB *file* limit once the request is known to
-// be within bounds.
+// uses for its submission cap. When `content-length` is present it trusts
+// that header as a fast exit rather than streaming; it only counts real
+// bytes off the request stream when the header is absent (chunked
+// encoding). Trusting a present `content-length` is still a genuine cap
+// here, not a bypass: HTTP framing bounds the body to the declared length,
+// so a client cannot smuggle more bytes past it — the only thing a client
+// can do is *under*-declare and then send less, which just means a smaller
+// upload than announced, not a way past the limit. The per-file
+// `MAX_FILE_BYTES` check after `parseBody()` below is what actually
+// reproduces the old 10MB *file* limit once the request is known to be
+// within bounds.
 const MAX_REQUEST_BYTES = MAX_FILE_BYTES + 64 * 1024;
 
 const assetsRoutes = new Hono<AppBindings>();
