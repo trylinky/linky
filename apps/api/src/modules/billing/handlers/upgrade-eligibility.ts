@@ -1,46 +1,26 @@
+import type { AppBindings } from '@/env';
 import prisma from '@/lib/prisma';
 import { stripeClient } from '@/lib/stripe';
-import { FastifyRequest, FastifyReply } from 'fastify';
+import { requireSession } from '@/middleware/authenticate';
+import type { Context } from 'hono';
 
-export const getUpgradeEligibilitySchema = {
-  response: {
-    200: {
-      type: 'object',
-      properties: {
-        canUpgrade: { type: 'boolean' },
-        nextPlan: { type: 'string' },
-        nextStep: { type: 'string' },
-        message: { type: 'string' },
-        currentPlan: { type: 'string' },
-      },
-      additionalProperties: false,
-    },
-    404: {
-      type: 'object',
-      properties: {},
-      additionalProperties: false,
-    },
-  },
-};
-
-export async function getUpgradeEligibilityHandler(
-  request: FastifyRequest,
-  response: FastifyReply
-) {
-  const session = await request.server.authenticate(request, response);
+export async function getUpgradeEligibilityHandler(c: Context<AppBindings>) {
+  const session = requireSession(c);
 
   const subscription = await prisma.subscription.findFirst({
     where: {
-      referenceId: session?.activeOrganizationId,
+      referenceId: session.activeOrganizationId,
     },
   });
 
   if (!subscription) {
-    return response.status(404).send({
-      canUpgrade: false,
-      nextPlan: null,
-      message: 'No subscription found',
-    });
+    // The old Fastify response schema for 404 was
+    // `{ type: 'object', properties: {}, additionalProperties: false }` —
+    // fast-json-stringify serialises *any* object against that to `{}`, so
+    // despite the fields Fastify's handler passed to response.send(), the
+    // client only ever received an empty body here. Replicated exactly
+    // rather than "fixed" — see the task-15 brief on response-shape leaks.
+    return c.json({}, 404);
   }
 
   if (
@@ -53,23 +33,29 @@ export async function getUpgradeEligibilityHandler(
       'past_due',
     ].includes(subscription.status)
   ) {
-    return response.status(200).send({
-      canUpgrade: false,
-      nextPlan: null,
-      message: 'Subscription is in a failed state',
-      nextStep: 'createSubscription',
-      currentPlan: subscription.plan,
-    });
+    return c.json(
+      {
+        canUpgrade: false,
+        nextPlan: null,
+        message: 'Subscription is in a failed state',
+        nextStep: 'createSubscription',
+        currentPlan: subscription.plan,
+      },
+      200
+    );
   }
 
   if (subscription.plan === 'team') {
-    return response.status(200).send({
-      canUpgrade: false,
-      nextPlan: null,
-      message: 'Team plan cannot be upgraded',
-      nextStep: null,
-      currentPlan: subscription.plan,
-    });
+    return c.json(
+      {
+        canUpgrade: false,
+        nextPlan: null,
+        message: 'Team plan cannot be upgraded',
+        nextStep: null,
+        currentPlan: subscription.plan,
+      },
+      200
+    );
   }
 
   if (['premium', 'freeLegacy'].includes(subscription.plan)) {
@@ -81,23 +67,32 @@ export async function getUpgradeEligibilityHandler(
       !customer.deleted &&
       !customer.invoice_settings.default_payment_method
     ) {
-      return response.status(200).send({
-        canUpgrade: false,
-        nextStep: 'addPaymentMethod',
-        currentPlan: subscription.plan,
-      });
+      return c.json(
+        {
+          canUpgrade: false,
+          nextStep: 'addPaymentMethod',
+          currentPlan: subscription.plan,
+        },
+        200
+      );
     }
 
-    return response.status(200).send({
-      nextStep: 'completeTrial',
-      currentPlan: subscription.plan,
-    });
+    return c.json(
+      {
+        nextStep: 'completeTrial',
+        currentPlan: subscription.plan,
+      },
+      200
+    );
   }
 
-  return response.status(200).send({
-    canUpgrade: false,
-    nextPlan: null,
-    nextStep: null,
-    currentPlan: subscription.plan,
-  });
+  return c.json(
+    {
+      canUpgrade: false,
+      nextPlan: null,
+      nextStep: null,
+      currentPlan: subscription.plan,
+    },
+    200
+  );
 }

@@ -1,27 +1,12 @@
+import type { AppBindings } from '@/env';
 import prisma from '@/lib/prisma';
-import { FastifyReply, FastifyRequest } from 'fastify';
-
-export const getCurrentUserSubscriptionSchema = {
-  response: {
-    200: {
-      type: 'object',
-      properties: {
-        plan: { type: 'string' },
-        status: { type: 'string' },
-        isTeamPremium: { type: 'boolean' },
-        periodEnd: { type: 'string' },
-        trialDaysLeft: { type: 'number' },
-      },
-      additionalProperties: false,
-    },
-  },
-};
+import { requireSession } from '@/middleware/authenticate';
+import type { Context } from 'hono';
 
 export async function getCurrentUserSubscriptionHandler(
-  request: FastifyRequest,
-  response: FastifyReply
+  c: Context<AppBindings>
 ) {
-  const session = await request.server.authenticate(request, response);
+  const session = requireSession(c);
 
   const usersOrganizations = await prisma.organization.findMany({
     where: {
@@ -48,13 +33,16 @@ export async function getCurrentUserSubscriptionHandler(
   );
 
   if (currentOrganization?.subscription?.plan === 'team') {
-    return response.status(200).send({
-      plan: 'team',
-      status: 'active',
-      periodEnd: currentOrganization.subscription.cancelAtPeriodEnd
-        ? currentOrganization.subscription.periodEnd
-        : null,
-    });
+    return c.json(
+      {
+        plan: 'team',
+        status: 'active',
+        periodEnd: currentOrganization.subscription.cancelAtPeriodEnd
+          ? currentOrganization.subscription.periodEnd
+          : null,
+      },
+      200
+    );
   }
 
   const teamOrgs = usersOrganizations.filter(
@@ -62,11 +50,14 @@ export async function getCurrentUserSubscriptionHandler(
   );
 
   if (teamOrgs.length > 0) {
-    return response.status(200).send({
-      plan: 'premium',
-      status: 'active',
-      isTeamPremium: true,
-    });
+    return c.json(
+      {
+        plan: 'premium',
+        status: 'active',
+        isTeamPremium: true,
+      },
+      200
+    );
   }
 
   const premiumOrgs = usersOrganizations.filter(
@@ -86,15 +77,18 @@ export async function getCurrentUserSubscriptionHandler(
       : null;
 
   if (premiumOrg) {
-    return response.status(200).send({
-      plan: 'premium',
-      status: premiumOrg.subscription?.status,
-      isTeamPremium: false,
-      trialDaysLeft: daysLeftOnTrial,
-      periodEnd: premiumOrg.subscription?.cancelAtPeriodEnd
-        ? premiumOrg.subscription?.periodEnd
-        : null,
-    });
+    return c.json(
+      {
+        plan: 'premium',
+        status: premiumOrg.subscription?.status,
+        isTeamPremium: false,
+        trialDaysLeft: daysLeftOnTrial,
+        periodEnd: premiumOrg.subscription?.cancelAtPeriodEnd
+          ? premiumOrg.subscription?.periodEnd
+          : null,
+      },
+      200
+    );
   }
 
   const freeLegacyOrgs = usersOrganizations.filter(
@@ -102,16 +96,22 @@ export async function getCurrentUserSubscriptionHandler(
   );
 
   if (freeLegacyOrgs.length > 0) {
-    return response.status(200).send({
-      plan: 'freeLegacy',
-      status: 'active',
-      isTeamPremium: false,
-    });
+    return c.json(
+      {
+        plan: 'freeLegacy',
+        status: 'active',
+        isTeamPremium: false,
+      },
+      200
+    );
   }
 
-  return response.status(200).send({
-    plan: 'freeLegacy',
-    status: 'inactive',
-    isTeamPremium: false,
-  });
+  return c.json(
+    {
+      plan: 'freeLegacy',
+      status: 'inactive',
+      isTeamPremium: false,
+    },
+    200
+  );
 }

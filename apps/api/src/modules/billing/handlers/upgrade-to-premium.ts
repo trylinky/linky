@@ -1,47 +1,25 @@
+import type { AppBindings } from '@/env';
 import { prices } from '@/lib/plans';
 import prisma from '@/lib/prisma';
 import { stripeClient } from '@/lib/stripe';
+import { requireSession } from '@/middleware/authenticate';
 import { sendSubscriptionUpgradedPremiumEmail } from '@/modules/notifications/service';
-import { FastifyReply, FastifyRequest } from 'fastify';
+import type { Context } from 'hono';
 import safeAwait from 'safe-await';
 
-export const upgradeToPremiumSchema = {
-  response: {
-    200: {
-      type: 'object',
-      properties: {
-        url: { type: 'string' },
-      },
-      additionalProperties: false,
-    },
-    404: {
-      type: 'object',
-      properties: {
-        error: { type: 'string' },
-      },
-      additionalProperties: false,
-    },
-  },
-};
-
-export async function upgradeToPremiumHandler(
-  request: FastifyRequest,
-  response: FastifyReply
-) {
-  const session = await request.server.authenticate(request, response);
+export async function upgradeToPremiumHandler(c: Context<AppBindings>) {
+  const session = requireSession(c);
 
   const [currentUserError, currentUser] = await safeAwait(
     prisma.user.findUnique({
       where: {
-        id: session?.user.id,
+        id: session.user.id,
       },
     })
   );
 
   if (currentUserError || !currentUser) {
-    return response.status(400).send({
-      error: 'Failed to get current user',
-    });
+    return c.json({ error: 'Failed to get current user' }, 400);
   }
 
   const [currentPersonalOrgError, currentPersonalOrg] = await safeAwait(
@@ -71,15 +49,11 @@ export async function upgradeToPremiumHandler(
   );
 
   if (currentPersonalOrgError || !currentPersonalOrg?.subscription) {
-    return response.status(400).send({
-      error: 'Failed to get current personal org',
-    });
+    return c.json({ error: 'Failed to get current personal org' }, 400);
   }
 
   if (!currentPersonalOrg.subscription.stripeSubscriptionId) {
-    return response.status(400).send({
-      error: 'No stripe subscription id found',
-    });
+    return c.json({ error: 'No stripe subscription id found' }, 400);
   }
 
   try {
@@ -101,9 +75,7 @@ export async function upgradeToPremiumHandler(
     );
 
     if (updatedSubscriptionError) {
-      return response.status(400).send({
-        error: 'Failed to upgrade to premium',
-      });
+      return c.json({ error: 'Failed to upgrade to premium' }, 400);
     }
 
     if (currentUser.email) {
@@ -112,13 +84,15 @@ export async function upgradeToPremiumHandler(
       });
     }
 
-    return response.status(200).send({
-      success: true,
-    });
+    // The old Fastify response schema for 200 only listed a `url` property
+    // (`additionalProperties: false`) but this handler has never actually
+    // returned one — only `{ success: true }`. fast-json-stringify silently
+    // drops properties that aren't in the schema, so every real caller has
+    // always received `{}` here, not `{ success: true }`. Replicated exactly
+    // rather than "fixed" — see the task-15 brief on response-shape leaks.
+    return c.json({}, 200);
   } catch (error) {
     console.log('Error', error);
-    return response.status(400).send({
-      error: 'Failed to upgrade to premium',
-    });
+    return c.json({ error: 'Failed to upgrade to premium' }, 400);
   }
 }

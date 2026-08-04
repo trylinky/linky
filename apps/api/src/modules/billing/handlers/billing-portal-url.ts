@@ -1,7 +1,9 @@
+import type { AppBindings } from '@/env';
 import prisma from '@/lib/prisma';
 import { stripeClient } from '@/lib/stripe';
+import { requireSession } from '@/middleware/authenticate';
 import { canManageBilling } from '@/modules/organizations/utils';
-import { FastifyRequest, FastifyReply } from 'fastify';
+import type { Context } from 'hono';
 
 const defaultReturnUrl = () => `${process.env.APP_FRONTEND_URL}/edit`;
 
@@ -23,23 +25,8 @@ export function safeReturnUrl(redirectTo: string | undefined): string {
   }
 }
 
-export const getBillingPortalUrlSchema = {
-  response: {
-    200: {
-      type: 'object',
-      properties: {
-        url: { type: 'string' },
-      },
-      additionalProperties: false,
-    },
-  },
-};
-
-export async function getBillingPortalUrlHandler(
-  request: FastifyRequest<{ Body: { redirectTo: string } }>,
-  response: FastifyReply
-) {
-  const session = await request.server.authenticate(request, response);
+export async function getBillingPortalUrlHandler(c: Context<AppBindings>) {
+  const session = requireSession(c);
 
   // The portal can cancel the subscription and change the payment method, so
   // it needs the same admin/owner gate as the cancel endpoint. Without this,
@@ -47,34 +34,44 @@ export async function getBillingPortalUrlHandler(
   if (
     !(await canManageBilling(session.activeOrganizationId, session.user.id))
   ) {
-    return response.unauthorized();
+    // Matches @fastify/sensible's response.unauthorized(), which serialised
+    // to exactly this { statusCode, error, message } body — the Fastify
+    // route never declared a response schema for 401, so nothing stripped
+    // it on the way out.
+    return c.json(
+      { statusCode: 401, error: 'Unauthorized', message: 'Unauthorized' },
+      401
+    );
   }
 
   const subscription = await prisma.subscription.findFirst({
     where: {
-      referenceId: session?.activeOrganizationId,
+      referenceId: session.activeOrganizationId,
     },
   });
 
   if (!subscription) {
-    return response.status(404).send({
-      error: 'No subscription found',
-    });
+    return c.json({ error: 'No subscription found' }, 404);
   }
 
   const customer = await stripeClient.customers.retrieve(
     subscription.stripeCustomerId
   );
 
+  // No schema.body was ever registered for this route on Fastify, so this
+  // field was never validated at runtime either — read it the same way and
+  // let safeReturnUrl handle anything malformed or absent.
+  const body = (await c.req.json().catch(() => undefined)) as
+    | { redirectTo?: string }
+    | undefined;
+
   const billingPortalUrl = await stripeClient.billingPortal.sessions.create({
     customer: customer.id,
     // `redirectTo` is caller-supplied, so it is only honoured when it points
     // back at our own frontend — otherwise Stripe would bounce the user to an
     // arbitrary site on the way out of the portal.
-    return_url: safeReturnUrl(request.body?.redirectTo),
+    return_url: safeReturnUrl(body?.redirectTo),
   });
 
-  return response.status(200).send({
-    url: billingPortalUrl.url,
-  });
+  return c.json({ url: billingPortalUrl.url }, 200);
 }

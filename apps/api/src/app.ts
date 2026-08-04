@@ -6,6 +6,7 @@ import { corsMiddleware } from '@/middleware/cors';
 import { requireAuthRateLimit } from '@/middleware/rate-limit';
 import { requestContext } from '@/middleware/request-context';
 import { timing } from '@/middleware/timing';
+import billingRoutes from '@/modules/billing';
 import blocksRoutes from '@/modules/blocks';
 import coreRoutes from '@/modules/core';
 import flagsRoutes from '@/modules/flags';
@@ -42,6 +43,7 @@ export function createApp() {
   app.route('/themes', themesRoutes);
   app.route('/reactions', reactionsRoutes);
   app.route('/flags', flagsRoutes);
+  app.route('/billing', billingRoutes);
   app.route('/blocks', blocksRoutes);
   app.route('/forms', formsRoutes);
   app.route('/pages', pagesRoutes);

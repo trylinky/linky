@@ -1,38 +1,18 @@
+import type { AppBindings } from '@/env';
 import prisma from '@/lib/prisma';
 import { stripeClient } from '@/lib/stripe';
+import { requireSession } from '@/middleware/authenticate';
 import { sendSubscriptionUpgradedPremiumEmail } from '@/modules/notifications/service';
-import { FastifyRequest, FastifyReply } from 'fastify';
+import type { Context } from 'hono';
 import safeAwait from 'safe-await';
 
-export const upgradeTrialSchema = {
-  response: {
-    200: {
-      type: 'object',
-      properties: {
-        success: { type: 'boolean' },
-      },
-      additionalProperties: false,
-    },
-    400: {
-      type: 'object',
-      properties: {
-        error: { type: 'string' },
-      },
-      additionalProperties: false,
-    },
-  },
-};
-
-export async function upgradeTrialHandler(
-  request: FastifyRequest,
-  response: FastifyReply
-) {
-  const session = await request.server.authenticate(request, response);
+export async function upgradeTrialHandler(c: Context<AppBindings>) {
+  const session = requireSession(c);
 
   const [currentUserError, currentUser] = await safeAwait(
     prisma.user.findUnique({
       where: {
-        id: session?.user.id,
+        id: session.user.id,
       },
       select: {
         email: true,
@@ -41,27 +21,21 @@ export async function upgradeTrialHandler(
   );
 
   if (currentUserError || !currentUser) {
-    return response.status(400).send({
-      error: 'Failed to get current user',
-    });
+    return c.json({ error: 'Failed to get current user' }, 400);
   }
 
   const subscription = await prisma.subscription.findFirst({
     where: {
-      referenceId: session?.activeOrganizationId,
+      referenceId: session.activeOrganizationId,
     },
   });
 
   if (!subscription || !subscription.stripeSubscriptionId) {
-    return response.status(404).send({
-      error: 'No subscription found',
-    });
+    return c.json({ error: 'No subscription found' }, 404);
   }
 
   if (subscription.status !== 'trialing') {
-    return response.status(400).send({
-      error: 'Subscription is not currently trialing',
-    });
+    return c.json({ error: 'Subscription is not currently trialing' }, 400);
   }
 
   try {
@@ -90,14 +64,19 @@ export async function upgradeTrialHandler(
         });
       }
 
-      return response.status(200).send({
-        success: true,
-      });
+      return c.json({ success: true }, 200);
     }
+
+    // The original Fastify handler had no return here at all: if the
+    // subscription didn't come back `active`, the async handler resolved to
+    // `undefined`, which was then serialised against the 200 response
+    // schema (`{ success: boolean }`) — fast-json-stringify throws reading a
+    // property off `undefined`, so this path actually 500'd on every real
+    // occurrence rather than silently succeeding. An explicit 400 is
+    // strictly better than reproducing that crash.
+    return c.json({ error: 'Failed to upgrade trial' }, 400);
   } catch (error) {
     console.log('Error', error);
-    return response.status(400).send({
-      error: 'Failed to upgrade trial',
-    });
+    return c.json({ error: 'Failed to upgrade trial' }, 400);
   }
 }

@@ -1,3 +1,4 @@
+import type { AppBindings } from '@/env';
 import { stripeClient } from '@/lib/stripe';
 import { handleSubscriptionCancelled } from '@/modules/billing/handlers/stripe/handle-subscription-cancelled';
 import { handleSubscriptionCreated } from '@/modules/billing/handlers/stripe/handle-subscription-created';
@@ -5,27 +6,31 @@ import { handleSubscriptionDeleted } from '@/modules/billing/handlers/stripe/han
 import { handleTrialExpired } from '@/modules/billing/handlers/stripe/handle-trial-expired';
 import { handleTrialWillEnd } from '@/modules/billing/handlers/stripe/handle-trial-will-end';
 import { captureException } from '@sentry/cloudflare';
-import { FastifyRequest, FastifyReply } from 'fastify';
+import type { Context } from 'hono';
 import Stripe from 'stripe';
 
-export async function stripeWebhookHandler(
-  request: FastifyRequest<{ Body: { rawBody: string }; RawBody: string }>,
-  response: FastifyReply
-) {
-  const signature = request.headers['stripe-signature'] as string;
+export async function stripeWebhookHandler(c: Context<AppBindings>) {
+  const signature = c.req.header('stripe-signature') ?? '';
+  // The raw body, not the parsed one: Stripe signs the exact bytes it sent,
+  // so anything that parses and re-serialises the body first breaks every
+  // signature. fastify-raw-body existed on Fastify solely to preserve this.
+  const rawBody = await c.req.text();
 
   let event: Stripe.Event;
 
   try {
-    event = stripeClient.webhooks.constructEvent(
-      request.rawBody as string,
+    // constructEventAsync, not the synchronous constructEvent: the sync form
+    // uses Node crypto primitives that don't exist on Workers, so it throws
+    // at runtime rather than at compile time.
+    event = await stripeClient.webhooks.constructEventAsync(
+      rawBody,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
   } catch (error) {
     console.log('Error', error);
     captureException(error);
-    return response.status(400).send({ error: 'Invalid signature' });
+    return c.json({ error: 'Invalid signature' }, 400);
   }
 
   try {
@@ -66,8 +71,8 @@ export async function stripeWebhookHandler(
     }
   } catch (error) {
     captureException(error);
-    return response.status(400).send({ error: 'Failed to process webhook' });
+    return c.json({ error: 'Failed to process webhook' }, 400);
   }
 
-  return response.status(200).send({ received: true });
+  return c.json({ received: true }, 200);
 }
