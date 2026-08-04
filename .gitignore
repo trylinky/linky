@@ -55,3 +55,4 @@ docs/superpowers/baselines/
 .gstack/
 
 apps/api/.dev.vars
+.wrangler

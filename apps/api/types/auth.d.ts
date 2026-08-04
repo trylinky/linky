@@ -1,5 +1,16 @@
 import type { AuthenticatedSession } from '@/decorators/authenticate';
+// Side-effect imports only: pull in `@fastify/sensible`'s and
+// `fastify-raw-body`'s `declare module 'fastify'` augmentations
+// (reply.notFound()/.forbidden()/etc., and request.rawBody) so the handlers
+// in modules/billing and modules/pages that use them still typecheck. They
+// used to get this for free because src/index.ts registered both plugins and
+// every route went through that one file; now that index.ts is a Hono
+// entrypoint that no longer touches Fastify at all, nothing else in the
+// program pulls these types in. Remove once Tasks 12-16 port the last
+// Fastify handler off both.
+import '@fastify/sensible';
 import 'fastify';
+import 'fastify-raw-body';
 
 /**
  * These declarations previously referenced `HttpError` and `FastifyReply`
