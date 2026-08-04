@@ -6,6 +6,8 @@ import { corsMiddleware } from '@/middleware/cors';
 import { requireAuthRateLimit } from '@/middleware/rate-limit';
 import { requestContext } from '@/middleware/request-context';
 import { timing } from '@/middleware/timing';
+import analyticsRoutes from '@/modules/analytics';
+import assetsRoutes from '@/modules/assets';
 import billingRoutes from '@/modules/billing';
 import blocksRoutes from '@/modules/blocks';
 import coreRoutes from '@/modules/core';
@@ -13,9 +15,14 @@ import flagsRoutes from '@/modules/flags';
 import formsRoutes from '@/modules/forms';
 import integrationsRoutes from '@/modules/integrations';
 import marketingRoutes from '@/modules/marketing';
+import orchestratorsRoutes from '@/modules/orchestrators';
 import organizationsRoutes from '@/modules/organizations';
 import pagesRoutes from '@/modules/pages';
 import reactionsRoutes from '@/modules/reactions';
+import instagramServiceRoutes from '@/modules/services/instagram';
+import spotifyServiceRoutes from '@/modules/services/spotify';
+import threadsServiceRoutes from '@/modules/services/threads';
+import tiktokServiceRoutes from '@/modules/services/tiktok';
 import themesRoutes from '@/modules/themes';
 import { Hono } from 'hono';
 
@@ -49,6 +56,13 @@ export function createApp() {
   app.route('/pages', pagesRoutes);
   app.route('/integrations', integrationsRoutes);
   app.route('/organizations', organizationsRoutes);
+  app.route('/assets', assetsRoutes);
+  app.route('/orchestrators', orchestratorsRoutes);
+  app.route('/analytics', analyticsRoutes);
+  app.route('/services/tiktok', tiktokServiceRoutes);
+  app.route('/services/instagram', instagramServiceRoutes);
+  app.route('/services/threads', threadsServiceRoutes);
+  app.route('/services/spotify', spotifyServiceRoutes);
 
   return app;
 }

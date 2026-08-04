@@ -1,57 +1,26 @@
+import type { AppBindings } from '@/env';
 import prisma from '@/lib/prisma';
-import { fetchTopLocations } from '@/modules/analytics/service';
-import { fetchStats } from '@/modules/analytics/service';
+import { requireSession } from '@/middleware/authenticate';
+import { fetchStats, fetchTopLocations } from '@/modules/analytics/service';
 import { checkUserHasAccessToPage } from '@/modules/pages/service';
-import { Static, Type } from '@sinclair/typebox';
 import { captureException } from '@sentry/cloudflare';
-import { FastifyReply, FastifyRequest } from 'fastify';
+import type { Context } from 'hono';
 
 const MINIMUM_PAGE_AGE_DAYS = 3;
 
-export const getPageAnalyticsSchema = {
-  params: Type.Object({
-    pageId: Type.String(),
-  }),
-  response: {
-    200: Type.Object({
-      stats: Type.Object({
-        totals: Type.Object({
-          views: Type.Number(),
-          uniqueVisitors: Type.Number(),
-        }),
-        data: Type.Array(
-          Type.Object({
-            date: Type.String(),
-            total_views: Type.Number(),
-            unique_visitors: Type.Number(),
-          })
-        ),
-      }),
-      locations: Type.Array(
-        Type.Object({
-          location: Type.String(),
-          visits: Type.Number(),
-          hits: Type.Number(),
-        })
-      ),
-    }),
-  },
-};
-
+// Bound to the route's literal path so `c.req.param('pageId')` below comes
+// back as `string`, not `string | undefined` — see the comment on the
+// factory in forms/index.ts.
 export async function getPageAnalyticsHandler(
-  request: FastifyRequest<{
-    Params: Static<typeof getPageAnalyticsSchema.params>;
-  }>,
-  response: FastifyReply
-): Promise<Static<(typeof getPageAnalyticsSchema.response)[200]>> {
-  const { pageId } = request.params;
-
-  const session = await request.server.authenticate(request, response);
+  c: Context<AppBindings, '/pages/:pageId'>
+) {
+  const pageId = c.req.param('pageId');
+  const session = requireSession(c);
 
   const userHasAccess = await checkUserHasAccessToPage(pageId, session.user.id);
 
   if (!userHasAccess) {
-    return response.status(403).send({});
+    return c.json({}, 403);
   }
 
   const page = await prisma.page.findFirst({
@@ -66,7 +35,7 @@ export async function getPageAnalyticsHandler(
   });
 
   if (!page) {
-    return response.status(404).send({});
+    return c.json({}, 404);
   }
 
   // Too new to have meaningful analytics yet. The comment here used to say
@@ -74,12 +43,15 @@ export async function getPageAnalyticsHandler(
   const minimumAgeMs = MINIMUM_PAGE_AGE_DAYS * 24 * 60 * 60 * 1000;
 
   if (new Date(page.createdAt).getTime() > Date.now() - minimumAgeMs) {
-    return response.status(400).send({
-      error: {
-        code: 'NOT_ENOUGH_DATA',
-        message: 'There is not enough data to show analytics yet.',
+    return c.json(
+      {
+        error: {
+          code: 'NOT_ENOUGH_DATA',
+          message: 'There is not enough data to show analytics yet.',
+        },
       },
-    });
+      400
+    );
   }
 
   try {
@@ -88,12 +60,46 @@ export async function getPageAnalyticsHandler(
       fetchTopLocations(pageId),
     ]);
 
-    return response.status(200).send({
-      stats,
-      locations: topLocations,
-    });
+    // The old Fastify response schema listed `stats.data` and `locations` as
+    // arrays of objects with an explicit property list
+    // (date/total_views/unique_visitors and location/visits/hits), which
+    // fast-json-stringify used to strip any other key off each element
+    // before it reached the client — Tinybird's pipes are not contractually
+    // limited to exactly these fields. Hono has no equivalent serialization
+    // step, so the same trim is done by hand here rather than spreading the
+    // raw rows through.
+    return c.json(
+      {
+        stats: stats
+          ? {
+              totals: stats.totals,
+              data: stats.data.map(
+                (row: {
+                  date: string;
+                  total_views: number;
+                  unique_visitors: number;
+                }) => ({
+                  date: row.date,
+                  total_views: row.total_views,
+                  unique_visitors: row.unique_visitors,
+                })
+              ),
+            }
+          : null,
+        locations: Array.isArray(topLocations)
+          ? topLocations.map(
+              (row: { location: string; visits: number; hits: number }) => ({
+                location: row.location,
+                visits: row.visits,
+                hits: row.hits,
+              })
+            )
+          : null,
+      },
+      200
+    );
   } catch (error) {
     captureException(error);
-    return response.status(500).send({});
+    return c.json({}, 500);
   }
 }

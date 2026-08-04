@@ -104,3 +104,95 @@ describe('ported modules — batch 3', () => {
     expect(response.status).toBe(401);
   });
 });
+
+describe('ported modules — batch 4', () => {
+  it('requires a session to upload an asset', async () => {
+    const response = await createApp().request(
+      '/assets/upload',
+      { method: 'POST' },
+      env
+    );
+    expect(response.status).toBe(401);
+  });
+
+  it('requires a session to read page analytics', async () => {
+    const response = await createApp().request(
+      '/analytics/pages/00000000-0000-0000-0000-000000000000',
+      {},
+      env
+    );
+    expect(response.status).toBe(401);
+  });
+
+  it('requires the internal API key to create an orchestration', async () => {
+    const response = await createApp().request(
+      '/orchestrators/create',
+      { method: 'POST' },
+      env
+    );
+    expect(response.status).toBe(401);
+  });
+
+  it('requires the internal API key to validate an orchestration', async () => {
+    const response = await createApp().request(
+      '/orchestrators/validate',
+      { method: 'POST' },
+      env
+    );
+    expect(response.status).toBe(401);
+  });
+
+  it('requires the internal API key to run the TikTok orchestrator', async () => {
+    const response = await createApp().request(
+      '/orchestrators/tiktok/create',
+      { method: 'POST' },
+      env
+    );
+    expect(response.status).toBe(401);
+  });
+
+  it('requires a session to start the TikTok OAuth redirect', async () => {
+    const response = await createApp().request(
+      '/services/tiktok?blockId=00000000-0000-0000-0000-000000000000',
+      {},
+      env
+    );
+    expect(response.status).toBe(401);
+  });
+
+  it('requires a session to start the Instagram OAuth redirect (legacy)', async () => {
+    const response = await createApp().request(
+      '/services/instagram?blockId=00000000-0000-0000-0000-000000000000',
+      {},
+      env
+    );
+    expect(response.status).toBe(401);
+  });
+
+  it('requires a session to start the Instagram OAuth redirect (v2)', async () => {
+    const response = await createApp().request(
+      '/services/instagram/v2?blockId=00000000-0000-0000-0000-000000000000',
+      {},
+      env
+    );
+    expect(response.status).toBe(401);
+  });
+
+  it('requires a session to start the Threads OAuth redirect', async () => {
+    const response = await createApp().request(
+      '/services/threads?blockId=00000000-0000-0000-0000-000000000000',
+      {},
+      env
+    );
+    expect(response.status).toBe(401);
+  });
+
+  it('requires a session to start the Spotify OAuth redirect', async () => {
+    const response = await createApp().request(
+      '/services/spotify?blockId=00000000-0000-0000-0000-000000000000',
+      {},
+      env
+    );
+    expect(response.status).toBe(401);
+  });
+});

@@ -1,15 +1,9 @@
-'use strict';
+import type { AppBindings } from '@/env';
+import { getPageAnalyticsHandler } from '@/modules/analytics/handlers/analytics-for-page';
+import { Hono } from 'hono';
 
-import {
-  getPageAnalyticsHandler,
-  getPageAnalyticsSchema,
-} from '@/modules/analytics/handlers/analytics-for-page';
-import { FastifyInstance } from 'fastify';
+const analyticsRoutes = new Hono<AppBindings>();
 
-export default async function analyticsRoutes(fastify: FastifyInstance) {
-  fastify.get(
-    '/pages/:pageId',
-    { schema: getPageAnalyticsSchema },
-    getPageAnalyticsHandler
-  );
-}
+analyticsRoutes.get('/pages/:pageId', getPageAnalyticsHandler);
+
+export default analyticsRoutes;

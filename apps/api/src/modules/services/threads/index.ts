@@ -3,11 +3,13 @@ import {
   requestLongLivedToken,
   requestToken,
 } from './utils';
+import type { AppBindings } from '@/env';
 import { decrypt, encrypt, isEncrypted } from '@/lib/encrypt';
 import prisma from '@/lib/prisma';
+import { requireSession } from '@/middleware/authenticate';
 import { linkIntegrationToBlock } from '@/modules/integrations/service';
 import { captureException } from '@sentry/cloudflare';
-import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { Hono } from 'hono';
 
 interface TokenResponse {
   access_token: string;
@@ -24,23 +26,15 @@ interface ThreadsUserInfoResponse {
   id: string;
 }
 
-export default async function threadsServiceRoutes(fastify: FastifyInstance) {
-  fastify.get('/', getThreadsRedirectHandler);
-  fastify.get('/callback', getThreadsCallbackHandler);
-}
+const threadsServiceRoutes = new Hono<AppBindings>();
 
-async function getThreadsRedirectHandler(
-  request: FastifyRequest<{ Querystring: { blockId: string } }>,
-  response: FastifyReply
-) {
-  await request.server.authenticate(request, response);
+threadsServiceRoutes.get('/', async (c) => {
+  requireSession(c);
 
-  const { blockId } = request.query;
+  const blockId = c.req.query('blockId');
 
   if (!blockId) {
-    return response.status(400).send({
-      error: 'Missing blockId',
-    });
+    return c.json({ error: 'Missing blockId' }, 400);
   }
 
   if (!process.env.THREADS_CALLBACK_URL) {
@@ -62,23 +56,17 @@ async function getThreadsRedirectHandler(
   };
 
   const qs = new URLSearchParams(options).toString();
-  return response.redirect(`https://threads.net/oauth/authorize?${qs}`);
-}
+  return c.redirect(`https://threads.net/oauth/authorize?${qs}`);
+});
 
-async function getThreadsCallbackHandler(
-  request: FastifyRequest<{ Querystring: { code: string; state: string } }>,
-  response: FastifyReply
-) {
-  const session = await request.server.authenticate(request, response);
+threadsServiceRoutes.get('/callback', async (c) => {
+  const session = requireSession(c);
 
-  const { code, state } = request.query;
+  const code = c.req.query('code');
+  const state = c.req.query('state');
 
   if (!code) {
-    return response.status(400).send({
-      error: {
-        message: 'Error getting code',
-      },
-    });
+    return c.json({ error: { message: 'Error getting code' } }, 400);
   }
 
   try {
@@ -105,11 +93,7 @@ async function getThreadsCallbackHandler(
     });
 
     if (!(await isEncrypted(encryptedConfig))) {
-      return response.status(500).send({
-        error: {
-          message: 'Failed to encrypt config',
-        },
-      });
+      return c.json({ error: { message: 'Failed to encrypt config' } }, 500);
     }
 
     const integration = await prisma.integration.create({
@@ -137,15 +121,13 @@ async function getThreadsCallbackHandler(
       }
     }
 
-    return response.redirect(
+    return c.redirect(
       `${process.env.APP_FRONTEND_URL}/i/integration-callback/threads`
     );
   } catch (error) {
     captureException(error);
-    return response.status(500).send({
-      error: {
-        message: 'Error getting token',
-      },
-    });
+    return c.json({ error: { message: 'Error getting token' } }, 500);
   }
-}
+});
+
+export default threadsServiceRoutes;
