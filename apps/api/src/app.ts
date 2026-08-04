@@ -3,7 +3,10 @@ import { createAuth } from '@/lib/auth';
 import { resolveSession } from '@/middleware/authenticate';
 import { cacheControl } from '@/middleware/cache-control';
 import { corsMiddleware } from '@/middleware/cors';
-import { requireAuthRateLimit } from '@/middleware/rate-limit';
+import {
+  requireAuthRateLimit,
+  requireStrictAuthRateLimit,
+} from '@/middleware/rate-limit';
 import { requestContext } from '@/middleware/request-context';
 import { timing } from '@/middleware/timing';
 import analyticsRoutes from '@/modules/analytics';
@@ -41,6 +44,28 @@ export function createApp() {
   // better-auth speaks the Fetch API natively, so this is a direct handoff —
   // no header or body reconstruction needed. Rate-limited by Cloudflare's
   // native Rate Limiting binding; this does not apply to the rest of the API.
+  //
+  // The sign-in/sign-up prefixes are registered before the general
+  // `/api/auth/*` wildcard and carry an additional, stricter limit — Hono
+  // resolves competing patterns by registration order (see the blocks
+  // module's regression test for what happens when that's gotten backwards),
+  // so the more specific routes must come first or they're dead code. See
+  // requireStrictAuthRateLimit's comment for why these two prefixes and not
+  // others.
+  app.on(
+    ['GET', 'POST'],
+    '/api/auth/sign-in/*',
+    requireStrictAuthRateLimit,
+    requireAuthRateLimit,
+    (c) => createAuth().handler(c.req.raw)
+  );
+  app.on(
+    ['GET', 'POST'],
+    '/api/auth/sign-up/*',
+    requireStrictAuthRateLimit,
+    requireAuthRateLimit,
+    (c) => createAuth().handler(c.req.raw)
+  );
   app.on(['GET', 'POST'], '/api/auth/*', requireAuthRateLimit, (c) =>
     createAuth().handler(c.req.raw)
   );

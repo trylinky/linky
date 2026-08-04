@@ -9,6 +9,9 @@ const env = {
   AUTH_RATE_LIMIT: {
     limit: async () => ({ success: true }),
   },
+  AUTH_STRICT_RATE_LIMIT: {
+    limit: async () => ({ success: true }),
+  },
 } as unknown as Parameters<ReturnType<typeof createApp>['request']>[2];
 
 describe('app shell', () => {
@@ -46,6 +49,50 @@ describe('app shell', () => {
     const response = await createApp().request('/nope', {}, env);
 
     expect(response.status).toBe(404);
+  });
+});
+
+describe('auth rate limiting', () => {
+  // Pins the app.ts registration order: /api/auth/sign-in/* and
+  // /api/auth/sign-up/* must be registered before the general /api/auth/*
+  // wildcard, or the strict limiter below is dead code — Hono resolves
+  // competing patterns by registration order, the same lesson as the
+  // blocks/enabled-blocks regression (see modules/blocks/index.test.ts).
+  const strictEnv = {
+    ...env,
+    AUTH_STRICT_RATE_LIMIT: { limit: async () => ({ success: false }) },
+  } as unknown as Parameters<ReturnType<typeof createApp>['request']>[2];
+
+  it('429s a sign-in request when the strict limiter reports the limit was hit', async () => {
+    const response = await createApp().request(
+      '/api/auth/sign-in/magic-link',
+      { method: 'POST' },
+      strictEnv
+    );
+
+    expect(response.status).toBe(429);
+  });
+
+  it('429s a sign-up request when the strict limiter reports the limit was hit', async () => {
+    const response = await createApp().request(
+      '/api/auth/sign-up/email',
+      { method: 'POST' },
+      strictEnv
+    );
+
+    expect(response.status).toBe(429);
+  });
+
+  it('does not apply the strict limiter to other /api/auth/* paths', async () => {
+    // /session/get-session isn't under sign-in/sign-up, so a failing strict
+    // binding must not affect it — only the flat AUTH_RATE_LIMIT applies.
+    const response = await createApp().request(
+      '/api/auth/get-session',
+      {},
+      strictEnv
+    );
+
+    expect(response.status).not.toBe(429);
   });
 });
 

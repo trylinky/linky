@@ -80,6 +80,19 @@ await check('better-auth is mounted and responding', async () => {
   assert(response.status < 500, `expected <500, got ${response.status}`);
 });
 
+await check(
+  'better-auth sign-in is mounted behind the strict rate limit binding',
+  async () => {
+    // Proves AUTH_STRICT_RATE_LIMIT is wired the same way: a missing binding
+    // throws before better-auth's sign-in handler runs, which would surface
+    // here as a 500. GET (rather than POST) deliberately avoids exercising
+    // sign-in/magic-link's real send-an-email path — this only needs to
+    // prove the binding resolves, not that a sign-in succeeds.
+    const response = await fetch(`${baseUrl}/api/auth/sign-in/social`);
+    assert(response.status < 500, `expected <500, got ${response.status}`);
+  }
+);
+
 await check('CORS never credentials an untrusted origin', async () => {
   const response = await fetch(`${baseUrl}/ping`, {
     headers: { origin: 'https://evil.example.com' },
