@@ -4,7 +4,7 @@ import { canUploadAsset } from '@/modules/assets/authorization';
 import { assetContexts } from '@/modules/assets/constants';
 import { uploadAsset } from '@/modules/assets/service';
 import { isObjKey } from '@/modules/assets/utils';
-import { MultipartFile, MultipartValue } from '@fastify/multipart';
+import { MultipartValue } from '@fastify/multipart';
 import { FastifyInstance, FastifyReply } from 'fastify';
 import { FastifyRequest } from 'fastify';
 
@@ -66,27 +66,19 @@ async function postUploadAssetHandler(
     });
   }
 
-  // Create a MultipartFile object from the file data
-  const multipartFile: MultipartFile = {
-    type: 'file',
-    fieldname: data.fieldname,
-    filename: data.filename,
-    encoding: data.encoding,
-    mimetype: data.mimetype,
-    file: data.file,
-    fields: data.fields,
-    toBuffer: async () => {
-      const chunks = [];
-      for await (const chunk of data.file) {
-        chunks.push(chunk);
-      }
-      return Buffer.concat(chunks);
-    },
-  };
+  // service.ts's uploadAsset only takes a web-standard File; adapt Fastify's
+  // multipart stream into one.
+  const chunks: Buffer[] = [];
+  for await (const chunk of data.file) {
+    chunks.push(chunk);
+  }
+  const file = new File([Buffer.concat(chunks)], data.filename, {
+    type: data.mimetype,
+  });
 
   const uploadResult = await uploadAsset({
     context,
-    multipartFile,
+    file,
     referenceId,
   });
 
