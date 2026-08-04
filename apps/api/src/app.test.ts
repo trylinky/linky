@@ -69,3 +69,38 @@ describe('ported modules — batch 1', () => {
     expect(response.status).toBe(400);
   });
 });
+
+describe('ported modules — batch 3', () => {
+  // The brief sketched this as `/pages/slug-availability` — the real
+  // Fastify registration (and the port) mounts it under `/internal/`.
+  it('serves slug availability for an unclaimed slug', async () => {
+    const response = await createApp().request(
+      '/pages/internal/slug-availability?slug=definitely-not-taken-abcdef',
+      {},
+      env
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ isAvailable: true });
+  });
+
+  it('requires an internal API key to load a page by id', async () => {
+    const response = await createApp().request(
+      '/pages/00000000-0000-0000-0000-000000000000/internal/load',
+      {},
+      env
+    );
+
+    expect(response.status).toBe(401);
+  });
+
+  it('requires a session to list organizations', async () => {
+    const response = await createApp().request('/organizations/me', {}, env);
+    expect(response.status).toBe(401);
+  });
+
+  it('requires a session to list integrations', async () => {
+    const response = await createApp().request('/integrations/me', {}, env);
+    expect(response.status).toBe(401);
+  });
+});

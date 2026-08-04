@@ -10,7 +10,10 @@ import blocksRoutes from '@/modules/blocks';
 import coreRoutes from '@/modules/core';
 import flagsRoutes from '@/modules/flags';
 import formsRoutes from '@/modules/forms';
+import integrationsRoutes from '@/modules/integrations';
 import marketingRoutes from '@/modules/marketing';
+import organizationsRoutes from '@/modules/organizations';
+import pagesRoutes from '@/modules/pages';
 import reactionsRoutes from '@/modules/reactions';
 import themesRoutes from '@/modules/themes';
 import { Hono } from 'hono';
@@ -41,6 +44,9 @@ export function createApp() {
   app.route('/flags', flagsRoutes);
   app.route('/blocks', blocksRoutes);
   app.route('/forms', formsRoutes);
+  app.route('/pages', pagesRoutes);
+  app.route('/integrations', integrationsRoutes);
+  app.route('/organizations', organizationsRoutes);
 
   return app;
 }

@@ -1,52 +1,20 @@
+import type { AppBindings } from '@/env';
 import prisma from '@/lib/prisma';
-import { Static, Type } from '@sinclair/typebox';
-import { FastifyRequest, FastifyReply } from 'fastify';
+import type { Context } from 'hono';
 
-export const getPageLoadSchema = {
-  params: Type.Object({
-    pageId: Type.String(),
-  }),
-  response: {
-    200: Type.Object({
-      id: Type.String(),
-      organizationId: Type.String(),
-      publishedAt: Type.String(),
-      metaTitle: Type.String(),
-      metaDescription: Type.String(),
-      slug: Type.String(),
-      customDomain: Type.String(),
-      isFeatured: Type.Boolean(),
-      verifiedAt: Type.Union([Type.String(), Type.Null()]),
-      isPaid: Type.Boolean(),
-      blocks: Type.Array(
-        Type.Object({
-          id: Type.String(),
-          type: Type.String(),
-          config: Type.Object({}, { additionalProperties: true }),
-          data: Type.Object({}, { additionalProperties: true }),
-        })
-      ),
-    }),
-  },
-};
-
+// Bound to the route's literal mount path (`/:pageId/internal/load` in
+// index.ts) so `c.req.param('pageId')` below comes back as `string`, not
+// `string | undefined` — see the comment on the `factory` in
+// forms/index.ts for why this has to match the literal used at the mount
+// site exactly.
+//
+// Server-to-server only — mounted behind `requireApiKey` in index.ts rather
+// than here, matching how `bodyLimit` is applied at the mount site for
+// forms' submission route.
 export async function getPageLoadHandler(
-  request: FastifyRequest<{
-    Params: Static<typeof getPageLoadSchema.params>;
-  }>,
-  response: FastifyReply
-): Promise<Static<(typeof getPageLoadSchema.response)[200]>> {
-  const { pageId } = request.params;
-
-  const isInternalCaller = await request.server.authenticateApiKey(
-    request,
-    response,
-    { throwError: false }
-  );
-
-  if (!isInternalCaller) {
-    return response.forbidden();
-  }
+  c: Context<AppBindings, '/:pageId/internal/load'>
+) {
+  const pageId = c.req.param('pageId');
 
   const page = await prisma.page.findUnique({
     where: {
@@ -63,13 +31,26 @@ export async function getPageLoadHandler(
       metaDescription: true,
       isFeatured: true,
       verifiedAt: true,
-      blocks: true,
+      // Explicit field select, not `blocks: true` — the old Fastify response
+      // schema only ever declared id/type/config/data, silently stripping
+      // the rest (pageId, integrationId, createdAt, updatedAt) off every
+      // block on the way out. Hono has no such trimming step, so an
+      // unscoped `true` here would newly leak those columns to whichever
+      // internal caller hits this route.
+      blocks: {
+        select: {
+          id: true,
+          type: true,
+          config: true,
+          data: true,
+        },
+      },
       organization: { select: { subscription: { select: { plan: true } } } },
     },
   });
 
   if (!page) {
-    return response.notFound();
+    return c.json({}, 404);
   }
 
   const plan = page.organization?.subscription?.plan;
@@ -83,10 +64,13 @@ export async function getPageLoadHandler(
     ...rest
   } = page;
 
-  return response.status(200).send({
-    ...rest,
-    publishedAt: publishedAt?.toISOString() ?? '',
-    verifiedAt: verifiedAt ? verifiedAt.toISOString() : null,
-    isPaid,
-  });
+  return c.json(
+    {
+      ...rest,
+      publishedAt: publishedAt?.toISOString() ?? '',
+      verifiedAt: verifiedAt ? verifiedAt.toISOString() : null,
+      isPaid,
+    },
+    200
+  );
 }

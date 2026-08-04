@@ -1,187 +1,216 @@
-'use strict';
-
+import type { AppBindings } from '@/env';
 import prisma from '@/lib/prisma';
 import {
   blockCacheTag,
   pageIdCacheTag,
   revalidatePageCache,
 } from '@/lib/revalidate';
-import {
-  connectBlockSchema,
-  disconnectBlockSchema,
-  disconnectIntegrationSchema,
-  getCurrentUserTeamIntegrationsSchema,
-} from '@/modules/integrations/schemas';
+import { requireSession } from '@/middleware/authenticate';
 import {
   disconnectIntegration,
   getIntegrationsForOrganizationId,
 } from '@/modules/integrations/service';
+import { tbValidator } from '@hono/typebox-validator';
 import { captureException } from '@sentry/cloudflare';
 import { Blocks, blocks } from '@trylinky/blocks';
-import { FastifyInstance, FastifyReply } from 'fastify';
-import { FastifyRequest } from 'fastify';
+import type { Context } from 'hono';
+import { Hono } from 'hono';
+import { createFactory } from 'hono/factory';
+// Built with `typebox`, NOT `@sinclair/typebox` — see the comment on
+// postReactionsBodySchema in reactions/handlers/post-reactions.ts for why the
+// two aren't interchangeable when fed to tbValidator.
+import { Type } from 'typebox';
 
-export default async function integrationsRoutes(fastify: FastifyInstance) {
-  fastify.get(
-    '/me',
-    { schema: getCurrentUserTeamIntegrationsSchema },
-    getCurrentUserTeamIntegrationsHandler
-  );
+// The old Fastify schemas declared these bodies as plain-object properties
+// with no `required` list, so a missing field passed schema validation and
+// only surfaced as a Prisma error deep in the handler. Requiring them here
+// is a safe tightening: every real caller already sends them.
+const disconnectIntegrationBodySchema = Type.Object({
+  integrationId: Type.String(),
+});
 
-  fastify.post(
-    '/disconnect',
-    { schema: disconnectIntegrationSchema },
-    disconnectIntegrationHandler
-  );
+const connectBlockBodySchema = Type.Object({
+  integrationId: Type.String(),
+  blockId: Type.String(),
+});
 
-  fastify.post(
-    '/connect-block',
-    { schema: connectBlockSchema },
-    connectBlockHandler
-  );
+const disconnectBlockBodySchema = Type.Object({
+  blockId: Type.String(),
+});
 
-  fastify.post(
-    '/disconnect-block',
-    { schema: disconnectBlockSchema },
-    disconnectBlockHandler
-  );
-}
+const disconnectIntegrationFactory = createFactory<AppBindings>();
+const connectBlockFactory = createFactory<AppBindings>();
+const disconnectBlockFactory = createFactory<AppBindings>();
 
-async function getCurrentUserTeamIntegrationsHandler(
-  request: FastifyRequest,
-  response: FastifyReply
-) {
-  const session = await request.server.authenticate(request, response);
+async function getCurrentUserTeamIntegrationsHandler(c: Context<AppBindings>) {
+  const session = requireSession(c);
 
-  if (!session.activeOrganizationId || session.activeOrganizationId === '') {
-    return response.status(400).send({
-      error: 'No organization found',
-    });
+  if (!session.activeOrganizationId) {
+    return c.json({ error: 'No organization found' }, 400);
   }
 
   const integrations = await getIntegrationsForOrganizationId(
     session.activeOrganizationId
   );
 
-  return response.status(200).send(integrations);
+  return c.json(integrations, 200);
 }
 
-async function disconnectIntegrationHandler(
-  request: FastifyRequest<{ Body: { integrationId: string } }>,
-  response: FastifyReply
-) {
-  const session = await request.server.authenticate(request, response);
+// The handler stays inline in this same `createHandlers` call so
+// `c.req.valid('json')` is inferred from the validator immediately above it
+// — see the comment on getReactionsHandlers in
+// reactions/handlers/get-reactions.ts for why pulling it out into a
+// separately-typed named function reopens that hole.
+const disconnectIntegrationHandlers =
+  disconnectIntegrationFactory.createHandlers(
+    tbValidator('json', disconnectIntegrationBodySchema),
+    async (c) => {
+      const session = requireSession(c);
+      const { integrationId } = c.req.valid('json');
 
-  const { integrationId } = request.body;
-
-  const integration = await prisma.integration.findUnique({
-    where: {
-      id: integrationId,
-      organization: {
-        id: session.activeOrganizationId,
-        members: {
-          some: {
-            userId: session.user.id,
+      const integration = await prisma.integration.findUnique({
+        where: {
+          id: integrationId,
+          organization: {
+            id: session.activeOrganizationId,
+            members: {
+              some: {
+                userId: session.user.id,
+              },
+            },
           },
         },
+        select: {
+          type: true,
+        },
+      });
+
+      if (!integration) {
+        return c.json({ error: 'Integration not found' }, 400);
+      }
+
+      try {
+        const linkedBlocks = await prisma.block.findMany({
+          where: { integrationId },
+          select: { id: true, pageId: true },
+        });
+
+        await disconnectIntegration(integrationId);
+
+        void revalidatePageCache([
+          ...linkedBlocks.map((block) => blockCacheTag(block.id)),
+          ...[...new Set(linkedBlocks.map((block) => block.pageId))].map(
+            pageIdCacheTag
+          ),
+        ]);
+
+        return c.json({ success: true }, 200);
+      } catch (error) {
+        captureException(error);
+
+        return c.json({ error: 'Failed to disconnect integration' }, 500);
+      }
+    }
+  );
+
+// See the comment on disconnectIntegrationHandlers above for why this
+// handler stays inline in its own `createHandlers` call.
+const connectBlockHandlers = connectBlockFactory.createHandlers(
+  tbValidator('json', connectBlockBodySchema),
+  async (c) => {
+    const session = requireSession(c);
+    const { integrationId, blockId } = c.req.valid('json');
+
+    const integration = await prisma.integration.findUnique({
+      where: {
+        id: integrationId,
+        deletedAt: null,
+        organization: {
+          id: session.activeOrganizationId,
+        },
       },
-    },
-    select: {
-      type: true,
-    },
-  });
-
-  if (!integration) {
-    return response.status(400).send({
-      error: 'Integration not found',
-    });
-  }
-
-  try {
-    const linkedBlocks = await prisma.block.findMany({
-      where: { integrationId },
-      select: { id: true, pageId: true },
     });
 
-    await disconnectIntegration(integrationId);
+    if (!integration) {
+      return c.json({ error: 'Integration not found' }, 400);
+    }
 
-    void revalidatePageCache([
-      ...linkedBlocks.map((block) => blockCacheTag(block.id)),
-      ...[...new Set(linkedBlocks.map((block) => block.pageId))].map(
-        pageIdCacheTag
-      ),
-    ]);
-
-    return response.status(200).send({
-      success: true,
-    });
-  } catch (error) {
-    captureException(error);
-
-    return response.status(500).send({
-      error: 'Failed to disconnect integration',
-    });
-  }
-}
-
-async function connectBlockHandler(
-  request: FastifyRequest<{ Body: { integrationId: string; blockId: string } }>,
-  response: FastifyReply
-) {
-  const session = await request.server.authenticate(request, response);
-
-  const { integrationId, blockId } = request.body;
-
-  const integration = await prisma.integration.findUnique({
-    where: {
-      id: integrationId,
-      deletedAt: null,
-      organization: {
-        id: session.activeOrganizationId,
+    const block = await prisma.block.findUnique({
+      where: {
+        id: blockId,
+        page: {
+          organizationId: session.activeOrganizationId,
+        },
       },
-    },
-  });
-
-  if (!integration) {
-    return response.status(400).send({
-      error: 'Integration not found',
     });
-  }
 
-  const block = await prisma.block.findUnique({
-    where: {
-      id: blockId,
-      page: {
-        organizationId: session.activeOrganizationId,
+    if (!block) {
+      return c.json({ error: 'Block not found' }, 400);
+    }
+
+    const allowedIntegrationForBlock =
+      blocks[block.type as Blocks].integrationType;
+
+    if (allowedIntegrationForBlock !== integration.type) {
+      return c.json({ error: 'Invalid integration for block' }, 400);
+    }
+
+    try {
+      await prisma.block.update({
+        where: {
+          id: blockId,
+        },
+        data: {
+          integration: {
+            connect: {
+              id: integrationId,
+            },
+          },
+        },
+      });
+
+      void revalidatePageCache([
+        blockCacheTag(blockId),
+        pageIdCacheTag(block.pageId),
+      ]);
+
+      return c.json({ success: true }, 200);
+    } catch (error) {
+      captureException(error);
+
+      return c.json({ error: 'Failed to connect block to integration' }, 500);
+    }
+  }
+);
+
+// See the comment on disconnectIntegrationHandlers above for why this
+// handler stays inline in its own `createHandlers` call.
+const disconnectBlockHandlers = disconnectBlockFactory.createHandlers(
+  tbValidator('json', disconnectBlockBodySchema),
+  async (c) => {
+    const session = requireSession(c);
+    const { blockId } = c.req.valid('json');
+
+    const block = await prisma.block.findUnique({
+      where: {
+        id: blockId,
+        page: {
+          organizationId: session.activeOrganizationId,
+        },
       },
-    },
-  });
-
-  if (!block) {
-    return response.status(400).send({
-      error: 'Block not found',
     });
-  }
 
-  const allowedIntegrationForBlock =
-    blocks[block.type as Blocks].integrationType;
+    if (!block) {
+      return c.json({ error: 'Block not found' }, 400);
+    }
 
-  if (allowedIntegrationForBlock !== integration.type) {
-    return response.status(400).send({
-      error: 'Invalid integration for block',
-    });
-  }
-
-  try {
     await prisma.block.update({
       where: {
         id: blockId,
       },
       data: {
         integration: {
-          connect: {
-            id: integrationId,
-          },
+          disconnect: true,
         },
       },
     });
@@ -191,58 +220,18 @@ async function connectBlockHandler(
       pageIdCacheTag(block.pageId),
     ]);
 
-    return response.status(200).send({
-      success: true,
-    });
-  } catch (error) {
-    captureException(error);
-
-    return response.status(500).send({
-      error: 'Failed to connect block to integration',
-    });
+    return c.json({ success: true }, 200);
   }
-}
+);
 
-async function disconnectBlockHandler(
-  request: FastifyRequest<{ Body: { blockId: string } }>,
-  response: FastifyReply
-) {
-  const session = await request.server.authenticate(request, response);
+const integrationsRoutes = new Hono<AppBindings>();
 
-  const { blockId } = request.body;
+integrationsRoutes.get('/me', getCurrentUserTeamIntegrationsHandler);
 
-  const block = await prisma.block.findUnique({
-    where: {
-      id: blockId,
-      page: {
-        organizationId: session.activeOrganizationId,
-      },
-    },
-  });
+integrationsRoutes.post('/disconnect', ...disconnectIntegrationHandlers);
 
-  if (!block) {
-    return response.status(400).send({
-      error: 'Block not found',
-    });
-  }
+integrationsRoutes.post('/connect-block', ...connectBlockHandlers);
 
-  await prisma.block.update({
-    where: {
-      id: blockId,
-    },
-    data: {
-      integration: {
-        disconnect: true,
-      },
-    },
-  });
+integrationsRoutes.post('/disconnect-block', ...disconnectBlockHandlers);
 
-  void revalidatePageCache([
-    blockCacheTag(blockId),
-    pageIdCacheTag(block.pageId),
-  ]);
-
-  return response.status(200).send({
-    success: true,
-  });
-}
+export default integrationsRoutes;
