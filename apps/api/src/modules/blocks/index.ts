@@ -271,9 +271,15 @@ const updateBlockDataHandlers = updateBlockDataFactory.createHandlers(
 const blocksRoutes = new Hono<AppBindings>();
 
 blocksRoutes.post('/add', ...postCreateBlockHandlers);
+// `/enabled-blocks` MUST be registered before `/:blockId`. Hono's router
+// resolves competing GET patterns by registration order (unlike Fastify's
+// find-my-way, which tried static children before parametric ones
+// regardless of order) — registering the parametric route first would
+// shadow this one, with `:blockId` binding to the literal "enabled-blocks".
+// See blocks/index.test.ts for the regression test that pins this.
+blocksRoutes.get('/enabled-blocks', getEnabledBlocksHandler);
 blocksRoutes.get('/:blockId', getBlockHandler);
 blocksRoutes.delete('/:blockId', deleteBlockHandler);
-blocksRoutes.get('/enabled-blocks', getEnabledBlocksHandler);
 blocksRoutes.post('/:blockId/update-data', ...updateBlockDataHandlers);
 
 export default blocksRoutes;
