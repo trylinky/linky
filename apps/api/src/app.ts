@@ -1,5 +1,4 @@
 import type { AppBindings } from '@/env';
-import { createAuth } from '@/lib/auth';
 import { resolveSession } from '@/middleware/authenticate';
 import { cacheControl } from '@/middleware/cache-control';
 import { corsMiddleware } from '@/middleware/cors';
@@ -7,7 +6,7 @@ import {
   requireAuthRateLimit,
   requireStrictAuthRateLimit,
 } from '@/middleware/rate-limit';
-import { requestContext } from '@/middleware/request-context';
+import { getAuth, requestContext } from '@/middleware/request-context';
 import { timing } from '@/middleware/timing';
 import analyticsRoutes from '@/modules/analytics';
 import assetsRoutes from '@/modules/assets';
@@ -57,17 +56,17 @@ export function createApp() {
     '/api/auth/sign-in/*',
     requireStrictAuthRateLimit,
     requireAuthRateLimit,
-    (c) => createAuth().handler(c.req.raw)
+    (c) => getAuth().handler(c.req.raw)
   );
   app.on(
     ['GET', 'POST'],
     '/api/auth/sign-up/*',
     requireStrictAuthRateLimit,
     requireAuthRateLimit,
-    (c) => createAuth().handler(c.req.raw)
+    (c) => getAuth().handler(c.req.raw)
   );
   app.on(['GET', 'POST'], '/api/auth/*', requireAuthRateLimit, (c) =>
-    createAuth().handler(c.req.raw)
+    getAuth().handler(c.req.raw)
   );
 
   app.route('/', coreRoutes);
