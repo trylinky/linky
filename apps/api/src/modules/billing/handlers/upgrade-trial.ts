@@ -69,11 +69,14 @@ export async function upgradeTrialHandler(c: Context<AppBindings>) {
 
     // The original Fastify handler had no return here at all: if the
     // subscription didn't come back `active`, the async handler resolved to
-    // `undefined`, which was then serialised against the 200 response
-    // schema (`{ success: boolean }`) — fast-json-stringify throws reading a
-    // property off `undefined`, so this path actually 500'd on every real
-    // occurrence rather than silently succeeding. An explicit 400 is
-    // strictly better than reproducing that crash.
+    // `undefined`. Fastify's reply.send(undefined) short-circuits straight to
+    // the onSend hooks without ever running the response serializer, so this
+    // was a silent 200 with an empty body (content-length: 0), not a crash.
+    // The one caller (packages/common/src/billing/pricing-table.tsx) reads
+    // this through InternalApi.post and treats anything that isn't an
+    // explicit success as a failure, so an explicit 400 with an error body
+    // collapses to the same user-visible outcome as the old empty 200 did —
+    // this is a deliberate behavior change, not a faithful port.
     return c.json({ error: 'Failed to upgrade trial' }, 400);
   } catch (error) {
     console.log('Error', error);
