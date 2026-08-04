@@ -11,8 +11,6 @@
     }
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.1095.0",
-    "@aws-sdk/lib-dynamodb": "^3.1095.0",
     "@dotenv-run/esbuild": "^1.4.0",
     "@dotenvx/dotenvx": "^1.24.0",
     "@fastify/basic-auth": "^6.0.1",

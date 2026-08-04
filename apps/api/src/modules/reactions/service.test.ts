@@ -1,28 +1,23 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // DynamoDB is the only external dependency here; stub it at the client
-// boundary so the allowance logic can be tested directly.
-const send = vi.fn();
+// boundary (the aws4fetch-backed dynamo module) so the allowance logic can
+// be tested directly, without ever touching the network.
+const batchGetItem = vi.fn();
+const updateItem = vi.fn();
 
-vi.mock('@aws-sdk/lib-dynamodb', async () => {
-  const actual = await vi.importActual<typeof import('@aws-sdk/lib-dynamodb')>(
-    '@aws-sdk/lib-dynamodb'
-  );
-
-  return {
-    ...actual,
-    DynamoDBDocumentClient: { from: () => ({ send }) },
-  };
-});
+vi.mock('./dynamo', () => ({
+  batchGetItem: (...args: unknown[]) => batchGetItem(...args),
+  updateItem: (...args: unknown[]) => updateItem(...args),
+}));
 
 const { MAX_ALLOWED_REACTIONS_PER_IP, reactToResource } =
   await import('./service');
 
 const PAGE_ID = 'page-1';
 const IP = '198.51.100.21';
-const TABLE = process.env.REACTIONS_TABLE_NAME as string;
 
-/** Makes the next BatchGet resolve to the given per-IP / total counts. */
+/** Makes the next batchGetItem resolve to the given per-IP / total counts. */
 function stubExistingReactions({
   current,
   total,
@@ -30,37 +25,44 @@ function stubExistingReactions({
   current: number;
   total: number;
 }) {
-  send.mockReset();
-  send.mockImplementation((command: { constructor: { name: string } }) => {
-    if (command.constructor.name === 'BatchGetCommand') {
-      return Promise.resolve({
-        Responses: {
-          [TABLE]: [
-            { SK: 'totals', reactionTotals: { love: total } },
-            { SK: `entries#${IP}`, reactions: { love: current } },
-          ],
-        },
-      });
-    }
-
-    return Promise.resolve({});
-  });
+  batchGetItem.mockReset();
+  updateItem.mockReset();
+  batchGetItem.mockResolvedValue([
+    { SK: 'totals', reactionTotals: { love: total } },
+    { SK: `entries#${IP}`, reactions: { love: current } },
+  ]);
+  updateItem.mockResolvedValue(undefined);
 }
 
-/** The increment actually written, read back off the UpdateCommand calls. */
+/** The increment actually written, read back off the updateItem calls. */
 function writtenIncrement(): number | undefined {
-  const update = send.mock.calls
-    .map(([command]) => command as any)
-    .find(
-      (command) => command?.input?.ExpressionAttributeValues?.[':increment']
-    );
+  const call = updateItem.mock.calls.find(
+    ([args]) =>
+      (args as { expressionAttributeValues?: Record<string, unknown> })
+        ?.expressionAttributeValues?.[':increment'] !== undefined
+  );
 
-  return update?.input?.ExpressionAttributeValues?.[':increment'];
+  return (call?.[0] as { expressionAttributeValues?: Record<string, number> })
+    ?.expressionAttributeValues?.[':increment'];
 }
 
 describe('reactToResource', () => {
   beforeEach(() => {
-    send.mockReset();
+    batchGetItem.mockReset();
+    updateItem.mockReset();
+    // ./dynamo is mocked above, so nothing here should ever hit the network.
+    // Fail loudly instead of silently making a real DynamoDB call against
+    // production data if that mock is ever bypassed.
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => {
+        throw new Error('unexpected real fetch call in reactions unit test');
+      })
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it('applies a normal debounced click batch as-is', async () => {
@@ -99,7 +101,10 @@ describe('reactToResource', () => {
   });
 
   it('reports zeroed counts rather than undefined for a first reaction', async () => {
-    send.mockImplementation(() => Promise.resolve({}));
+    batchGetItem.mockReset();
+    updateItem.mockReset();
+    batchGetItem.mockResolvedValue([]);
+    updateItem.mockResolvedValue(undefined);
 
     const result = await reactToResource(PAGE_ID, 1, IP, 'love');
 
