@@ -25,12 +25,10 @@
     "@jsquash/resize": "^2.1.1",
     "@jsquash/webp": "^1.5.0",
     "@prisma/adapter-pg": "^7.0.1",
-    "@sentry/cli": "2.28.0",
-    "@sentry/node": "^8.10.0",
-    "@sentry/types": "^8.7.0",
+    "@react-email/render": "^2.1.0",
+    "@sentry/cloudflare": "^10.69.0",
     "@sinclair/typebox": "^0.34.30",
     "@sindresorhus/slugify": "^2.2.1",
-    "@slack/web-api": "^7.8.0",
     "@trylinky/blocks": "workspace:*",
     "@trylinky/common": "workspace:*",
     "@trylinky/notifications": "workspace:*",
@@ -67,8 +65,7 @@
     "test": "dotenvx run --quiet -f ../../.env.local --ignore=MISSING_ENV_FILE -- vitest run",
     "lint": "eslint .",
     "start:api": "node dist/index.js",
-    "build:api": "node build.js && pnpm run sentry:sourcemaps",
-    "typecheck": "tsc --noEmit",
-    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org hyperdusk --project glow-api ./dist && sentry-cli sourcemaps upload ./dist --org hyperdusk --project glow-api"
+    "build:api": "node build.js",
+    "typecheck": "tsc --noEmit"
   }
 }

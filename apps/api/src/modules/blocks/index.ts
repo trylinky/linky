@@ -153,6 +153,10 @@ async function postCreateBlockHandler(
     },
   });
 
+  // Fastify handler, so there is no Hono `c.executionCtx.waitUntil` to hand
+  // this off to; flush inline before the response returns.
+  await posthog?.shutdown();
+
   return response.status(200).send({
     data: {
       block: newBlock,
@@ -253,6 +257,10 @@ async function deleteBlockHandler(
         blockType: block.type,
       },
     });
+
+    // Fastify handler, so there is no Hono `c.executionCtx.waitUntil` to
+    // hand this off to; flush inline before the response returns.
+    await posthog?.shutdown();
 
     return response.status(200).send({
       message: 'Block deleted',

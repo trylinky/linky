@@ -1,6 +1,6 @@
 import prisma from '@/lib/prisma';
 import { Static, Type } from '@fastify/type-provider-typebox';
-import { captureException } from '@sentry/node';
+import { captureException } from '@sentry/cloudflare';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import safeAwait from 'safe-await';
 

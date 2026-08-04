@@ -4,7 +4,7 @@ import { handleSubscriptionCreated } from '@/modules/billing/handlers/stripe/han
 import { handleSubscriptionDeleted } from '@/modules/billing/handlers/stripe/handle-subscription-deleted';
 import { handleTrialExpired } from '@/modules/billing/handlers/stripe/handle-trial-expired';
 import { handleTrialWillEnd } from '@/modules/billing/handlers/stripe/handle-trial-will-end';
-import { captureException } from '@sentry/node';
+import { captureException } from '@sentry/cloudflare';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import Stripe from 'stripe';
 

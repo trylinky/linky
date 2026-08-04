@@ -40,7 +40,7 @@ import {
   getSlugAvailabilityHandler,
   getSlugAvailabilitySchema,
 } from '@/modules/pages/handlers/get-slug-availability';
-import { captureException } from '@sentry/node';
+import { captureException } from '@sentry/cloudflare';
 import { FastifyInstance, FastifyReply } from 'fastify';
 import { FastifyRequest } from 'fastify';
 
@@ -282,6 +282,10 @@ async function updatePageLayoutHandler(
       pageId,
     },
   });
+
+  // Fastify handler, so there is no Hono `c.executionCtx.waitUntil` to hand
+  // this off to; flush inline before the response returns.
+  await posthog?.shutdown();
 
   return response.status(200).send(updatedPage);
 }

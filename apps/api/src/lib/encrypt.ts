@@ -1,4 +1,4 @@
-import { captureException } from '@sentry/node';
+import { captureException } from '@sentry/cloudflare';
 
 const IV_LENGTH = 12;
 const SALT_LENGTH = 16;

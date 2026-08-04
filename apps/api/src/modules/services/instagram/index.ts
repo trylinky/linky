@@ -8,7 +8,7 @@ import {
   requestTokenLegacy,
   requestUserInfo,
 } from '@/modules/services/instagram/utils';
-import { captureException } from '@sentry/node';
+import { captureException } from '@sentry/cloudflare';
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
 interface InstagramTokenResponse {

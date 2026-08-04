@@ -1,7 +1,7 @@
 import { prices } from '@/lib/plans';
 import prisma from '@/lib/prisma';
 import { stripeClient } from '@/lib/stripe';
-import { captureException } from '@sentry/node';
+import { captureException } from '@sentry/cloudflare';
 import safeAwait from 'safe-await';
 
 export async function createNewSubscription({

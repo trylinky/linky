@@ -1,4 +1,4 @@
-import { captureException } from '@sentry/node';
+import { captureException } from '@sentry/cloudflare';
 
 export async function fetchStats(pageId: string) {
   try {

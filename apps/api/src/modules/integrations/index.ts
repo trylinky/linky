@@ -16,7 +16,7 @@ import {
   disconnectIntegration,
   getIntegrationsForOrganizationId,
 } from '@/modules/integrations/service';
-import { captureException } from '@sentry/node';
+import { captureException } from '@sentry/cloudflare';
 import { Blocks, blocks } from '@trylinky/blocks';
 import { FastifyInstance, FastifyReply } from 'fastify';
 import { FastifyRequest } from 'fastify';

@@ -1,7 +1,7 @@
 'use server';
 
 import { batchGetItem, updateItem } from '@/modules/reactions/dynamo';
-import { captureException } from '@sentry/node';
+import { captureException } from '@sentry/cloudflare';
 
 const TABLE_NAME = process.env.REACTIONS_TABLE_NAME as string;
 

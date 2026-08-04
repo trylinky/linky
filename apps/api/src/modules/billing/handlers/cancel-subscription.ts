@@ -1,7 +1,7 @@
 import prisma from '@/lib/prisma';
 import { stripeClient } from '@/lib/stripe';
 import { canManageBilling } from '@/modules/organizations/utils';
-import { captureException } from '@sentry/node';
+import { captureException } from '@sentry/cloudflare';
 import { FastifyReply } from 'fastify';
 import { FastifyRequest } from 'fastify';
 

@@ -1,6 +1,7 @@
 import { validateEmail } from '@/lib/email';
 import { createResendClient } from '@/lib/resend';
-import { captureException } from '@sentry/node';
+import { render } from '@react-email/render';
+import { captureException } from '@sentry/cloudflare';
 import {
   MagicLinkEmail,
   OrganizationInviteEmail,
@@ -11,6 +12,7 @@ import {
   WelcomeEmail,
 } from '@trylinky/notifications';
 import React from 'react';
+import type { CreateEmailOptions } from 'resend';
 
 export async function sendEmail({
   email,
@@ -49,10 +51,15 @@ export async function sendEmail({
       to: [email],
       replyTo,
       subject,
-      react,
-      text,
-      scheduledAt: scheduledAt ? scheduledAt.toISOString() : undefined,
-    });
+      // Rendered here rather than handing Resend the `react` prop, so
+      // react-dom/server resolution stays under our control on Workers.
+      // Cast to CreateEmailOptions: Resend's type requires exactly one of
+      // html/text/react as a *required* key, which a conditional spread
+      // can't express statically even though callers always supply one.
+      ...(react ? { html: await render(react as React.ReactElement) } : {}),
+      ...(text ? { text } : {}),
+      ...(scheduledAt ? { scheduledAt: scheduledAt.toISOString() } : {}),
+    } as CreateEmailOptions);
 
     if (error) {
       console.error('Error sending email', error);

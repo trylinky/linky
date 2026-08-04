@@ -2,7 +2,7 @@ import { getSpotifyUserInfo, requestToken } from './utils';
 import { decrypt, encrypt } from '@/lib/encrypt';
 import prisma from '@/lib/prisma';
 import { linkIntegrationToBlock } from '@/modules/integrations/service';
-import { captureException } from '@sentry/node';
+import { captureException } from '@sentry/cloudflare';
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
 interface SpotifyTokenResponse {

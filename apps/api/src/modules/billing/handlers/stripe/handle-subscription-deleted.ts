@@ -1,7 +1,7 @@
 import prisma from '@/lib/prisma';
 import { sendSubscriptionDeletedEmail } from '@/modules/notifications/service';
 import { sendSlackMessage } from '@/modules/slack/service';
-import { captureException, captureMessage } from '@sentry/node';
+import { captureException, captureMessage } from '@sentry/cloudflare';
 import safeAwait from 'safe-await';
 import Stripe from 'stripe';
 

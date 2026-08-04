@@ -1,6 +1,6 @@
 import type { AppBindings } from '@/env';
 import { getAuth } from '@/middleware/request-context';
-import { captureException } from '@sentry/node';
+import { captureException } from '@sentry/cloudflare';
 import type { Context, MiddlewareHandler } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 

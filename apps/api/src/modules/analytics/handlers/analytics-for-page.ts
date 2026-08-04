@@ -3,7 +3,7 @@ import { fetchTopLocations } from '@/modules/analytics/service';
 import { fetchStats } from '@/modules/analytics/service';
 import { checkUserHasAccessToPage } from '@/modules/pages/service';
 import { Static, Type } from '@fastify/type-provider-typebox';
-import { captureException } from '@sentry/node';
+import { captureException } from '@sentry/cloudflare';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 const MINIMUM_PAGE_AGE_DAYS = 3;
