@@ -6,9 +6,7 @@
   "license": "MIT",
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.1095.0",
-    "@aws-sdk/client-s3": "^3.1095.0",
     "@aws-sdk/lib-dynamodb": "^3.1095.0",
-    "@aws-sdk/lib-storage": "^3.1095.0",
     "@dotenv-run/esbuild": "^1.4.0",
     "@dotenvx/dotenvx": "^1.24.0",
     "@fastify/basic-auth": "^6.0.1",
@@ -29,6 +27,7 @@
     "@trylinky/common": "workspace:*",
     "@trylinky/notifications": "workspace:*",
     "@trylinky/prisma": "workspace:*",
+    "aws4fetch": "^1.0.20",
     "better-auth": "^1.6.25",
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
