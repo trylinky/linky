@@ -16,30 +16,29 @@ import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { APIError } from 'better-auth/api';
 import { admin, magicLink, organization } from 'better-auth/plugins';
 
-export function createAuth(env: { AUTH_RATE_LIMIT: KVNamespace }) {
+export function createAuth() {
   return betterAuth({
     // `baseURL`, not `baseUrl` — the misspelling was silently ignored, so
     // better-auth fell back to deriving the origin from each incoming request.
     baseURL: process.env.API_BASE_URL,
-    rateLimit: {
-      window: 10, // time window in seconds
-      max: 100, // max requests in the window
-      storage: 'secondary-storage',
-    },
     /**
-     * better-auth's default rate-limit store is in-memory. On Render's single
-     * instance that was fine; across Worker isolates each isolate would keep
-     * its own counter, silently weakening the limit. KV is shared.
+     * better-auth's own rate limiting is disabled here, not reconfigured.
+     * KV was tried as its `secondaryStorage` (so the limit counter would be
+     * shared across Worker isolates instead of each isolate keeping its own
+     * in-memory counter), but Cloudflare KV enforces a 60-second minimum
+     * `expirationTtl`, and better-auth's rate-limit window here is 10s — the
+     * `storage.set` call for every window would throw, uncaught, and the
+     * first request to hit it in production would 500. KV is also
+     * eventually consistent across colos, so any limit built on it would
+     * only ever be approximate per-colo, not a real global limit.
+     * `requireAuthRateLimit` (src/middleware/rate-limit.ts), backed by
+     * Cloudflare's native Rate Limiting binding, owns this instead — it has
+     * no minimum TTL and supports the exact 10s window. Do not re-enable
+     * this and route it back through KV; the same 60s-minimum wall is still
+     * there.
      */
-    secondaryStorage: {
-      get: (key) => env.AUTH_RATE_LIMIT.get(key),
-      set: (key, value, ttl) =>
-        env.AUTH_RATE_LIMIT.put(
-          key,
-          value,
-          ttl ? { expirationTtl: ttl } : undefined
-        ),
-      delete: (key) => env.AUTH_RATE_LIMIT.delete(key),
+    rateLimit: {
+      enabled: false,
     },
     // Evaluated per call, not hoisted to module scope: on Workers module
     // scope can run before the environment is populated, which would freeze

@@ -25,6 +25,4 @@ export function getAuth(): Auth {
 
 /** Must be the first middleware registered — everything downstream needs it. */
 export const requestContext: MiddlewareHandler<AppBindings> = (c, next) =>
-  runWithPrisma(createPrisma(c.env), () =>
-    authStore.run(createAuth(c.env), next)
-  );
+  runWithPrisma(createPrisma(c.env), () => authStore.run(createAuth(), next));
