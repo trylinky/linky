@@ -1,7 +1,8 @@
 DESCRIPTION >
-    General page analytics for a given page.
+	General page analytics for a given page.
     Accepts `date_from` and `date_to` date filter. Defaults to last 7 days.
     Also `skip` and `limit` parameters for pagination.
+
 
 TOKEN "dashboard" READ
 
@@ -10,7 +11,8 @@ DESCRIPTION >
     Endpoint to query daily page statistics with date filtering
 
 SQL >
-    %SELECT
+
+%SELECT
         date,
         countMerge(hits) as total_views,
         uniqMerge(visits) as unique_visitors
@@ -37,12 +39,15 @@ SQL >
     LIMIT
         {{ Int32(skip, 0) }},{{ Int32(limit, 50) }}
 
+
+
 NODE user_page_stats_locations
 DESCRIPTION >
     Endpoint to query top locations with date filtering
 
 SQL >
-    %SELECT
+
+%SELECT
         location,
         countMerge(hits) as hits,
         uniqMerge(visits) as visits
@@ -70,17 +75,17 @@ SQL >
         {{ Int32(skip, 0) }},{{ Int32(limit, 50) }}
 
 
+
 NODE endpoint
 SQL >
-    %SELECT
+
+%SELECT
         'user_page_stats_basic' AS result_type,
         toString(date) AS key,
         total_views,
         unique_visitors
     FROM user_page_stats_basic
-
     UNION ALL
-
     SELECT
         'user_page_stats_locations' AS result_type,
         location AS key,
@@ -89,3 +94,5 @@ SQL >
     FROM user_page_stats_locations
 
 TYPE endpoint
+
+

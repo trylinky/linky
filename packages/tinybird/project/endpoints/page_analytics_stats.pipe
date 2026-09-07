@@ -1,5 +1,6 @@
 DESCRIPTION >
-    Tracks daily page views and unique visitors for specific pages.
+	Tracks daily page views and unique visitors for specific pages.
+
 
 TOKEN "dashboard" READ
 
@@ -8,7 +9,8 @@ DESCRIPTION >
     Endpoint to query daily page statistics with date filtering
 
 SQL >
-    %SELECT
+
+%SELECT
         date,
         countMerge(hits) as total_views,
         uniqMerge(visits) as unique_visitors
@@ -31,4 +33,6 @@ SQL >
         date
     ORDER BY date DESC
 
-TYPE endpoint 
+TYPE endpoint
+
+
