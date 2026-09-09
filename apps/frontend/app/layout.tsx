@@ -93,6 +93,11 @@ export default function RootLayout({
           <PostHogIdentifyFromSession />
         </Suspense>
       </PostHogProvider>
+      <Script
+        src="https://api.aside.so/s.js"
+        data-site="site_01m23zhjqr3ny2csns0xxg71xd"
+        strategy="afterInteractive"
+      />
       <Analytics />
     </html>
   );
