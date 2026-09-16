@@ -40,6 +40,11 @@ describe('POST /billing/stripe-webhook', () => {
 
   it('accepts a correctly signed event', async () => {
     vi.stubEnv('STRIPE_WEBHOOK_SECRET', SECRET);
+    // `generateTestHeaderString` and `constructEventAsync` are local HMAC
+    // helpers that never call Stripe, but the SDK still refuses to construct
+    // without *a* key. CI has no STRIPE_API_SECRET_KEY, so give it a dummy
+    // rather than depending on .env.local.
+    vi.stubEnv('STRIPE_API_SECRET_KEY', 'sk_test_dummy_for_signature_only');
 
     // An event type the handler ignores, so this exercises signature
     // verification and nothing else.
