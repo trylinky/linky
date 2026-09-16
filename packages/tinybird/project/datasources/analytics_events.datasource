@@ -1,7 +1,7 @@
+TOKEN "tracker" APPEND
+
 DESCRIPTION >
     Analytics events landing data source
-
-TOKEN "tracker" APPEND
 
 SCHEMA >
     `timestamp` DateTime `json:$.timestamp`,
@@ -11,7 +11,7 @@ SCHEMA >
     `payload` String `json:$.payload`,
     `page_id` String `json:$.page_id`
 
-ENGINE MergeTree
-ENGINE_PARTITION_KEY toYYYYMM(timestamp)
-ENGINE_SORTING_KEY timestamp, page_id
-ENGINE_TTL timestamp + toIntervalDay(60)
+ENGINE "MergeTree"
+ENGINE_PARTITION_KEY "toYYYYMM(timestamp)"
+ENGINE_SORTING_KEY "timestamp, page_id"
+ENGINE_TTL "timestamp + toIntervalDay(60)"

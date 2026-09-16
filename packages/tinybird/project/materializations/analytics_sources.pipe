@@ -3,6 +3,7 @@ DESCRIPTION >
     Aggregate by referral and calculate session and hits
 
 SQL >
+
     SELECT
         toDate(timestamp) AS date,
         device,
@@ -16,5 +17,7 @@ SQL >
     WHERE domainWithoutWWW(referrer) != current_domain
     GROUP BY date, device, browser, location, referrer, page_id
 
-TYPE MATERIALIZED
+TYPE materialized
 DATASOURCE analytics_sources_mv
+
+

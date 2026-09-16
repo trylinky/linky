@@ -86,6 +86,12 @@ export default async function RootLayout({
         <MarketingNavigation />
         <main className="min-h-full">{children}</main>
         <MarketingFooter />
+
+        <Script
+          src="https://api.aside.so/s.js"
+          data-site="site_01m23zhjqr3ny2csns0xxg71xd"
+          strategy="afterInteractive"
+        />
       </body>
 
       <Analytics />

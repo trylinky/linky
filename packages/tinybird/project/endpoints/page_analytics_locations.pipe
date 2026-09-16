@@ -1,7 +1,8 @@
 DESCRIPTION >
-    Top visiting Countries ordered by most visits for a given page
+	Top visiting Countries ordered by most visits for a given page
     Accepts `date_from` and `date_to` date filter. Defaults to last 7 days.
     Also `skip` and `limit` parameters for pagination.
+
 
 TOKEN "dashboard" READ
 
@@ -10,7 +11,8 @@ DESCRIPTION >
     Group by pagepath and calculate hits and visits
 
 SQL >
-    %
+
+%
     SELECT location, uniqMerge(visits) as visits, countMerge(hits) as hits
     FROM analytics_pages_mv
     WHERE
@@ -28,4 +30,7 @@ SQL >
     GROUP BY location
     ORDER BY visits desc
     LIMIT {{ Int32(skip, 0) }},{{ Int32(limit, 50) }}
+
 TYPE endpoint
+
+

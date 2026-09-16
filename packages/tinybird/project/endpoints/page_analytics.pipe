@@ -1,0 +1,27 @@
+DESCRIPTION >
+	Tracks daily page views and unique visitors for specific pages.
+
+
+TOKEN "dashboard" READ
+
+NODE endpoint
+DESCRIPTION >
+    Endpoint to query daily page statistics with date filtering
+
+SQL >
+
+%SELECT
+        date,
+        countMerge(hits) as total_views,
+        uniqMerge(visits) as unique_visitors
+    FROM analytics_pages_mv
+    WHERE page_id = {{ String(pageId, '') }}
+        AND date >= {{ Date(fromDate) }}
+        AND date <= {{ Date(toDate) }}
+    GROUP BY
+        date
+    ORDER BY date DESC
+
+TYPE endpoint
+
+

@@ -1,5 +1,6 @@
 DESCRIPTION >
-    Parsed `page_hit` events, implementing `browser` and `device` detection logic.
+	Parsed `page_hit` events, implementing `browser` and `device` detection logic.
+
 
 TOKEN "dashboard" READ
 
@@ -8,6 +9,7 @@ DESCRIPTION >
     Parse raw page_hit events
 
 SQL >
+
     SELECT
         timestamp,
         action,
@@ -24,9 +26,12 @@ SQL >
     FROM analytics_events
     WHERE action = 'page_hit'
 
+
+
 NODE endpoint
 SQL >
-    %SELECT
+
+%SELECT
         timestamp,
         action,
         version,
@@ -62,3 +67,5 @@ SQL >
     FROM parsed_hits
 
 TYPE endpoint
+
+
