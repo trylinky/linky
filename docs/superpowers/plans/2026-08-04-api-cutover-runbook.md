@@ -11,6 +11,35 @@ All commands run from `apps/api` unless noted.
 
 ---
 
+## Prerequisites discovered after this runbook was written (2026-09-16)
+
+Read before following any step below; several steps are wrong as written.
+
+1. **`lin.ky` DNS is on Vercel, not Cloudflare.** Nameservers are `ns1/ns2.vercel-dns.com` and the
+   zone lives in the hyperdusk Vercel team. `api.lin.ky` is a plain CNAME to
+   `glow-t230.onrender.com`; the `server: cloudflare` header on the live API is Render's own edge.
+   Worker routes (`zone_name: "lin.ky"`) therefore cannot be created, and Step 1's staging deploy
+   and Step 5's cutover both fail until the zone is moved into the Cloudflare account. The zone
+   move (32 records, all DNS-only) is its own piece of work and must land first.
+2. **There is no staging environment.** The `env.staging` block and the `--env staging` commands
+   in Step 1 were removed on 2026-09-16 (`3b0f338`). There is one Worker, `linky-api-production`,
+   deployed with no route and `workers_dev: false`. Pre-cutover verification happens by adding a
+   temporary second route, `api-next.lin.ky/*`, to that same Worker after the zone move, and by
+   briefly enabling `workers_dev` for the smoke script (done once already: 8/8 passed).
+3. **The secret list in Step 0 is missing one name.** better-auth reads its signing secret from
+   the environment itself (`BETTER_AUTH_SECRET`, or the alias `AUTH_SECRET`, which is what Render
+   uses), so a grep of `apps/api/src` never saw it. Without it every `/api/auth/*` request throws
+   `You are using the default secret`. All 37 names were loaded on 2026-09-16.
+4. **Non-secret values were entered as plain-text variables in the dashboard.** `keep_vars: true`
+   in `wrangler.jsonc` stops `wrangler deploy` from deleting them; do not remove that flag.
+5. **The integration callback URLs on Render point at `lin.ky/api/services/...`,** which has
+   returned 404 since the API was split out of the frontend. The correct values are
+   `https://api.lin.ky/services/{instagram/v2/callback, instagram/callback, spotify/callback,
+   threads/callback, tiktok/callback}`, and the same URIs must be registered in the Meta, Spotify
+   and TikTok consoles. Pre-existing bug, not a migration regression.
+
+---
+
 ## Step 0: Load secrets before doing anything else
 
 The Worker reads secrets and vars through `process.env`/`c.env`, exactly like the old Fastify app
@@ -49,11 +78,12 @@ Do this now, before Step 1, so Step 1's deploy doesn't wake up half-configured:
      `AsyncLocalStorage` request-context (Vitest, local scripts). A deployed Worker never has
      `DATABASE_URL` set and never needs it — it always goes through `HYPERDRIVE`.
 
-   **Everything else — must be pushed as secrets (36 names).** Pull the values from wherever
+   **Everything else — must be pushed as secrets (37 names).** Pull the values from wherever
    Render's environment currently lives (Render dashboard → your service → Environment) and from
    the repo-root `.env.example` for names, not values:
 
    ```
+   AUTH_SECRET                    # better-auth reads this itself (alias of BETTER_AUTH_SECRET); not in any apps/api grep
    ENCRYPTION_KEY
    INTERNAL_API_KEY
    STRIPE_API_SECRET_KEY

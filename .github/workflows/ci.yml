@@ -72,6 +72,11 @@ jobs:
     needs: verify
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    # CLOUDFLARE_API_TOKEN is an environment secret, not a repository secret,
+    # so the job has to bind to the environment to see it. Until the cutover
+    # adds the api.lin.ky route, each deploy only uploads a new version of
+    # linky-api-production that nothing routes to (workers_dev is off).
+    environment: Production
 
     steps:
       - uses: actions/checkout@v4

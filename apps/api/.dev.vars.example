@@ -41,6 +41,11 @@ POSTHOG_API_KEY=
 SLACK_TOKEN=
 TINYBIRD_API_KEY=
 
+# better-auth signing secret. Read by the library itself, not by any
+# process.env line in apps/api, so it never showed up in a grep. Production
+# uses the AUTH_SECRET alias; BETTER_AUTH_SECRET works too.
+AUTH_SECRET=
+
 # better-auth social sign-in (note the AUTH_ prefix — distinct from the
 # unprefixed GOOGLE_*/TWITTER_* vars the frontend package reads)
 AUTH_GOOGLE_CLIENT_ID=

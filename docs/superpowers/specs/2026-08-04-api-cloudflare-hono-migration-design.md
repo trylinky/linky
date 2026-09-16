@@ -277,7 +277,7 @@ Hyperdrive connects outbound over the public internet with TLS. **If production 
 
 ### Cutover — Worker route, not DNS
 
-`api.lin.ky` is already proxied through Cloudflare. The flip is adding a Worker route for `api.lin.ky/*`. Routes take precedence over the origin record, so it is instant, and **rollback is deleting the route** — traffic returns to Render immediately with no DNS TTL to wait out.
+**Correction (2026-09-16): `api.lin.ky` is _not_ proxied through a Cloudflare zone this account controls.** `lin.ky` DNS is hosted at Vercel and `api` is a CNAME straight to Render; the Cloudflare headers on the live API are Render's own edge. The zone must be moved into the Cloudflare account before any Worker route on `lin.ky` can exist. With that prerequisite met, the rest of this section holds: the flip is adding a Worker route for `api.lin.ky/*`. Routes take precedence over the origin record, so it is instant, and **rollback is deleting the route** — traffic returns to Render immediately with no DNS TTL to wait out.
 
 Sequence:
 
