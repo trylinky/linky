@@ -1,9 +1,11 @@
 import { getTiktokUserInfo, requestToken, tiktokScopes } from './service';
+import type { AppBindings } from '@/env';
 import { decrypt, encrypt, isEncrypted } from '@/lib/encrypt';
 import prisma from '@/lib/prisma';
+import { requireSession } from '@/middleware/authenticate';
 import { linkIntegrationToBlock } from '@/modules/integrations/service';
-import { captureException } from '@sentry/node';
-import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { captureException } from '@sentry/cloudflare';
+import { Hono } from 'hono';
 
 // Define TikTok user info response type
 interface TikTokUserInfoResponse {
@@ -22,37 +24,22 @@ interface EncryptedState {
   blockId?: string;
 }
 
-export default async function tiktokServiceRoutes(
-  fastify: FastifyInstance
-): Promise<void> {
-  fastify.get('/', getTiktokRedirectHandler);
-  fastify.get('/callback', getTiktokCallbackHandler);
+interface TikTokTokenResponse {
+  open_id: string;
+  scope: string;
+  access_token: string;
+  refresh_token: string;
+  expires_in?: number;
 }
 
-interface TiktokRedirectQueryParams {
-  Querystring: {
-    blockId: string;
-  };
-}
+const tiktokServiceRoutes = new Hono<AppBindings>();
 
-async function getTiktokRedirectHandler(
-  request: FastifyRequest<TiktokRedirectQueryParams>,
-  response: FastifyReply
-) {
-  const { blockId } = request.query;
+tiktokServiceRoutes.get('/', async (c) => {
+  const session = requireSession(c);
+  const blockId = c.req.query('blockId');
 
   if (!blockId) {
-    return response.status(400).send({
-      error: 'Missing blockId',
-    });
-  }
-
-  const session = await request.server.authenticate(request, response);
-
-  if (!session) {
-    return response.status(401).send({
-      error: 'Unauthorized',
-    });
+    return c.json({ error: 'Missing blockId' }, 400);
   }
 
   if (!process.env.TIKTOK_CALLBACK_URL) {
@@ -80,58 +67,24 @@ async function getTiktokRedirectHandler(
 
   url.search = qs;
 
-  return response.redirect(url.toString());
-}
+  return c.redirect(url.toString());
+});
 
-interface TiktokCallbackQueryParams {
-  Querystring: {
-    code: string;
-    state: string;
-  };
-}
+tiktokServiceRoutes.get('/callback', async (c) => {
+  const session = requireSession(c);
 
-interface TikTokTokenResponse {
-  open_id: string;
-  scope: string;
-  access_token: string;
-  refresh_token: string;
-  expires_in?: number;
-}
-
-async function getTiktokCallbackHandler(
-  request: FastifyRequest<TiktokCallbackQueryParams>,
-  response: FastifyReply
-) {
-  const session = await request.server.authenticate(request, response);
-
-  if (!session?.user) {
-    return response.status(401).send({
-      error: {
-        message: 'Unauthorized',
-      },
-    });
-  }
-
-  const code = request.query.code as string;
+  const code = c.req.query('code');
 
   if (!code) {
-    return response.status(400).send({
-      error: {
-        message: 'Error getting code',
-      },
-    });
+    return c.json({ error: { message: 'Error getting code' } }, 400);
   }
 
-  const state = request.query.state as string;
+  const state = c.req.query('state');
 
   const decryptedState = await decrypt<EncryptedState>(state ?? '');
 
   if (decryptedState.userId !== session.user.id) {
-    return response.status(400).send({
-      error: {
-        message: 'Invalid state',
-      },
-    });
+    return c.json({ error: { message: 'Invalid state' } }, 400);
   }
 
   try {
@@ -146,11 +99,7 @@ async function getTiktokCallbackHandler(
     });
 
     if (!(await isEncrypted(encryptedConfig))) {
-      return response.status(500).send({
-        error: {
-          message: 'Failed to encrypt config',
-        },
-      });
+      return c.json({ error: { message: 'Failed to encrypt config' } }, 500);
     }
 
     const userInfo = await getTiktokUserInfo({
@@ -182,15 +131,13 @@ async function getTiktokCallbackHandler(
       }
     }
 
-    return response.redirect(
+    return c.redirect(
       `${process.env.APP_FRONTEND_URL}/i/integration-callback/tiktok`
     );
   } catch (error) {
     captureException(error);
-    return response.status(500).send({
-      error: {
-        message: 'Error getting token',
-      },
-    });
+    return c.json({ error: { message: 'Error getting token' } }, 500);
   }
-}
+});
+
+export default tiktokServiceRoutes;

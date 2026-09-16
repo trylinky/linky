@@ -1,0 +1,53 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "linky-api-production",
+  // No workers.dev URL and no route yet: the Worker is unreachable until the
+  // cutover adds the api.lin.ky route. Secrets and vars can still be loaded.
+  "workers_dev": false,
+  // 20 non-secret values (client IDs, callback URLs, region, DSNs) were
+  // entered as plain-text variables in the dashboard on 2026-09-16. Without
+  // this flag wrangler treats `vars` below as the whole truth and deletes
+  // them on every deploy, including the CI deploy on merge.
+  "keep_vars": true,
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "upload_source_maps": true,
+  "limits": { "cpu_ms": 30000 },
+  "vars": {
+    "APP_ENV": "production",
+    "APP_FRONTEND_URL": "https://lin.ky",
+    "API_BASE_URL": "https://api.lin.ky",
+    "NEXT_PUBLIC_BASE_URL": "https://lin.ky",
+  },
+  "hyperdrive": [
+    { "binding": "HYPERDRIVE", "id": "962b7339d781499985faa016771f2c6a" },
+  ],
+  // Cloudflare's native Rate Limiting binding, not KV: KV enforces a 60s
+  // minimum expirationTtl, which is incompatible with better-auth's 10s
+  // rate-limit window, and KV is eventually consistent across colos anyway
+  // (approximate per-colo limiting, not a real global limit). `period: 10`
+  // preserves the existing flat 100-per-10s ceiling that applied to the rest
+  // of /api/auth/* — but that flat ceiling is NOT what better-auth's own
+  // rate limiting enforced on sign-in/sign-up before this migration. With
+  // `rateLimit` configured at all, better-auth activated its built-in tiered
+  // rules (getDefaultSpecialRules() in
+  // better-auth/dist/api/rate-limiter/index.mjs), keyed per IP *and* per
+  // path: 3-per-10s on paths starting with /sign-in or /sign-up. Disabling
+  // better-auth's rate limiting (see lib/auth.ts) dropped that tier
+  // entirely; AUTH_STRICT_RATE_LIMIT below restores it for the sign-in and
+  // sign-up prefixes specifically (middleware/rate-limit.ts).
+  "ratelimits": [
+    {
+      "name": "AUTH_RATE_LIMIT",
+      "namespace_id": "1001",
+      "simple": { "limit": 100, "period": 10 },
+    },
+    {
+      "name": "AUTH_STRICT_RATE_LIMIT",
+      "namespace_id": "1002",
+      "simple": { "limit": 3, "period": 10 },
+    },
+  ],
+}

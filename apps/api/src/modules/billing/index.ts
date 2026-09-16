@@ -1,82 +1,30 @@
-'use strict';
+import type { AppBindings } from '@/env';
+import { getBillingPortalUrlHandler } from '@/modules/billing/handlers/billing-portal-url';
+import { cancelSubscriptionHandler } from '@/modules/billing/handlers/cancel-subscription';
+import { getCurrentUserSubscriptionHandler } from '@/modules/billing/handlers/current-user-subscription';
+import { stripeWebhookHandler } from '@/modules/billing/handlers/stripe';
+import { getUpgradeEligibilityHandler } from '@/modules/billing/handlers/upgrade-eligibility';
+import { upgradeToPremiumHandler } from '@/modules/billing/handlers/upgrade-to-premium';
+import { upgradeToTeamHandler } from '@/modules/billing/handlers/upgrade-to-team';
+import { upgradeTrialHandler } from '@/modules/billing/handlers/upgrade-trial';
+import { Hono } from 'hono';
 
-import {
-  getBillingPortalUrlHandler,
-  getBillingPortalUrlSchema,
-} from './handlers/billing-portal-url';
-import {
-  cancelSubscriptionHandler,
-  cancelSubscriptionSchema,
-} from './handlers/cancel-subscription';
-import {
-  getCurrentUserSubscriptionHandler,
-  getCurrentUserSubscriptionSchema,
-} from './handlers/current-user-subscription';
-import { stripeWebhookHandler } from './handlers/stripe';
-import {
-  getUpgradeEligibilitySchema,
-  getUpgradeEligibilityHandler,
-} from './handlers/upgrade-eligibility';
-import {
-  upgradeToPremiumHandler,
-  upgradeToPremiumSchema,
-} from './handlers/upgrade-to-premium';
-import {
-  upgradeToTeamHandler,
-  upgradeToTeamSchema,
-} from './handlers/upgrade-to-team';
-import {
-  upgradeTrialHandler,
-  upgradeTrialSchema,
-} from './handlers/upgrade-trial';
-import { FastifyInstance } from 'fastify';
+const billingRoutes = new Hono<AppBindings>();
 
-export default async function billingRoutes(fastify: FastifyInstance) {
-  fastify.post(
-    '/stripe-webhook',
-    { config: { rawBody: true } },
-    stripeWebhookHandler
-  );
-  fastify.get(
-    '/subscription/me',
-    {
-      schema: getCurrentUserSubscriptionSchema,
-    },
-    getCurrentUserSubscriptionHandler
-  );
-  fastify.get(
-    '/upgrade-eligibility',
-    { schema: getUpgradeEligibilitySchema },
-    getUpgradeEligibilityHandler
-  );
+billingRoutes.post('/stripe-webhook', stripeWebhookHandler);
 
-  fastify.post(
-    '/get-billing-portal-url',
-    { schema: getBillingPortalUrlSchema },
-    getBillingPortalUrlHandler
-  );
+billingRoutes.get('/subscription/me', getCurrentUserSubscriptionHandler);
 
-  fastify.post(
-    '/cancel-subscription',
-    { schema: cancelSubscriptionSchema },
-    cancelSubscriptionHandler
-  );
+billingRoutes.get('/upgrade-eligibility', getUpgradeEligibilityHandler);
 
-  fastify.post(
-    '/upgrade-trial',
-    { schema: upgradeTrialSchema },
-    upgradeTrialHandler
-  );
+billingRoutes.post('/get-billing-portal-url', getBillingPortalUrlHandler);
 
-  fastify.post(
-    '/upgrade/team',
-    { schema: upgradeToTeamSchema },
-    upgradeToTeamHandler
-  );
+billingRoutes.post('/cancel-subscription', cancelSubscriptionHandler);
 
-  fastify.post(
-    '/upgrade/premium',
-    { schema: upgradeToPremiumSchema },
-    upgradeToPremiumHandler
-  );
-}
+billingRoutes.post('/upgrade-trial', upgradeTrialHandler);
+
+billingRoutes.post('/upgrade/team', upgradeToTeamHandler);
+
+billingRoutes.post('/upgrade/premium', upgradeToPremiumHandler);
+
+export default billingRoutes;

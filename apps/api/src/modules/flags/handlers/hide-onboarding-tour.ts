@@ -1,35 +1,15 @@
+import type { AppBindings } from '@/env';
 import prisma from '@/lib/prisma';
-import { FastifyReply, FastifyRequest } from 'fastify';
+import { requireSession } from '@/middleware/authenticate';
+import type { Context } from 'hono';
 
-export const hideOnboardingTourSchema = {
-  response: {
-    200: {
-      type: 'object',
-      properties: {
-        success: { type: 'boolean' },
-      },
-      additionalProperties: false,
-    },
-  },
-};
-
-export async function hideOnboardingTourHandler(
-  request: FastifyRequest,
-  response: FastifyReply
-) {
-  const session = await request.server.authenticate(request, response);
+export async function hideOnboardingTourHandler(c: Context<AppBindings>) {
+  const session = requireSession(c);
 
   await prisma.userFlag.updateMany({
-    where: {
-      userId: session?.user.id,
-      key: 'showOnboardingTour',
-    },
-    data: {
-      value: false,
-    },
+    where: { userId: session.user.id, key: 'showOnboardingTour' },
+    data: { value: false },
   });
 
-  return response.status(200).send({
-    success: true,
-  });
+  return c.json({ success: true }, 200);
 }

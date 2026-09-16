@@ -14,5 +14,9 @@ export const createPosthogClient = () => {
 
   return new PostHog(process.env.POSTHOG_API_KEY, {
     host: 'https://eu.i.posthog.com',
+    // Workers kill the isolate at the end of a request, taking any buffered
+    // events with them. Send immediately and let callers waitUntil the flush.
+    flushAt: 1,
+    flushInterval: 0,
   });
 };

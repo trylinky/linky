@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma';
-import { captureMessage } from '@sentry/node';
+import { captureMessage } from '@sentry/cloudflare';
 import Stripe from 'stripe';
 
 /**

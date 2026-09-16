@@ -58,6 +58,16 @@ jobs:
       - name: Check formatting
         run: pnpm prettier --check "apps/**/*.{ts,tsx}" "packages/**/*.{ts,tsx}"
 
+      # turbo's `typecheck` and `test` depend on `^prisma:generate`, which
+      # generates the client for packages that *depend on* @trylinky/prisma.
+      # The caret excludes the package itself, so @trylinky/prisma's own
+      # typecheck ran before its client existed and failed on every
+      # `./src/generated/*` import. Generate explicitly first, as the deploy
+      # job already does.
+      - name: Generate the Prisma client
+        run: pnpm prisma:generate
+        working-directory: packages/prisma
+
       - name: Typecheck
         run: pnpm typecheck
 
@@ -66,3 +76,38 @@ jobs:
 
       - name: Test
         run: pnpm test
+
+  deploy:
+    name: Deploy the API worker
+    needs: verify
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    # CLOUDFLARE_API_TOKEN is an environment secret, not a repository secret,
+    # so the job has to bind to the environment to see it. Until the cutover
+    # adds the api.lin.ky route, each deploy only uploads a new version of
+    # linky-api-production that nothing routes to (workers_dev is off).
+    environment: Production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # The worker bundles the generated Prisma client (both the Node and the
+      # workerd output), so it has to exist before wrangler builds.
+      - name: Generate the Prisma client
+        run: pnpm prisma:generate
+        working-directory: packages/prisma
+
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: apps/api

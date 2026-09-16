@@ -86,7 +86,14 @@ function buildTrustedOrigins(): string[] {
   return withAppOrigin(base);
 }
 
-export const trustedOrigins = buildTrustedOrigins();
+/**
+ * Computed per call, not at module load. On Workers, module scope can run
+ * before the environment is populated, which would freeze this to an empty
+ * list and break every credentialed request.
+ */
+export function getTrustedOrigins(): string[] {
+  return buildTrustedOrigins();
+}
 
 /**
  * A missing Origin header means the request is same-origin or not from a
@@ -98,5 +105,5 @@ export function isTrustedOrigin(origin: string | undefined): boolean {
     return true;
   }
 
-  return trustedOrigins.includes(origin);
+  return getTrustedOrigins().includes(origin);
 }

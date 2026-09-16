@@ -1,24 +1,9 @@
 'use server';
 
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import {
-  BatchGetCommand,
-  DynamoDBDocumentClient,
-  UpdateCommand,
-} from '@aws-sdk/lib-dynamodb';
-import { captureException } from '@sentry/node';
+import { batchGetItem, updateItem } from '@/modules/reactions/dynamo';
+import { captureException } from '@sentry/cloudflare';
 
-const client = new DynamoDBClient({
-  region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
-  },
-});
-
-const dynamoDb = DynamoDBDocumentClient.from(client);
-
-const TABLE_NAME = process.env.REACTIONS_TABLE_NAME;
+const TABLE_NAME = process.env.REACTIONS_TABLE_NAME as string;
 
 export const MAX_ALLOWED_REACTIONS_PER_IP = 16;
 
@@ -49,23 +34,16 @@ export async function getReactionsForPageId({
     [reactionType: string]: number;
   };
 }> {
-  const params = {
-    RequestItems: {
-      [TABLE_NAME as string]: {
-        Keys: [
-          { PK: pageId, SK: 'totals' },
-          { PK: pageId, SK: `entries#${ipAddress}` },
-        ],
-      },
-    },
-  };
-
   try {
-    const data = await dynamoDb.send(new BatchGetCommand(params));
+    const items = await batchGetItem({
+      table: TABLE_NAME,
+      keys: [
+        { PK: pageId, SK: 'totals' },
+        { PK: pageId, SK: `entries#${ipAddress}` },
+      ],
+    });
 
-    const items = data?.Responses?.[TABLE_NAME as string];
-
-    if (!items) {
+    if (items.length === 0) {
       return {
         total: {},
         current: {},
@@ -73,16 +51,19 @@ export async function getReactionsForPageId({
     }
 
     // Parse the results to separate totals and specific IP entry
-    const result = {
+    const result: {
+      total: { [reactionType: string]: number };
+      current: { [reactionType: string]: number };
+    } = {
       total: {},
       current: {},
     };
 
     for (const item of items) {
       if (item.SK === 'totals') {
-        result.total = item.reactionTotals;
+        result.total = item.reactionTotals as Record<string, number>;
       } else if (item.SK === `entries#${ipAddress}`) {
-        result.current = item.reactions;
+        result.current = item.reactions as Record<string, number>;
       }
     }
 
@@ -116,44 +97,26 @@ export async function incrementReaction({
     sk: string;
     mapName: string;
   }) {
-    // DynamoDB rejects a single expression that sets both #map and
-    // #map.#type (overlapping document paths), so this must stay two calls:
-    // ensure the map exists, then atomically increment the nested counter.
-    const initParams = {
-      TableName: TABLE_NAME,
-      Key: {
-        PK: pageId,
-        SK: sk,
-      },
-      UpdateExpression: `SET #map = if_not_exists(#map, :emptyMap)`,
-      ExpressionAttributeNames: {
-        '#map': mapName,
-      },
-      ExpressionAttributeValues: {
-        ':emptyMap': {},
-      },
-    };
-
-    const incrementParams = {
-      TableName: TABLE_NAME,
-      Key: {
-        PK: pageId,
-        SK: sk,
-      },
-      UpdateExpression: `SET #map.#type = if_not_exists(#map.#type, :zero) + :increment`,
-      ExpressionAttributeNames: {
-        '#map': mapName,
-        '#type': reactionType,
-      },
-      ExpressionAttributeValues: {
-        ':zero': 0,
-        ':increment': increment,
-      },
-    };
-
     try {
-      await dynamoDb.send(new UpdateCommand(initParams));
-      await dynamoDb.send(new UpdateCommand(incrementParams));
+      // DynamoDB rejects a single expression that sets both #map and
+      // #map.#type (overlapping document paths), so this must stay two calls:
+      // ensure the map exists, then atomically increment the nested counter.
+      await updateItem({
+        table: TABLE_NAME,
+        key: { PK: pageId, SK: sk },
+        updateExpression: 'SET #map = if_not_exists(#map, :emptyMap)',
+        expressionAttributeNames: { '#map': mapName },
+        expressionAttributeValues: { ':emptyMap': {} },
+      });
+
+      await updateItem({
+        table: TABLE_NAME,
+        key: { PK: pageId, SK: sk },
+        updateExpression:
+          'SET #map.#type = if_not_exists(#map.#type, :zero) + :increment',
+        expressionAttributeNames: { '#map': mapName, '#type': reactionType },
+        expressionAttributeValues: { ':zero': 0, ':increment': increment },
+      });
     } catch (error) {
       console.error(`Error updating ${mapName} for ${sk}:`, error);
       captureException(error);

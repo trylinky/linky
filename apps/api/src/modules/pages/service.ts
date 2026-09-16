@@ -1,6 +1,6 @@
 import prisma from '../../lib/prisma';
 import { makeId } from '@/modules/pages/utils';
-import { captureException } from '@sentry/node';
+import { captureException } from '@sentry/cloudflare';
 import { headerBlockDefaults } from '@trylinky/blocks';
 import {
   isForbiddenSlug,

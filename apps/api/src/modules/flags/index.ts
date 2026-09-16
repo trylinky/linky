@@ -1,24 +1,11 @@
-'use strict';
+import type { AppBindings } from '@/env';
+import { getFlagsForCurrentUserHandler } from '@/modules/flags/handlers/flags-for-current-user';
+import { hideOnboardingTourHandler } from '@/modules/flags/handlers/hide-onboarding-tour';
+import { Hono } from 'hono';
 
-import {
-  getFlagsForCurrentUserHandler,
-  getFlagsForCurrentUserSchema,
-} from './handlers/flags-for-current-user';
-import {
-  hideOnboardingTourHandler,
-  hideOnboardingTourSchema,
-} from './handlers/hide-onboarding-tour';
-import { FastifyInstance } from 'fastify';
+const flagsRoutes = new Hono<AppBindings>();
 
-export default async function flagsRoutes(fastify: FastifyInstance) {
-  fastify.get(
-    '/me',
-    { schema: getFlagsForCurrentUserSchema },
-    getFlagsForCurrentUserHandler
-  );
-  fastify.post(
-    '/hide-onboarding-tour',
-    { schema: hideOnboardingTourSchema },
-    hideOnboardingTourHandler
-  );
-}
+flagsRoutes.get('/me', getFlagsForCurrentUserHandler);
+flagsRoutes.post('/hide-onboarding-tour', hideOnboardingTourHandler);
+
+export default flagsRoutes;

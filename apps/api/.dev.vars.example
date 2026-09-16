@@ -1,0 +1,86 @@
+# Copy to .dev.vars for `wrangler dev`. Mirrors the API-relevant subset of
+# the repo-root .env.local. Never commit .dev.vars.
+#
+# This lists every `process.env.*` read under apps/api/src (43 total) except
+# NODE_ENV, which wrangler's bundler defines at build time and is never read
+# from here. Empty values are secrets/credentials — fill them in locally; do
+# not commit real values into this .example file.
+
+DATABASE_URL=postgresql://glow_user:KGfUZosCOm@localhost:5432/glow_development
+APP_ENV=development
+APP_FRONTEND_URL=http://localhost:3000
+API_BASE_URL=http://localhost:3001
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+NEXT_PUBLIC_ROOT_DOMAIN=localhost:3000
+
+# Optional. Comma-separated extra origins allowed to make credentialed
+# requests to the API. See lib/origins.ts — unset falls back to the built-in
+# hosted + localhost defaults.
+# TRUSTED_ORIGINS=https://example.com,https://www.example.com
+
+ENCRYPTION_KEY=
+INTERNAL_API_KEY=
+
+# Stripe - payments
+STRIPE_API_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+
+# Resend - transactional email
+RESEND_API_KEY=
+RESEND_AUDIENCE_ID=
+
+# AWS - asset uploads (S3) and the reactions table (DynamoDB)
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_REGION=
+REACTIONS_TABLE_NAME=
+
+# Sentry, PostHog, Slack, Tinybird
+SENTRY_DSN=
+POSTHOG_API_KEY=
+SLACK_TOKEN=
+TINYBIRD_API_KEY=
+
+# better-auth signing secret. Read by the library itself, not by any
+# process.env line in apps/api, so it never showed up in a grep. Production
+# uses the AUTH_SECRET alias; BETTER_AUTH_SECRET works too.
+AUTH_SECRET=
+
+# better-auth social sign-in (note the AUTH_ prefix — distinct from the
+# unprefixed GOOGLE_*/TWITTER_* vars the frontend package reads)
+AUTH_GOOGLE_CLIENT_ID=
+AUTH_GOOGLE_CLIENT_SECRET=
+AUTH_TWITTER_CLIENT_ID=
+AUTH_TWITTER_CLIENT_SECRET=
+AUTH_TIKTOK_CLIENT_KEY=
+AUTH_TIKTOK_CLIENT_SECRET=
+
+# Instagram integration (current)
+INSTAGRAM_CLIENT_ID=
+INSTAGRAM_CLIENT_SECRET=
+INSTAGRAM_CALLBACK_URL=
+
+# Instagram integration (legacy)
+INSTAGRAM_LEGACY_CLIENT_ID=
+INSTAGRAM_LEGACY_CLIENT_SECRET=
+INSTAGRAM_LEGACY_CALLBACK_URL=
+
+# Spotify integration
+SPOTIFY_CLIENT_ID=
+SPOTIFY_CLIENT_SECRET=
+SPOTIFY_REDIRECT_URL=
+
+# Threads integration
+THREADS_CLIENT_ID=
+THREADS_CLIENT_SECRET=
+THREADS_CALLBACK_URL=
+
+# TikTok integration (distinct from AUTH_TIKTOK_* above, which is only for
+# better-auth sign-in)
+TIKTOK_CLIENT_KEY=
+TIKTOK_CLIENT_SECRET=
+TIKTOK_CALLBACK_URL=
+
+# Wrangler dev points the HYPERDRIVE binding at local Postgres via this env var.
+# (The WRANGLER_-prefixed form still works but is deprecated.)
+CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=postgresql://glow_user:KGfUZosCOm@localhost:5432/glow_development

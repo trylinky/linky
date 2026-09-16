@@ -1,50 +1,47 @@
+import type { AppBindings } from '@/env';
 import prisma from '@/lib/prisma';
 import { getIpAddress } from '@/modules/analytics/utils';
 import { getReactionsForPageId } from '@/modules/reactions/service';
-import { Static, Type } from '@fastify/type-provider-typebox';
-import { FastifyRequest, FastifyReply } from 'fastify';
+import { tbValidator } from '@hono/typebox-validator';
+import { createFactory } from 'hono/factory';
+// Schema built with `typebox` (the peer dependency @hono/typebox-validator
+// actually type-checks against), not `@sinclair/typebox` — see the comment
+// on postReactionsBodySchema for why the two aren't interchangeable here.
+import { Type } from 'typebox';
 
-export const getReactionsSchema = {
-  querystring: Type.Object({
-    pageId: Type.String(),
-  }),
-  response: {
-    200: Type.Object({
-      total: Type.Record(Type.String(), Type.Number()),
-      current: Type.Record(Type.String(), Type.Number()),
-    }),
-  },
-};
+const factory = createFactory<AppBindings>();
 
-export async function getReactionsHandler(
-  request: FastifyRequest<{
-    Querystring: Static<typeof getReactionsSchema.querystring>;
-  }>,
-  response: FastifyReply
-): Promise<Static<(typeof getReactionsSchema.response)[200]>> {
-  const { pageId } = request.query;
+export const getReactionsQuerySchema = Type.Object({
+  pageId: Type.String(),
+});
 
-  const page = await prisma.page.findUnique({
-    where: {
-      id: pageId,
-    },
-    // Existence check only — the full row drags large JSON columns along.
-    select: {
-      id: true,
-    },
-  });
+// The handler is inlined here, in the same `createHandlers` call as its
+// validator, rather than declared as a separately-typed named function. That
+// keeps `c.req.valid('query')` inferred from the validator actually wired
+// above it instead of asserted against a type written by hand — pulling the
+// handler back out into its own annotated function reopens exactly the
+// validator/handler mismatch this structure exists to prevent (verified in
+// task-12-report.md, "Fix round 1").
+export const getReactionsHandlers = factory.createHandlers(
+  tbValidator('query', getReactionsQuerySchema),
+  async (c) => {
+    const { pageId } = c.req.valid('query');
 
-  if (!page) {
-    return response.status(404).send({
-      error: {
-        message: 'Page not found',
-      },
+    const page = await prisma.page.findUnique({
+      where: { id: pageId },
+      // Existence check only — the full row drags large JSON columns along.
+      select: { id: true },
     });
+
+    if (!page) {
+      return c.json({ error: { message: 'Page not found' } }, 404);
+    }
+
+    const reactions = await getReactionsForPageId({
+      pageId,
+      ipAddress: getIpAddress(c),
+    });
+
+    return c.json(reactions, 200);
   }
-
-  const ipAddress = await getIpAddress(request);
-
-  const reactions = await getReactionsForPageId({ pageId, ipAddress });
-
-  return response.status(200).send(reactions);
-}
+);

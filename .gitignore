@@ -9,6 +9,7 @@ node_modules
 apps/frontend/public/assets/tinybird
 
 packages/prisma/src/generated
+packages/prisma/src/generated-workerd
 
 .tinyb
 .venv
@@ -52,3 +53,6 @@ next-env.d.ts
 # Tailwind v4 migration visual baselines (local verification only)
 docs/superpowers/baselines/
 .gstack/
+
+apps/api/.dev.vars
+.wrangler

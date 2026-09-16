@@ -1,34 +1,37 @@
+import type { AppBindings } from '@/env';
 import prisma from '@/lib/prisma';
-import { Static, Type } from '@fastify/type-provider-typebox';
-import { FastifyRequest, FastifyReply } from 'fastify';
+import { tbValidator } from '@hono/typebox-validator';
+import { createFactory } from 'hono/factory';
+// Built with `typebox`, NOT `@sinclair/typebox`: @hono/typebox-validator
+// peer-depends on `typebox`, and feeding it a `@sinclair/typebox` schema
+// still type-checks and validates at runtime, but every property in
+// `c.req.valid()` silently comes back optional. See the comment on
+// postReactionsBodySchema in reactions/handlers/post-reactions.ts.
+import { Type } from 'typebox';
 
-export const getSlugAvailabilitySchema = {
-  querystring: Type.Object({
-    slug: Type.String(),
-  }),
-  response: {
-    200: Type.Object({
-      isAvailable: Type.Boolean(),
-    }),
-  },
-};
+const factory = createFactory<AppBindings>();
 
-export async function getSlugAvailabilityHandler(
-  request: FastifyRequest<{
-    Querystring: Static<typeof getSlugAvailabilitySchema.querystring>;
-  }>,
-  response: FastifyReply
-): Promise<Static<(typeof getSlugAvailabilitySchema.response)[200]>> {
-  const { slug } = request.query;
+export const getSlugAvailabilityQuerySchema = Type.Object({
+  slug: Type.String(),
+});
 
-  const page = await prisma.page.count({
-    where: {
-      deletedAt: null,
-      slug: slug,
-    },
-  });
+// The handler stays inline in this same `createHandlers` call so
+// `c.req.valid('query')` is inferred from the validator immediately above it,
+// not asserted against a hand-written type — see the comment on
+// getReactionsHandlers in reactions/handlers/get-reactions.ts for why pulling
+// it out into a separately-typed named function reopens that hole.
+export const getSlugAvailabilityHandlers = factory.createHandlers(
+  tbValidator('query', getSlugAvailabilityQuerySchema),
+  async (c) => {
+    const { slug } = c.req.valid('query');
 
-  return response.status(200).send({
-    isAvailable: page === 0,
-  });
-}
+    const count = await prisma.page.count({
+      where: {
+        deletedAt: null,
+        slug,
+      },
+    });
+
+    return c.json({ isAvailable: count === 0 }, 200);
+  }
+);

@@ -1,9 +1,11 @@
 import { getSpotifyUserInfo, requestToken } from './utils';
+import type { AppBindings } from '@/env';
 import { decrypt, encrypt } from '@/lib/encrypt';
 import prisma from '@/lib/prisma';
+import { requireSession } from '@/middleware/authenticate';
 import { linkIntegrationToBlock } from '@/modules/integrations/service';
-import { captureException } from '@sentry/node';
-import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { captureException } from '@sentry/cloudflare';
+import { Hono } from 'hono';
 
 interface SpotifyTokenResponse {
   access_token: string;
@@ -21,23 +23,15 @@ interface SpotifyUserInfoResponse {
   [key: string]: any;
 }
 
-export default async function spotifyServiceRoutes(fastify: FastifyInstance) {
-  fastify.get('/', getSpotifyRedirectHandler);
-  fastify.get('/callback', getSpotifyCallbackHandler);
-}
+const spotifyServiceRoutes = new Hono<AppBindings>();
 
-async function getSpotifyRedirectHandler(
-  request: FastifyRequest<{ Querystring: { blockId: string } }>,
-  response: FastifyReply
-) {
-  await request.server.authenticate(request, response);
+spotifyServiceRoutes.get('/', async (c) => {
+  requireSession(c);
 
-  const { blockId } = request.query;
+  const blockId = c.req.query('blockId');
 
   if (!blockId) {
-    return response.status(400).send({
-      error: 'Missing blockId',
-    });
+    return c.json({ error: 'Missing blockId' }, 400);
   }
 
   if (!process.env.SPOTIFY_CLIENT_ID) {
@@ -58,27 +52,17 @@ async function getSpotifyRedirectHandler(
     }),
   });
 
-  return response.redirect(`https://accounts.spotify.com/authorize?${query}`);
-}
+  return c.redirect(`https://accounts.spotify.com/authorize?${query}`);
+});
 
-async function getSpotifyCallbackHandler(
-  request: FastifyRequest<{ Querystring: { code: string; state: string } }>,
-  response: FastifyReply
-) {
-  const session = await request.server.authenticate(request, response);
+spotifyServiceRoutes.get('/callback', async (c) => {
+  const session = requireSession(c);
 
-  if (!session) {
-    return response.status(401).send({
-      error: 'Unauthorized',
-    });
-  }
-
-  const { code, state } = request.query;
+  const code = c.req.query('code');
+  const state = c.req.query('state');
 
   if (!code) {
-    return response.status(400).send({
-      error: 'Error getting token',
-    });
+    return c.json({ error: 'Error getting token' }, 400);
   }
 
   try {
@@ -86,7 +70,7 @@ async function getSpotifyCallbackHandler(
     const json = (await res.json()) as SpotifyTokenResponse;
 
     if (!json.access_token) {
-      return Response.json({ error: 'Error getting access_token' });
+      return c.json({ error: 'Error getting access_token' });
     }
 
     const encryptedConfig = await encrypt({
@@ -122,15 +106,15 @@ async function getSpotifyCallbackHandler(
       }
     }
 
-    return response.redirect(
+    return c.redirect(
       `${process.env.APP_FRONTEND_URL}/i/integration-callback/spotify`
     );
   } catch (error) {
     console.log('Error', error);
     captureException(error);
 
-    return response.status(500).send({
-      error: 'Error getting token',
-    });
+    return c.json({ error: 'Error getting token' }, 500);
   }
-}
+});
+
+export default spotifyServiceRoutes;

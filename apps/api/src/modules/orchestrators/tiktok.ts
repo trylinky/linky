@@ -1,7 +1,7 @@
 import { encrypt } from '@/lib/encrypt';
 import prisma from '@/lib/prisma';
 import { uploadAsset } from '@/modules/assets/service';
-import { captureException, captureMessage } from '@sentry/node';
+import { captureException, captureMessage } from '@sentry/cloudflare';
 import safeAwait from 'safe-await';
 
 // Example output: "x7hj2k9"

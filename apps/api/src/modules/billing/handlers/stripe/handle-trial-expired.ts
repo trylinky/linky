@@ -2,7 +2,7 @@ import prisma from '@/lib/prisma';
 import { stripeClient } from '@/lib/stripe';
 import { sendTrialEndedEmail } from '@/modules/notifications/service';
 import { sendSlackMessage } from '@/modules/slack/service';
-import { captureException } from '@sentry/node';
+import { captureException } from '@sentry/cloudflare';
 import safeAwait from 'safe-await';
 import Stripe from 'stripe';
 

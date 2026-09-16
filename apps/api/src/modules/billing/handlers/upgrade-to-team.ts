@@ -1,43 +1,21 @@
+import type { AppBindings } from '@/env';
 import { prices } from '@/lib/plans';
 import prisma from '@/lib/prisma';
 import { stripeClient } from '@/lib/stripe';
-import { FastifyReply, FastifyRequest } from 'fastify';
+import { requireSession } from '@/middleware/authenticate';
+import type { Context } from 'hono';
 
-export const upgradeToTeamSchema = {
-  response: {
-    200: {
-      type: 'object',
-      properties: {
-        url: { type: 'string' },
-      },
-      additionalProperties: false,
-    },
-    404: {
-      type: 'object',
-      properties: {
-        error: { type: 'string' },
-      },
-      additionalProperties: false,
-    },
-  },
-};
-
-export async function upgradeToTeamHandler(
-  request: FastifyRequest,
-  response: FastifyReply
-) {
-  const session = await request.server.authenticate(request, response);
+export async function upgradeToTeamHandler(c: Context<AppBindings>) {
+  const session = requireSession(c);
 
   const currentUser = await prisma.user.findUnique({
     where: {
-      id: session?.user.id,
+      id: session.user.id,
     },
   });
 
   if (!currentUser) {
-    return response.status(404).send({
-      error: 'User not found',
-    });
+    return c.json({ error: 'User not found' }, 404);
   }
 
   const customer = await stripeClient.customers.create({
@@ -99,13 +77,9 @@ export async function upgradeToTeamHandler(
       cancel_url: `${process.env.APP_FRONTEND_URL}/edit?showBilling=true`,
     });
 
-    return response.status(200).send({
-      url: upgradeSession.url,
-    });
+    return c.json({ url: upgradeSession.url }, 200);
   } catch (error) {
     console.log('Error', error);
-    return response.status(400).send({
-      error: 'Failed to upgrade to team',
-    });
+    return c.json({ error: 'Failed to upgrade to team' }, 400);
   }
 }

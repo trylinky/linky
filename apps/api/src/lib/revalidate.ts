@@ -1,4 +1,4 @@
-import { captureException } from '@sentry/node';
+import { captureException } from '@sentry/cloudflare';
 
 /**
  * Cache tags for the public page route. Must stay in sync with the tags set

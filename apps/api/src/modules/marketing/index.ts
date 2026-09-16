@@ -1,19 +1,16 @@
-import prisma from '../../lib/prisma';
+import type { AppBindings } from '@/env';
+import prisma from '@/lib/prisma';
 import { Prisma } from '@trylinky/prisma';
-import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import type { Context } from 'hono';
+import { Hono } from 'hono';
 
 type JsonObject = Prisma.JsonObject;
 
-export default async function marketingRoutes(fastify: FastifyInstance) {
-  fastify.get('/featured-pages', {
-    handler: getFeaturedPagesHandler,
-  });
-}
+const marketingRoutes = new Hono<AppBindings>();
 
-async function getFeaturedPagesHandler(
-  request: FastifyRequest,
-  response: FastifyReply
-) {
+marketingRoutes.get('/featured-pages', getFeaturedPagesHandler);
+
+async function getFeaturedPagesHandler(c: Context<AppBindings>) {
   const pages = await prisma.page.findMany({
     where: {
       deletedAt: null,
@@ -55,5 +52,7 @@ async function getFeaturedPagesHandler(
     })
     .filter(Boolean);
 
-  return response.status(200).send(featuredPages);
+  return c.json(featuredPages, 200);
 }
+
+export default marketingRoutes;

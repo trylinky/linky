@@ -1,7 +1,5 @@
-import { captureException } from '@sentry/node';
-import crypto from 'crypto';
+import { captureException } from '@sentry/cloudflare';
 
-const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 12;
 const SALT_LENGTH = 16;
 const KEY_LENGTH = 32;
@@ -17,15 +15,31 @@ interface EncryptedData {
 }
 
 /**
- * Derives an encryption key from the base key and salt
+ * Derives an encryption key from the base key and salt.
+ *
+ * WebCrypto rather than node:crypto's pbkdf2Sync: Workers guarantees the
+ * former, and the parameters (PBKDF2-SHA256, 100k iterations, 32-byte output)
+ * are identical, so ciphertext written by the previous implementation still
+ * decrypts.
  */
-function deriveKey(encryptionKey: string, salt: Buffer): Buffer {
-  return crypto.pbkdf2Sync(
-    encryptionKey,
-    salt,
-    ITERATIONS,
-    KEY_LENGTH,
-    'sha256'
+async function deriveKey(
+  encryptionKey: string,
+  salt: Uint8Array
+): Promise<CryptoKey> {
+  const baseKey = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(encryptionKey),
+    'PBKDF2',
+    false,
+    ['deriveKey']
+  );
+
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt, iterations: ITERATIONS, hash: 'SHA-256' },
+    baseKey,
+    { name: 'AES-GCM', length: KEY_LENGTH * 8 },
+    false,
+    ['encrypt', 'decrypt']
   );
 }
 
@@ -49,30 +63,31 @@ export async function encrypt(
     }
 
     // Generate salt and derive key
-    const salt = crypto.randomBytes(SALT_LENGTH);
-    const derivedKey = deriveKey(key, salt);
+    const salt = crypto.getRandomValues(new Uint8Array(SALT_LENGTH));
+    const derivedKey = await deriveKey(key, salt);
 
     // Generate IV
-    const iv = crypto.randomBytes(IV_LENGTH);
+    const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
 
-    // Create cipher
-    const cipher = crypto.createCipheriv(ALGORITHM, derivedKey, iv, {
-      authTagLength: AUTH_TAG_LENGTH,
-    });
+    // WebCrypto appends the auth tag to the ciphertext; the envelope stores
+    // them separately, so split the trailing AUTH_TAG_LENGTH bytes back out.
+    const sealed = new Uint8Array(
+      await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv, tagLength: AUTH_TAG_LENGTH * 8 },
+        derivedKey,
+        new TextEncoder().encode(jsonString)
+      )
+    );
 
-    // Encrypt the data
-    let encrypted = cipher.update(jsonString, 'utf8', 'base64');
-    encrypted += cipher.final('base64');
-
-    // Get authentication tag
-    const authTag = cipher.getAuthTag();
+    const ciphertext = sealed.slice(0, sealed.length - AUTH_TAG_LENGTH);
+    const authTag = sealed.slice(sealed.length - AUTH_TAG_LENGTH);
 
     // Combine all components
     const result: EncryptedData = {
-      iv: iv.toString('base64'),
-      salt: salt.toString('base64'),
-      encrypted: encrypted,
-      authTag: authTag.toString('base64'),
+      iv: Buffer.from(iv).toString('base64'),
+      salt: Buffer.from(salt).toString('base64'),
+      encrypted: Buffer.from(ciphertext).toString('base64'),
+      authTag: Buffer.from(authTag).toString('base64'),
       version: 1,
     };
 
@@ -108,27 +123,27 @@ export async function decrypt<T = unknown>(
     }
 
     // Convert components back to buffers
-    const iv = Buffer.from(data.iv, 'base64');
-    const salt = Buffer.from(data.salt, 'base64');
-    const authTag = Buffer.from(data.authTag, 'base64');
+    const iv = new Uint8Array(Buffer.from(data.iv, 'base64'));
+    const salt = new Uint8Array(Buffer.from(data.salt, 'base64'));
+    const authTag = new Uint8Array(Buffer.from(data.authTag, 'base64'));
+    const ciphertext = new Uint8Array(Buffer.from(data.encrypted, 'base64'));
 
     // Derive the key
-    const derivedKey = deriveKey(key, salt);
+    const derivedKey = await deriveKey(key, salt);
 
-    // Create decipher
-    const decipher = crypto.createDecipheriv(ALGORITHM, derivedKey, iv, {
-      authTagLength: AUTH_TAG_LENGTH,
-    });
+    // Re-join ciphertext and tag into the single buffer WebCrypto expects.
+    const sealed = new Uint8Array(ciphertext.length + authTag.length);
+    sealed.set(ciphertext);
+    sealed.set(authTag, ciphertext.length);
 
-    // Set auth tag
-    decipher.setAuthTag(authTag);
-
-    // Decrypt the data
-    let decrypted = decipher.update(data.encrypted, 'base64', 'utf8');
-    decrypted += decipher.final('utf8');
+    const plaintext = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv, tagLength: AUTH_TAG_LENGTH * 8 },
+      derivedKey,
+      sealed
+    );
 
     // Parse and return the JSON
-    return JSON.parse(decrypted) as T;
+    return JSON.parse(new TextDecoder().decode(plaintext)) as T;
   } catch (error) {
     captureException(error);
     throw new Error(`Decryption failed: ${(error as Error).message}`);

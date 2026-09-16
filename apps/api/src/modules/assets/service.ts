@@ -1,130 +1,72 @@
+import { putObject } from '@/lib/s3';
 import { assetContexts, AssetContexts } from '@/modules/assets/constants';
-import {
-  CompleteMultipartUploadCommandOutput,
-  S3,
-  type AbortMultipartUploadCommandOutput,
-} from '@aws-sdk/client-s3';
-import { Upload } from '@aws-sdk/lib-storage';
-import { MultipartFile } from '@fastify/multipart';
-import { randomUUID } from 'crypto';
-import sharp from 'sharp';
-import { PassThrough } from 'stream';
+import { encodeVariants } from '@/modules/assets/image';
 
-function isComplete(
-  output:
-    | CompleteMultipartUploadCommandOutput
-    | AbortMultipartUploadCommandOutput
-): output is CompleteMultipartUploadCommandOutput {
-  return (output as CompleteMultipartUploadCommandOutput).ETag !== undefined;
+function bucketName(): string {
+  return `${process.env.APP_ENV}.glow.user-uploads`;
 }
 
-const s3 = new S3({
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
-  },
-  region: process.env.AWS_REGION,
-});
+function cdnUrl(key: string): string {
+  return process.env.APP_ENV === 'development'
+    ? `https://cdn.dev.lin.ky/${key}`
+    : `https://cdn.lin.ky/${key}`;
+}
 
-const uploadStream = (fileName: string, contentType: string) => {
-  const passThrough = new PassThrough();
-
-  const upload = new Upload({
-    client: s3,
-    params: {
-      Bucket: `${process.env.APP_ENV}.glow.user-uploads`,
-      Key: fileName,
-      ContentType: contentType,
-      Body: passThrough,
-    },
-  });
-
-  return {
-    writeStream: passThrough,
-    done: upload.done(),
-  };
-};
-
+// No explicit return type annotation, deliberately: the two `return`
+// statements below infer to
+// `{ data: { url: string }; error?: undefined } | { error: string; data?: undefined }`,
+// which is what lets callers (modules/assets/index.ts,
+// modules/orchestrators/tiktok.ts) narrow with a plain `result.error` /
+// `result.data` check. Annotating this as the brief's
+// `Promise<{ data: { url: string } } | { error: string }>` (no companion
+// `?: undefined` properties) compiles here but breaks both of those
+// call sites' narrowing under strict mode — accessing `.error` on the
+// `{ data }` branch, or `.data` on the `{ error }` branch, becomes a
+// property-does-not-exist error. Keeping the return type inferred
+// preserves the exact runtime shape while staying source-compatible with
+// existing callers.
 export async function uploadAsset({
   context,
   file,
-  multipartFile,
   referenceId,
 }: {
   context: AssetContexts;
-  file?: File;
-  multipartFile?: MultipartFile;
+  file: File;
   referenceId: string;
 }) {
   const assetConfig = assetContexts[context];
-  const fileId = randomUUID();
+  const fileId = crypto.randomUUID();
   const baseFileName = `${assetConfig.keyPrefix}-${referenceId}/${fileId}`;
 
-  // Create upload streams for webp and png
-  const { writeStream: webpStream, done: webpDone } = uploadStream(
-    `${baseFileName}.webp`,
-    'image/webp'
-  );
-  const { writeStream: pngStream, done: pngDone } = uploadStream(
-    `${baseFileName}.png`,
-    'image/png'
-  );
-
-  // Process file with sharp streams
-  const sharpWebp = sharp()
-    .resize(assetConfig.resize.width, assetConfig.resize.height)
-    .webp({ quality: assetConfig.quality });
-  const sharpPng = sharp()
-    .resize(assetConfig.resize.width, assetConfig.resize.height)
-    .png({ quality: assetConfig.quality });
-
   try {
-    // Handle File or MultipartFile input
-    if (file) {
-      const buffer = await file.arrayBuffer();
-      const fileBuffer = Buffer.from(buffer);
+    const source = new Uint8Array(await file.arrayBuffer());
 
-      // Process and pipe the buffer through sharp to S3
-      sharpWebp.end(fileBuffer);
-      sharpPng.end(fileBuffer);
-    } else if (multipartFile) {
-      const buffer = await multipartFile.toBuffer();
+    const { webp, png } = await encodeVariants(source, {
+      width: assetConfig.resize.width,
+      height: assetConfig.resize.height,
+      quality: assetConfig.quality,
+    });
 
-      // Process and pipe the buffer through sharp to S3
-      sharpWebp.end(buffer);
-      sharpPng.end(buffer);
-    } else {
-      throw new Error('No file provided');
-    }
+    const bucket = bucketName();
 
-    // Connect sharp output to S3 upload streams
-    sharpWebp.pipe(webpStream);
-    sharpPng.pipe(pngStream);
+    await Promise.all([
+      putObject({
+        bucket,
+        key: `${baseFileName}.webp`,
+        body: webp,
+        contentType: 'image/webp',
+      }),
+      putObject({
+        bucket,
+        key: `${baseFileName}.png`,
+        body: png,
+        contentType: 'image/png',
+      }),
+    ]);
 
-    // Wait for uploads to finish
-    const [webpUpload, pngUpload] = await Promise.all([webpDone, pngDone]);
-
-    // Check if uploads are successful
-    if (isComplete(webpUpload) && isComplete(pngUpload)) {
-      const fileLocation =
-        process.env.APP_ENV === 'development'
-          ? `https://cdn.dev.lin.ky/${webpUpload.Key}`
-          : `https://cdn.lin.ky/${webpUpload.Key}`;
-
-      return {
-        data: {
-          url: fileLocation,
-        },
-      };
-    }
-
-    return {
-      error: 'Failed to upload asset',
-    };
+    return { data: { url: cdnUrl(`${baseFileName}.webp`) } };
   } catch (error) {
     console.error('Error uploading asset:', error);
-    return {
-      error: 'Failed to upload asset',
-    };
+    return { error: 'Failed to upload asset' };
   }
 }

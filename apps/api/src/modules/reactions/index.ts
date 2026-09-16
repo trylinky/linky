@@ -1,16 +1,11 @@
-'use strict';
+import type { AppBindings } from '@/env';
+import { getReactionsHandlers } from '@/modules/reactions/handlers/get-reactions';
+import { postReactionsHandlers } from '@/modules/reactions/handlers/post-reactions';
+import { Hono } from 'hono';
 
-import {
-  getReactionsSchema,
-  getReactionsHandler,
-} from '@/modules/reactions/handlers/get-reactions';
-import {
-  postReactionsHandler,
-  postReactionsSchema,
-} from '@/modules/reactions/handlers/post-reactions';
-import { FastifyInstance } from 'fastify';
+const reactionsRoutes = new Hono<AppBindings>();
 
-export default async function reactionsRoutes(fastify: FastifyInstance) {
-  fastify.get('/', { schema: getReactionsSchema }, getReactionsHandler);
-  fastify.post('/', { schema: postReactionsSchema }, postReactionsHandler);
-}
+reactionsRoutes.get('/', ...getReactionsHandlers);
+reactionsRoutes.post('/', ...postReactionsHandlers);
+
+export default reactionsRoutes;

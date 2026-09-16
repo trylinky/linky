@@ -1,12 +1,3 @@
-'use strict';
-
-import {
-  createBlockSchema,
-  deleteBlockSchema,
-  getBlockSchema,
-  getEnabledBlockSchema,
-  updateBlockDataSchema,
-} from './schemas';
 import {
   checkUserHasAccessToBlock,
   createBlock,
@@ -15,6 +6,7 @@ import {
   getEnabledBlocks,
   updateBlockData,
 } from './service';
+import type { AppBindings } from '@/env';
 import { createPosthogClient } from '@/lib/posthog';
 import prisma from '@/lib/prisma';
 import {
@@ -22,183 +14,167 @@ import {
   pageIdCacheTag,
   revalidatePageCache,
 } from '@/lib/revalidate';
-import { FastifyInstance, FastifyReply } from 'fastify';
-import { FastifyRequest } from 'fastify';
+import { optionalSession, requireSession } from '@/middleware/authenticate';
+import { tbValidator } from '@hono/typebox-validator';
+import { blocks } from '@trylinky/blocks';
+import type { Context } from 'hono';
+import { Hono } from 'hono';
+import { createFactory } from 'hono/factory';
+// Built with `typebox`, not `@sinclair/typebox` — see the comment on
+// postReactionsBodySchema in reactions/handlers/post-reactions.ts for why
+// the two aren't interchangeable when fed to tbValidator.
+import { Type } from 'typebox';
 
-export default async function blocksRoutes(fastify: FastifyInstance) {
-  fastify.post('/add', { schema: createBlockSchema }, postCreateBlockHandler);
-  fastify.get('/:blockId', { schema: getBlockSchema }, getBlockHandler);
-  fastify.delete(
-    '/:blockId',
-    { schema: deleteBlockSchema },
-    deleteBlockHandler
-  );
-  fastify.get(
-    '/enabled-blocks',
-    { schema: getEnabledBlockSchema },
-    getEnabledBlocksHandler
-  );
-  fastify.post(
-    '/:blockId/update-data',
-    { schema: updateBlockDataSchema },
-    updateBlockDataHandler
-  );
-}
+const UUID_PATTERN =
+  '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$';
 
-async function getBlockHandler(
-  request: FastifyRequest<{ Params: { blockId: string } }>,
-  response: FastifyReply
-) {
-  const { blockId } = request.params;
+/**
+ * `block.type` indexes straight into the block registry, so an unknown value
+ * used to throw on `blocks[type].defaults` and return a 500. Constraining it
+ * to the registry keys also stops a client asking for a block the UI would
+ * not offer it (see the isBeta gate in getEnabledBlocks).
+ *
+ * The id is client-generated so the editor can place the block optimistically
+ * before the request resolves, so it has to be accepted - but it can at least
+ * be required to look like the UUID the editor actually sends.
+ */
+const createBlockBodySchema = Type.Object(
+  {
+    block: Type.Object(
+      {
+        id: Type.String({ pattern: UUID_PATTERN }),
+        type: Type.Union(Object.keys(blocks).map((key) => Type.Literal(key))),
+      },
+      { additionalProperties: false }
+    ),
+    pageSlug: Type.String({ minLength: 1, maxLength: 100 }),
+  },
+  { additionalProperties: false }
+);
 
-  const session = await request.server.authenticate(request, response);
+const updateBlockDataBodySchema = Type.Object({
+  newData: Type.Object({}, { additionalProperties: true }),
+});
+
+// createFactory's Path type parameter has to be supplied per-route: it
+// isn't known until the handler is later wired to `.post()`, so without it
+// `c.req.param()` below would type as `string | undefined` instead of
+// `string`. Handlers below that are plain named functions (not built via
+// createFactory) get the same treatment by binding `Context`'s own Path
+// parameter directly.
+const addBlockFactory = createFactory<AppBindings>();
+const updateBlockDataFactory = createFactory<
+  AppBindings,
+  '/:blockId/update-data'
+>();
+
+async function getBlockHandler(c: Context<AppBindings, '/:blockId'>) {
+  const blockId = c.req.param('blockId');
+  const session = requireSession(c);
 
   const block = await getBlockById(blockId);
 
   if (!block?.page.publishedAt) {
-    if (session?.activeOrganizationId !== block?.page.organizationId) {
-      return response.status(404).send({
-        error: {
-          message: 'Block not found',
-        },
-      });
+    if (session.activeOrganizationId !== block?.page.organizationId) {
+      return c.json({ error: { message: 'Block not found' } }, 404);
     }
   }
 
-  return response.status(200).send({
-    integration: block?.integration,
-    blockData: block?.data,
-  });
+  return c.json(
+    { integration: block?.integration, blockData: block?.data },
+    200
+  );
 }
 
-async function postCreateBlockHandler(
-  request: FastifyRequest<{
-    Body: { block: { type: string; id: string }; pageSlug: string };
-  }>,
-  response: FastifyReply
-) {
-  const session = await request.server.authenticate(request, response);
+// The handler stays inline in this same `createHandlers` call so
+// `c.req.valid('json')` is inferred from the validator immediately above it,
+// not asserted against a hand-written type — see the comment on
+// getReactionsHandlers in reactions/handlers/get-reactions.ts for why pulling
+// it out into a separately-typed named function reopens that hole.
+const postCreateBlockHandlers = addBlockFactory.createHandlers(
+  tbValidator('json', createBlockBodySchema),
+  async (c) => {
+    const session = requireSession(c);
+    const posthog = createPosthogClient();
+    const { block, pageSlug } = c.req.valid('json');
 
-  const posthog = createPosthogClient();
-
-  if (!session?.user) {
-    return response.status(401).send({
-      error: {
-        message: 'Unauthorized',
+    const page = await prisma.page.findUnique({
+      where: {
+        deletedAt: null,
+        organization: {
+          id: session.activeOrganizationId,
+          members: { some: { userId: session.user.id } },
+        },
+        slug: pageSlug,
       },
+      include: { blocks: { select: { id: true } } },
     });
-  }
 
-  const { block, pageSlug } = request.body;
+    if (!page) {
+      return c.json({ error: { message: 'Page not found' } }, 400);
+    }
 
-  if (!block || !pageSlug) {
-    return response.status(400).send({
-      error: {
-        message: 'Missing required fields',
-      },
-    });
-  }
-
-  const page = await prisma.page.findUnique({
-    where: {
-      deletedAt: null,
-      organization: {
-        id: session.activeOrganizationId,
-        members: {
-          some: {
-            userId: session.user.id,
+    const maxNumberOfBlocks = 100;
+    if (page.blocks.length >= maxNumberOfBlocks) {
+      return c.json(
+        {
+          error: {
+            message: 'You have reached the maximum number of blocks per page',
           },
         },
-      },
-      slug: pageSlug,
-    },
-    include: {
-      blocks: {
-        select: {
-          id: true,
-        },
-      },
-    },
-  });
+        400
+      );
+    }
 
-  if (!page) {
-    return response.status(400).send({
-      error: {
-        message: 'Page not found',
-      },
-    });
-  }
+    const newBlock = await createBlock(block, pageSlug);
 
-  const maxNumberOfBlocks = 100;
-  if (page.blocks.length >= maxNumberOfBlocks) {
-    return response.status(400).send({
-      error: {
-        message: 'You have reached the maximum number of blocks per page',
+    void revalidatePageCache([pageIdCacheTag(newBlock.pageId)]);
+
+    posthog?.capture({
+      distinctId: session.user.id,
+      event: 'block-created',
+      properties: {
+        organizationId: session.activeOrganizationId,
+        pageId: newBlock.pageId,
+        blockId: newBlock.id,
+        blockType: newBlock.type,
       },
     });
+
+    // Workers kill the isolate as soon as the response is returned, taking
+    // any buffered PostHog events with it. Hand the flush to waitUntil so it
+    // completes after the response goes out instead of blocking it.
+    if (posthog) {
+      c.executionCtx.waitUntil(posthog.shutdown());
+    }
+
+    return c.json({ data: { block: newBlock } }, 200);
   }
+);
 
-  const newBlock = await createBlock(block, pageSlug);
-
-  void revalidatePageCache([pageIdCacheTag(newBlock.pageId)]);
-
-  posthog?.capture({
-    distinctId: session.user.id,
-    event: 'block-created',
-    properties: {
-      organizationId: session.activeOrganizationId,
-      pageId: newBlock.pageId,
-      blockId: newBlock.id,
-      blockType: newBlock.type,
-    },
-  });
-
-  return response.status(200).send({
-    data: {
-      block: newBlock,
-    },
-  });
-}
-
-async function getEnabledBlocksHandler(
-  request: FastifyRequest,
-  response: FastifyReply
-) {
-  const session = await request.server.authenticate(request, response, {
-    throwError: false,
-  });
+async function getEnabledBlocksHandler(c: Context<AppBindings>) {
+  const session = await optionalSession(c);
 
   if (!session?.user) {
-    return response.status(401).send([]);
+    return c.json([], 401);
   }
 
   const dbUser = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
-    select: {
-      role: true,
-    },
+    where: { id: session.user.id },
+    select: { role: true },
   });
 
   if (!dbUser) {
-    return response.status(401).send([]);
+    return c.json([], 401);
   }
 
-  const enabledBlocks = await getEnabledBlocks(dbUser);
-
-  return response.status(200).send(enabledBlocks);
+  return c.json(await getEnabledBlocks(dbUser), 200);
 }
 
-async function deleteBlockHandler(
-  request: FastifyRequest<{ Params: { blockId: string } }>,
-  response: FastifyReply
-) {
-  const session = await request.server.authenticate(request, response);
-
+async function deleteBlockHandler(c: Context<AppBindings, '/:blockId'>) {
+  const session = requireSession(c);
   const posthog = createPosthogClient();
-
-  const { blockId } = request.params;
+  const blockId = c.req.param('blockId');
 
   const block = await prisma.block.findUnique({
     where: {
@@ -206,33 +182,22 @@ async function deleteBlockHandler(
       page: {
         organization: {
           id: session.activeOrganizationId,
-          members: {
-            some: {
-              userId: session.user.id,
-            },
-          },
+          members: { some: { userId: session.user.id } },
         },
       },
     },
-    include: {
-      page: true,
-    },
+    include: { page: true },
   });
 
   if (!block) {
-    return response.status(400).send({
-      error: {
-        message: 'Block not found',
-      },
-    });
+    return c.json({ error: { message: 'Block not found' } }, 400);
   }
 
   if (block.type === 'header') {
-    return response.status(400).send({
-      error: {
-        message: 'You cannot delete the header block',
-      },
-    });
+    return c.json(
+      { error: { message: 'You cannot delete the header block' } },
+      400
+    );
   }
 
   try {
@@ -254,54 +219,67 @@ async function deleteBlockHandler(
       },
     });
 
-    return response.status(200).send({
-      message: 'Block deleted',
-    });
+    // Workers kill the isolate as soon as the response is returned, taking
+    // any buffered PostHog events with it. Hand the flush to waitUntil so it
+    // completes after the response goes out instead of blocking it.
+    if (posthog) {
+      c.executionCtx.waitUntil(posthog.shutdown());
+    }
+
+    return c.json({ message: 'Block deleted' }, 200);
   } catch {
-    return response.status(400).send({
-      error: {
-        message: 'Sorry, there was an error deleting this block',
-      },
-    });
+    return c.json(
+      { error: { message: 'Sorry, there was an error deleting this block' } },
+      400
+    );
   }
 }
 
-async function updateBlockDataHandler(
-  request: FastifyRequest<{
-    Params: { blockId: string };
-    Body: { newData: object };
-  }>,
-  response: FastifyReply
-) {
-  const session = await request.server.authenticate(request, response);
+// See the comment on postCreateBlockHandlers above for why this handler
+// stays inline in its own `createHandlers` call.
+const updateBlockDataHandlers = updateBlockDataFactory.createHandlers(
+  tbValidator('json', updateBlockDataBodySchema),
+  async (c) => {
+    const session = requireSession(c);
+    const blockId = c.req.param('blockId');
+    const { newData } = c.req.valid('json');
 
-  const { blockId } = request.params;
+    const hasAccess = await checkUserHasAccessToBlock(blockId, session.user.id);
 
-  const { newData } = request.body;
+    if (!hasAccess) {
+      return c.json({}, 401);
+    }
 
-  const hasAccess = await checkUserHasAccessToBlock(blockId, session.user.id);
+    try {
+      const updatedBlock = await updateBlockData(blockId, newData);
 
-  if (!hasAccess) {
-    return response.status(401).send({});
+      void revalidatePageCache([
+        pageIdCacheTag(updatedBlock.pageId),
+        blockCacheTag(blockId),
+      ]);
+
+      return c.json(
+        { id: updatedBlock.id, updatedAt: updatedBlock.updatedAt },
+        200
+      );
+    } catch {
+      return c.json({ error: { message: 'Error updating block data' } }, 400);
+    }
   }
+);
 
-  try {
-    const updatedBlock = await updateBlockData(blockId, newData);
+const blocksRoutes = new Hono<AppBindings>();
 
-    void revalidatePageCache([
-      pageIdCacheTag(updatedBlock.pageId),
-      blockCacheTag(blockId),
-    ]);
+blocksRoutes.post('/add', ...postCreateBlockHandlers);
+// `/enabled-blocks` MUST be registered before `/:blockId`. Hono's router
+// resolves competing GET patterns by registration order (unlike Fastify's
+// find-my-way, which tried static children before parametric ones
+// regardless of order) — registering the parametric route first would
+// shadow this one, with `:blockId` binding to the literal "enabled-blocks".
+// See blocks/index.test.ts for the regression test that pins this.
+blocksRoutes.get('/enabled-blocks', getEnabledBlocksHandler);
+blocksRoutes.get('/:blockId', getBlockHandler);
+blocksRoutes.delete('/:blockId', deleteBlockHandler);
+blocksRoutes.post('/:blockId/update-data', ...updateBlockDataHandlers);
 
-    return response.status(200).send({
-      id: updatedBlock.id,
-      updatedAt: updatedBlock.updatedAt,
-    });
-  } catch {
-    return response.status(400).send({
-      error: {
-        message: 'Error updating block data',
-      },
-    });
-  }
-}
+export default blocksRoutes;

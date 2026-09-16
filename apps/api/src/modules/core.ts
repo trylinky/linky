@@ -1,29 +1,13 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import type { AppBindings } from '@/env';
+import { requireSession } from '@/middleware/authenticate';
+import { Hono } from 'hono';
 
-export async function coreRoutes(fastify: FastifyInstance) {
-  fastify.get('/', {
-    handler: async (req: FastifyRequest, res: FastifyReply) => {
-      return res.status(200).send({
-        message: 'Welcome to the Linky API',
-      });
-    },
-  });
+const coreRoutes = new Hono<AppBindings>();
 
-  fastify.get('/ping', {
-    handler: async (req: FastifyRequest, res: FastifyReply) => {
-      return res.status(200).send({
-        ping: 'pong',
-      });
-    },
-  });
+coreRoutes.get('/', (c) => c.json({ message: 'Welcome to the Linky API' }));
 
-  fastify.get('/session/me', {
-    handler: async (req: FastifyRequest, res: FastifyReply) => {
-      const session = await req.server.authenticate(req, res);
+coreRoutes.get('/ping', (c) => c.json({ ping: 'pong' }));
 
-      return res.status(200).send({
-        session,
-      });
-    },
-  });
-}
+coreRoutes.get('/session/me', (c) => c.json({ session: requireSession(c) }));
+
+export default coreRoutes;
