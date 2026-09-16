@@ -58,6 +58,16 @@ jobs:
       - name: Check formatting
         run: pnpm prettier --check "apps/**/*.{ts,tsx}" "packages/**/*.{ts,tsx}"
 
+      # turbo's `typecheck` and `test` depend on `^prisma:generate`, which
+      # generates the client for packages that *depend on* @trylinky/prisma.
+      # The caret excludes the package itself, so @trylinky/prisma's own
+      # typecheck ran before its client existed and failed on every
+      # `./src/generated/*` import. Generate explicitly first, as the deploy
+      # job already does.
+      - name: Generate the Prisma client
+        run: pnpm prisma:generate
+        working-directory: packages/prisma
+
       - name: Typecheck
         run: pnpm typecheck
 
