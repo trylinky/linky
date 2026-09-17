@@ -1,7 +1,9 @@
 import type { AppBindings } from '@/env';
 import db from '@/lib/db';
+import { upgradeRequired } from '@/lib/upgrade-required';
 import { requireSession } from '@/middleware/authenticate';
 import { fetchStats, fetchTopLocations } from '@/modules/analytics/service';
+import { getEntitlementsForOrganization } from '@/modules/billing/entitlements';
 import { checkUserHasAccessToPage } from '@/modules/pages/service';
 import { captureException } from '@sentry/cloudflare';
 import type { Context } from 'hono';
@@ -21,6 +23,19 @@ export async function getPageAnalyticsHandler(
 
   if (!userHasAccess) {
     return c.json({}, 403);
+  }
+
+  const entitlements = await getEntitlementsForOrganization(
+    session.activeOrganizationId,
+    session.user.id
+  );
+
+  if (!entitlements.features.analytics) {
+    return upgradeRequired(c, 'analytics', {
+      organizationId: session.activeOrganizationId,
+      userId: session.user.id,
+      tier: entitlements.tier,
+    });
   }
 
   const row = await db.query.page.findFirst({
