@@ -24,7 +24,7 @@ const INTEGRATIONS: IntegrationContent[] = [
       },
       {
         heading: 'How to add Spotify to your Linky page',
-        body: 'Start by creating a free Linky page at trylinky.com - it takes about 30 seconds. In the editor, click "Add block" and choose "Now Playing" from the Spotify section. You will be prompted to connect your Spotify account via OAuth; Linky only requests read access to your currently playing track and recently played history. Hit publish and your page is live.',
+        body: 'Start by creating a free Linky page at lin.ky - it takes about 30 seconds. In the editor, click "Add block" and choose "Now Playing" from the Spotify section. You will be prompted to connect your Spotify account via OAuth; Linky only requests read access to your currently playing track and recently played history. Hit publish and your page is live.',
       },
       {
         heading: 'Why musicians and music lovers use it',

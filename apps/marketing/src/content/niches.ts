@@ -32,7 +32,7 @@ const NICHES: NicheContent[] = [
       {
         heading:
           'Getting started: from sign-up to live page in under five minutes',
-        body: 'Create a free Linky account at trylinky.com - no credit card required. In the editor, set your username (ideally your artist name), upload a profile photo, and write a one-line bio. Connect your Spotify account via the Integrations tab; Linky only requests read-only access to your listening activity. Add blocks in the order you want fans to see them, preview on mobile, and hit Publish. Your link-in-bio is live and ready to drop into every social profile.',
+        body: 'Create a free Linky account at lin.ky - no credit card required. In the editor, set your username (ideally your artist name), upload a profile photo, and write a one-line bio. Connect your Spotify account via the Integrations tab; Linky only requests read-only access to your listening activity. Add blocks in the order you want fans to see them, preview on mobile, and hit Publish. Your link-in-bio is live and ready to drop into every social profile.',
       },
     ],
     faqs: [
@@ -59,7 +59,7 @@ const NICHES: NicheContent[] = [
       {
         question: 'Can I update my page when I release new music?',
         answer:
-          'Absolutely. The editor is always available at trylinky.com/editor. Swap out Link Box URLs, update your bio, add a new YouTube embed, or rearrange blocks any time - changes publish instantly.',
+          'Absolutely. The editor is always available at lin.ky/edit. Swap out Link Box URLs, update your bio, add a new YouTube embed, or rearrange blocks any time - changes publish instantly.',
       },
     ],
   },
@@ -287,7 +287,7 @@ const NICHES: NicheContent[] = [
       },
       {
         heading: 'Getting your creator page live and keeping it updated',
-        body: 'Sign up free at trylinky.com and claim your creator name as the username. Connect Instagram and TikTok from the Integrations tab to activate the live post blocks. For affiliate and brand deal links, use Link Box blocks and update the URL whenever a campaign changes - changes publish instantly, no re-publishing required. On paid plans you get detailed click analytics per block, which tells you which links are actually converting so you can move high-performing content to the top of the page. Check your analytics weekly and reorder blocks based on what your audience is clicking.',
+        body: 'Sign up free at lin.ky and claim your creator name as the username. Connect Instagram and TikTok from the Integrations tab to activate the live post blocks. For affiliate and brand deal links, use Link Box blocks and update the URL whenever a campaign changes - changes publish instantly, no re-publishing required. On paid plans you get detailed click analytics per block, which tells you which links are actually converting so you can move high-performing content to the top of the page. Check your analytics weekly and reorder blocks based on what your audience is clicking.',
       },
     ],
     faqs: [
@@ -381,7 +381,7 @@ const NICHES: NicheContent[] = [
       {
         question: 'How do I update my page when the menu or hours change?',
         answer:
-          'Log in to trylinky.com/editor, make your changes - update the Image block, swap a Link Box URL, or edit the Header bio - and publish. Changes go live instantly with no developer or waiting period.',
+          'Log in to lin.ky/edit, make your changes - update the Image block, swap a Link Box URL, or edit the Header bio - and publish. Changes go live instantly with no developer or waiting period.',
       },
     ],
   },
@@ -438,7 +438,7 @@ const NICHES: NicheContent[] = [
       {
         question: 'How do I keep my portfolio image current?',
         answer:
-          'Log in to the editor at trylinky.com/editor and update the Image block whenever you want to feature a new piece of work. If you also add an Instagram Latest Post block, that refreshes automatically every time you post, so regular clients always see something new.',
+          'Log in to the editor at lin.ky/edit and update the Image block whenever you want to feature a new piece of work. If you also add an Instagram Latest Post block, that refreshes automatically every time you post, so regular clients always see something new.',
       },
       {
         question: 'Does the Map block work for salons with multiple locations?',
@@ -563,7 +563,7 @@ const NICHES: NicheContent[] = [
         question:
           'How do I update my page when a programme cohort opens or closes?',
         answer:
-          'Log in to the editor at trylinky.com/editor and swap, add, or remove blocks as needed. Changes publish instantly, so you can open a cohort, fill it, and update the page to "waitlist only" in minutes, all without touching your social bio URL.',
+          'Log in to the editor at lin.ky/edit and swap, add, or remove blocks as needed. Changes publish instantly, so you can open a cohort, fill it, and update the page to "waitlist only" in minutes, all without touching your social bio URL.',
       },
       {
         question: 'Can I show client testimonials or results on my Linky page?',

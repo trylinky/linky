@@ -109,7 +109,7 @@ const ALTERNATIVES: AlternativeContent[] = [
       },
       {
         heading: 'Getting started with Linky',
-        body: 'Sign up at trylinky.com, choose a username, and open the editor. Add a links block for your key URLs, then layer in live blocks for your active social accounts - Instagram, Spotify, TikTok, GitHub, or YouTube. Choose a theme to match your visual identity. Once the page is ready, upgrade to Premium if you want a custom domain or analytics, then swap the URL in your social bios.',
+        body: 'Sign up at lin.ky, choose a username, and open the editor. Add a links block for your key URLs, then layer in live blocks for your active social accounts - Instagram, Spotify, TikTok, GitHub, or YouTube. Choose a theme to match your visual identity. Once the page is ready, upgrade to Premium if you want a custom domain or analytics, then swap the URL in your social bios.',
       },
       {
         heading: 'Who should choose Linky',
@@ -274,7 +274,7 @@ const ALTERNATIVES: AlternativeContent[] = [
       },
       {
         heading: 'Getting started with Linky',
-        body: 'Sign up at trylinky.com, choose a username, and the editor opens immediately. Add a links block for your key URLs, then pick which live blocks are relevant - music on Spotify, your latest Instagram posts, GitHub activity, or a YouTube embed. Select a theme or customise colours and fonts. Upgrade to Premium to connect a custom domain or access analytics. Finally, replace the link in your Instagram or TikTok bio with your new Linky URL.',
+        body: 'Sign up at lin.ky, choose a username, and the editor opens immediately. Add a links block for your key URLs, then pick which live blocks are relevant - music on Spotify, your latest Instagram posts, GitHub activity, or a YouTube embed. Select a theme or customise colours and fonts. Upgrade to Premium to connect a custom domain or access analytics. Finally, replace the link in your Instagram or TikTok bio with your new Linky URL.',
       },
       {
         heading: 'Who should choose Linky vs Carrd',
