@@ -9,7 +9,10 @@ import {
   sendWelcomeEmail,
   sendWelcomeFollowUpEmail,
 } from '@/modules/notifications/service';
-import { hasAvailableSeat } from '@/modules/organizations/utils';
+import {
+  ensurePersonalOrganization,
+  hasAvailableSeat,
+} from '@/modules/organizations/utils';
 import { sendNewUserSlackMessage } from '@/modules/slack/service';
 import {
   account,
@@ -210,7 +213,16 @@ export function createAuth() {
 }
 
 const getActiveOrganization = async (userId: string) => {
-  return db.query.organization.findFirst({
+  const existing = await db.query.organization.findFirst({
     where: (o) => userIsMemberOfOrg(o.id, userId),
   });
+
+  if (existing) {
+    return existing;
+  }
+
+  // A brand-new user: the sign-up hook that creates their personal org is
+  // deferred by better-auth until after this session is created, so create
+  // it here instead. See ensurePersonalOrganization.
+  return ensurePersonalOrganization(userId);
 };

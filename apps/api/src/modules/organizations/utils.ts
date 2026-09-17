@@ -1,4 +1,5 @@
 import db from '@/lib/db';
+import { userIsMemberOfOrg } from '@/lib/db-predicates';
 import { member, organization, user } from '@trylinky/db/schema';
 import { count, eq } from 'drizzle-orm';
 
@@ -74,6 +75,31 @@ export async function getOrganizationMemberEmails(
   return rows
     .map((row) => row.email)
     .filter((email): email is string => Boolean(email));
+}
+
+/**
+ * The user's personal organization, created on first call.
+ *
+ * Sign-up creates the personal org in better-auth's `user.create.after`
+ * hook, but better-auth defers `after` hooks until the whole request handler
+ * has finished (`runWithAdapter` in @better-auth/core). On a magic-link
+ * sign-up that is *after* the session is created, so the session hook that
+ * sets `activeOrganizationId` found no org and every new email sign-up
+ * landed in the editor with no active organization. Both the session hook
+ * and the sign-up hook go through here, so whichever runs first creates the
+ * org and the other reuses it.
+ */
+export async function ensurePersonalOrganization(userId: string) {
+  const existing = await db.query.organization.findFirst({
+    where: (o, { and, eq }) =>
+      and(eq(o.isPersonal, true), userIsMemberOfOrg(o.id, userId)),
+  });
+
+  if (existing) {
+    return existing;
+  }
+
+  return createNewOrganization({ ownerId: userId, type: 'personal' });
 }
 
 /**
