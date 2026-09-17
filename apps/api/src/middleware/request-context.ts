@@ -1,7 +1,6 @@
 import type { AppBindings } from '@/env';
 import { createAuth } from '@/lib/auth';
 import { createDb, runWithDb } from '@/lib/db';
-import { createPrisma, runWithPrisma } from '@/lib/prisma';
 import type { MiddlewareHandler } from 'hono';
 import { AsyncLocalStorage } from 'node:async_hooks';
 
@@ -29,10 +28,7 @@ export const requestContext: MiddlewareHandler<AppBindings> = async (c, next) =>
   const { db, close } = createDb(c.env);
 
   try {
-    // Prisma stays bound until every module is ported (removed in Task 12).
-    await runWithPrisma(createPrisma(c.env), () =>
-      runWithDb(db, () => authStore.run(createAuth(), next))
-    );
+    await runWithDb(db, () => authStore.run(createAuth(), next));
   } finally {
     // Closing a pool that already lost its socket is not an error worth
     // surfacing; the request has finished either way.

@@ -2,8 +2,7 @@
 // dev` via tsx, and any other plain-Node execution of this code). See
 // wasm-loader.workerd.ts for the Cloudflare Workers variant and
 // apps/api/package.json's "imports" map (`#codec-wasm`) for how the right
-// one gets picked — the same "workerd"-condition pattern Task 2 established
-// for @trylinky/prisma's generated client.
+// one gets picked based on the "workerd" condition.
 //
 // Every @jsquash/* codec defaults to `fetch(new URL('*.wasm', import.meta.url))`
 // to load its wasm binary when no module is supplied. Node's fetch() does not
