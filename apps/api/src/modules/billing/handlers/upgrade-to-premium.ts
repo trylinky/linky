@@ -46,7 +46,9 @@ export async function upgradeToPremiumHandler(c: Context<AppBindings>) {
         metadata: { organizationId: session.activeOrganizationId },
       },
       allow_promotion_codes: true,
-      success_url: `${frontend}/edit?upgraded=premium`,
+      // /edit forwards its query string to the editor, where
+      // PremiumOnboardingDialog reads showPremiumOnboarding.
+      success_url: `${frontend}/edit?showPremiumOnboarding=true`,
       cancel_url: `${frontend}/edit?showBilling=true`,
     });
 

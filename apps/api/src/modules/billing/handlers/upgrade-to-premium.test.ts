@@ -88,7 +88,7 @@ describe('POST /billing/upgrade/premium', () => {
         mode: 'subscription',
         customer: `cus_up_${suffix}`,
         subscription_data: { metadata: { organizationId } },
-        success_url: 'https://lin.ky/edit?upgraded=premium',
+        success_url: 'https://lin.ky/edit?showPremiumOnboarding=true',
       })
     );
   });

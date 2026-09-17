@@ -3,7 +3,26 @@ import prisma from '@/lib/prisma';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-export default async function EditorIndex() {
+export default async function EditorIndex({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  // `/edit?showBilling=true` (emails, Stripe's cancel_url, getReturnUrl) lands
+  // here on its way to the page editor; the query string has to survive both
+  // hops or the dialog it asks for never opens.
+  const incoming = new URLSearchParams();
+  for (const [key, value] of Object.entries(await searchParams)) {
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        incoming.append(key, item);
+      }
+    } else if (value !== undefined) {
+      incoming.set(key, value);
+    }
+  }
+  const qs = incoming.toString();
+
   const session = await getSession({
     fetchOptions: { headers: await headers() },
   });
@@ -29,5 +48,5 @@ export default async function EditorIndex() {
     redirect('/new?freshOnboarding=true');
   }
 
-  redirect(`/e/${pages[0].slug}`);
+  redirect(`/e/${pages[0].slug}${qs ? `?${qs}` : ''}`);
 }
