@@ -77,6 +77,14 @@ describe('userIsMemberOfOrg', () => {
     expect(asAdmin).toHaveLength(0);
   });
 
+  it('matches when the required role is the member\'s actual role', async () => {
+    const asOwner = await db
+      .select({ id: organization.id })
+      .from(organization)
+      .where(and(eq(organization.id, organizationId), userIsMemberOfOrg(organization.id, ownerId, 'owner')));
+    expect(asOwner).toHaveLength(1);
+  });
+
   it('does not match the stranger owning a different organization', async () => {
     const rows = await db
       .select({ id: organization.id })
@@ -102,6 +110,20 @@ describe('pageOwnedByUser', () => {
       .select({ id: page.id })
       .from(page)
       .where(and(eq(page.id, pageId), pageOwnedByUser(page.id, ownerId, 'some-other-org')));
+    expect(rows).toHaveLength(0);
+  });
+
+  // requireSession defaults activeOrganizationId to '' when there is no
+  // active org, and callers pass that straight through as the pin. An empty
+  // string has to behave like any other non-matching pin (no rows), not like
+  // "no pin was given" (which would fall through to every row the owner has
+  // access to) — matching Prisma's `organization: { id: '' }`, which also
+  // matched nothing.
+  it('treats an empty-string organization pin as a real filter that matches nothing', async () => {
+    const rows = await db
+      .select({ id: page.id })
+      .from(page)
+      .where(and(eq(page.id, pageId), pageOwnedByUser(page.id, ownerId, '')));
     expect(rows).toHaveLength(0);
   });
 

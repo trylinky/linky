@@ -34,7 +34,7 @@ export function userIsMemberOfOrg(
         and(
           eq(orgMember.organizationId, organizationId),
           eq(orgMember.userId, userId),
-          role ? eq(orgMember.role, role) : undefined
+          role !== undefined ? eq(orgMember.role, role) : undefined
         )
       )
   );
@@ -52,7 +52,7 @@ export function pageOwnedByUser(
       .where(
         and(
           eq(ownedPage.id, pageId),
-          organizationId ? eq(ownedPage.organizationId, organizationId) : undefined,
+          organizationId !== undefined ? eq(ownedPage.organizationId, organizationId) : undefined,
           userIsMemberOfOrg(ownedPage.organizationId, userId)
         )
       )
