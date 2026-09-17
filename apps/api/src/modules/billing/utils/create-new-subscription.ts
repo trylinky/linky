@@ -45,12 +45,19 @@ export async function createNewSubscription({
     const [stripeSubscriptionError, stripeSubscription] = await safeAwait(
       stripeClient.subscriptions.create({
         customer: stripeCustomerId,
-        items: [
-          {
-            price,
-          },
-        ],
+        items: [{ price }],
         trial_period_days: DEFAULT_TRIAL_PERIOD_DAYS,
+        ...(DEFAULT_TRIAL_PERIOD_DAYS
+          ? {
+              // No card at signup: let Stripe cancel the subscription the
+              // moment the trial ends instead of dunning a card-less
+              // customer for three weeks. customer.subscription.deleted then
+              // runs the one downgrade path.
+              trial_settings: {
+                end_behavior: { missing_payment_method: 'cancel' },
+              },
+            }
+          : {}),
       })
     );
 

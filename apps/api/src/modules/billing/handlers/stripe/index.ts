@@ -3,8 +3,8 @@ import { stripeClient } from '@/lib/stripe';
 import { handleSubscriptionCancelled } from '@/modules/billing/handlers/stripe/handle-subscription-cancelled';
 import { handleSubscriptionCreated } from '@/modules/billing/handlers/stripe/handle-subscription-created';
 import { handleSubscriptionDeleted } from '@/modules/billing/handlers/stripe/handle-subscription-deleted';
-import { handleTrialExpired } from '@/modules/billing/handlers/stripe/handle-trial-expired';
 import { handleTrialWillEnd } from '@/modules/billing/handlers/stripe/handle-trial-will-end';
+import { syncSubscriptionFromStripe } from '@/modules/billing/utils/sync-subscription';
 import { captureException } from '@sentry/cloudflare';
 import type { Context } from 'hono';
 import Stripe from 'stripe';
@@ -44,25 +44,17 @@ export async function stripeWebhookHandler(c: Context<AppBindings>) {
         await handleSubscriptionDeleted(event);
         break;
       case 'customer.subscription.updated':
-        // Trial ended, payment attempt failed immediately after trial
-        if (
-          event.data.previous_attributes?.status === 'active' &&
-          event.data.object.status === 'past_due' &&
-          event.data.object.trial_end != null &&
-          event.data.object.ended_at == null
-        ) {
-          await handleTrialExpired(event);
-        }
+        // Mirror every status change (trialing → active on payment,
+        // past_due → active when a card is fixed, and so on).
+        await syncSubscriptionFromStripe(event.data.object);
 
-        // Subscription actually canceled later (fully deleted after retries failed)
+        // Customer chose "cancel at period end" in the portal.
         if (
-          event.data.object.status === 'canceled' &&
-          event.data.object.trial_end != null &&
-          event.data.object.ended_at != null
+          event.data.object.cancel_at_period_end &&
+          !event.data.previous_attributes?.cancel_at_period_end
         ) {
           await handleSubscriptionCancelled(event);
         }
-
         break;
       case 'customer.subscription.trial_will_end':
         // This event occurs 3 days before a trial ends

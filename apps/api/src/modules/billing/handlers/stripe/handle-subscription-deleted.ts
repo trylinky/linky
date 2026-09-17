@@ -1,79 +1,64 @@
-import db from '@/lib/db';
-import { sendSubscriptionDeletedEmail } from '@/modules/notifications/service';
+import { createPosthogClient } from '@/lib/posthog';
+import {
+  isUnconvertedTrial,
+  syncSubscriptionFromStripe,
+} from '@/modules/billing/utils/sync-subscription';
+import {
+  sendSubscriptionDeletedEmail,
+  sendTrialEndedEmail,
+} from '@/modules/notifications/service';
 import { getOrganizationMemberEmails } from '@/modules/organizations/utils';
 import { sendSlackMessage } from '@/modules/slack/service';
-import { captureException, captureMessage } from '@sentry/cloudflare';
-import { subscription } from '@trylinky/db/schema';
-import { eq } from 'drizzle-orm';
-import safeAwait from 'safe-await';
+import { captureMessage } from '@sentry/cloudflare';
 import Stripe from 'stripe';
 
 /**
- * Handle subscription deleted events
+ * The single downgrade path. Fires when Stripe deletes a subscription:
+ * a card-less trial reaching its end (trial_settings.end_behavior =
+ * cancel), a customer cancelling, or dunning giving up.
  */
 export async function handleSubscriptionDeleted(event: Stripe.Event) {
   const stripeSubscription = event.data.object as Stripe.Subscription;
 
-  const [error, current] = await safeAwait(
-    db.query.subscription.findFirst({
-      where: (s, { and, eq }) =>
-        and(
-          eq(s.stripeCustomerId, stripeSubscription.customer as string),
-          eq(s.stripeSubscriptionId, stripeSubscription.id)
-        ),
-      columns: { id: true, referenceId: true },
-    })
-  );
+  const result = await syncSubscriptionFromStripe(stripeSubscription);
 
-  if (error) {
-    captureException('Error retrieving subscription', {
-      extra: {
-        error,
-      },
-    });
-    return;
-  }
-
-  if (!current) {
+  if (!result) {
     captureMessage(
       `Subscription deleted but not found in database: ${stripeSubscription.id}`
     );
     return;
   }
 
-  const [updateError] = await safeAwait(
-    db
-      .update(subscription)
-      .set({
-        status: 'canceled',
-        plan: 'freeLegacy',
-        periodEnd: new Date(),
-      })
-      .where(eq(subscription.id, current.id))
-  );
+  const autoUpgradedToTeam =
+    stripeSubscription.cancellation_details?.comment ===
+    'LINKY_AUTO_UPGRADED_TO_TEAM';
 
-  if (updateError) {
-    captureException(updateError);
-  }
+  if (!autoUpgradedToTeam) {
+    const unconverted = isUnconvertedTrial(stripeSubscription);
+    const emails = await getOrganizationMemberEmails(result.organizationId);
 
-  // We should skip sending the cancellation email if the subscription was
-  // upgraded to team - we will send a different email in that case
-  if (
-    stripeSubscription.cancellation_details?.comment !==
-    'LINKY_AUTO_UPGRADED_TO_TEAM'
-  ) {
-    const emails = await getOrganizationMemberEmails(current.referenceId);
+    for (const email of emails) {
+      if (unconverted) {
+        await sendTrialEndedEmail(email);
+      } else {
+        await sendSubscriptionDeletedEmail(email);
+      }
+    }
 
-    emails.forEach(async (email) => {
-      await sendSubscriptionDeletedEmail(email);
-    });
+    if (unconverted) {
+      const posthog = createPosthogClient();
+      posthog?.capture({
+        distinctId: result.organizationId,
+        event: 'trial-ended-unconverted',
+        properties: { organizationId: result.organizationId },
+      });
+      if (posthog) void posthog.shutdown();
+    }
   }
 
   await sendSlackMessage({
-    text: `Subscription deleted for ${current.referenceId} (Subscription: ${current.id})`,
+    text: `Subscription deleted for ${result.organizationId} (Stripe: ${stripeSubscription.id})`,
   });
 
-  return {
-    success: true,
-  };
+  return { success: true };
 }

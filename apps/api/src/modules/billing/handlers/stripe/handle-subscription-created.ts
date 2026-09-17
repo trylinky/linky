@@ -3,6 +3,7 @@ import { userIsMemberOfOrg } from '@/lib/db-predicates';
 import { prices } from '@/lib/plans';
 import { stripeClient } from '@/lib/stripe';
 import { createNewSubscription } from '@/modules/billing/utils/create-new-subscription';
+import { syncSubscriptionFromStripe } from '@/modules/billing/utils/sync-subscription';
 import { sendSubscriptionUpgradedTeamEmail } from '@/modules/notifications/service';
 import { createNewOrganization } from '@/modules/organizations/utils';
 import { sendSlackMessage } from '@/modules/slack/service';
@@ -107,15 +108,17 @@ export async function handleSubscriptionCreated(event: Stripe.Event) {
   }
 
   if (plan === 'premium') {
-    // Nothing to do here
+    // Checkout-created (Free → Premium) subscriptions land here. Mirror the
+    // Stripe object so the row flips to premium/active without a bespoke
+    // handler; signup trials are already inserted by createNewSubscription
+    // and the sync is a no-op for them.
+    const result = await syncSubscriptionFromStripe(stripeSubscription);
 
     await sendSlackMessage({
-      text: `Premium subscription created for ${stripeSubscription.id}`,
+      text: `Premium subscription created for ${result?.organizationId ?? 'unknown org'} (Stripe: ${stripeSubscription.id})`,
     });
 
-    return {
-      success: true,
-    };
+    return { success: true };
   }
 }
 
