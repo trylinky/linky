@@ -1,7 +1,7 @@
 'use client';
 
 import { FormField } from '@/app/components/FormField';
-import { createVerificationRequest } from '@/app/lib/actions/verification';
+import { InternalApi } from '@trylinky/common';
 import {
   Button,
   Dialog,
@@ -76,24 +76,27 @@ function VerificationRequestForm({
   const onSubmit = async (
     values: z.infer<typeof verificationRequestSchema>
   ) => {
-    const req = await createVerificationRequest({
+    const req = await InternalApi.post('/verification-requests', {
       pageId,
       requestedPageTitle: values.requestedPageTitle,
     });
 
     if (req.error) {
-      toast({
-        title: 'Sorry, there was a problem submitting your request',
-        description: req.error,
-        variant: 'destructive',
-      });
-    } else {
-      toast({
-        title: 'Success',
-        description: 'Verification request submitted',
-      });
-      onCancel(false);
+      if (req.error.code !== 'UPGRADE_REQUIRED') {
+        toast({
+          variant: 'error',
+          title: 'Something went wrong',
+          description: req.error.message,
+        });
+      }
+      return;
     }
+
+    toast({
+      title: 'Success',
+      description: 'Verification request submitted',
+    });
+    onCancel(false);
   };
 
   return (

@@ -26,6 +26,7 @@ import spotifyServiceRoutes from '@/modules/services/spotify';
 import threadsServiceRoutes from '@/modules/services/threads';
 import tiktokServiceRoutes from '@/modules/services/tiktok';
 import themesRoutes from '@/modules/themes';
+import verificationRoutes from '@/modules/verification';
 import { Hono } from 'hono';
 
 export function createApp() {
@@ -92,6 +93,7 @@ export function createApp() {
   app.route('/assets', assetsRoutes);
   app.route('/orchestrators', orchestratorsRoutes);
   app.route('/analytics', analyticsRoutes);
+  app.route('/verification-requests', verificationRoutes);
   app.route('/services/tiktok', tiktokServiceRoutes);
   app.route('/services/instagram', instagramServiceRoutes);
   app.route('/services/threads', threadsServiceRoutes);
