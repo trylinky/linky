@@ -26,6 +26,7 @@ import { getEntitlementsForOrganization } from '@/modules/billing/entitlements';
 import { getPageLoadHandler } from '@/modules/pages/handlers/get-page-load';
 import { getPageBySlugOrDomainHandlers } from '@/modules/pages/handlers/get-page-slug-or-domain';
 import { getSlugAvailabilityHandlers } from '@/modules/pages/handlers/get-slug-availability';
+import { updatePageSettingsHandlers } from '@/modules/pages/handlers/update-page-settings';
 import { tbValidator } from '@hono/typebox-validator';
 import { captureException } from '@sentry/cloudflare';
 import { page } from '@trylinky/db/schema';
@@ -354,6 +355,8 @@ pagesRoutes.get('/:pageId/layout', getPageLayoutHandler);
 pagesRoutes.post('/:pageId/layout', ...updatePageLayoutHandlers);
 
 pagesRoutes.get('/:pageId/settings', getPageSettingsHandler);
+
+pagesRoutes.post('/:pageId/settings', ...updatePageSettingsHandlers);
 
 pagesRoutes.get('/:pageId/theme', getPageThemeHandler);
 

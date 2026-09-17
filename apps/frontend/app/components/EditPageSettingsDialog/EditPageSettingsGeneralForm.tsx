@@ -1,6 +1,5 @@
 'use client';
 
-import { updateGeneralPageSettings } from './actions';
 import { generalPageSettingsSchema } from './shared';
 import VerificationRequestDialog from '@/app/components/VerificationRequestDialog';
 import { captureException } from '@sentry/nextjs';
@@ -47,34 +46,33 @@ export function EditPageSettingsGeneral({ initialValues, pageId }: Props) {
     setSubmitting(true);
 
     try {
-      const response = await updateGeneralPageSettings(
-        values,
-        params.slug as string
-      );
+      const response = await InternalApi.post(`/pages/${pageId}/settings`, {
+        pageSlug: values.pageSlug,
+        metaTitle: values.metaTitle,
+        published: values.published,
+      });
 
       if (response?.error) {
-        captureException(response.error);
-        toast({
-          variant: 'error',
-          title: 'Something went wrong',
-          description: response.error.message,
-        });
-
-        if (response.error.field) {
-          setFieldError(response.error.field, response.error.message);
+        // 402 UPGRADE_REQUIRED is surfaced by the UpgradeDialog provider via
+        // InternalApi's listener; only field/validation errors toast here.
+        if (response.error.code !== 'UPGRADE_REQUIRED') {
+          toast({
+            variant: 'error',
+            title: 'Something went wrong',
+            description: response.error.message,
+          });
+          if (response.error.field) {
+            setFieldError(response.error.field, response.error.message);
+          }
         }
         return;
       }
 
-      if (response.data) {
-        if (values.pageSlug !== params.slug) {
-          router.push(`/${values.pageSlug}`);
-        }
+      if (response.slug && response.slug !== params.slug) {
+        router.push(`/e/${response.slug}/settings`);
       }
 
-      toast({
-        title: 'Your page settings have been updated',
-      });
+      toast({ title: 'Your page settings have been updated' });
       router.refresh();
     } catch (error) {
       captureException(error);

@@ -264,6 +264,88 @@ export async function createNewPage({
   }
 }
 
+export async function updatePageSettings({
+  pageId,
+  organizationId,
+  pageSlug,
+  metaTitle,
+  published,
+}: {
+  pageId: string;
+  organizationId: string;
+  pageSlug: string;
+  metaTitle: string;
+  published: boolean;
+}): Promise<
+  | { slug: string; previousSlug: string }
+  | { error: { message: string; field?: 'pageSlug' | 'metaTitle' } }
+> {
+  const current = await db.query.page.findFirst({
+    where: (p, { and, eq, isNull }) =>
+      and(
+        eq(p.id, pageId),
+        isNull(p.deletedAt),
+        eq(p.organizationId, organizationId)
+      ),
+    columns: { id: true, slug: true },
+  });
+
+  if (!current) {
+    return { error: { message: 'Page not found' } };
+  }
+
+  if (!metaTitle) {
+    return {
+      error: { message: 'Please provide a page title', field: 'metaTitle' },
+    };
+  }
+
+  if (current.slug !== pageSlug) {
+    if (!pageSlug.match(regexSlug)) {
+      return { error: { message: 'Slug is invalid', field: 'pageSlug' } };
+    }
+
+    if (isForbiddenSlug(pageSlug)) {
+      return { error: { message: 'Slug is forbidden', field: 'pageSlug' } };
+    }
+
+    if (isReservedSlug(pageSlug)) {
+      return {
+        error: {
+          message: 'Slug is reserved - reach out on twitter to request this',
+          field: 'pageSlug',
+        },
+      };
+    }
+
+    const existing = await db.query.page.findFirst({
+      where: (p, { and, eq, isNull }) =>
+        and(eq(p.slug, pageSlug), isNull(p.deletedAt)),
+      columns: { id: true },
+    });
+
+    if (existing) {
+      return {
+        error: {
+          message: 'Page with this slug already exists',
+          field: 'pageSlug',
+        },
+      };
+    }
+  }
+
+  await db
+    .update(page)
+    .set({
+      metaTitle,
+      slug: pageSlug,
+      publishedAt: published ? new Date() : null,
+    })
+    .where(eq(page.id, current.id));
+
+  return { slug: pageSlug, previousSlug: current.slug };
+}
+
 export async function deletePage(pageId: string) {
   const row = await db.query.page.findFirst({
     where: (p, { and, eq, isNull }) =>
