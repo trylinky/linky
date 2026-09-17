@@ -56,7 +56,23 @@ export async function getUpgradeEligibilityHandler(c: Context<AppBindings>) {
     );
   }
 
-  if (['premium', 'freeLegacy'].includes(current.plan)) {
+  if (current.plan === 'freeLegacy') {
+    // `addPaymentMethod` and `completeTrial` are trial concepts: a legacy
+    // free org has no trial to complete, it needs a Checkout session. The
+    // pricing table's freeLegacy branch posts to /billing/upgrade/premium.
+    return c.json(
+      {
+        canUpgrade: true,
+        nextPlan: 'premium',
+        nextStep: 'checkout',
+        message: null,
+        currentPlan: current.plan,
+      },
+      200
+    );
+  }
+
+  if (current.plan === 'premium') {
     const customer = await stripeClient.customers.retrieve(
       current.stripeCustomerId
     );
