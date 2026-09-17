@@ -24,6 +24,7 @@
     "@sentry/nextjs": "^10.50.0",
     "@trylinky/blocks": "workspace:*",
     "@trylinky/common": "workspace:*",
+    "@trylinky/db": "workspace:*",
     "@trylinky/prisma": "workspace:*",
     "@trylinky/seo": "workspace:*",
     "@trylinky/tinybird": "workspace:*",

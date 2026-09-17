@@ -2,7 +2,7 @@ import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  transpilePackages: ['@trylinky/ui', '@trylinky/common', '@trylinky/seo'],
+  transpilePackages: ['@trylinky/ui', '@trylinky/common', '@trylinky/seo', '@trylinky/db'],
   // Full Cache Components / PPR: the public page shell prerenders, cached
   // data ('use cache' in page-actions) serves from cache, and only dynamic
   // Suspense-wrapped subtrees render per request.
