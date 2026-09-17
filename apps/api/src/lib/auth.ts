@@ -1,5 +1,6 @@
+import db from '@/lib/db';
+import { userIsMemberOfOrg } from '@/lib/db-predicates';
 import { getTrustedOrigins } from '@/lib/origins';
-import prisma from '@/lib/prisma';
 import { createContact } from '@/lib/resend';
 import { createUserInitialFlags, handleUserCreated } from '@/lib/user-created';
 import {
@@ -10,9 +11,17 @@ import {
 } from '@/modules/notifications/service';
 import { hasAvailableSeat } from '@/modules/organizations/utils';
 import { sendNewUserSlackMessage } from '@/modules/slack/service';
-import { PrismaClient } from '@trylinky/prisma';
+import {
+  account,
+  invitation,
+  member,
+  organization as organizationTable,
+  session,
+  user,
+  verification,
+} from '@trylinky/db/schema';
 import { betterAuth, BetterAuthPlugin } from 'better-auth';
-import { prismaAdapter } from 'better-auth/adapters/prisma';
+import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { APIError } from 'better-auth/api';
 import { admin, magicLink, organization } from 'better-auth/plugins';
 
@@ -44,8 +53,24 @@ export function createAuth() {
     // scope can run before the environment is populated, which would freeze
     // this to an empty list and silently break every credentialed request.
     trustedOrigins: getTrustedOrigins(),
-    database: prismaAdapter(prisma as PrismaClient, {
-      provider: 'postgresql',
+    // The tables are PascalCase ("User") but the adapter resolves each model
+    // by its key in `schema`, so the keys must be better-auth's model names.
+    database: drizzleAdapter(db, {
+      provider: 'pg',
+      schema: {
+        user,
+        session,
+        account,
+        verification,
+        organization: organizationTable,
+        member,
+        invitation,
+      },
+      usePlural: false,
+      // Already the default; stated because the per-request pool holds one
+      // connection, and the database hooks below query through `db`, which
+      // would wait forever on a connection held by an adapter transaction.
+      transaction: false,
     }),
     socialProviders: {
       google: {
@@ -66,7 +91,7 @@ export function createAuth() {
     },
     advanced: {
       database: {
-        generateId: false, // Let the database generate UUIDs
+        generateId: false, // Drizzle's $defaultFn fills the UUID on insert
       },
       crossSubDomainCookies:
         process.env.NODE_ENV === 'production'
@@ -185,11 +210,7 @@ export function createAuth() {
 }
 
 const getActiveOrganization = async (userId: string) => {
-  const organization = await prisma?.organization.findFirst({
-    where: {
-      members: { some: { userId } },
-    },
+  return db.query.organization.findFirst({
+    where: (o) => userIsMemberOfOrg(o.id, userId),
   });
-
-  return organization;
 };
