@@ -12,7 +12,7 @@ import {
 } from '@trylinky/db/schema';
 import { eq, inArray } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
-import { afterAll, describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 // A magic-link sign-up through the real HTTP flow. better-auth defers the
 // `user.create.after` hook (which creates the personal org) until after the
@@ -52,7 +52,22 @@ vi.mock('@/modules/billing/utils/create-new-subscription', () => ({
 const suffix = randomUUID().slice(0, 8);
 const email = `signup-flow-${suffix}@example.com`;
 
+// The magic-link handler builds its link from API_BASE_URL. CI sets only
+// DATABASE_URL and APP_FRONTEND_URL, so provide the rest here rather than
+// depending on a developer's .env.local.
+beforeAll(() => {
+  vi.stubEnv(
+    'API_BASE_URL',
+    process.env.API_BASE_URL ?? 'http://localhost:3001'
+  );
+  vi.stubEnv(
+    'APP_FRONTEND_URL',
+    process.env.APP_FRONTEND_URL ?? 'http://localhost:3000'
+  );
+});
+
 afterAll(async () => {
+  vi.unstubAllEnvs();
   const users = await db
     .select({ id: user.id })
     .from(user)
