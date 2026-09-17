@@ -6,6 +6,7 @@ import {
   member,
   organization,
   page,
+  subscription,
   theme,
   user,
 } from '@trylinky/db/schema';
@@ -113,12 +114,14 @@ export async function cleanupTestData({
   pageIds = [],
   themeIds = [],
   integrationIds = [],
+  subscriptionIds = [],
 }: {
   userIds?: string[];
   organizationIds?: string[];
   pageIds?: string[];
   themeIds?: string[];
   integrationIds?: string[];
+  subscriptionIds?: string[];
 }) {
   if (pageIds.length) {
     await db.delete(formSubmission).where(inArray(formSubmission.pageId, pageIds));
@@ -130,6 +133,9 @@ export async function cleanupTestData({
   }
   if (themeIds.length) {
     await db.delete(theme).where(inArray(theme.id, themeIds));
+  }
+  if (subscriptionIds.length) {
+    await db.delete(subscription).where(inArray(subscription.id, subscriptionIds));
   }
   if (organizationIds.length) {
     await db.delete(member).where(inArray(member.organizationId, organizationIds));
