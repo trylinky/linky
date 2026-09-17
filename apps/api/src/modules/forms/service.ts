@@ -1,6 +1,9 @@
 import { validateAnswers } from './validate-answers';
-import prisma from '@/lib/prisma';
+import db from '@/lib/db';
+import { pageOwnedByUser, userIsMemberOfOrg } from '@/lib/db-predicates';
 import { FormBlockConfig } from '@trylinky/blocks';
+import { block, formSubmission, page } from '@trylinky/db/schema';
+import { and, count, desc, eq, gt, inArray, isNull, lt, max, or, type SQL } from 'drizzle-orm';
 
 const RATE_LIMIT_MAX_PER_HOUR = 5;
 const DEFAULT_PAGE_SIZE = 50;
@@ -22,28 +25,13 @@ export async function submitFormResponse({
   honeypot: string;
   ipAddress: string;
 }): Promise<SubmitResult> {
-  const block = await prisma.block.findUnique({
-    where: { id: blockId },
-    select: {
-      id: true,
-      type: true,
-      data: true,
-      pageId: true,
-      page: {
-        select: {
-          publishedAt: true,
-          deletedAt: true,
-        },
-      },
-    },
+  const target = await db.query.block.findFirst({
+    where: (b, { eq }) => eq(b.id, blockId),
+    columns: { id: true, type: true, data: true, pageId: true },
+    with: { page: { columns: { publishedAt: true, deletedAt: true } } },
   });
 
-  if (
-    !block ||
-    block.type !== 'form' ||
-    !block.page.publishedAt ||
-    block.page.deletedAt
-  ) {
+  if (!target || target.type !== 'form' || !target.page.publishedAt || target.page.deletedAt) {
     return { status: 'not-found' };
   }
 
@@ -53,60 +41,49 @@ export async function submitFormResponse({
   }
 
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-  // Note: count-then-create is not atomic. Concurrent requests can briefly
-  // exceed RATE_LIMIT_MAX_PER_HOUR by the number of in-flight requests.
-  // Acceptable at 5/hr for this product; revisit if it needs to be strict.
-  const recentCount = await prisma.formSubmission.count({
-    where: {
-      blockId,
-      visitorIp: ipAddress,
-      createdAt: { gt: oneHourAgo },
-    },
-  });
+  // Count-then-create is not atomic; acceptable at 5/hr.
+  const [{ count: recentCount }] = await db
+    .select({ count: count() })
+    .from(formSubmission)
+    .where(
+      and(
+        eq(formSubmission.blockId, blockId),
+        eq(formSubmission.visitorIp, ipAddress),
+        gt(formSubmission.createdAt, oneHourAgo)
+      )
+    );
 
   if (recentCount >= RATE_LIMIT_MAX_PER_HOUR) {
     return { status: 'rate-limited' };
   }
 
-  const config = block.data as unknown as FormBlockConfig;
+  const config = target.data as unknown as FormBlockConfig;
   const result = validateAnswers(config.fields ?? [], answers);
 
   if (!result.ok) {
     return { status: 'invalid', errors: result.errors };
   }
 
-  await prisma.formSubmission.create({
-    data: {
-      pageId: block.pageId,
-      blockId: block.id,
-      answers: result.answers,
-      fieldsSnapshot: {
-        title: config.title ?? null,
-        fields: config.fields as unknown as object[],
-      },
-      visitorIp: ipAddress,
-    },
+  await db.insert(formSubmission).values({
+    pageId: target.pageId,
+    blockId: target.id,
+    answers: result.answers,
+    fieldsSnapshot: { title: config.title ?? null, fields: config.fields as unknown as object[] },
+    visitorIp: ipAddress,
   });
 
   return { status: 'ok' };
 }
 
 export async function checkUserHasAccessToPage(pageId: string, userId: string) {
-  const count = await prisma.page.count({
-    where: {
-      id: pageId,
-      deletedAt: null,
-      organization: {
-        members: {
-          some: {
-            userId,
-          },
-        },
-      },
-    },
-  });
+  const [{ count: matches }] = await db
+    .select({ count: count() })
+    .from(page)
+    .where(
+      and(eq(page.id, pageId), isNull(page.deletedAt), userIsMemberOfOrg(page.organizationId, userId))
+    );
 
-  return count > 0;
+  return matches > 0;
 }
 
 export interface FormGroup {
@@ -117,51 +94,65 @@ export interface FormGroup {
   latestSubmissionAt: Date | null;
 }
 
-export async function getFormGroupsForPage(
-  pageId: string
-): Promise<FormGroup[]> {
+export async function getFormGroupsForPage(pageId: string): Promise<FormGroup[]> {
   const [formBlocks, submissionGroups] = await Promise.all([
-    prisma.block.findMany({
-      where: { pageId, type: 'form' },
-      select: { id: true, data: true },
-    }),
-    prisma.formSubmission.groupBy({
-      by: ['blockId'],
-      where: { pageId },
-      _count: { _all: true },
-      _max: { createdAt: true },
-    }),
+    db
+      .select({ id: block.id, data: block.data })
+      .from(block)
+      .where(and(eq(block.pageId, pageId), eq(block.type, 'form'))),
+    db
+      .select({
+        blockId: formSubmission.blockId,
+        submissionCount: count(),
+        latestSubmissionAt: max(formSubmission.createdAt),
+      })
+      .from(formSubmission)
+      .where(eq(formSubmission.pageId, pageId))
+      .groupBy(formSubmission.blockId),
   ]);
 
   const countsByBlockId = new Map(
-    submissionGroups.map((group) => [group.blockId, group])
+    submissionGroups.map((group) => [
+      group.blockId,
+      {
+        submissionCount: group.submissionCount,
+        // drizzle's `max()` on a timestamp column comes back as a string
+        // over the pg driver; coerce it back to a Date to match Prisma's
+        // `_max.createdAt` shape.
+        latestSubmissionAt:
+          group.latestSubmissionAt === null ? null : new Date(group.latestSubmissionAt),
+      },
+    ])
   );
 
-  const groups: FormGroup[] = formBlocks.map((block) => {
-    const data = block.data as unknown as FormBlockConfig;
-    const counts = countsByBlockId.get(block.id);
-    countsByBlockId.delete(block.id);
+  const groups: FormGroup[] = formBlocks.map((formBlock) => {
+    const data = formBlock.data as unknown as FormBlockConfig;
+    const counts = countsByBlockId.get(formBlock.id);
+    countsByBlockId.delete(formBlock.id);
 
     return {
-      blockId: block.id,
+      blockId: formBlock.id,
       title: data.title || 'Untitled form',
       isDeleted: false,
-      submissionCount: counts?._count._all ?? 0,
-      latestSubmissionAt: counts?._max.createdAt ?? null,
+      submissionCount: counts?.submissionCount ?? 0,
+      latestSubmissionAt: counts?.latestSubmissionAt ?? null,
     };
   });
 
-  // Whatever remains belongs to deleted form blocks; title comes from the
-  // latest submission's snapshot so collected data stays reachable.
+  // Whatever remains belongs to deleted form blocks; the title comes from
+  // the latest submission's snapshot.
   const orphanBlockIds = [...countsByBlockId.keys()];
   if (orphanBlockIds.length > 0) {
-    // One query: the most recent snapshot per orphaned blockId.
-    const latestSnapshots = await prisma.formSubmission.findMany({
-      where: { blockId: { in: orphanBlockIds } },
-      orderBy: { createdAt: 'desc' },
-      distinct: ['blockId'],
-      select: { blockId: true, fieldsSnapshot: true },
-    });
+    // DISTINCT ON needs the distinct column first in ORDER BY.
+    const latestSnapshots = await db
+      .selectDistinctOn([formSubmission.blockId], {
+        blockId: formSubmission.blockId,
+        fieldsSnapshot: formSubmission.fieldsSnapshot,
+      })
+      .from(formSubmission)
+      .where(inArray(formSubmission.blockId, orphanBlockIds))
+      .orderBy(formSubmission.blockId, desc(formSubmission.createdAt));
+
     const snapshotByBlockId = new Map(
       latestSnapshots.map((submission) => [
         submission.blockId,
@@ -176,8 +167,8 @@ export async function getFormGroupsForPage(
         blockId,
         title: snapshot?.title || 'Untitled form',
         isDeleted: true,
-        submissionCount: counts._count._all,
-        latestSubmissionAt: counts._max.createdAt,
+        submissionCount: counts.submissionCount,
+        latestSubmissionAt: counts.latestSubmissionAt,
       });
     }
   }
@@ -191,44 +182,49 @@ export async function listSubmissions(
   cursor?: string,
   pageSize: number = DEFAULT_PAGE_SIZE
 ) {
-  const submissions = await prisma.formSubmission.findMany({
-    where: { pageId, blockId },
-    orderBy: { createdAt: 'desc' },
-    take: pageSize + 1,
-    ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
-  });
+  // Keyset pagination on (createdAt, id): Prisma's cursor/skip:1 walked
+  // past the cursor row; this selects everything strictly after it in the
+  // same createdAt desc order, with id as the tiebreaker.
+  let afterCursor: SQL | undefined;
+  if (cursor) {
+    const cursorRow = await db.query.formSubmission.findFirst({
+      where: (s, { eq }) => eq(s.id, cursor),
+      columns: { createdAt: true, id: true },
+    });
+
+    if (!cursorRow) {
+      return { submissions: [], nextCursor: null };
+    }
+
+    afterCursor = or(
+      lt(formSubmission.createdAt, cursorRow.createdAt),
+      and(eq(formSubmission.createdAt, cursorRow.createdAt), lt(formSubmission.id, cursorRow.id))
+    );
+  }
+
+  const submissions = await db
+    .select()
+    .from(formSubmission)
+    .where(and(eq(formSubmission.pageId, pageId), eq(formSubmission.blockId, blockId), afterCursor))
+    .orderBy(desc(formSubmission.createdAt), desc(formSubmission.id))
+    .limit(pageSize + 1);
 
   const hasMore = submissions.length > pageSize;
-  const pageOfSubmissions = hasMore
-    ? submissions.slice(0, pageSize)
-    : submissions;
+  const pageOfSubmissions = hasMore ? submissions.slice(0, pageSize) : submissions;
 
   return {
     submissions: pageOfSubmissions,
-    nextCursor: hasMore
-      ? pageOfSubmissions[pageOfSubmissions.length - 1].id
-      : null,
+    nextCursor: hasMore ? pageOfSubmissions[pageOfSubmissions.length - 1].id : null,
   };
 }
 
-export async function deleteSubmissionById(
-  submissionId: string,
-  userId: string
-) {
-  // Single atomic query: ownership check folded into the where clause, so a
-  // concurrent double-delete can't race between a find and a delete.
-  const { count } = await prisma.formSubmission.deleteMany({
-    where: {
-      id: submissionId,
-      page: {
-        organization: {
-          members: {
-            some: { userId },
-          },
-        },
-      },
-    },
-  });
+export async function deleteSubmissionById(submissionId: string, userId: string) {
+  // Ownership check folded into the where clause so a concurrent
+  // double-delete cannot race between a find and a delete.
+  const deleted = await db
+    .delete(formSubmission)
+    .where(and(eq(formSubmission.id, submissionId), pageOwnedByUser(formSubmission.pageId, userId)))
+    .returning({ id: formSubmission.id });
 
-  return count > 0;
+  return deleted.length > 0;
 }

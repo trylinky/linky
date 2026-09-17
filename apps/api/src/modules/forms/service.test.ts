@@ -5,7 +5,16 @@ import {
   listSubmissions,
   submitFormResponse,
 } from './service';
-import prisma from '@/lib/prisma';
+import db from '@/lib/db';
+import {
+  cleanupTestData,
+  createTestBlock,
+  createTestOrganization,
+  createTestPage,
+  createTestUser,
+} from '@/test/fixtures';
+import { block, formSubmission } from '@trylinky/db/schema';
+import { count, eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -39,79 +48,25 @@ let unpublishedBlockId: string;
 let nonFormBlockId: string;
 
 beforeAll(async () => {
-  const user = await prisma.user.create({
-    data: { email: `form-test-${suffix}@example.com` },
-  });
-  userId = user.id;
-
-  const otherUser = await prisma.user.create({
-    data: { email: `form-test-other-${suffix}@example.com` },
-  });
-  otherUserId = otherUser.id;
-
-  const organization = await prisma.organization.create({
-    data: {
-      name: 'Form Test Org',
-      slug: `form-test-org-${suffix}`,
-      members: { create: { userId, role: 'owner' } },
-    },
-  });
-  organizationId = organization.id;
-
-  const page = await prisma.page.create({
-    data: {
-      slug: `form-test-page-${suffix}`,
-      config: [],
-      publishedAt: new Date(),
-      organizationId,
-    },
-  });
-  pageId = page.id;
-
-  const unpublishedPage = await prisma.page.create({
-    data: {
-      slug: `form-test-unpub-${suffix}`,
-      config: [],
-      organizationId,
-    },
-  });
-  unpublishedPageId = unpublishedPage.id;
-
-  const block = await prisma.block.create({
-    data: { type: 'form', config: {}, data: testFormConfig, pageId },
-  });
-  blockId = block.id;
-
-  const unpublishedBlock = await prisma.block.create({
-    data: {
-      type: 'form',
-      config: {},
-      data: testFormConfig,
-      pageId: unpublishedPageId,
-    },
-  });
-  unpublishedBlockId = unpublishedBlock.id;
-
-  const nonFormBlock = await prisma.block.create({
-    data: { type: 'content', config: {}, data: {}, pageId },
-  });
-  nonFormBlockId = nonFormBlock.id;
+  userId = (await createTestUser(`form-${suffix}`)).id;
+  otherUserId = (await createTestUser(`form-other-${suffix}`)).id;
+  organizationId = (await createTestOrganization({ suffix: `form-${suffix}`, ownerId: userId })).id;
+  pageId = (await createTestPage({ organizationId, suffix: `form-${suffix}` })).id;
+  unpublishedPageId = (
+    await createTestPage({ organizationId, suffix: `form-unpub-${suffix}`, publishedAt: null })
+  ).id;
+  blockId = (await createTestBlock({ pageId, type: 'form', data: testFormConfig })).id;
+  unpublishedBlockId = (
+    await createTestBlock({ pageId: unpublishedPageId, type: 'form', data: testFormConfig })
+  ).id;
+  nonFormBlockId = (await createTestBlock({ pageId, type: 'content' })).id;
 });
 
 afterAll(async () => {
-  await prisma.formSubmission.deleteMany({
-    where: { pageId: { in: [pageId, unpublishedPageId] } },
-  });
-  await prisma.block.deleteMany({
-    where: { pageId: { in: [pageId, unpublishedPageId] } },
-  });
-  await prisma.page.deleteMany({
-    where: { id: { in: [pageId, unpublishedPageId] } },
-  });
-  await prisma.member.deleteMany({ where: { organizationId } });
-  await prisma.organization.delete({ where: { id: organizationId } });
-  await prisma.user.deleteMany({
-    where: { id: { in: [userId, otherUserId] } },
+  await cleanupTestData({
+    pageIds: [pageId, unpublishedPageId],
+    organizationIds: [organizationId],
+    userIds: [userId, otherUserId],
   });
 });
 
@@ -126,9 +81,9 @@ describe('submitFormResponse', () => {
 
     expect(result).toEqual({ status: 'ok' });
 
-    const stored = await prisma.formSubmission.findFirst({
-      where: { blockId },
-      orderBy: { createdAt: 'desc' },
+    const stored = await db.query.formSubmission.findFirst({
+      where: (s, { eq }) => eq(s.blockId, blockId),
+      orderBy: (s, { desc }) => [desc(s.createdAt)],
     });
 
     expect(stored).toBeTruthy();
@@ -145,7 +100,10 @@ describe('submitFormResponse', () => {
   });
 
   it('returns ok for honeypot submissions but stores nothing', async () => {
-    const before = await prisma.formSubmission.count({ where: { blockId } });
+    const [{ count: before }] = await db
+      .select({ count: count() })
+      .from(formSubmission)
+      .where(eq(formSubmission.blockId, blockId));
 
     const result = await submitFormResponse({
       blockId,
@@ -156,7 +114,10 @@ describe('submitFormResponse', () => {
 
     expect(result).toEqual({ status: 'ok' });
 
-    const after = await prisma.formSubmission.count({ where: { blockId } });
+    const [{ count: after }] = await db
+      .select({ count: count() })
+      .from(formSubmission)
+      .where(eq(formSubmission.blockId, blockId));
     expect(after).toBe(before);
   });
 
@@ -188,9 +149,7 @@ describe('submitFormResponse', () => {
 
   it('rate limits the 6th submission from one IP within an hour', async () => {
     // Use a dedicated block so submissions from other tests don't count.
-    const rateLimitBlock = await prisma.block.create({
-      data: { type: 'form', config: {}, data: testFormConfig, pageId },
-    });
+    const rateLimitBlock = await createTestBlock({ pageId, type: 'form', data: testFormConfig });
     const rateLimitIp = '203.0.113.9';
 
     for (let i = 0; i < 5; i++) {
@@ -258,13 +217,10 @@ describe('checkUserHasAccessToPage', () => {
 describe('getFormGroupsForPage', () => {
   it('lists live form blocks and orphaned submission groups', async () => {
     // Create a form block, give it a submission, then delete the block.
-    const doomedBlock = await prisma.block.create({
-      data: {
-        type: 'form',
-        config: {},
-        data: { ...testFormConfig, title: 'Doomed form' },
-        pageId,
-      },
+    const doomedBlock = await createTestBlock({
+      pageId,
+      type: 'form',
+      data: { ...testFormConfig, title: 'Doomed form' },
     });
 
     const submit = await submitFormResponse({
@@ -275,7 +231,7 @@ describe('getFormGroupsForPage', () => {
     });
     expect(submit.status).toBe('ok');
 
-    await prisma.block.delete({ where: { id: doomedBlock.id } });
+    await db.delete(block).where(eq(block.id, doomedBlock.id));
 
     const groups = await getFormGroupsForPage(pageId);
 
@@ -285,60 +241,46 @@ describe('getFormGroupsForPage', () => {
       isDeleted: false,
     });
     expect(liveGroup!.submissionCount).toBeGreaterThanOrEqual(1);
+    expect(liveGroup!.latestSubmissionAt).toBeInstanceOf(Date);
 
-    const orphanGroup = groups.find(
-      (group) => group.blockId === doomedBlock.id
-    );
+    const orphanGroup = groups.find((group) => group.blockId === doomedBlock.id);
     expect(orphanGroup).toMatchObject({
       title: 'Doomed form',
       isDeleted: true,
       submissionCount: 1,
     });
+    expect(orphanGroup!.latestSubmissionAt).toBeInstanceOf(Date);
   });
 });
 
 describe('listSubmissions', () => {
   it('returns newest-first pages with a working cursor', async () => {
-    const paginationBlock = await prisma.block.create({
-      data: { type: 'form', config: {}, data: testFormConfig, pageId },
-    });
+    const paginationBlock = await createTestBlock({ pageId, type: 'form', data: testFormConfig });
 
     // Insert directly so we control timestamps deterministically.
     const base = Date.now();
     for (let i = 0; i < 3; i++) {
-      await prisma.formSubmission.create({
-        data: {
-          pageId,
-          blockId: paginationBlock.id,
-          answers: { 'f-email': `p${i}@example.com` },
-          fieldsSnapshot: {
-            title: 'Contact me',
-            fields: testFormConfig.fields,
-          },
-          visitorIp: IP,
-          createdAt: new Date(base - i * 1000),
+      await db.insert(formSubmission).values({
+        pageId,
+        blockId: paginationBlock.id,
+        answers: { 'f-email': `p${i}@example.com` },
+        fieldsSnapshot: {
+          title: 'Contact me',
+          fields: testFormConfig.fields,
         },
+        visitorIp: IP,
+        createdAt: new Date(base - i * 1000),
       });
     }
 
-    const firstPage = await listSubmissions(
-      pageId,
-      paginationBlock.id,
-      undefined,
-      2
-    );
+    const firstPage = await listSubmissions(pageId, paginationBlock.id, undefined, 2);
     expect(firstPage.submissions).toHaveLength(2);
     expect(firstPage.nextCursor).toBeTruthy();
     expect(firstPage.submissions[0].answers).toMatchObject({
       'f-email': 'p0@example.com',
     });
 
-    const secondPage = await listSubmissions(
-      pageId,
-      paginationBlock.id,
-      firstPage.nextCursor!,
-      2
-    );
+    const secondPage = await listSubmissions(pageId, paginationBlock.id, firstPage.nextCursor!, 2);
     expect(secondPage.submissions).toHaveLength(1);
     expect(secondPage.nextCursor).toBeNull();
     expect(secondPage.submissions[0].answers).toMatchObject({
@@ -348,67 +290,56 @@ describe('listSubmissions', () => {
 
   it('returns an empty page for a cursor that belongs to another block', async () => {
     // A cursor row that doesn't match the where clause must not leak rows:
-    // Prisma positions on the cursor but still applies the filter, so the
-    // result is empty rather than another block's data.
-    const foreignSubmission = await prisma.formSubmission.findFirst({
-      where: { blockId },
-      select: { id: true },
+    // the query positions on the cursor but still applies the filter, so
+    // the result is empty rather than another block's data.
+    const foreignSubmission = await db.query.formSubmission.findFirst({
+      where: (s, { eq }) => eq(s.blockId, blockId),
+      columns: { id: true },
     });
     expect(foreignSubmission).toBeTruthy();
 
-    const otherBlock = await prisma.block.create({
-      data: { type: 'form', config: {}, data: testFormConfig, pageId },
-    });
+    const otherBlock = await createTestBlock({ pageId, type: 'form', data: testFormConfig });
 
-    const result = await listSubmissions(
-      pageId,
-      otherBlock.id,
-      foreignSubmission!.id,
-      2
-    );
+    const result = await listSubmissions(pageId, otherBlock.id, foreignSubmission!.id, 2);
     expect(result.submissions).toHaveLength(0);
     expect(result.nextCursor).toBeNull();
   });
 
+  it('returns an empty page for a cursor that does not exist at all', async () => {
+    const otherBlock = await createTestBlock({ pageId, type: 'form', data: testFormConfig });
+
+    const result = await listSubmissions(pageId, otherBlock.id, randomUUID(), 2);
+    expect(result).toEqual({ submissions: [], nextCursor: null });
+  });
+
   it('skips and duplicates no rows when two submissions share the same createdAt', async () => {
-    const tieBlock = await prisma.block.create({
-      data: { type: 'form', config: {}, data: testFormConfig, pageId },
-    });
+    const tieBlock = await createTestBlock({ pageId, type: 'form', data: testFormConfig });
 
     // Two rows with an identical createdAt, walked one at a time (pageSize
     // 1) across the page boundary between them.
     const tieTimestamp = new Date(Date.now() - 5000);
-    await prisma.formSubmission.create({
-      data: {
-        pageId,
-        blockId: tieBlock.id,
-        answers: { 'f-email': 'tie-a@example.com' },
-        fieldsSnapshot: { title: 'Contact me', fields: testFormConfig.fields },
-        visitorIp: IP,
-        createdAt: tieTimestamp,
-      },
+    await db.insert(formSubmission).values({
+      pageId,
+      blockId: tieBlock.id,
+      answers: { 'f-email': 'tie-a@example.com' },
+      fieldsSnapshot: { title: 'Contact me', fields: testFormConfig.fields },
+      visitorIp: IP,
+      createdAt: tieTimestamp,
     });
-    await prisma.formSubmission.create({
-      data: {
-        pageId,
-        blockId: tieBlock.id,
-        answers: { 'f-email': 'tie-b@example.com' },
-        fieldsSnapshot: { title: 'Contact me', fields: testFormConfig.fields },
-        visitorIp: IP,
-        createdAt: tieTimestamp,
-      },
+    await db.insert(formSubmission).values({
+      pageId,
+      blockId: tieBlock.id,
+      answers: { 'f-email': 'tie-b@example.com' },
+      fieldsSnapshot: { title: 'Contact me', fields: testFormConfig.fields },
+      visitorIp: IP,
+      createdAt: tieTimestamp,
     });
 
     const firstPage = await listSubmissions(pageId, tieBlock.id, undefined, 1);
     expect(firstPage.submissions).toHaveLength(1);
     expect(firstPage.nextCursor).toBeTruthy();
 
-    const secondPage = await listSubmissions(
-      pageId,
-      tieBlock.id,
-      firstPage.nextCursor!,
-      1
-    );
+    const secondPage = await listSubmissions(pageId, tieBlock.id, firstPage.nextCursor!, 1);
     expect(secondPage.submissions).toHaveLength(1);
     expect(secondPage.nextCursor).toBeNull();
 
@@ -423,25 +354,27 @@ describe('listSubmissions', () => {
 });
 
 describe('deleteSubmissionById', () => {
-  it('lets the owner delete and blocks other users', async () => {
-    const submission = await prisma.formSubmission.create({
-      data: {
+  it('lets the owner delete and blocks other users, who leave the row in place', async () => {
+    const [submission] = await db
+      .insert(formSubmission)
+      .values({
         pageId,
         blockId,
         answers: { 'f-email': 'delete-me@example.com' },
         fieldsSnapshot: { title: 'Contact me', fields: testFormConfig.fields },
         visitorIp: IP,
-      },
-    });
+      })
+      .returning();
 
+    // otherUserId is not a member of organizationId.
     expect(await deleteSubmissionById(submission.id, otherUserId)).toBe(false);
     expect(
-      await prisma.formSubmission.findUnique({ where: { id: submission.id } })
+      await db.query.formSubmission.findFirst({ where: (s, { eq }) => eq(s.id, submission.id) })
     ).toBeTruthy();
 
     expect(await deleteSubmissionById(submission.id, userId)).toBe(true);
     expect(
-      await prisma.formSubmission.findUnique({ where: { id: submission.id } })
-    ).toBeNull();
+      await db.query.formSubmission.findFirst({ where: (s, { eq }) => eq(s.id, submission.id) })
+    ).toBeUndefined();
   });
 });

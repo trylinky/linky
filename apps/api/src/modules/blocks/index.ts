@@ -7,8 +7,9 @@ import {
   updateBlockData,
 } from './service';
 import type { AppBindings } from '@/env';
+import db from '@/lib/db';
+import { blockOwnedByUser, userIsMemberOfOrg } from '@/lib/db-predicates';
 import { createPosthogClient } from '@/lib/posthog';
-import prisma from '@/lib/prisma';
 import {
   blockCacheTag,
   pageIdCacheTag,
@@ -98,24 +99,23 @@ const postCreateBlockHandlers = addBlockFactory.createHandlers(
     const posthog = createPosthogClient();
     const { block, pageSlug } = c.req.valid('json');
 
-    const page = await prisma.page.findUnique({
-      where: {
-        deletedAt: null,
-        organization: {
-          id: session.activeOrganizationId,
-          members: { some: { userId: session.user.id } },
-        },
-        slug: pageSlug,
-      },
-      include: { blocks: { select: { id: true } } },
+    const target = await db.query.page.findFirst({
+      where: (p, { and, eq, isNull }) =>
+        and(
+          isNull(p.deletedAt),
+          eq(p.slug, pageSlug),
+          eq(p.organizationId, session.activeOrganizationId),
+          userIsMemberOfOrg(p.organizationId, session.user.id)
+        ),
+      with: { blocks: { columns: { id: true } } },
     });
 
-    if (!page) {
+    if (!target) {
       return c.json({ error: { message: 'Page not found' } }, 400);
     }
 
     const maxNumberOfBlocks = 100;
-    if (page.blocks.length >= maxNumberOfBlocks) {
+    if (target.blocks.length >= maxNumberOfBlocks) {
       return c.json(
         {
           error: {
@@ -159,9 +159,9 @@ async function getEnabledBlocksHandler(c: Context<AppBindings>) {
     return c.json([], 401);
   }
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { role: true },
+  const dbUser = await db.query.user.findFirst({
+    where: (u, { eq }) => eq(u.id, session.user.id),
+    columns: { role: true },
   });
 
   if (!dbUser) {
@@ -176,24 +176,20 @@ async function deleteBlockHandler(c: Context<AppBindings, '/:blockId'>) {
   const posthog = createPosthogClient();
   const blockId = c.req.param('blockId');
 
-  const block = await prisma.block.findUnique({
-    where: {
-      id: blockId,
-      page: {
-        organization: {
-          id: session.activeOrganizationId,
-          members: { some: { userId: session.user.id } },
-        },
-      },
-    },
-    include: { page: true },
+  const target = await db.query.block.findFirst({
+    where: (b, { and, eq }) =>
+      and(
+        eq(b.id, blockId),
+        blockOwnedByUser(b.id, session.user.id, session.activeOrganizationId)
+      ),
+    with: { page: true },
   });
 
-  if (!block) {
+  if (!target) {
     return c.json({ error: { message: 'Block not found' } }, 400);
   }
 
-  if (block.type === 'header') {
+  if (target.type === 'header') {
     return c.json(
       { error: { message: 'You cannot delete the header block' } },
       400
@@ -204,7 +200,7 @@ async function deleteBlockHandler(c: Context<AppBindings, '/:blockId'>) {
     await deleteBlockById(blockId, session.user.id);
 
     void revalidatePageCache([
-      pageIdCacheTag(block.pageId),
+      pageIdCacheTag(target.pageId),
       blockCacheTag(blockId),
     ]);
 
@@ -213,9 +209,9 @@ async function deleteBlockHandler(c: Context<AppBindings, '/:blockId'>) {
       event: 'block-deleted',
       properties: {
         organizationId: session.activeOrganizationId,
-        pageId: block.pageId,
-        blockId: block.id,
-        blockType: block.type,
+        pageId: target.pageId,
+        blockId: target.id,
+        blockType: target.type,
       },
     });
 

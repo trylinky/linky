@@ -1,58 +1,52 @@
-import prisma from '@/lib/prisma';
+import db from '@/lib/db';
+import { pageOwnedByUser } from '@/lib/db-predicates';
 import { isAdminUser } from '@/lib/roles';
 import { blocks, Blocks } from '@trylinky/blocks';
-import { Prisma, User } from '@trylinky/prisma';
+import type { User } from '@trylinky/db';
+import { block, page } from '@trylinky/db/schema';
+import { and, count, eq } from 'drizzle-orm';
 
 export async function getBlockById(blockId: string) {
-  const block = await prisma.block.findUnique({
-    where: {
-      id: blockId,
-    },
-    select: {
-      id: true,
-      type: true,
-      data: true,
-      config: true,
-      page: {
-        select: {
-          organizationId: true,
-          publishedAt: true,
-        },
-      },
-      integration: {
-        select: {
-          id: true,
-          type: true,
-          createdAt: true,
-        },
-      },
+  const row = await db.query.block.findFirst({
+    where: (b, { eq }) => eq(b.id, blockId),
+    columns: { id: true, type: true, data: true, config: true },
+    with: {
+      page: { columns: { organizationId: true, publishedAt: true } },
+      integration: { columns: { id: true, type: true, createdAt: true } },
     },
   });
 
-  return block;
+  return row ?? null;
 }
 
 export async function createBlock(
-  block: { type: string; id: string },
+  newBlock: { type: string; id: string },
   pageSlug: string
 ) {
-  const defaultData = blocks[block.type as Blocks].defaults;
+  const defaultData = blocks[newBlock.type as Blocks].defaults;
 
-  const newBlock = await prisma.block.create({
-    data: {
-      type: block.type,
-      id: block.id,
-      config: {},
-      data: defaultData,
-      page: {
-        connect: {
-          slug: pageSlug,
-        },
-      },
-    },
+  // Prisma's `connect: { slug }` did this lookup implicitly.
+  const target = await db.query.page.findFirst({
+    where: (p, { eq }) => eq(p.slug, pageSlug),
+    columns: { id: true },
   });
 
-  return newBlock;
+  if (!target) {
+    throw new Error('Page not found');
+  }
+
+  const [created] = await db
+    .insert(block)
+    .values({
+      type: newBlock.type,
+      id: newBlock.id,
+      config: {},
+      data: defaultData,
+      pageId: target.id,
+    })
+    .returning();
+
+  return created;
 }
 
 export async function getEnabledBlocks(user: Pick<User, 'role'>) {
@@ -62,8 +56,8 @@ export async function getEnabledBlocks(user: Pick<User, 'role'>) {
 
   const enabledBlocks: Blocks[] = [];
 
-  Object.entries(blocks).forEach(([key, block]) => {
-    if (block.isBeta) {
+  Object.entries(blocks).forEach(([key, blockDefinition]) => {
+    if (blockDefinition.isBeta) {
       if (isAdminUser(user)) {
         enabledBlocks.push(key as Blocks);
       }
@@ -79,26 +73,12 @@ export async function checkUserHasAccessToBlock(
   blockId: string,
   userId: string
 ) {
-  const block = await prisma.block.count({
-    where: {
-      id: blockId,
-      page: {
-        organization: {
-          members: {
-            some: {
-              userId,
-            },
-          },
-        },
-      },
-    },
-  });
+  const [{ count: matches }] = await db
+    .select({ count: count() })
+    .from(block)
+    .where(and(eq(block.id, blockId), pageOwnedByUser(block.pageId, userId)));
 
-  if (block > 0) {
-    return true;
-  }
-
-  return false;
+  return matches > 0;
 }
 
 export async function deleteBlockById(id: string, userId: string) {
@@ -110,48 +90,45 @@ export async function deleteBlockById(id: string, userId: string) {
     throw new Error('User does not have access to this block');
   }
 
-  const deletedBlock = await prisma.block.delete({
-    where: {
-      id,
-    },
-    select: {
-      page: {
-        select: {
-          id: true,
-          config: true,
-        },
-      },
-    },
-  });
+  // Delete and layout strip land together or not at all.
+  await db.transaction(async (tx) => {
+    const [deleted] = await tx
+      .delete(block)
+      .where(eq(block.id, id))
+      .returning({ pageId: block.pageId });
 
-  if (deletedBlock.page.config && Array.isArray(deletedBlock.page.config)) {
-    await prisma.page.update({
-      where: {
-        id: deletedBlock.page.id,
-      },
-      data: {
-        config: deletedBlock.page?.config?.filter(
-          (blck) => (blck as Prisma.JsonObject)?.i !== id
-        ),
-      },
+    if (!deleted) {
+      return;
+    }
+
+    const owner = await tx.query.page.findFirst({
+      where: (p, { eq }) => eq(p.id, deleted.pageId),
+      columns: { id: true, config: true },
     });
-  }
+
+    if (owner?.config && Array.isArray(owner.config)) {
+      await tx
+        .update(page)
+        .set({
+          config: (owner.config as unknown[]).filter(
+            (entry) => (entry as { i?: unknown })?.i !== id
+          ),
+        })
+        .where(eq(page.id, owner.id));
+    }
+  });
 }
 
 export async function updateBlockData(blockId: string, newData: object) {
-  const block = await prisma.block.findUnique({
-    where: {
-      id: blockId,
-    },
-    select: {
-      type: true,
-    },
+  const existing = await db.query.block.findFirst({
+    where: (b, { eq }) => eq(b.id, blockId),
+    columns: { type: true },
   });
 
-  if (!block) {
+  if (!existing) {
     throw new Error('Block not found');
   }
-  const schema = blocks[block.type as Blocks].schema;
+  const schema = blocks[existing.type as Blocks].schema;
 
   if (!schema) {
     throw new Error('Block schema not found');
@@ -160,14 +137,11 @@ export async function updateBlockData(blockId: string, newData: object) {
   try {
     const parsedData = await schema.validate(newData, { strict: true });
 
-    const updatedBlock = await prisma.block.update({
-      where: {
-        id: blockId,
-      },
-      data: {
-        data: parsedData,
-      },
-    });
+    const [updatedBlock] = await db
+      .update(block)
+      .set({ data: parsedData })
+      .where(eq(block.id, blockId))
+      .returning();
 
     return updatedBlock;
   } catch {

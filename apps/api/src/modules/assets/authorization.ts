@@ -1,7 +1,9 @@
-import prisma from '@/lib/prisma';
+import db from '@/lib/db';
 import { AssetContexts } from '@/modules/assets/constants';
 import { checkUserHasAccessToBlock } from '@/modules/blocks/service';
 import { checkUserHasAccessToPage } from '@/modules/pages/service';
+import { theme } from '@trylinky/db/schema';
+import { and, count, eq } from 'drizzle-orm';
 
 /**
  * A theme's background can be chosen before the theme exists, so the create
@@ -50,12 +52,10 @@ export async function canUploadAsset({
 
       // Themes owned by the caller's organization. Default themes are shared
       // and belong to no organization, so they are excluded by this filter.
-      const themeCount = await prisma.theme.count({
-        where: {
-          id: referenceId,
-          organizationId,
-        },
-      });
+      const [{ count: themeCount }] = await db
+        .select({ count: count() })
+        .from(theme)
+        .where(and(eq(theme.id, referenceId), eq(theme.organizationId, organizationId)));
 
       return themeCount > 0;
     }

@@ -1,8 +1,9 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { cleanupTestData, createTestOrganization, createTestTheme, createTestUser } from '@/test/fixtures';
+import { randomUUID } from 'node:crypto';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const checkUserHasAccessToBlock = vi.fn();
 const checkUserHasAccessToPage = vi.fn();
-const themeCount = vi.fn();
 
 vi.mock('@/modules/blocks/service', () => ({
   checkUserHasAccessToBlock: (...args: unknown[]) =>
@@ -14,21 +15,36 @@ vi.mock('@/modules/pages/service', () => ({
     checkUserHasAccessToPage(...args),
 }));
 
-vi.mock('@/lib/prisma', () => ({
-  default: { theme: { count: (...args: unknown[]) => themeCount(...args) } },
-}));
-
 const { NEW_THEME_REFERENCE_ID, canUploadAsset } =
   await import('./authorization');
 
-const USER_ID = 'user-1';
-const ORG_ID = 'org-1';
+const suffix = randomUUID().slice(0, 8);
+let userId: string;
+let ORG_ID: string;
+let otherOrgId: string;
+let ownThemeId: string;
+let otherThemeId: string;
+
+beforeAll(async () => {
+  userId = (await createTestUser(`assets-${suffix}`)).id;
+  ORG_ID = (await createTestOrganization({ suffix: `assets-${suffix}`, ownerId: userId })).id;
+  otherOrgId = (await createTestOrganization({ suffix: `assets-other-${suffix}` })).id;
+  ownThemeId = (await createTestTheme({ createdById: userId, organizationId: ORG_ID })).id;
+  otherThemeId = (await createTestTheme({ createdById: userId, organizationId: otherOrgId })).id;
+});
+
+afterAll(async () => {
+  await cleanupTestData({
+    themeIds: [ownThemeId, otherThemeId],
+    organizationIds: [ORG_ID, otherOrgId],
+    userIds: [userId],
+  });
+});
 
 describe('canUploadAsset', () => {
   beforeEach(() => {
     checkUserHasAccessToBlock.mockReset().mockResolvedValue(false);
     checkUserHasAccessToPage.mockReset().mockResolvedValue(false);
-    themeCount.mockReset().mockResolvedValue(0);
   });
 
   it('allows a block asset for a block the user can reach', async () => {
@@ -38,7 +54,7 @@ describe('canUploadAsset', () => {
       canUploadAsset({
         context: 'blockAsset',
         referenceId: 'block-1',
-        userId: USER_ID,
+        userId,
         organizationId: ORG_ID,
       })
     ).resolves.toBe(true);
@@ -51,7 +67,7 @@ describe('canUploadAsset', () => {
       canUploadAsset({
         context: 'blockAsset',
         referenceId: 'someone-elses-block',
-        userId: USER_ID,
+        userId,
         organizationId: ORG_ID,
       })
     ).resolves.toBe(false);
@@ -64,35 +80,29 @@ describe('canUploadAsset', () => {
       canUploadAsset({
         context: 'pageBackgroundImage',
         referenceId: 'page-1',
-        userId: USER_ID,
+        userId,
         organizationId: ORG_ID,
       })
     ).resolves.toBe(true);
   });
 
   it("allows a theme background for the caller's own organization", async () => {
-    themeCount.mockResolvedValue(1);
-
     await expect(
       canUploadAsset({
         context: 'pageBackgroundImage',
-        referenceId: 'theme-1',
-        userId: USER_ID,
+        referenceId: ownThemeId,
+        userId,
         organizationId: ORG_ID,
       })
     ).resolves.toBe(true);
-
-    expect(themeCount).toHaveBeenCalledWith({
-      where: { id: 'theme-1', organizationId: ORG_ID },
-    });
   });
 
   it('refuses a theme belonging to another organization', async () => {
     await expect(
       canUploadAsset({
         context: 'pageBackgroundImage',
-        referenceId: 'theme-from-another-org',
-        userId: USER_ID,
+        referenceId: otherThemeId,
+        userId,
         organizationId: ORG_ID,
       })
     ).resolves.toBe(false);
@@ -105,7 +115,7 @@ describe('canUploadAsset', () => {
       canUploadAsset({
         context: 'pageBackgroundImage',
         referenceId: NEW_THEME_REFERENCE_ID,
-        userId: USER_ID,
+        userId,
         organizationId: ORG_ID,
       })
     ).resolves.toBe(true);
@@ -116,7 +126,7 @@ describe('canUploadAsset', () => {
       canUploadAsset({
         context: 'somethingElse' as 'blockAsset',
         referenceId: 'block-1',
-        userId: USER_ID,
+        userId,
         organizationId: ORG_ID,
       })
     ).resolves.toBe(false);

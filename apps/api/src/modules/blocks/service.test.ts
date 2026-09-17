@@ -12,7 +12,7 @@ import {
   createTestPage,
   createTestUser,
 } from '@/test/fixtures';
-import { block, page } from '@trylinky/db/schema';
+import { page } from '@trylinky/db/schema';
 import { eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';

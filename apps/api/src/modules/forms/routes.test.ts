@@ -1,5 +1,11 @@
 import { createApp } from '@/app';
-import prisma from '@/lib/prisma';
+import db from '@/lib/db';
+import {
+  cleanupTestData,
+  createTestBlock,
+  createTestOrganization,
+  createTestPage,
+} from '@/test/fixtures';
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -37,37 +43,15 @@ let pageId: string;
 let blockId: string;
 
 beforeAll(async () => {
-  const organization = await prisma.organization.create({
-    data: {
-      name: 'Form Routes Test Org',
-      slug: `form-routes-test-org-${suffix}`,
-    },
-  });
-  organizationId = organization.id;
-
-  const page = await prisma.page.create({
-    data: {
-      slug: `form-routes-test-page-${suffix}`,
-      config: [],
-      publishedAt: new Date(),
-      organizationId,
-    },
-  });
-  pageId = page.id;
-
-  const block = await prisma.block.create({
-    data: { type: 'form', config: {}, data: testFormConfig, pageId },
-  });
-  blockId = block.id;
+  organizationId = (await createTestOrganization({ suffix: `form-routes-${suffix}` })).id;
+  pageId = (await createTestPage({ organizationId, suffix: `form-routes-${suffix}` })).id;
+  blockId = (await createTestBlock({ pageId, type: 'form', data: testFormConfig })).id;
 
   app = createApp();
 });
 
 afterAll(async () => {
-  await prisma.formSubmission.deleteMany({ where: { pageId } });
-  await prisma.block.deleteMany({ where: { pageId } });
-  await prisma.page.delete({ where: { id: pageId } });
-  await prisma.organization.delete({ where: { id: organizationId } });
+  await cleanupTestData({ pageIds: [pageId], organizationIds: [organizationId] });
 });
 
 describe('POST /forms/:blockId/submissions', () => {
@@ -91,9 +75,9 @@ describe('POST /forms/:blockId/submissions', () => {
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({ success: true });
 
-    const stored = await prisma.formSubmission.findFirst({
-      where: { blockId },
-      orderBy: { createdAt: 'desc' },
+    const stored = await db.query.formSubmission.findFirst({
+      where: (s, { eq }) => eq(s.blockId, blockId),
+      orderBy: (s, { desc }) => [desc(s.createdAt)],
     });
 
     // Strict boolean: AJV coercion through the body schema's string|boolean
@@ -153,9 +137,9 @@ describe('POST /forms/:blockId/submissions', () => {
 
     expect(response.status).toBe(200);
 
-    const stored = await prisma.formSubmission.findFirst({
-      where: { pageId },
-      orderBy: { createdAt: 'desc' },
+    const stored = await db.query.formSubmission.findFirst({
+      where: (s, { eq }) => eq(s.pageId, pageId),
+      orderBy: (s, { desc }) => [desc(s.createdAt)],
     });
 
     expect((stored?.answers as Record<string, unknown>)['f-agree']).toBe(true);
