@@ -1,0 +1,31 @@
+{
+  "name": "@trylinky/db",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts",
+    "./seed-data": "./src/seed-data.ts"
+  },
+  "scripts": {
+    "generate": "dotenvx run -f ../../.env.local --ignore=MISSING_ENV_FILE -- drizzle-kit generate",
+    "migrate": "dotenvx run -f ../../.env.local --ignore=MISSING_ENV_FILE -- drizzle-kit migrate",
+    "push": "dotenvx run -f ../../.env.local --ignore=MISSING_ENV_FILE -- drizzle-kit push",
+    "seed": "dotenvx run -f ../../.env.local --ignore=MISSING_ENV_FILE -- tsx src/seed.ts",
+    "check-parity": "./scripts/check-parity.sh",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.2",
+    "pg": "^8.23.0"
+  },
+  "devDependencies": {
+    "@dotenvx/dotenvx": "^1.24.0",
+    "@types/node": "22.8.7",
+    "@types/pg": "^8.15.0",
+    "drizzle-kit": "^0.31.10",
+    "tsx": "^4.19.0",
+    "typescript": "^5"
+  }
+}

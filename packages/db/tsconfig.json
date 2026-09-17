@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "Preserve",
+    "moduleResolution": "bundler",
+    "types": ["node"],
+    "rootDir": "./",
+    "noEmit": true
+  },
+  "include": ["src/**/*.ts", "drizzle.config.ts"]
+}
