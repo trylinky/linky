@@ -14,19 +14,40 @@ const wrapped = Symbol('queryTimingWrapped');
 function wrapQueryTiming(obj: any): void {
   if (obj[wrapped]) return;
 
-  const original = obj.query.bind(obj) as (...args: unknown[]) => Promise<unknown>;
+  const original = obj.query.bind(obj);
 
-  (obj as unknown as { query: unknown }).query = async (...args: unknown[]) => {
+  (obj as unknown as { query: unknown }).query = function(...args: unknown[]): any {
     const before = Date.now();
-    try {
-      return await original(...args);
-    } finally {
-      const duration = Date.now() - before;
-      if (duration >= SLOW_QUERY_THRESHOLD_MS) {
-        const first = args[0];
-        const text = typeof first === 'string' ? first : (first as { text?: string })?.text;
-        console.log(`Slow query took ${duration}ms: ${(text ?? '').slice(0, 120)}`);
+    const lastArg = args[args.length - 1];
+    const hasCallback = typeof lastArg === 'function';
+
+    if (hasCallback) {
+      // Callback form: client.query(sql, values, callback) -> undefined
+      const callback = lastArg as any;
+      const queryArgs = args.slice(0, -1);
+      return original(...queryArgs, (err: any, result: any) => {
+        const duration = Date.now() - before;
+        if (duration >= SLOW_QUERY_THRESHOLD_MS) {
+          const first = queryArgs[0];
+          const text = typeof first === 'string' ? first : (first as { text?: string })?.text;
+          console.log(`Slow query took ${duration}ms: ${(text ?? '').slice(0, 120)}`);
+        }
+        callback(err, result);
+      });
+    } else {
+      // Promise form: client.query(sql, values) -> Promise
+      const result = original(...args);
+      if (result instanceof Promise) {
+        return result.finally(() => {
+          const duration = Date.now() - before;
+          if (duration >= SLOW_QUERY_THRESHOLD_MS) {
+            const first = args[0];
+            const text = typeof first === 'string' ? first : (first as { text?: string })?.text;
+            console.log(`Slow query took ${duration}ms: ${(text ?? '').slice(0, 120)}`);
+          }
+        });
       }
+      return result;
     }
   };
 
@@ -34,30 +55,33 @@ function wrapQueryTiming(obj: any): void {
 }
 
 /**
- * pg's Pool is the only place every statement passes through, so timing is
- * wrapped here. Drizzle's Logger interface fires before execution and has
- * no duration, which is why it is not used for this.
- *
- * Additionally, wraps pool.connect so checked-out PoolClients (used in
- * transactions) also have their queries timed.
+ * Every pg pool.query() call internally goes through pool.connect(callback),
+ * checks out a client, runs the query, and releases it. By wrapping clients
+ * at connect time, we time each query exactly once whether it's plain or
+ * inside a transaction.
  */
 function timedPool(connectionString: string): Pool {
   const pool = new Pool({ connectionString, max: 1 });
 
-  // Wrap the pool's query method
-  wrapQueryTiming(pool);
-
-  // Wrap pool.connect so checked-out clients are wrapped before use
+  // Wrap pool.connect for BOTH callback and promise forms. Every pool.query
+  // call goes through pool.connect, and transactions check out clients via
+  // pool.connect as well, so this is the single point to wrap queries.
   const originalConnect = (pool.connect as any).bind(pool);
   (pool as unknown as { connect: unknown }).connect = function(callback?: any): any {
-    // Handle callback form (not used by Drizzle, but be safe)
-    if (typeof callback === 'function') {
-      return originalConnect(callback);
+    // Promise form - used by Drizzle for transactions
+    if (!callback) {
+      return originalConnect().then((client: any) => {
+        wrapQueryTiming(client);
+        return client;
+      });
     }
-    // Promise form - used by Drizzle
-    return originalConnect().then((client: any) => {
-      wrapQueryTiming(client);
-      return client;
+
+    // Callback form - used by pool.query internally and legacy code
+    return originalConnect((err: any, client: any, release: any) => {
+      if (!err && client) {
+        wrapQueryTiming(client);
+      }
+      callback(err, client, release);
     });
   };
 
