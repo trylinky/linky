@@ -1,99 +1,79 @@
 import type { AppBindings } from '@/env';
 import db from '@/lib/db';
-import { userIsMemberOfOrg } from '@/lib/db-predicates';
 import { prices } from '@/lib/plans';
+import { createPosthogClient } from '@/lib/posthog';
 import { stripeClient } from '@/lib/stripe';
 import { requireSession } from '@/middleware/authenticate';
-import { sendSubscriptionUpgradedPremiumEmail } from '@/modules/notifications/service';
-import { subscription } from '@trylinky/db/schema';
+import { resolveTier } from '@/modules/billing/entitlements';
+import { captureException } from '@sentry/cloudflare';
 import type { Context } from 'hono';
-import safeAwait from 'safe-await';
 
+/**
+ * Free → Premium. The old implementation tried to swap the price on the
+ * existing Stripe subscription with the *database* subscription id as the
+ * item id, which Stripe rejects, and cancelled trials no longer have a live
+ * Stripe subscription anyway. A Checkout Session creates a fresh one; the
+ * customer.subscription.created webhook mirrors it into the row.
+ */
 export async function upgradeToPremiumHandler(c: Context<AppBindings>) {
   const session = requireSession(c);
 
-  const [currentUserError, currentUser] = await safeAwait(
-    db.query.user.findFirst({
-      where: (u, { eq }) => eq(u.id, session.user.id),
-    })
-  );
+  const current = await db.query.subscription.findFirst({
+    where: (s, { eq }) => eq(s.referenceId, session.activeOrganizationId),
+  });
 
-  if (currentUserError || !currentUser) {
-    return c.json({ error: 'Failed to get current user' }, 400);
+  if (!current) {
+    return c.json(
+      { error: 'No subscription found for this organisation' },
+      404
+    );
   }
 
-  const [currentPersonalOrgError, currentPersonalOrg] = await safeAwait(
-    db.query.organization.findFirst({
-      where: (o, { and, eq, exists, inArray, sql }) =>
-        and(
-          eq(o.isPersonal, true),
-          userIsMemberOfOrg(o.id, currentUser.id),
-          exists(
-            db
-              .select({ one: sql`1` })
-              .from(subscription)
-              .where(
-                and(
-                  eq(subscription.referenceId, o.id),
-                  inArray(subscription.plan, ['freeLegacy'])
-                )
-              )
-          )
-        ),
-      columns: { id: true },
-      with: {
-        subscription: {
-          columns: { id: true, stripeSubscriptionId: true },
-        },
-      },
-    })
-  );
-
-  if (currentPersonalOrgError || !currentPersonalOrg?.subscription) {
-    return c.json({ error: 'Failed to get current personal org' }, 400);
+  if (resolveTier(current) !== 'free') {
+    return c.json({ error: 'This organisation already has a paid plan' }, 400);
   }
 
-  if (!currentPersonalOrg.subscription.stripeSubscriptionId) {
-    return c.json({ error: 'No stripe subscription id found' }, 400);
-  }
+  const env =
+    process.env.NODE_ENV === 'production' ? 'production' : 'development';
+  const frontend = process.env.APP_FRONTEND_URL;
 
   try {
-    const [updatedSubscriptionError] = await safeAwait(
-      stripeClient.subscriptions.update(
-        currentPersonalOrg.subscription.stripeSubscriptionId,
-        {
-          items: [
-            {
-              id: currentPersonalOrg.subscription.id,
-              price:
-                process.env.NODE_ENV === 'production'
-                  ? prices.production.premium
-                  : prices.development.premium,
-            },
-          ],
-        }
-      )
-    );
+    const checkout = await stripeClient.checkout.sessions.create({
+      mode: 'subscription',
+      customer: current.stripeCustomerId,
+      line_items: [{ price: prices[env].premium, quantity: 1 }],
+      subscription_data: {
+        metadata: { organizationId: session.activeOrganizationId },
+      },
+      allow_promotion_codes: true,
+      success_url: `${frontend}/edit?upgraded=premium`,
+      cancel_url: `${frontend}/edit?showBilling=true`,
+    });
 
-    if (updatedSubscriptionError) {
-      return c.json({ error: 'Failed to upgrade to premium' }, 400);
+    if (!checkout.url) {
+      return c.json({ error: 'Failed to start checkout' }, 400);
     }
 
-    if (currentUser.email) {
-      await sendSubscriptionUpgradedPremiumEmail({
-        email: currentUser.email,
-      });
+    const posthog = createPosthogClient();
+    posthog?.capture({
+      distinctId: session.user.id,
+      event: 'checkout-started',
+      properties: {
+        organizationId: session.activeOrganizationId,
+        fromTier: 'free',
+      },
+    });
+    if (posthog) {
+      try {
+        c.executionCtx.waitUntil(posthog.shutdown());
+      } catch {
+        void posthog.shutdown();
+      }
     }
 
-    // The old Fastify response schema for 200 only listed a `url` property
-    // (`additionalProperties: false`) but this handler has never actually
-    // returned one — only `{ success: true }`. fast-json-stringify silently
-    // drops properties that aren't in the schema, so every real caller has
-    // always received `{}` here, not `{ success: true }`. Replicated exactly
-    // rather than "fixed" — see the task-15 brief on response-shape leaks.
-    return c.json({}, 200);
+    return c.json({ url: checkout.url }, 200);
   } catch (error) {
-    console.log('Error', error);
-    return c.json({ error: 'Failed to upgrade to premium' }, 400);
+    captureException(error);
+    return c.json({ error: 'Failed to start checkout' }, 400);
   }
 }
