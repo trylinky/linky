@@ -198,4 +198,20 @@ describe('applyDowngradeSideEffects', () => {
       flags.filter((f) => f.key === 'showFreeDowngradeNotice')
     ).toHaveLength(1);
   });
+
+  it('can be dismissed through POST /flags/hide-free-downgrade-notice', async () => {
+    const { createApp } = await import('@/app');
+    const { testEnv } = await import('@/test/env');
+    const response = await createApp().request(
+      '/flags/hide-free-downgrade-notice',
+      { method: 'POST' },
+      testEnv({ user: { id: userId }, activeOrganizationId: organizationId })
+    );
+    expect(response.status).toBe(200);
+    const flag = await db.query.userFlag.findFirst({
+      where: (f, { and, eq }) =>
+        and(eq(f.userId, userId), eq(f.key, 'showFreeDowngradeNotice')),
+    });
+    expect(flag?.value).toBe(false);
+  });
 });
