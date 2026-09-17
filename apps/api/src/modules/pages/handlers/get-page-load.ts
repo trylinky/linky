@@ -1,5 +1,6 @@
 import type { AppBindings } from '@/env';
 import db from '@/lib/db';
+import { resolveTier } from '@/modules/billing/entitlements';
 import type { Context } from 'hono';
 
 // Bound to the route's literal mount path (`/:pageId/internal/load` in
@@ -37,7 +38,11 @@ export async function getPageLoadHandler(
       blocks: { columns: { id: true, type: true, config: true, data: true } },
       organization: {
         columns: { id: true },
-        with: { subscription: { columns: { plan: true } } },
+        with: {
+          subscription: {
+            columns: { plan: true, status: true, trialEnd: true },
+          },
+        },
       },
     },
   });
@@ -46,8 +51,7 @@ export async function getPageLoadHandler(
     return c.json({}, 404);
   }
 
-  const plan = row.organization?.subscription?.plan;
-  const isPaid = plan === 'premium' || plan === 'team';
+  const isPaid = resolveTier(row.organization?.subscription ?? null) !== 'free';
 
   // `_organization` is destructured only to keep it out of `rest`.
   const { organization: _organization, publishedAt, verifiedAt, ...rest } = row;
