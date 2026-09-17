@@ -96,6 +96,48 @@ describe('auth rate limiting', () => {
   });
 });
 
+describe('session lookups are not IP rate limited', () => {
+  // Server-rendered apps (the lin.ky frontend and the admin app on Vercel)
+  // look up the session from their own servers, so every visitor's lookup
+  // arrives from a handful of shared Vercel egress IPs. Counting those against
+  // a per-IP limit logged real sessions out whenever traffic spiked. The
+  // lookup only reads the caller's own signed cookie, so it is exempt.
+  const exhaustedEnv = {
+    ...env,
+    AUTH_RATE_LIMIT: { limit: async () => ({ success: false }) },
+  } as unknown as Parameters<ReturnType<typeof createApp>['request']>[2];
+
+  it('serves GET /api/auth/get-session when the auth limiter is exhausted', async () => {
+    const response = await createApp().request(
+      '/api/auth/get-session',
+      {},
+      exhaustedEnv
+    );
+
+    expect(response.status).toBe(200);
+  });
+
+  it('still limits every other /api/auth/* path', async () => {
+    const response = await createApp().request(
+      '/api/auth/sign-out',
+      { method: 'POST' },
+      exhaustedEnv
+    );
+
+    expect(response.status).toBe(429);
+  });
+
+  it('still limits non-GET requests to get-session', async () => {
+    const response = await createApp().request(
+      '/api/auth/get-session',
+      { method: 'POST' },
+      exhaustedEnv
+    );
+
+    expect(response.status).toBe(429);
+  });
+});
+
 describe('ported modules — batch 1', () => {
   it('rejects an unauthenticated flags read', async () => {
     const response = await createApp().request('/flags/me', {}, env);

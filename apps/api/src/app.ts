@@ -65,6 +65,15 @@ export function createApp() {
     requireAuthRateLimit,
     (c) => getAuth().handler(c.req.raw)
   );
+  // Session lookups are exempt from the per-IP auth limit. Server-rendered
+  // apps (lin.ky on Vercel, the admin app) resolve the session from their own
+  // servers, so lookups for many different visitors share a few Vercel egress
+  // IPs; a per-IP bucket turned traffic spikes into spurious logouts, because
+  // callers treat a 429 here as "no session". The lookup only reads the
+  // caller's own signed cookie (an invalid signature is rejected before any
+  // database read), so it carries none of the abuse risk the limit exists
+  // for. Only GET is exempt, and it must be registered before the wildcard.
+  app.get('/api/auth/get-session', (c) => getAuth().handler(c.req.raw));
   app.on(['GET', 'POST'], '/api/auth/*', requireAuthRateLimit, (c) =>
     getAuth().handler(c.req.raw)
   );
