@@ -1,4 +1,5 @@
-import { InternalApi } from '@trylinky/common';
+import { useUpgradeDialog } from '@/app/components/UpgradeDialog';
+import { internalApiFetcher } from '@trylinky/common';
 import {
   ChartConfig,
   ChartContainer,
@@ -7,6 +8,7 @@ import {
   Card,
   CardContent,
   Skeleton,
+  Button,
 } from '@trylinky/ui';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
@@ -35,6 +37,7 @@ const chartConfig = {
 
 export function SidebarAnalytics() {
   const [showPlaceholder, setShowPlaceholder] = useState(false);
+  const [locked, setLocked] = useState(false);
   const [analyticsData, setAnalyticsData] = useState<{
     stats: {
       totals: {
@@ -67,9 +70,14 @@ export function SidebarAnalytics() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const responseData = await InternalApi.get(
+        const responseData = await internalApiFetcher(
           `/analytics/pages/${pageId}`
         );
+
+        if (responseData.error?.code === 'UPGRADE_REQUIRED') {
+          setLocked(true);
+          return;
+        }
 
         if (responseData.error?.code) {
           setShowPlaceholder(true);
@@ -92,6 +100,10 @@ export function SidebarAnalytics() {
 
     fetchData();
   }, [pageId]);
+
+  if (locked) {
+    return <SidebarAnalyticsLocked />;
+  }
 
   if (showPlaceholder) {
     return <SidebarAnalyticsComingsoon />;
@@ -235,5 +247,29 @@ export function SidebarAnalyticsComingsoon() {
         days.
       </span>
     </div>
+  );
+}
+
+function SidebarAnalyticsLocked() {
+  const { open } = useUpgradeDialog();
+
+  return (
+    <Card className="shadow-none">
+      <CardContent className="py-8 text-center">
+        <div className="mx-auto mb-4 h-24 w-full max-w-xs rounded-md bg-linear-to-t from-stone-100 to-stone-50 blur-[2px]" />
+        <span className="block text-lg font-semibold">
+          See who&apos;s visiting
+        </span>
+        <span className="mt-1 block text-sm text-neutral-500">
+          Views, unique visitors and top locations for every page.
+        </span>
+        <Button
+          className="mt-4"
+          onClick={() => open('analytics', 'sidebar-analytics')}
+        >
+          Upgrade to Premium
+        </Button>
+      </CardContent>
+    </Card>
   );
 }

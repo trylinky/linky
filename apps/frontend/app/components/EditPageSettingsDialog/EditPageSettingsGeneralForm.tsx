@@ -1,7 +1,9 @@
 'use client';
 
 import { generalPageSettingsSchema } from './shared';
+import { useUpgradeDialog } from '@/app/components/UpgradeDialog';
 import VerificationRequestDialog from '@/app/components/VerificationRequestDialog';
+import { useEntitlements } from '@/lib/hooks/use-entitlements';
 import { captureException } from '@sentry/nextjs';
 import { InternalApi } from '@trylinky/common';
 import {
@@ -38,6 +40,10 @@ export function EditPageSettingsGeneral({ initialValues, pageId }: Props) {
   const { toast } = useToast();
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [showVerificationDialog, setShowVerificationDialog] = useState(false);
+
+  const { entitlements } = useEntitlements();
+  const { open } = useUpgradeDialog();
+  const canUnpublish = entitlements?.features.privatePages ?? true;
 
   const onSubmit = async (
     values: FormValues,
@@ -192,12 +198,21 @@ export function EditPageSettingsGeneral({ initialValues, pageId }: Props) {
                         Disabling this will turn your page into a draft and only
                         you will be able to see it.
                       </Catalyst.Description>
+                      {!canUnpublish && (
+                        <span className="mt-1 inline-flex items-center rounded-full bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-700">
+                          Premium
+                        </span>
+                      )}
                       <Catalyst.Switch
                         name="published"
                         checked={values.published}
-                        onChange={(newVal: boolean) =>
-                          setFieldValue('published', newVal)
-                        }
+                        onChange={(newVal: boolean) => {
+                          if (!newVal && !canUnpublish) {
+                            open('privatePages', 'settings-publish-toggle');
+                            return;
+                          }
+                          setFieldValue('published', newVal);
+                        }}
                       />
                     </Catalyst.SwitchField>
                   </Catalyst.FieldGroup>
@@ -234,7 +249,13 @@ export function EditPageSettingsGeneral({ initialValues, pageId }: Props) {
                   type="button"
                   outline
                   className="mt-4"
-                  onClick={() => setShowVerificationDialog(true)}
+                  onClick={() => {
+                    if (!(entitlements?.features.verification ?? true)) {
+                      open('verification', 'settings-verification');
+                      return;
+                    }
+                    setShowVerificationDialog(true);
+                  }}
                 >
                   Begin page verification
                 </Catalyst.Button>

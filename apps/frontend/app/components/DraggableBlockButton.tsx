@@ -15,9 +15,14 @@ import blockThreadsFollowerCountIcon from '@/app/assets/ui/type-threads-follower
 import blockTiktokIcon from '@/app/assets/ui/type-tiktok.svg';
 import blockWaitlistEmailIcon from '@/app/assets/ui/type-waitlist-email.svg';
 import blockYoutubeIcon from '@/app/assets/ui/type-youtube.svg';
+import { useUpgradeDialog } from '@/app/components/UpgradeDialog';
 import { useEditModeContext } from '@/app/contexts/Edit';
+import { useEntitlements } from '@/lib/hooks/use-entitlements';
+import { LockClosedIcon } from '@heroicons/react/24/outline';
 import { Blocks } from '@trylinky/blocks';
+import { internalApiFetcher } from '@trylinky/common';
 import Image from 'next/image';
+import useSWR, { useSWRConfig } from 'swr';
 
 export const config: Record<
   Blocks,
@@ -213,6 +218,20 @@ export function DraggableBlockButton({ type }: Props) {
 
   const blockConfig = config[type];
 
+  const { entitlements } = useEntitlements();
+  const { open } = useUpgradeDialog();
+  const { cache } = useSWRConfig();
+  const pageId = cache.get('pageId') as string | undefined;
+  const { data: pageBlocks } = useSWR<{ blocks: { id: string }[] }>(
+    pageId ? `/pages/${pageId}/blocks` : null,
+    internalApiFetcher
+  );
+
+  const atLimit =
+    !!entitlements &&
+    !!pageBlocks &&
+    pageBlocks.blocks.length >= entitlements.limits.blocksPerPage;
+
   const content = (
     <>
       <Image
@@ -233,6 +252,12 @@ export function DraggableBlockButton({ type }: Props) {
           {blockConfig.label}
         </span>
       </div>
+      {atLimit && (
+        <LockClosedIcon
+          className="ml-auto h-4 w-4 shrink-0 text-stone-400"
+          aria-label="Premium"
+        />
+      )}
     </>
   );
 
@@ -242,9 +267,18 @@ export function DraggableBlockButton({ type }: Props) {
         id="hello"
         type="button"
         className="hidden md:flex w-full bg-[var(--glass-card)] backdrop-blur-sm rounded-md shadow-[0_0_0_1px_#2000241c,0_2px_2px_#2000240d] hover:shadow-[0_0_0_1px_#2000241c,0_10px_20px_-8px_#0000001f] dark:shadow-[0_0_0_1px_#ffffff1f,0_2px_2px_#00000040] dark:hover:shadow-[0_0_0_1px_#ffffff2e,0_10px_20px_-8px_#00000066] items-center justify-start text-left px-3 py-3 hover:translate-y-[-2px] transition-[box-shadow,transform] cursor-move"
-        draggable={true}
+        draggable={!atLimit}
         unselectable="on"
+        onClick={() => {
+          if (atLimit) {
+            open('blocks', 'block-picker');
+          }
+        }}
         onDragStart={(e) => {
+          if (atLimit) {
+            return;
+          }
+
           // This is needed to make the drag work in Firefox
           e.dataTransfer.setData('text/plain', '');
 
@@ -262,6 +296,10 @@ export function DraggableBlockButton({ type }: Props) {
         type="button"
         className="flex md:hidden w-full bg-[var(--glass-card)] backdrop-blur-sm rounded-md shadow-[0_0_0_1px_#2000241c,0_2px_2px_#2000240d] dark:shadow-[0_0_0_1px_#ffffff1f,0_2px_2px_#00000040] items-center justify-start text-left px-3 py-3 hover:shadow-[0_0_0_1px_#2000241c,0_10px_20px_-8px_#0000001f] dark:hover:shadow-[0_0_0_1px_#ffffff2e,0_10px_20px_-8px_#00000066] transition-shadow"
         onClick={() => {
+          if (atLimit) {
+            open('blocks', 'block-picker');
+            return;
+          }
           setNextToAddBlock({
             i: 'tmp-block',
             w: blockConfig.drag.w,

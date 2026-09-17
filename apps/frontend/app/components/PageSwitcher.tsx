@@ -1,6 +1,8 @@
 'use client';
 
+import { useUpgradeDialog } from '@/app/components/UpgradeDialog';
 import { NewPageDialog } from '@/components/NewPageDialog';
+import { useEntitlements } from '@/lib/hooks/use-entitlements';
 import {
   CaretSortIcon,
   CheckIcon,
@@ -35,6 +37,9 @@ export function PageSwitcher({ teamPages }: Props) {
 
   const [showNewTeamDialog, setShowNewTeamDialog] = useState(false);
   const params = useParams();
+
+  const { entitlements } = useEntitlements();
+  const { open: openUpgradeDialog } = useUpgradeDialog();
 
   const currentPage = teamPages?.find((page) => page.slug === params.slug);
 
@@ -104,6 +109,13 @@ export function PageSwitcher({ teamPages }: Props) {
               <CommandGroup>
                 <CommandItem
                   onSelect={() => {
+                    if (
+                      entitlements &&
+                      (teamPages?.length ?? 0) >= entitlements.limits.pages
+                    ) {
+                      openUpgradeDialog('pages', 'page-switcher');
+                      return;
+                    }
                     setShowNewTeamDialog(true);
                   }}
                 >

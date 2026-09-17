@@ -1,11 +1,13 @@
 'use client';
 
 import { ManageBillingDialog } from '@/app/components/ManageBillingDialog';
+import { useUpgradeDialog } from '@/app/components/UpgradeDialog';
 import { auth, useSession } from '@/app/lib/auth';
 import { EditTeamSettingsDialog } from '@/components/EditTeamSettingsDialog/EditTeamSettingsDialog';
 import { NewPageDialog } from '@/components/NewPageDialog';
+import { useEntitlements } from '@/lib/hooks/use-entitlements';
 import { internalApiFetcher } from '@trylinky/common';
-import { Organization } from '@trylinky/prisma';
+import { Organization, Page } from '@trylinky/prisma';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,6 +50,13 @@ export function UserWidget({ usersOrganizations }: Props) {
 
   const { data: subscriptionData } = useSWR<SubscriptionData>(
     '/billing/subscription/me',
+    internalApiFetcher
+  );
+
+  const { entitlements } = useEntitlements();
+  const { open: openUpgradeDialog } = useUpgradeDialog();
+  const { data: teamPages } = useSWR<Partial<Page>[]>(
+    '/pages/me',
     internalApiFetcher
   );
 
@@ -124,7 +133,17 @@ export function UserWidget({ usersOrganizations }: Props) {
       </DropdownMenu>
       <NewPageDialog
         open={showNewTeamDialog}
-        onOpenChange={setShowNewTeamDialog}
+        onOpenChange={(next) => {
+          if (
+            next &&
+            entitlements &&
+            (teamPages?.length ?? 0) >= entitlements.limits.pages
+          ) {
+            openUpgradeDialog('pages', 'user-widget');
+            return;
+          }
+          setShowNewTeamDialog(next);
+        }}
         onClose={() => setShowNewTeamDialog(false)}
       />
       {showTeamSettingsDialog && (
