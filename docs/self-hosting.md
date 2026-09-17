@@ -51,6 +51,8 @@ You'll need to set up the following services and add their credentials:
 - Stripe (for payments):
   - `STRIPE_API_SECRET_KEY`
   - `STRIPE_WEBHOOK_SECRET`
+  - `PAYWALL_ENFORCED` — set to `true` to enforce the hosted plan limits. Leave
+    unset on a self-hosted instance and every organisation gets the paid limits.
 - Sentry (for error tracking):
   - `NEXT_PUBLIC_SENTRY_DSN`
   - `SENTRY_AUTH_TOKEN`

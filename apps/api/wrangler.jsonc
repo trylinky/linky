@@ -25,6 +25,7 @@
     "APP_FRONTEND_URL": "https://lin.ky",
     "API_BASE_URL": "https://api.lin.ky",
     "NEXT_PUBLIC_BASE_URL": "https://lin.ky",
+    "PAYWALL_ENFORCED": "false",
   },
   "hyperdrive": [
     {
