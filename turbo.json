@@ -198,9 +198,9 @@
       "cache": false,
       "env": ["DATABASE_URL", "DIRECT_URL"]
     },
-    "prisma:migrate": {
+    "migrate": {
       "cache": false,
-      "env": ["DATABASE_URL", "DIRECT_URL"]
+      "env": ["DIRECT_URL"]
     },
     "build": {
       "dependsOn": ["^build"],

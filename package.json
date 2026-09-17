@@ -22,9 +22,9 @@
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "dev": "turbo dev",
-    "dev:migrate": "dotenvx run -f .env.local -- prisma migrate dev --config ./packages/prisma/prisma.config.ts",
-    "dev:seed": "dotenvx run -f .env.local -- tsx ./packages/prisma/prisma/seed.ts",
-    "dev:reset": "dotenvx run -f .env.local -- pnpm prisma db push --force-reset --config ./packages/prisma/prisma.config.ts"
+    "dev:push": "pnpm --filter @trylinky/db push",
+    "dev:seed": "pnpm --filter @trylinky/db seed",
+    "dev:reset": "dotenvx run -f .env.local -- sh -c 'psql \"$DIRECT_URL\" -c \"DROP SCHEMA public CASCADE; CREATE SCHEMA public;\"' && pnpm dev:push && pnpm dev:seed"
   },
   "pnpm": {
     "overrides": {

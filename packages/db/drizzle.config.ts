@@ -11,4 +11,7 @@ export default defineConfig({
   },
   strict: true,
   verbose: true,
+  // Any database that ever ran `prisma migrate` has this table; without the
+  // filter, `drizzle-kit push` would offer to drop it as unknown to Drizzle.
+  tablesFilter: ['!_prisma_migrations'],
 });
