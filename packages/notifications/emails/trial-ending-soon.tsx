@@ -27,14 +27,19 @@ export default function TrialEndingSoonEmail() {
 
             <Section>
               <Text style={styles.paragraph}>
-                How are you finding it so far? If there's anything we can do to
-                help you get your page setup, feel free to reply to this email
-                and we'll reach out as soon as possible.
+                Your Premium trial ends in 3 days. If you don&apos;t add a card
+                before then, your account moves to Free and these pause:
               </Text>
-
               <Text style={styles.paragraph}>
-                Please note, that if you don't extend your trial within 3 days
-                you will lose access to your Linky Premium features.
+                • Analytics
+                <br />• Unlimited pages and blocks (Free is one page, five
+                blocks)
+                <br />• Private pages
+                <br />• Your verified badge and custom domain
+              </Text>
+              <Text style={styles.paragraph}>
+                Your page stays live either way. To keep Premium, add a card
+                from the billing screen: https://lin.ky/edit?showBilling=true
               </Text>
               <SignOff />
             </Section>

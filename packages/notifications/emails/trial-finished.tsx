@@ -12,7 +12,7 @@ import {
 import * as React from 'react';
 
 export const TrialFinishedEmailText = `
-Hey there,\n\nIt's Alex, the founder of Linky.\n\nI know - nobody loves these emails, but I wanted to give you a quick heads-up: your trial has officially ended.\n\nWe've moved you to our free plan, and don't worry - all of your links and pages are still there.\n\nIf you're ready to upgrade to Premium and unlock all of features, then you can do so here:\n\nhttps://lin.ky/i/pricing.\n\nThanks again for trying Linky, and if there's anything you need, just reply.\n\nBest,\nAlex\nFounder of Linky
+Hey there,\n\nIt's Alex, the founder of Linky.\n\nYour Premium trial has ended and your account is now on Free. Your page is still live and nothing has been removed.\n\nOn Free you have one page with up to five blocks. Analytics, private pages, the verified badge and custom domains are paused until you upgrade.\n\nUpgrade any time from the editor: https://lin.ky/edit?showBilling=true\n\nThanks for trying Linky. If anything's unclear, just reply.\n\nBest,\nAlex\nFounder of Linky
 `;
 
 export default function TrialFinishedEmail() {
@@ -31,13 +31,19 @@ export default function TrialFinishedEmail() {
 
             <Section>
               <Text style={styles.paragraph}>
-                As you haven't extended your plan, your account has been moved
-                to our free plan.
+                Your Premium trial has ended and your account is now on Free.
+                Your page is still live and nothing has been removed.
               </Text>
 
               <Text style={styles.paragraph}>
-                Login to the Linky dashboard at any point to choose a new plan,
-                and carry on where you left off!
+                On Free you have one page with up to five blocks. Analytics,
+                private pages, the verified badge and custom domains are paused
+                until you upgrade.
+              </Text>
+
+              <Text style={styles.paragraph}>
+                Upgrade any time from the editor:
+                https://lin.ky/edit?showBilling=true
               </Text>
               <SignOff />
             </Section>
