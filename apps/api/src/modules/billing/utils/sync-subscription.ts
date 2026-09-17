@@ -3,6 +3,7 @@ import { prices } from '@/lib/plans';
 import { createPosthogClient } from '@/lib/posthog';
 import { pageIdCacheTag, revalidatePageCache } from '@/lib/revalidate';
 import { resolveTier } from '@/modules/billing/entitlements';
+import { captureMessage } from '@sentry/cloudflare';
 import type { Plan, Tier } from '@trylinky/common/billing';
 import { VerificationRequestStatus } from '@trylinky/db';
 import {
@@ -60,6 +61,7 @@ export async function syncSubscriptionFromStripe(
 ): Promise<{ organizationId: string; previousTier: Tier; tier: Tier } | null> {
   const customerId =
     typeof sub.customer === 'string' ? sub.customer : sub.customer.id;
+  // Set by Checkout-created subscriptions (subscription_data.metadata); signup trials have no metadata and fall through to the id lookups.
   const orgIdFromMetadata = sub.metadata?.organizationId;
 
   const existing =
@@ -81,12 +83,22 @@ export async function syncSubscriptionFromStripe(
 
   const priceId = sub.items?.data?.[0]?.price?.id;
   const planFromPrice = priceId ? planFromPriceId(priceId) : null;
+
+  const statusKeepsPlan = PLAN_KEPT_ON_ROW_STATUSES.has(sub.status);
+
+  if (statusKeepsPlan && priceId && !planFromPrice) {
+    // Price-config drift (a price id not in lib/plans.ts) must never
+    // downgrade a paying org. Keep the plan the row already has and shout.
+    captureMessage(
+      `Unknown Stripe price ${priceId} on subscription ${sub.id}; keeping plan ${existing.plan}`
+    );
+  }
+
   // A canceled/unpaid subscription is recorded as freeLegacy so the row
   // reads correctly even to code that only looks at `plan`.
-  const plan: Plan =
-    planFromPrice && PLAN_KEPT_ON_ROW_STATUSES.has(sub.status)
-      ? planFromPrice
-      : 'freeLegacy';
+  const plan: Plan = statusKeepsPlan
+    ? (planFromPrice ?? (existing.plan as Plan))
+    : 'freeLegacy';
 
   const previousTier = resolveTier(existing);
 

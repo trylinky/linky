@@ -29,6 +29,10 @@ vi.mock('@/lib/revalidate', () => ({
     `page-slug-${slug}-${domain}`,
 }));
 vi.mock('@/lib/posthog', () => ({ createPosthogClient: () => null }));
+vi.mock('@sentry/cloudflare', () => ({
+  captureMessage: vi.fn(),
+  captureException: vi.fn(),
+}));
 
 const suffix = randomUUID().slice(0, 8);
 let organizationId: string;
@@ -132,6 +136,18 @@ describe('syncSubscriptionFromStripe', () => {
     });
     expect(row?.status).toBe('active');
     expect(row?.periodEnd?.getTime()).toBe(1_802_592_000 * 1000);
+  });
+
+  it('keeps the current plan when the price id is unknown and the status is entitled', async () => {
+    const result = await syncSubscriptionFromStripe(
+      stripeSub({ items: { data: [{ price: { id: 'price_unmapped' } }] } })
+    );
+
+    expect(result?.tier).toBe('premium');
+    const row = await db.query.subscription.findFirst({
+      where: (s, { eq }) => eq(s.id, subscriptionId),
+    });
+    expect(row?.plan).toBe('premium');
   });
 
   it('downgrades to free on cancellation and applies side effects', async () => {
