@@ -9,6 +9,12 @@ export interface Env {
   // Restores better-auth's dropped 3-per-10s tier for the sign-in/sign-up
   // prefixes — see the comment in middleware/rate-limit.ts.
   AUTH_STRICT_RATE_LIMIT: RateLimit;
+  /**
+   * Vitest only. When set, resolveSession uses it instead of better-auth so
+   * route tests can exercise session-protected handlers. Ignored unless the
+   * process is running under Vitest — never define it in wrangler.jsonc.
+   */
+  TEST_SESSION?: AuthenticatedSession;
 }
 
 export interface Variables {

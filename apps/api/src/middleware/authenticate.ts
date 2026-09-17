@@ -21,6 +21,15 @@ export const resolveSession: MiddlewareHandler<AppBindings> = async (
   c,
   next
 ) => {
+  // Vitest-only bypass. `process.env.VITEST` is set by the Vitest runner and
+  // by nothing else; wrangler never defines TEST_SESSION, so this branch is
+  // dead in every deployed environment.
+  if (process.env.VITEST === 'true' && c.env.TEST_SESSION) {
+    c.set('session', c.env.TEST_SESSION);
+    await next();
+    return;
+  }
+
   try {
     const session = await getAuth().api.getSession({
       headers: c.req.raw.headers,
