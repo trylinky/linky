@@ -5,12 +5,10 @@ import { InternalApi } from '../api/internal-api';
 import { auth } from '../auth/auth';
 import { LoginWidget } from '../auth/login-widget';
 import {
-  ArrowTrendingDownIcon,
   ArrowUpIcon,
   CheckBadgeIcon,
   CubeIcon,
   CubeTransparentIcon,
-  HandThumbUpIcon,
   UserPlusIcon,
   UsersIcon,
   LockClosedIcon,
@@ -84,11 +82,6 @@ const tiers: Tier[] = [
       { description: 'All Premium features', icon: ArrowUpIcon },
       { description: 'A separate team space', icon: UsersIcon },
       { description: 'Invite up to 5 team members', icon: UserPlusIcon },
-      {
-        description: 'Google Analytics integration',
-        icon: ArrowTrendingDownIcon,
-      },
-      { description: 'Facebook Pixel integration', icon: HandThumbUpIcon },
     ],
   },
 ];

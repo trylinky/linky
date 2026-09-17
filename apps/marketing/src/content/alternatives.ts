@@ -16,7 +16,7 @@ const ALTERNATIVES: AlternativeContent[] = [
       },
       {
         heading: 'Where Linky stands out',
-        body: 'Linky was built around the idea that a link-in-bio page should feel like a real piece of your online identity, not a glorified bookmark list. It ships with rich content blocks out of the box: a live Spotify "now playing" block, an Instagram latest-post block, a TikTok follower-count block, a GitHub recent-commits block, a YouTube embed, an interactive map, a waitlist/email capture block, and more. These pull in live data so your page stays fresh without manual updates.\n\nOn the customisation side, Linky offers custom colour palettes and font pairings through its themes system. Custom domains are available on the Premium plan ($4/month), along with unlimited pages and blocks, a verification badge, private pages, and page analytics. The Team plan ($14/month) adds a shared team space, up to five seats, and integrations with Google Analytics and Facebook Pixel.',
+        body: 'Linky was built around the idea that a link-in-bio page should feel like a real piece of your online identity, not a glorified bookmark list. It ships with rich content blocks out of the box: a live Spotify "now playing" block, an Instagram latest-post block, a TikTok follower-count block, a GitHub recent-commits block, a YouTube embed, an interactive map, a waitlist/email capture block, and more. These pull in live data so your page stays fresh without manual updates.\n\nOn the customisation side, Linky offers custom colour palettes and font pairings through its themes system. Custom domains are available on the Premium plan ($4/month), along with unlimited pages and blocks, a verification badge, private pages, and page analytics. The Team plan ($14/month) adds a shared team space and up to five seats.',
       },
       {
         heading: 'What Linktree is genuinely good at',
@@ -55,7 +55,7 @@ const ALTERNATIVES: AlternativeContent[] = [
       {
         question: 'Does Linky have analytics?',
         answer:
-          'Page analytics are included in the Premium plan. The Team plan also adds Google Analytics and Facebook Pixel integrations for more detailed tracking.',
+          'Page analytics are included in the Premium plan: views, unique visitors and top locations for every page.',
       },
     ],
     comparison: [
@@ -101,7 +101,7 @@ const ALTERNATIVES: AlternativeContent[] = [
       },
       {
         heading: 'Where Linky stands out',
-        body: "Linky is purpose-built around live content blocks. Its Instagram block pulls in your latest post and follower count; the Spotify block shows what you are currently listening to or your most recently played track; the TikTok block displays follower count and recent posts; the GitHub block shows recent commits. These make a Linky page feel current without daily maintenance.\n\nLinky's theming system lets you pick custom colour palettes and fonts, giving your page a distinct look that matches your brand. Custom domains are available on the Premium plan at $4/month, which also includes unlimited pages and blocks, a verification badge, private pages, and analytics. The Team plan ($14/month) adds a shared workspace for up to five collaborators and support for Google Analytics and Facebook Pixel.",
+        body: "Linky is purpose-built around live content blocks. Its Instagram block pulls in your latest post and follower count; the Spotify block shows what you are currently listening to or your most recently played track; the TikTok block displays follower count and recent posts; the GitHub block shows recent commits. These make a Linky page feel current without daily maintenance.\n\nLinky's theming system lets you pick custom colour palettes and fonts, giving your page a distinct look that matches your brand. Custom domains are available on the Premium plan at $4/month, which also includes unlimited pages and blocks, a verification badge, private pages, and analytics. The Team plan ($14/month) adds a shared workspace for up to five collaborators.",
       },
       {
         heading: 'What Beacons is genuinely good at',
@@ -181,7 +181,7 @@ const ALTERNATIVES: AlternativeContent[] = [
       },
       {
         heading: 'Where Linky stands out',
-        body: 'Linky\'s block library is what separates it from simpler tools. Beyond standard link blocks, you get a live Spotify "now playing" block, an Instagram latest-post-and-follower-count block, a TikTok follower and recent-post block, a GitHub commits block, a YouTube embed, an interactive map, reactions, and a waitlist/email capture block. These pull real data, so your page reflects your current activity without manual updates.\n\nThe theming system gives you control over colours and fonts, and every Linky page can be styled to match your brand identity. Premium ($4/month) adds custom domains, unlimited blocks and pages, a verification badge, private pages, and analytics. Team ($14/month) adds a shared workspace with up to five seats, Google Analytics, and Facebook Pixel.',
+        body: 'Linky\'s block library is what separates it from simpler tools. Beyond standard link blocks, you get a live Spotify "now playing" block, an Instagram latest-post-and-follower-count block, a TikTok follower and recent-post block, a GitHub commits block, a YouTube embed, an interactive map, reactions, and a waitlist/email capture block. These pull real data, so your page reflects your current activity without manual updates.\n\nThe theming system gives you control over colours and fonts, and every Linky page can be styled to match your brand identity. Premium ($4/month) adds custom domains, unlimited blocks and pages, a verification badge, private pages, and analytics. Team ($14/month) adds a shared workspace with up to five seats.',
       },
       {
         heading: 'What Bio.link is genuinely good at',
@@ -266,7 +266,7 @@ const ALTERNATIVES: AlternativeContent[] = [
       },
       {
         heading: 'Where Linky stands out',
-        body: "Linky is purpose-built for link-in-bio pages. Its editor is structured around blocks that work together out of the box, and its live integrations are the standout feature: Spotify shows your currently-playing track or most recently played track; Instagram surfaces your most recent post and follower count; TikTok shows follower count and recent posts; GitHub displays recent commit activity. These update automatically, so your page always reflects your current output.\n\nLinky's theming system provides custom colour palettes and font choices without requiring design skills. Custom domains are included in the Premium plan at $4/month, along with unlimited blocks, unlimited pages, a verification badge, private pages, and analytics. The Team plan at $14/month adds a shared workspace for up to five people and support for Google Analytics and Facebook Pixel.",
+        body: "Linky is purpose-built for link-in-bio pages. Its editor is structured around blocks that work together out of the box, and its live integrations are the standout feature: Spotify shows your currently-playing track or most recently played track; Instagram surfaces your most recent post and follower count; TikTok shows follower count and recent posts; GitHub displays recent commit activity. These update automatically, so your page always reflects your current output.\n\nLinky's theming system provides custom colour palettes and font choices without requiring design skills. Custom domains are included in the Premium plan at $4/month, along with unlimited blocks, unlimited pages, a verification badge, private pages, and analytics. The Team plan at $14/month adds a shared workspace for up to five people.",
       },
       {
         heading: 'What Carrd is genuinely good at',
@@ -352,7 +352,7 @@ const ALTERNATIVES: AlternativeContent[] = [
       },
       {
         heading: 'Where Linky stands out',
-        body: 'Linky is built exclusively for link-in-bio pages, so every part of the product is optimised for that use case. Its live blocks are a core differentiator: the Instagram block shows your latest post and follower count; the Spotify block displays what you are currently listening to; the TikTok block surfaces follower count and recent posts; the GitHub block shows recent commits; YouTube, Maps, and a waitlist/email-capture block round out the library.\n\nCustomisation goes further than most tools - you pick custom colour palettes and fonts through the themes system. Custom domains are available on the Premium plan ($4/month), which also includes unlimited blocks and pages, a verification badge, private pages, and page analytics. The Team plan ($14/month) adds a shared workspace for up to five seats with Google Analytics and Facebook Pixel integrations.',
+        body: 'Linky is built exclusively for link-in-bio pages, so every part of the product is optimised for that use case. Its live blocks are a core differentiator: the Instagram block shows your latest post and follower count; the Spotify block displays what you are currently listening to; the TikTok block surfaces follower count and recent posts; the GitHub block shows recent commits; YouTube, Maps, and a waitlist/email-capture block round out the library.\n\nCustomisation goes further than most tools - you pick custom colour palettes and fonts through the themes system. Custom domains are available on the Premium plan ($4/month), which also includes unlimited blocks and pages, a verification badge, private pages, and page analytics. The Team plan ($14/month) adds a shared workspace for up to five seats.',
       },
       {
         heading: 'What Later is genuinely good at',
@@ -391,7 +391,7 @@ const ALTERNATIVES: AlternativeContent[] = [
       {
         question: 'Does Linky support team collaboration?',
         answer:
-          'Yes. The Team plan ($14/month) provides a shared team workspace with up to five seats, plus Google Analytics and Facebook Pixel integrations.',
+          'Yes. The Team plan ($14/month) provides a shared team workspace with up to five seats.',
       },
     ],
     comparison: [

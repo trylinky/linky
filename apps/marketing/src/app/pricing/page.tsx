@@ -11,7 +11,7 @@ import Image from 'next/image';
 export const metadata = buildPageMetadata({
   title: 'Linky pricing - free, Premium, and Team plans',
   description:
-    'Linky is free to start. Premium unlocks custom domains, advanced blocks, and analytics; Team adds shared pages and seats. Compare plans and pricing.',
+    'Linky is free to start. Premium unlocks custom domains, unlimited pages and blocks, and analytics; Team adds shared pages and seats. Compare plans and pricing.',
   path: '/i/pricing',
 });
 
@@ -99,7 +99,7 @@ export default async function PricingPage() {
 
       <MinimalCta
         headline="Try it free today"
-        subtext="Claim your username now and upgrade whenever you need more - custom domains, analytics, and advanced blocks."
+        subtext="Claim your username now and upgrade whenever you need more - custom domains, analytics, and unlimited blocks."
       />
     </div>
   );

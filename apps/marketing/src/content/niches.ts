@@ -54,7 +54,7 @@ const NICHES: NicheContent[] = [
       {
         question: 'Is Linky free for musicians?',
         answer:
-          'Yes - the free plan gives you a fully functional link-in-bio page including the Spotify Now Playing block, Link Box blocks, and YouTube embeds. Paid plans unlock a custom domain and additional analytics.',
+          'Yes - the free plan gives you a fully functional link-in-bio page including the Spotify Now Playing block, Link Box blocks, and YouTube embeds. Premium unlocks a custom domain, unlimited blocks and page analytics.',
       },
       {
         question: 'Can I update my page when I release new music?',

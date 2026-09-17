@@ -27,7 +27,7 @@ const landingPageQuestions = [
   {
     question: 'Is it free?',
     answer:
-      'We stopped offering free pages earlier this year, however our pricing starts from only $4 per month.',
+      'Yes. Every account starts with 14 days of Premium, no card needed. After that your page stays live on the Free plan with one page and up to five blocks. Premium is $4 per month and adds unlimited pages and blocks, analytics, private pages, a verified badge and custom domains.',
   },
   {
     question: 'Can I use my own domain?',
