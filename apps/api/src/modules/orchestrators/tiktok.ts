@@ -1,7 +1,9 @@
+import db from '@/lib/db';
 import { encrypt } from '@/lib/encrypt';
-import prisma from '@/lib/prisma';
 import { uploadAsset } from '@/modules/assets/service';
 import { captureException, captureMessage } from '@sentry/cloudflare';
+import { account, block, integration, orchestration, page } from '@trylinky/db/schema';
+import { and, eq } from 'drizzle-orm';
 import safeAwait from 'safe-await';
 
 // Example output: "x7hj2k9"
@@ -19,10 +21,9 @@ const createPage = async ({
   let newPageSlug = tiktokUsername;
 
   const [existingPageError, existingPage] = await safeAwait(
-    prisma.page.findFirst({
-      where: {
-        slug: tiktokUsername,
-      },
+    db.query.page.findFirst({
+      where: (p, { eq }) => eq(p.slug, tiktokUsername),
+      columns: { id: true },
     })
   );
 
@@ -36,18 +37,19 @@ const createPage = async ({
   }
 
   try {
-    const page = await prisma.page.create({
-      data: {
+    const [createdPage] = await db
+      .insert(page)
+      .values({
         organizationId,
         slug: newPageSlug,
         metaTitle: `${tiktokUsername} on Linky`,
         metaDescription: `${tiktokUsername} on Linky`,
         publishedAt: new Date(),
         config: {},
-      },
-    });
+      })
+      .returning();
 
-    return page;
+    return createdPage;
   } catch (error) {
     captureException(error);
     return null;
@@ -66,8 +68,9 @@ const createHeaderBlock = async ({
   avatarUrl?: string | null;
 }) => {
   try {
-    const block = await prisma.block.create({
-      data: {
+    const [created] = await db
+      .insert(block)
+      .values({
         pageId,
         type: 'header',
         config: {},
@@ -80,10 +83,10 @@ const createHeaderBlock = async ({
               }
             : undefined,
         },
-      },
-    });
+      })
+      .returning();
 
-    return block;
+    return created;
   } catch (error) {
     captureException(error);
     return null;
@@ -92,8 +95,9 @@ const createHeaderBlock = async ({
 
 const createContentBlock = async ({ pageId }: { pageId: string }) => {
   try {
-    const block = await prisma.block.create({
-      data: {
+    const [created] = await db
+      .insert(block)
+      .values({
         pageId,
         type: 'content',
         config: {},
@@ -102,10 +106,10 @@ const createContentBlock = async ({ pageId }: { pageId: string }) => {
           content:
             "This is my new page on Linky. I'm a TikTok creator, and I post videos about... well, you'll have to see for yourself!",
         },
-      },
-    });
+      })
+      .returning();
 
-    return block;
+    return created;
   } catch (error) {
     captureException(error);
     return null;
@@ -114,8 +118,9 @@ const createContentBlock = async ({ pageId }: { pageId: string }) => {
 
 const createStackBlock = async ({ pageId }: { pageId: string }) => {
   try {
-    const block = await prisma.block.create({
-      data: {
+    const [created] = await db
+      .insert(block)
+      .values({
         pageId,
         type: 'stack',
         config: {},
@@ -149,10 +154,10 @@ const createStackBlock = async ({ pageId }: { pageId: string }) => {
           label: 'My links',
           title: 'Find me here',
         },
-      },
-    });
+      })
+      .returning();
 
-    return block;
+    return created;
   } catch (error) {
     captureException(error);
     return null;
@@ -167,29 +172,19 @@ const createTikTokFollowersBlock = async ({
   integrationId: string;
 }) => {
   try {
-    const block = await prisma.block.create({
-      data: {
+    const [created] = await db
+      .insert(block)
+      .values({
         pageId,
         type: 'tiktok-follower-count',
         config: {},
         data: {},
-      },
-    });
+      })
+      .returning();
 
-    await prisma.block.update({
-      where: {
-        id: block.id,
-      },
-      data: {
-        integration: {
-          connect: {
-            id: integrationId,
-          },
-        },
-      },
-    });
+    await db.update(block).set({ integrationId }).where(eq(block.id, created.id));
 
-    return block;
+    return created;
   } catch (error) {
     captureException(error);
     return null;
@@ -210,29 +205,19 @@ const createTikTokLatestVideoBlock = async ({
   }
 
   try {
-    const block = await prisma.block.create({
-      data: {
+    const [created] = await db
+      .insert(block)
+      .values({
         pageId,
         type: 'tiktok-latest-post',
         config: {},
         data: {},
-      },
-    });
+      })
+      .returning();
 
-    await prisma.block.update({
-      where: {
-        id: block.id,
-      },
-      data: {
-        integration: {
-          connect: {
-            id: integrationId,
-          },
-        },
-      },
-    });
+    await db.update(block).set({ integrationId }).where(eq(block.id, created.id));
 
-    return block;
+    return created;
   } catch (error) {
     captureException(error);
     return null;
@@ -256,16 +241,17 @@ const createTiktokIntegration = async ({
   });
 
   try {
-    const integration = await prisma.integration.create({
-      data: {
+    const [createdIntegration] = await db
+      .insert(integration)
+      .values({
         organizationId,
         type: 'tiktok',
         encryptedConfig,
         displayName,
-      },
-    });
+      })
+      .returning();
 
-    return integration;
+    return createdIntegration;
   } catch (error) {
     captureException(error);
     return null;
@@ -347,16 +333,10 @@ const fetchTikTokProfile = async ({
 
     if (newTokens) {
       // Update the stored tokens in database
-      await prisma.account.updateMany({
-        where: {
-          userId,
-          providerId: 'tiktok',
-        },
-        data: {
-          accessToken: newTokens.accessToken,
-          refreshToken: newTokens.refreshToken,
-        },
-      });
+      await db
+        .update(account)
+        .set({ accessToken: newTokens.accessToken, refreshToken: newTokens.refreshToken })
+        .where(and(eq(account.userId, userId), eq(account.providerId, 'tiktok')));
 
       // Retry with new token
       const retryResult = await makeRequest(newTokens.accessToken);
@@ -531,24 +511,15 @@ const setPageConfig = async ({
     });
   }
 
-  await prisma.page.update({
-    where: {
-      id: pageId,
-    },
-    data: {
-      config,
-      mobileConfig,
-      themeId: '14fc9bdf-f363-4404-b05e-856670722fda',
-    },
-  });
+  await db
+    .update(page)
+    .set({ config, mobileConfig, themeId: '14fc9bdf-f363-4404-b05e-856670722fda' })
+    .where(eq(page.id, pageId));
 };
 
 const getTikTokAccessToken = async ({ userId }: { userId: string }) => {
-  const tiktokAccount = await prisma.account.findFirst({
-    where: {
-      userId,
-      providerId: 'tiktok',
-    },
+  const tiktokAccount = await db.query.account.findFirst({
+    where: (a, { and, eq }) => and(eq(a.userId, userId), eq(a.providerId, 'tiktok')),
   });
 
   if (!tiktokAccount) {
@@ -605,20 +576,17 @@ export async function orchestrateTikTok({
   organizationId: string;
   userId: string;
 }) {
-  const orchestration = await prisma.orchestration.findUnique({
-    where: {
-      id: orchestrationId,
-      pageGeneratedAt: null,
-    },
+  const current = await db.query.orchestration.findFirst({
+    where: (o, { and, eq, isNull }) => and(eq(o.id, orchestrationId), isNull(o.pageGeneratedAt)),
   });
 
-  if (!orchestration) {
+  if (!current) {
     return {
       error: 'Orchestration not found',
     };
   }
 
-  if (orchestration.expiresAt < new Date()) {
+  if (current.expiresAt < new Date()) {
     return {
       error: 'Orchestration expired',
     };
@@ -657,12 +625,12 @@ export async function orchestrateTikTok({
     accessToken: tiktokTokens.accessToken,
   });
 
-  const page = await createPage({
+  const createdPage = await createPage({
     organizationId,
     tiktokUsername: tiktokData?.profile?.username,
   });
 
-  if (!page) {
+  if (!createdPage) {
     captureMessage('TIKTOK: Unable to create page');
     return {
       error: 'Unable to create page',
@@ -671,7 +639,7 @@ export async function orchestrateTikTok({
 
   const uploadedAvatarUrl = await uploadAvatar({
     avatarUrl: tiktokData?.profile?.avatarUrl,
-    referenceId: `orchestrator-tiktok-avatar-${page.id}`,
+    referenceId: `orchestrator-tiktok-avatar-${createdPage.id}`,
   });
 
   const tiktokIntegration = await createTiktokIntegration({
@@ -689,7 +657,7 @@ export async function orchestrateTikTok({
   }
 
   const headerBlock = await createHeaderBlock({
-    pageId: page.id,
+    pageId: createdPage.id,
     tiktokUsername: tiktokData?.profile?.username,
     tiktokDisplayName: tiktokData?.profile?.displayName,
     avatarUrl: uploadedAvatarUrl,
@@ -702,7 +670,7 @@ export async function orchestrateTikTok({
   }
 
   const contentBlock = await createContentBlock({
-    pageId: page.id,
+    pageId: createdPage.id,
   });
 
   if (!contentBlock) {
@@ -713,7 +681,7 @@ export async function orchestrateTikTok({
   }
 
   const stackBlock = await createStackBlock({
-    pageId: page.id,
+    pageId: createdPage.id,
   });
 
   if (!stackBlock) {
@@ -724,7 +692,7 @@ export async function orchestrateTikTok({
   }
 
   const tiktokFollowersBlock = await createTikTokFollowersBlock({
-    pageId: page.id,
+    pageId: createdPage.id,
     integrationId: tiktokIntegration.id,
   });
 
@@ -736,13 +704,13 @@ export async function orchestrateTikTok({
   }
 
   const tiktokLatestVideoBlock = await createTikTokLatestVideoBlock({
-    pageId: page.id,
+    pageId: createdPage.id,
     integrationId: tiktokIntegration.id,
     hasLatestVideo: hasPublishedVideo,
   });
 
   await setPageConfig({
-    pageId: page.id,
+    pageId: createdPage.id,
     headerBlockId: headerBlock.id,
     tiktokFollowersBlockId: tiktokFollowersBlock.id,
     contentBlockId: contentBlock.id,
@@ -750,19 +718,10 @@ export async function orchestrateTikTok({
     tiktokLatestVideoBlockId: tiktokLatestVideoBlock?.id,
   });
 
-  await prisma.orchestration.update({
-    where: {
-      id: orchestrationId,
-    },
-    data: {
-      pageGeneratedAt: new Date(),
-      page: {
-        connect: {
-          id: page.id,
-        },
-      },
-    },
-  });
+  await db
+    .update(orchestration)
+    .set({ pageGeneratedAt: new Date(), pageId: createdPage.id })
+    .where(eq(orchestration.id, orchestrationId));
 
   // Experience some delay to simulate the page being built
   await new Promise((resolve) => setTimeout(resolve, 1200));
@@ -770,7 +729,7 @@ export async function orchestrateTikTok({
   return {
     success: true,
     data: {
-      pageSlug: page.slug,
+      pageSlug: createdPage.slug,
     },
   };
 }

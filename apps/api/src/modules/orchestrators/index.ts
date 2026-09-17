@@ -1,9 +1,10 @@
 import type { AppBindings } from '@/env';
-import prisma from '@/lib/prisma';
+import db from '@/lib/db';
 import { requireSession } from '@/middleware/authenticate';
 import { requireApiKey } from '@/middleware/authenticate-api-key';
 import { orchestrateTikTok } from '@/modules/orchestrators/tiktok';
 import { tbValidator } from '@hono/typebox-validator';
+import { orchestration } from '@trylinky/db/schema';
 import { Hono } from 'hono';
 import { createFactory } from 'hono/factory';
 // Built with `typebox`, NOT `@sinclair/typebox` — see the comment on
@@ -38,15 +39,10 @@ const createOrchestratorHandlers = createOrchestratorFactory.createHandlers(
   async (c) => {
     const { type } = c.req.valid('json');
 
-    const newOrchestrator = await prisma.orchestration.create({
-      data: {
-        expiresAt: new Date(Date.now() + 1000 * 60 * 30).toISOString(),
-        type,
-      },
-      select: {
-        id: true,
-      },
-    });
+    const [newOrchestrator] = await db
+      .insert(orchestration)
+      .values({ expiresAt: new Date(Date.now() + 1000 * 60 * 30), type })
+      .returning({ id: orchestration.id });
 
     return c.json({ id: newOrchestrator.id }, 200);
   }
@@ -59,18 +55,17 @@ const validateOrchestratorHandlers = validateOrchestratorFactory.createHandlers(
   async (c) => {
     const { type, orchestrationId } = c.req.valid('json');
 
-    const orchestration = await prisma.orchestration.findUnique({
-      where: {
-        id: orchestrationId,
-        type: type,
-        pageGeneratedAt: null,
-        expiresAt: {
-          gt: new Date(),
-        },
-      },
+    const found = await db.query.orchestration.findFirst({
+      where: (o, { and, eq, gt, isNull }) =>
+        and(
+          eq(o.id, orchestrationId),
+          eq(o.type, type),
+          isNull(o.pageGeneratedAt),
+          gt(o.expiresAt, new Date())
+        ),
     });
 
-    if (!orchestration) {
+    if (!found) {
       return c.json({ error: 'Orchestration not found' }, 400);
     }
 
