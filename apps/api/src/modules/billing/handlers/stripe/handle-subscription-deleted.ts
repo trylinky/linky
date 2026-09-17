@@ -20,7 +20,15 @@ import Stripe from 'stripe';
 export async function handleSubscriptionDeleted(event: Stripe.Event) {
   const stripeSubscription = event.data.object as Stripe.Subscription;
 
-  const result = await syncSubscriptionFromStripe(stripeSubscription);
+  // The owner just bought Team; their personal org is cancelled as part of
+  // the upgrade and must not lose its badge, requests or see the Free notice.
+  const autoUpgradedToTeam =
+    stripeSubscription.cancellation_details?.comment ===
+    'LINKY_AUTO_UPGRADED_TO_TEAM';
+
+  const result = await syncSubscriptionFromStripe(stripeSubscription, {
+    skipDowngradeSideEffects: autoUpgradedToTeam,
+  });
 
   if (!result) {
     captureMessage(
@@ -28,10 +36,6 @@ export async function handleSubscriptionDeleted(event: Stripe.Event) {
     );
     return;
   }
-
-  const autoUpgradedToTeam =
-    stripeSubscription.cancellation_details?.comment ===
-    'LINKY_AUTO_UPGRADED_TO_TEAM';
 
   if (!autoUpgradedToTeam) {
     const unconverted = isUnconvertedTrial(stripeSubscription);

@@ -2,7 +2,7 @@ import db from '@/lib/db';
 import { prices } from '@/lib/plans';
 import { createPosthogClient } from '@/lib/posthog';
 import { pageIdCacheTag, revalidatePageCache } from '@/lib/revalidate';
-import { resolveTier } from '@/modules/billing/entitlements';
+import { isPaywallEnforced, resolveTier } from '@/modules/billing/entitlements';
 import { captureMessage } from '@sentry/cloudflare';
 import type { Plan, Tier } from '@trylinky/common/billing';
 import { VerificationRequestStatus } from '@trylinky/db';
@@ -55,9 +55,15 @@ function toDate(seconds: number | null | undefined): Date | null {
  *
  * Returns the tier transition so callers can react (emails, cache), or null
  * when the subscription cannot be attributed to an organisation.
+ *
+ * `skipDowngradeSideEffects` is for the cancellations that are not really a
+ * downgrade: when an owner buys Team we cancel their personal Premium
+ * subscription (cancellation comment `LINKY_AUTO_UPGRADED_TO_TEAM`), and
+ * that org must keep its verified badge and pending verification requests.
  */
 export async function syncSubscriptionFromStripe(
-  sub: Stripe.Subscription
+  sub: Stripe.Subscription,
+  opts: { skipDowngradeSideEffects?: boolean } = {}
 ): Promise<{ organizationId: string; previousTier: Tier; tier: Tier } | null> {
   const customerId =
     typeof sub.customer === 'string' ? sub.customer : sub.customer.id;
@@ -122,7 +128,13 @@ export async function syncSubscriptionFromStripe(
   const organizationId = existing.referenceId;
 
   if (tier !== previousTier) {
-    if (tier === 'free') {
+    // The side effects are part of enforcement: with the paywall off a
+    // cancellation still flips the row, but nothing is taken away.
+    if (
+      tier === 'free' &&
+      isPaywallEnforced() &&
+      !opts.skipDowngradeSideEffects
+    ) {
       await applyDowngradeSideEffects(organizationId);
     }
 

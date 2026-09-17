@@ -10,7 +10,15 @@ import { subscription, userFlag } from '@trylinky/db/schema';
 import { inArray } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import type Stripe from 'stripe';
-import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterAll,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 
 const sendSubscriptionUpgradedPremiumEmail = vi.fn();
 const sendSubscriptionUpgradedTeamEmail = vi.fn();
@@ -35,7 +43,13 @@ const organizationIds: string[] = [];
 const subscriptionIds: string[] = [];
 
 beforeEach(() => {
+  // The tier transition side effects only run when the paywall is enforced.
+  vi.stubEnv('PAYWALL_ENFORCED', 'true');
   sendSubscriptionUpgradedPremiumEmail.mockClear();
+});
+
+afterEach(() => {
+  vi.unstubAllEnvs();
 });
 
 afterAll(async () => {

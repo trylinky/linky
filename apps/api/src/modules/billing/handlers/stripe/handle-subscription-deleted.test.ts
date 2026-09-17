@@ -4,13 +4,22 @@ import { prices } from '@/lib/plans';
 import {
   cleanupTestData,
   createTestOrganization,
+  createTestPage,
   createTestUser,
 } from '@/test/fixtures';
-import { member, subscription, userFlag } from '@trylinky/db/schema';
-import { inArray } from 'drizzle-orm';
+import { member, page, subscription, userFlag } from '@trylinky/db/schema';
+import { eq, inArray } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import type Stripe from 'stripe';
-import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterAll,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 
 const sendSubscriptionDeletedEmail = vi.fn();
 const sendTrialEndedEmail = vi.fn();
@@ -36,6 +45,7 @@ const suffix = randomUUID().slice(0, 8);
 const userIds: string[] = [];
 const organizationIds: string[] = [];
 const subscriptionIds: string[] = [];
+const pageIds: string[] = [];
 
 function fakeEvent({
   id,
@@ -96,14 +106,20 @@ async function seed(label: string, status: string) {
 }
 
 beforeEach(() => {
+  // The downgrade side effects only run when the paywall is enforced.
+  vi.stubEnv('PAYWALL_ENFORCED', 'true');
   sendSubscriptionDeletedEmail.mockClear();
   sendTrialEndedEmail.mockClear();
   sendSlackMessage.mockClear();
 });
 
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
+
 afterAll(async () => {
   await db.delete(userFlag).where(inArray(userFlag.userId, userIds));
-  await cleanupTestData({ subscriptionIds, organizationIds, userIds });
+  await cleanupTestData({ pageIds, subscriptionIds, organizationIds, userIds });
 });
 
 describe('handleSubscriptionDeleted', () => {
@@ -158,11 +174,18 @@ describe('handleSubscriptionDeleted', () => {
     expect(flag?.value).toBe(true);
   });
 
-  it('sends no email when the subscription was auto-upgraded to team', async () => {
-    const { sub, stripeSubscriptionId, stripeCustomerId } = await seed(
-      'upgraded',
-      'active'
-    );
+  it('sends no email and takes nothing away when auto-upgraded to team', async () => {
+    const { owner, org, sub, stripeSubscriptionId, stripeCustomerId } =
+      await seed('upgraded', 'active');
+    const orgPage = await createTestPage({
+      organizationId: org.id,
+      suffix: `del-upgraded-${suffix}`,
+    });
+    pageIds.push(orgPage.id);
+    await db
+      .update(page)
+      .set({ verifiedAt: new Date() })
+      .where(eq(page.id, orgPage.id));
 
     await handleSubscriptionDeleted(
       fakeEvent({
@@ -179,5 +202,17 @@ describe('handleSubscriptionDeleted', () => {
     expect(updated?.plan).toBe('freeLegacy');
     expect(sendSubscriptionDeletedEmail).not.toHaveBeenCalled();
     expect(sendTrialEndedEmail).not.toHaveBeenCalled();
+
+    // The owner bought Team: the personal org keeps its badge and sees no
+    // "you're on Free now" notice.
+    const pageRow = await db.query.page.findFirst({
+      where: (p, { eq }) => eq(p.id, orgPage.id),
+    });
+    expect(pageRow?.verifiedAt).not.toBeNull();
+    const flag = await db.query.userFlag.findFirst({
+      where: (f, { and, eq }) =>
+        and(eq(f.userId, owner.id), eq(f.key, 'showFreeDowngradeNotice')),
+    });
+    expect(flag).toBeUndefined();
   });
 });

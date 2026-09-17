@@ -20,7 +20,16 @@ import {
 } from '@trylinky/db/schema';
 import { eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 
 vi.mock('@/lib/revalidate', () => ({
   revalidatePageCache: vi.fn(async () => undefined),
@@ -67,6 +76,15 @@ beforeAll(async () => {
     requestedByUserId: userId,
     requestedPageTitle: 'x',
   });
+});
+
+// The downgrade side effects only run when the paywall is enforced.
+beforeEach(() => {
+  vi.stubEnv('PAYWALL_ENFORCED', 'true');
+});
+
+afterEach(() => {
+  vi.unstubAllEnvs();
 });
 
 afterAll(async () => {
@@ -175,6 +193,61 @@ describe('syncSubscriptionFromStripe', () => {
         and(eq(f.userId, userId), eq(f.key, 'showFreeDowngradeNotice')),
     });
     expect(flag?.value).toBe(true);
+  });
+
+  /** Back to an entitled Premium row, a verified page and no Free notice. */
+  const resetToPremium = async () => {
+    await db
+      .update(subscription)
+      .set({ plan: 'premium', status: 'active' })
+      .where(eq(subscription.id, subscriptionId));
+    await db
+      .update(page)
+      .set({ verifiedAt: new Date() })
+      .where(eq(page.id, pageId));
+    await db.delete(userFlag).where(eq(userFlag.userId, userId));
+  };
+
+  const expectSideEffectsSkipped = async () => {
+    const row = await db.query.subscription.findFirst({
+      where: (s, { eq }) => eq(s.id, subscriptionId),
+    });
+    expect(row?.plan).toBe('freeLegacy');
+
+    const pageRow = await db.query.page.findFirst({
+      where: (p, { eq }) => eq(p.id, pageId),
+    });
+    expect(pageRow?.verifiedAt).not.toBeNull();
+    const flag = await db.query.userFlag.findFirst({
+      where: (f, { and, eq }) =>
+        and(eq(f.userId, userId), eq(f.key, 'showFreeDowngradeNotice')),
+    });
+    expect(flag).toBeUndefined();
+  };
+
+  it('downgrades the row but applies no side effects when the paywall is off', async () => {
+    // PAYWALL_ENFORCED is unset in the test environment.
+    vi.unstubAllEnvs();
+    await resetToPremium();
+
+    const result = await syncSubscriptionFromStripe(
+      stripeSub({ status: 'canceled', ended_at: 1_802_592_000 })
+    );
+
+    expect(result?.tier).toBe('free');
+    await expectSideEffectsSkipped();
+  });
+
+  it('skips the side effects when the caller asks to (team upgrade)', async () => {
+    await resetToPremium();
+
+    const result = await syncSubscriptionFromStripe(
+      stripeSub({ status: 'canceled', ended_at: 1_802_592_000 }),
+      { skipDowngradeSideEffects: true }
+    );
+
+    expect(result?.tier).toBe('free');
+    await expectSideEffectsSkipped();
   });
 
   it('returns null for a subscription it cannot attribute to an org', async () => {
