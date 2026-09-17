@@ -107,7 +107,7 @@ turbo run build:frontend --filter=@trylinky/frontend
 API (a Cloudflare Worker, deployed with Wrangler):
 
 ```bash
-turbo run prisma:migrate prisma:generate --filter=@trylinky/prisma
+DIRECT_URL=<your direct postgres url> pnpm --filter @trylinky/db migrate
 cd apps/api && pnpm wrangler deploy
 ```
 

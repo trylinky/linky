@@ -103,17 +103,20 @@ docker-compose up -d
 pnpm install
 ```
 
-2. Create the schema. `db push` syncs the database to `schema.prisma` and
-   generates the client:
+2. Create the schema. `pnpm dev:push` syncs the database to the Drizzle
+   schema in `packages/db`:
 
 ```bash
-cd packages/prisma && pnpm prisma db push && cd ../..
+pnpm dev:push
+pnpm dev:seed
 ```
 
 > [!NOTE]
-> Prefer `db push` locally. `pnpm dev:migrate` runs `prisma migrate dev`, which
-> compares against the migration history and will offer to reset the database
-> if it finds a mismatch.
+> Prefer `dev:push` locally. Migration files are only generated for changes
+> that ship (`pnpm --filter @trylinky/db generate`); see
+> `packages/db/migrations/README.md`. `pnpm dev:reset` drops and recreates
+> the `public` schema, then pushes and seeds; it needs `psql` on your PATH
+> (or run it through `docker compose exec postgres psql`).
 
 ## Step 5: Building the Application
 

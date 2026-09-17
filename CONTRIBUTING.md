@@ -10,7 +10,7 @@ Follow the [local development guide](./docs/local-development.md). In short:
 pnpm install
 cp .env.example .env.local          # then fill it in
 docker-compose up -d                # postgres
-cd packages/prisma && pnpm prisma db push && cd ../..
+pnpm dev:push
 pnpm dev
 ```
 
@@ -54,11 +54,11 @@ harder.
   `http` or the AWS SDK. Configuration is read from `process.env` at request
   time (Wrangler populates it from `vars` and secrets), with one exception:
   Wrangler defines `NODE_ENV` at build time, so avoid branching on it. Clients
-  that hold a socket (Prisma, better-auth) are constructed per request, see
-  `apps/api/src/lib/prisma.ts`; anything else must be constructed lazily,
-  never at module scope, because Cloudflare executes the top level when it
-  validates an upload, before any secret exists (`apps/api/src/lib/stripe.ts`
-  shows the pattern).
+  that hold a socket (the database pool, better-auth) are constructed per
+  request, see `apps/api/src/lib/db.ts`; anything else must be constructed
+  lazily, never at module scope, because Cloudflare executes the top level
+  when it validates an upload, before any secret exists
+  (`apps/api/src/lib/stripe.ts` shows the pattern).
 - **CORS is deliberate.** Only first-party origins get credentialed requests.
   Published pages run on user custom domains and may only call session-free
   endpoints. See `apps/api/src/lib/origins.ts` before changing it.

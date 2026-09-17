@@ -75,9 +75,11 @@ function buildTrustedOrigins(): string[] {
 
   // Deliberately keyed off APP_FRONTEND_URL rather than NODE_ENV: the API is
   // bundled by esbuild, which inlines process.env at build time, so a NODE_ENV
-  // branch can be baked in wrong (see the same warning in lib/prisma.ts and
-  // modules/analytics/utils.ts). APP_FRONTEND_URL is set per deployment and is
-  // already load-bearing for auth callbacks, so it is the reliable signal.
+  // branch can be baked in wrong (see the same warning in
+  // modules/analytics/utils.ts). lib/db.ts constructs its client per request
+  // for a related reason: Workers cannot reuse a socket opened during another
+  // request. APP_FRONTEND_URL is set per deployment and is already
+  // load-bearing for auth callbacks, so it is the reliable signal.
   const base =
     appOrigin && isLoopbackOrigin(appOrigin)
       ? LOCAL_DEVELOPMENT_ORIGINS
