@@ -1019,8 +1019,8 @@ fi
 pnpm exec drizzle-kit migrate
 
 pnpm --filter @trylinky/prisma exec prisma migrate diff \
-  --from-url "$DIRECT_URL" \
-  --to-schema-datamodel ../prisma/prisma/schema.prisma \
+  --from-config-datasource \
+  --to-schema prisma/schema.prisma \
   --exit-code
 
 echo "parity ok: drizzle baseline matches schema.prisma"
@@ -3650,7 +3650,7 @@ In the `verify` job of `.github/workflows/ci.yml`, replace the "Sync the test da
       # Until Phase 2 removes schema.prisma, the two schema definitions must
       # agree. Prisma diffs the migrated database against its own schema.
       - name: Check schema parity with schema.prisma
-        run: pnpm prisma migrate diff --from-url "$DIRECT_URL" --to-schema-datamodel prisma/schema.prisma --exit-code
+        run: pnpm prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code
         working-directory: packages/prisma
 ```
 
@@ -3943,8 +3943,7 @@ git commit -m "db: rewrite the seed and move theme seed data"
 From a machine with the production direct URL:
 
 ```bash
-cd packages/prisma
-DIRECT_URL=<prod direct url> pnpm prisma migrate diff --from-url "$DIRECT_URL" --to-schema-datamodel prisma/schema.prisma --exit-code
+cd packages/prisma && DIRECT_URL=<prod direct url> pnpm prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code
 ```
 
 Expected: exit 0, no diff. If there is a diff, stop: production has drifted from the schema and that has to be understood before the baseline is adopted.
@@ -3975,11 +3974,15 @@ Expected: completes with nothing applied.
 
 - [ ] **Step 3: Add the `DIRECT_URL` secret to the Production GitHub environment** (Task 13, Step 2).
 
-- [ ] **Step 4: Open the PR**
+- [ ] **Step 4: Confirm production Postgres accepts connections from GitHub-hosted runners**
+
+The deploy job now runs migrations from GitHub Actions rather than Vercel. If the database restricts access by IP, allow the GitHub-hosted runner ranges (or move the migrate step to a trusted, fixed-IP runner) before merging, or the deploy job's migrate step will fail against production.
+
+- [ ] **Step 5: Open the PR**
 
 The description includes: the parity check output, the bundle size before and after (Task 12, Step 7), and a note that the frontend still uses Prisma until Phase 2.
 
-- [ ] **Step 5: Merge and smoke**
+- [ ] **Step 6: Merge and smoke**
 
 After the deploy job finishes:
 
@@ -3991,7 +3994,7 @@ Expected: every check `ok`. Then sign in on lin.ky, open the editor, add and del
 
 If smoke fails: `cd apps/api && pnpm exec wrangler rollback`, which restores the previous worker version. Phase 1 changed no schema, so the rolled-back Prisma worker keeps working.
 
-- [ ] **Step 6: Record the outcome**
+- [ ] **Step 7: Record the outcome**
 
 Add a line to the plan's parent spec under `**Status:**` (`Phase 1 shipped <date>, bundle <before> → <after>`) and commit it:
 
