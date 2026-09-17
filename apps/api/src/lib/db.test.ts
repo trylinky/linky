@@ -77,4 +77,26 @@ describe('request-scoped db', () => {
     expect(transaction.name).toBe('bound transaction');
     await close();
   });
+
+  it('does not throw when the underlying pool emits an idle client error', async () => {
+    const { db: client, close } = createDb(testEnv);
+    // drizzle() attaches the driver it was built with as `$client`; the
+    // return type of createDb narrows that away, so reach it with a cast
+    // (to the minimal EventEmitter shape used below, not `pg`'s `Pool` —
+    // apps/api does not depend on `pg` directly) rather than widening the
+    // public createDb/Db surface for this test.
+    const pool = (
+      client as unknown as {
+        $client: { emit: (event: string, ...args: unknown[]) => boolean };
+      }
+    ).$client;
+
+    try {
+      expect(() =>
+        pool.emit('error', new Error('idle client error'))
+      ).not.toThrow();
+    } finally {
+      await close();
+    }
+  });
 });

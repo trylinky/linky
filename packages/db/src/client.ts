@@ -75,6 +75,15 @@ function wrapQueryTiming(obj: any): void {
 function timedPool(connectionString: string): Pool {
   const pool = new Pool({ connectionString, max: 1 });
 
+  // pg-pool emits 'error' on the pool itself when an idle client in it
+  // errors out (e.g. the connection is dropped by the server). Node's
+  // EventEmitter throws if an 'error' event has no listener, which would
+  // crash the whole request; @prisma/adapter-pg registered a handler for
+  // this before the Drizzle port, so keep doing the same here.
+  pool.on('error', (err) => {
+    console.error('Idle database client error', err);
+  });
+
   // Wrap pool.connect for BOTH callback and promise forms. Every pool.query
   // call goes through pool.connect, and transactions check out clients via
   // pool.connect as well, so this is the single point to wrap queries.
