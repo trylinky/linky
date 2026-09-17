@@ -59,7 +59,12 @@ async function parse(res: Response) {
   }
 }
 
-async function request(method: string, path: string, body?: any) {
+async function request(
+  method: string,
+  path: string,
+  body?: any,
+  opts: { rethrow?: boolean } = {}
+) {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
       method,
@@ -71,7 +76,10 @@ async function request(method: string, path: string, body?: any) {
     });
 
     return parse(res);
-  } catch {
+  } catch (error) {
+    if (opts.rethrow) {
+      throw error;
+    }
     return { success: false };
   }
 }
@@ -81,7 +89,10 @@ async function request(method: string, path: string, body?: any) {
  * parsed body for every status so callers can read `error.message`,
  * `error.field` and `error.code`. A 402 UPGRADE_REQUIRED is also handed to
  * the registered listener (the UpgradeDialog provider) so gates need no
- * bespoke handling at each call site.
+ * bespoke handling at each call site. `get` and `delete` rethrow network
+ * failures, as they always did, so callers like the slug-availability check
+ * can tell an outage from a negative answer; `post` and `put` resolve to
+ * `{ success: false }` instead.
  */
 export class InternalApi {
   static setUpgradeRequiredListener(listener: UpgradeRequiredListener | null) {
@@ -97,10 +108,10 @@ export class InternalApi {
   }
 
   static get(path: string, body?: any) {
-    return request('GET', path, body);
+    return request('GET', path, body, { rethrow: true });
   }
 
   static delete(path: string, body?: any) {
-    return request('DELETE', path, body);
+    return request('DELETE', path, body, { rethrow: true });
   }
 }
