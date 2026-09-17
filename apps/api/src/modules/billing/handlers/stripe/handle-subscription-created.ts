@@ -1,11 +1,19 @@
 import db from '@/lib/db';
 import { userIsMemberOfOrg } from '@/lib/db-predicates';
-import { prices } from '@/lib/plans';
 import { stripeClient } from '@/lib/stripe';
 import { createNewSubscription } from '@/modules/billing/utils/create-new-subscription';
-import { syncSubscriptionFromStripe } from '@/modules/billing/utils/sync-subscription';
-import { sendSubscriptionUpgradedTeamEmail } from '@/modules/notifications/service';
-import { createNewOrganization } from '@/modules/organizations/utils';
+import {
+  planFromPriceId,
+  syncSubscriptionFromStripe,
+} from '@/modules/billing/utils/sync-subscription';
+import {
+  sendSubscriptionUpgradedPremiumEmail,
+  sendSubscriptionUpgradedTeamEmail,
+} from '@/modules/notifications/service';
+import {
+  createNewOrganization,
+  getOrganizationMemberEmails,
+} from '@/modules/organizations/utils';
 import { sendSlackMessage } from '@/modules/slack/service';
 import { captureMessage } from '@sentry/cloudflare';
 import { organization } from '@trylinky/db/schema';
@@ -29,22 +37,10 @@ export async function handleSubscriptionCreated(event: Stripe.Event) {
   const lineItem = lineItems[0];
   const priceId = lineItem.price.id;
 
-  const env = (process.env.NODE_ENV ?? 'development') as
-    | 'production'
-    | 'development';
-
-  const allPrices =
-    env === 'development' ? prices.development : prices.production;
-
-  // Determine the plan based on the price ID
-  let plan: 'premium' | 'team' | 'freeLegacy' | null = null;
-
-  for (const [key, value] of Object.entries(allPrices)) {
-    if (value === priceId) {
-      plan = key as 'premium' | 'team' | 'freeLegacy';
-      break;
-    }
-  }
+  // Scans both the development and production price tables, so this
+  // resolves correctly regardless of what NODE_ENV happens to be set to
+  // (the local dev/production-only split used to miss under `test`).
+  const plan = planFromPriceId(priceId);
 
   // Handle team plan creation separately
   if (plan === 'team') {
@@ -113,6 +109,13 @@ export async function handleSubscriptionCreated(event: Stripe.Event) {
     // handler; signup trials are already inserted by createNewSubscription
     // and the sync is a no-op for them.
     const result = await syncSubscriptionFromStripe(stripeSubscription);
+
+    if (result && result.previousTier === 'free' && result.tier === 'premium') {
+      const emails = await getOrganizationMemberEmails(result.organizationId);
+      for (const email of emails) {
+        await sendSubscriptionUpgradedPremiumEmail({ email });
+      }
+    }
 
     await sendSlackMessage({
       text: `Premium subscription created for ${result?.organizationId ?? 'unknown org'} (Stripe: ${stripeSubscription.id})`,
