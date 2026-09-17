@@ -5,6 +5,7 @@ import { createPosthogClient } from '@/lib/posthog';
 import { stripeClient } from '@/lib/stripe';
 import { requireSession } from '@/middleware/authenticate';
 import { resolveTier } from '@/modules/billing/entitlements';
+import { canManageBilling } from '@/modules/organizations/utils';
 import { captureException } from '@sentry/cloudflare';
 import type { Context } from 'hono';
 
@@ -17,6 +18,12 @@ import type { Context } from 'hono';
  */
 export async function upgradeToPremiumHandler(c: Context<AppBindings>) {
   const session = requireSession(c);
+
+  if (
+    !(await canManageBilling(session.activeOrganizationId, session.user.id))
+  ) {
+    return c.json({ error: 'Only owners and admins can manage billing' }, 403);
+  }
 
   const current = await db.query.subscription.findFirst({
     where: (s, { eq }) => eq(s.referenceId, session.activeOrganizationId),

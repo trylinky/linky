@@ -144,7 +144,9 @@ export async function syncSubscriptionFromStripe(
       .where(
         and(eq(page.organizationId, organizationId), isNull(page.deletedAt))
       );
-    void revalidatePageCache(pages.map((p) => pageIdCacheTag(p.id)));
+    // Awaited, not fired and forgotten: on Workers the request context can
+    // be torn down before a floating promise runs. It never throws.
+    await revalidatePageCache(pages.map((p) => pageIdCacheTag(p.id)));
 
     if (tier !== 'free') {
       const posthog = createPosthogClient();

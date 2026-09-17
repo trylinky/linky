@@ -82,13 +82,17 @@ function VerificationRequestForm({
     });
 
     if (req.error) {
-      if (req.error.code !== 'UPGRADE_REQUIRED') {
-        toast({
-          variant: 'error',
-          title: 'Something went wrong',
-          description: req.error.message,
-        });
+      if (req.error.code === 'UPGRADE_REQUIRED') {
+        // The UpgradeDialog is opening; get out of its way.
+        onCancel(false);
+        return;
       }
+
+      toast({
+        variant: 'error',
+        title: 'Something went wrong',
+        description: req.error.message,
+      });
       return;
     }
 

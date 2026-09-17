@@ -6,7 +6,7 @@ import {
   createTestOrganization,
   createTestUser,
 } from '@/test/fixtures';
-import { subscription } from '@trylinky/db/schema';
+import { member, subscription } from '@trylinky/db/schema';
 import { eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import {
@@ -34,6 +34,7 @@ vi.mock('@/lib/posthog', () => ({ createPosthogClient: () => null }));
 const suffix = randomUUID().slice(0, 8);
 let organizationId: string;
 let userId: string;
+let memberUserId: string;
 let subscriptionId: string;
 
 beforeAll(async () => {
@@ -51,13 +52,17 @@ beforeAll(async () => {
     })
     .returning();
   subscriptionId = sub.id;
+  memberUserId = (await createTestUser(`up-member-${suffix}`)).id;
+  await db
+    .insert(member)
+    .values({ userId: memberUserId, organizationId, role: 'member' });
 });
 
 afterAll(async () => {
   await cleanupTestData({
     subscriptionIds: [subscriptionId],
     organizationIds: [organizationId],
-    userIds: [userId],
+    userIds: [userId, memberUserId],
   });
 });
 
@@ -91,6 +96,20 @@ describe('POST /billing/upgrade/premium', () => {
         success_url: 'https://lin.ky/edit?showPremiumOnboarding=true',
       })
     );
+  });
+
+  it('refuses a member who cannot manage billing', async () => {
+    const response = await createApp().request(
+      '/billing/upgrade/premium',
+      { method: 'POST' },
+      testEnv({
+        user: { id: memberUserId },
+        activeOrganizationId: organizationId,
+      })
+    );
+
+    expect(response.status).toBe(403);
+    expect(create).not.toHaveBeenCalled();
   });
 
   it('refuses when the org is already entitled', async () => {
