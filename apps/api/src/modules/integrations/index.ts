@@ -1,5 +1,6 @@
 import type { AppBindings } from '@/env';
-import prisma from '@/lib/prisma';
+import db from '@/lib/db';
+import { userIsMemberOfOrg } from '@/lib/db-predicates';
 import {
   blockCacheTag,
   pageIdCacheTag,
@@ -13,6 +14,8 @@ import {
 import { tbValidator } from '@hono/typebox-validator';
 import { captureException } from '@sentry/cloudflare';
 import { Blocks, blocks } from '@trylinky/blocks';
+import { block, page } from '@trylinky/db/schema';
+import { eq } from 'drizzle-orm';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 import { createFactory } from 'hono/factory';
@@ -68,32 +71,25 @@ const disconnectIntegrationHandlers =
       const session = requireSession(c);
       const { integrationId } = c.req.valid('json');
 
-      const integration = await prisma.integration.findUnique({
-        where: {
-          id: integrationId,
-          organization: {
-            id: session.activeOrganizationId,
-            members: {
-              some: {
-                userId: session.user.id,
-              },
-            },
-          },
-        },
-        select: {
-          type: true,
-        },
+      const target = await db.query.integration.findFirst({
+        where: (i, { and, eq }) =>
+          and(
+            eq(i.id, integrationId),
+            eq(i.organizationId, session.activeOrganizationId),
+            userIsMemberOfOrg(i.organizationId, session.user.id)
+          ),
+        columns: { type: true },
       });
 
-      if (!integration) {
+      if (!target) {
         return c.json({ error: 'Integration not found' }, 400);
       }
 
       try {
-        const linkedBlocks = await prisma.block.findMany({
-          where: { integrationId },
-          select: { id: true, pageId: true },
-        });
+        const linkedBlocks = await db
+          .select({ id: block.id, pageId: block.pageId })
+          .from(block)
+          .where(eq(block.integrationId, integrationId));
 
         await disconnectIntegration(integrationId);
 
@@ -121,57 +117,47 @@ const connectBlockHandlers = connectBlockFactory.createHandlers(
     const session = requireSession(c);
     const { integrationId, blockId } = c.req.valid('json');
 
-    const integration = await prisma.integration.findUnique({
-      where: {
-        id: integrationId,
-        deletedAt: null,
-        organization: {
-          id: session.activeOrganizationId,
-        },
-      },
+    const target = await db.query.integration.findFirst({
+      where: (i, { and, eq, isNull }) =>
+        and(
+          eq(i.id, integrationId),
+          isNull(i.deletedAt),
+          eq(i.organizationId, session.activeOrganizationId)
+        ),
     });
 
-    if (!integration) {
+    if (!target) {
       return c.json({ error: 'Integration not found' }, 400);
     }
 
-    const block = await prisma.block.findUnique({
-      where: {
-        id: blockId,
-        page: {
-          organizationId: session.activeOrganizationId,
-        },
-      },
+    const targetBlock = await db.query.block.findFirst({
+      where: (b, { and, eq, inArray }) =>
+        and(
+          eq(b.id, blockId),
+          inArray(
+            b.pageId,
+            db.select({ id: page.id }).from(page).where(eq(page.organizationId, session.activeOrganizationId))
+          )
+        ),
     });
 
-    if (!block) {
+    if (!targetBlock) {
       return c.json({ error: 'Block not found' }, 400);
     }
 
     const allowedIntegrationForBlock =
-      blocks[block.type as Blocks].integrationType;
+      blocks[targetBlock.type as Blocks].integrationType;
 
-    if (allowedIntegrationForBlock !== integration.type) {
+    if (allowedIntegrationForBlock !== target.type) {
       return c.json({ error: 'Invalid integration for block' }, 400);
     }
 
     try {
-      await prisma.block.update({
-        where: {
-          id: blockId,
-        },
-        data: {
-          integration: {
-            connect: {
-              id: integrationId,
-            },
-          },
-        },
-      });
+      await db.update(block).set({ integrationId }).where(eq(block.id, blockId));
 
       void revalidatePageCache([
         blockCacheTag(blockId),
-        pageIdCacheTag(block.pageId),
+        pageIdCacheTag(targetBlock.pageId),
       ]);
 
       return c.json({ success: true }, 200);
@@ -191,33 +177,26 @@ const disconnectBlockHandlers = disconnectBlockFactory.createHandlers(
     const session = requireSession(c);
     const { blockId } = c.req.valid('json');
 
-    const block = await prisma.block.findUnique({
-      where: {
-        id: blockId,
-        page: {
-          organizationId: session.activeOrganizationId,
-        },
-      },
+    const targetBlock = await db.query.block.findFirst({
+      where: (b, { and, eq, inArray }) =>
+        and(
+          eq(b.id, blockId),
+          inArray(
+            b.pageId,
+            db.select({ id: page.id }).from(page).where(eq(page.organizationId, session.activeOrganizationId))
+          )
+        ),
     });
 
-    if (!block) {
+    if (!targetBlock) {
       return c.json({ error: 'Block not found' }, 400);
     }
 
-    await prisma.block.update({
-      where: {
-        id: blockId,
-      },
-      data: {
-        integration: {
-          disconnect: true,
-        },
-      },
-    });
+    await db.update(block).set({ integrationId: null }).where(eq(block.id, blockId));
 
     void revalidatePageCache([
       blockCacheTag(blockId),
-      pageIdCacheTag(block.pageId),
+      pageIdCacheTag(targetBlock.pageId),
     ]);
 
     return c.json({ success: true }, 200);

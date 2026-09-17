@@ -4,11 +4,12 @@ import {
   requestToken,
 } from './utils';
 import type { AppBindings } from '@/env';
+import db from '@/lib/db';
 import { decrypt, encrypt, isEncrypted } from '@/lib/encrypt';
-import prisma from '@/lib/prisma';
 import { requireSession } from '@/middleware/authenticate';
 import { linkIntegrationToBlock } from '@/modules/integrations/service';
 import { captureException } from '@sentry/cloudflare';
+import { integration } from '@trylinky/db/schema';
 import { Hono } from 'hono';
 
 interface TokenResponse {
@@ -96,14 +97,15 @@ threadsServiceRoutes.get('/callback', async (c) => {
       return c.json({ error: { message: 'Failed to encrypt config' } }, 500);
     }
 
-    const integration = await prisma.integration.create({
-      data: {
+    const [created] = await db
+      .insert(integration)
+      .values({
         organizationId: session.activeOrganizationId,
         type: 'threads',
         encryptedConfig,
         displayName: userInfoData.username || 'Threads',
-      },
-    });
+      })
+      .returning({ id: integration.id });
 
     // If the state is present, we need to update the block with the integration id
     if (state) {
@@ -115,7 +117,7 @@ threadsServiceRoutes.get('/callback', async (c) => {
         // integration to someone else's block.
         await linkIntegrationToBlock({
           blockId: decryptedState.blockId,
-          integrationId: integration.id,
+          integrationId: created.id,
           userId: session.user.id,
         });
       }

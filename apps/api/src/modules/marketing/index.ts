@@ -1,53 +1,38 @@
 import type { AppBindings } from '@/env';
-import prisma from '@/lib/prisma';
-import { Prisma } from '@trylinky/prisma';
+import db from '@/lib/db';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 
-type JsonObject = Prisma.JsonObject;
+type JsonObject = Record<string, unknown>;
 
 const marketingRoutes = new Hono<AppBindings>();
 
 marketingRoutes.get('/featured-pages', getFeaturedPagesHandler);
 
 async function getFeaturedPagesHandler(c: Context<AppBindings>) {
-  const pages = await prisma.page.findMany({
-    where: {
-      deletedAt: null,
-      publishedAt: {
-        not: null,
-      },
-      isFeatured: true,
-    },
-    orderBy: {
-      updatedAt: 'desc',
-    },
-    select: {
-      id: true,
-      slug: true,
-      blocks: {
-        where: {
-          type: 'header',
-        },
-      },
-    },
+  const pages = await db.query.page.findMany({
+    where: (p, { and, isNull, isNotNull, eq }) =>
+      and(isNull(p.deletedAt), isNotNull(p.publishedAt), eq(p.isFeatured, true)),
+    orderBy: (p, { desc }) => [desc(p.updatedAt)],
+    columns: { id: true, slug: true },
+    with: { blocks: { where: (b, { eq }) => eq(b.type, 'header') } },
   });
 
   const featuredPages = pages
-    .map((page) => {
-      const headerBlock = page.blocks.find(
-        (block) => block.type === 'header'
-      ) as unknown as JsonObject;
+    .map((featured) => {
+      const headerBlock = featured.blocks[0];
 
       if (!headerBlock) {
         return null;
       }
 
+      const data = headerBlock.data as JsonObject | null;
+
       return {
-        id: page.id,
-        slug: page.slug,
-        headerTitle: (headerBlock?.data as JsonObject)?.title,
-        headerDescription: (headerBlock?.data as JsonObject)?.description,
+        id: featured.id,
+        slug: featured.slug,
+        headerTitle: data?.title,
+        headerDescription: data?.description,
       };
     })
     .filter(Boolean);

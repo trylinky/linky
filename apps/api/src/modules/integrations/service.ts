@@ -1,9 +1,12 @@
-import prisma from '@/lib/prisma';
+import db from '@/lib/db';
+import { pageOwnedByUser } from '@/lib/db-predicates';
 import {
   blockCacheTag,
   pageIdCacheTag,
   revalidatePageCache,
 } from '@/lib/revalidate';
+import { block, integration } from '@trylinky/db/schema';
+import { eq } from 'drizzle-orm';
 
 /**
  * Attaches a newly connected integration to the block the OAuth flow began
@@ -28,82 +31,48 @@ export async function linkIntegrationToBlock({
   integrationId: string;
   userId: string;
 }): Promise<boolean> {
-  const block = await prisma.block.findFirst({
-    where: {
-      id: blockId,
-      page: {
-        organization: {
-          members: {
-            some: { userId },
-          },
-        },
-      },
-    },
-    select: { id: true, pageId: true },
+  const target = await db.query.block.findFirst({
+    where: (b, { and, eq }) => and(eq(b.id, blockId), pageOwnedByUser(b.pageId, userId)),
+    columns: { id: true, pageId: true },
   });
 
-  if (!block) {
+  if (!target) {
     return false;
   }
 
-  await prisma.block.update({
-    where: { id: block.id },
-    data: { integrationId },
-  });
+  await db.update(block).set({ integrationId }).where(eq(block.id, target.id));
 
   void revalidatePageCache([
-    blockCacheTag(block.id),
-    pageIdCacheTag(block.pageId),
+    blockCacheTag(target.id),
+    pageIdCacheTag(target.pageId),
   ]);
 
   return true;
 }
 
 export async function getIntegrationsForOrganizationId(organizationId: string) {
-  const integrations = await prisma.integration.findMany({
-    where: {
-      organizationId,
-      deletedAt: null,
-    },
-    select: {
-      id: true,
-      createdAt: true,
-      type: true,
-      displayName: true,
+  const rows = await db.query.integration.findMany({
+    where: (i, { and, eq, isNull }) => and(eq(i.organizationId, organizationId), isNull(i.deletedAt)),
+    columns: { id: true, createdAt: true, type: true, displayName: true },
+    with: {
       blocks: {
-        select: {
-          page: {
-            select: {
-              id: true,
-              slug: true,
-            },
-          },
-        },
+        columns: {},
+        with: { page: { columns: { id: true, slug: true } } },
       },
     },
   });
 
-  return integrations;
+  return rows;
 }
 
 export async function disconnectIntegration(integrationId: string) {
-  await prisma.integration.update({
-    where: {
-      id: integrationId,
-    },
-    data: {
-      deletedAt: new Date(),
-      encryptedConfig: null,
-    },
-  });
+  await db.transaction(async (tx) => {
+    await tx
+      .update(integration)
+      .set({ deletedAt: new Date(), encryptedConfig: null })
+      .where(eq(integration.id, integrationId));
 
-  await prisma.block.updateMany({
-    where: {
-      integrationId,
-    },
-    data: {
-      integrationId: null,
-    },
+    await tx.update(block).set({ integrationId: null }).where(eq(block.integrationId, integrationId));
   });
 
   return {
