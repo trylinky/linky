@@ -25,27 +25,31 @@ export async function getPageAnalyticsHandler(
     return c.json({}, 403);
   }
 
+  const row = await db.query.page.findFirst({
+    where: (p, { and, eq, isNull }) =>
+      and(eq(p.id, pageId), isNull(p.deletedAt)),
+    columns: { createdAt: true, organizationId: true },
+  });
+
+  if (!row) {
+    return c.json({}, 404);
+  }
+
+  if (!row.organizationId) {
+    return c.json({}, 404);
+  }
+
   const entitlements = await getEntitlementsForOrganization(
-    session.activeOrganizationId,
+    row.organizationId,
     session.user.id
   );
 
   if (!entitlements.features.analytics) {
     return upgradeRequired(c, 'analytics', {
-      organizationId: session.activeOrganizationId,
+      organizationId: row.organizationId,
       userId: session.user.id,
       tier: entitlements.tier,
     });
-  }
-
-  const row = await db.query.page.findFirst({
-    where: (p, { and, eq, isNull }) =>
-      and(eq(p.id, pageId), isNull(p.deletedAt)),
-    columns: { createdAt: true },
-  });
-
-  if (!row) {
-    return c.json({}, 404);
   }
 
   // Too new to have meaningful analytics yet. The comment here used to say

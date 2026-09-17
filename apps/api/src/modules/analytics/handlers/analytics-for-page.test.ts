@@ -25,6 +25,8 @@ let organizationId: string;
 let userId: string;
 let subscriptionId: string;
 let pageId: string;
+let paidOrganizationId: string;
+let paidSubscriptionId: string;
 
 beforeAll(async () => {
   userId = (await createTestUser(`an-${suffix}`)).id;
@@ -53,13 +55,29 @@ beforeAll(async () => {
     })
     .returning();
   pageId = row.id;
+  paidOrganizationId = (
+    await createTestOrganization({
+      suffix: `an-paid-${suffix}`,
+      ownerId: userId,
+    })
+  ).id;
+  const [paidSub] = await db
+    .insert(subscription)
+    .values({
+      plan: 'premium',
+      status: 'active',
+      referenceId: paidOrganizationId,
+      stripeCustomerId: `cus_an_paid_${suffix}`,
+    })
+    .returning();
+  paidSubscriptionId = paidSub.id;
 });
 
 afterAll(async () => {
   await cleanupTestData({
     pageIds: [pageId],
-    subscriptionIds: [subscriptionId],
-    organizationIds: [organizationId],
+    subscriptionIds: [subscriptionId, paidSubscriptionId],
+    organizationIds: [organizationId, paidOrganizationId],
     userIds: [userId],
   });
 });
@@ -70,7 +88,7 @@ describe('GET /analytics/pages/:pageId', () => {
   it('returns 402 for a free org before any Tinybird call', async () => {
     vi.stubEnv('PAYWALL_ENFORCED', 'true');
 
-    // The global fetch tripwire would throw if the handler reached Tinybird.
+    // A 200 here would mean the gate is missing or placed after the age check.
     const response = await createApp().request(
       `/analytics/pages/${pageId}`,
       {},
@@ -80,5 +98,20 @@ describe('GET /analytics/pages/:pageId', () => {
     expect(response.status).toBe(402);
     const body = (await response.json()) as Record<string, any>;
     expect(body.error.feature).toBe('analytics');
+  });
+
+  it("gates on the page's own org even when a paid org is active", async () => {
+    vi.stubEnv('PAYWALL_ENFORCED', 'true');
+
+    const response = await createApp().request(
+      `/analytics/pages/${pageId}`,
+      {},
+      testEnv({
+        user: { id: userId },
+        activeOrganizationId: paidOrganizationId,
+      })
+    );
+
+    expect(response.status).toBe(402);
   });
 });
