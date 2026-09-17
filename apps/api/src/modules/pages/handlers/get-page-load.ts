@@ -17,7 +17,8 @@ export async function getPageLoadHandler(
   const pageId = c.req.param('pageId');
 
   const row = await db.query.page.findFirst({
-    where: (p, { and, eq, isNull }) => and(isNull(p.deletedAt), eq(p.id, pageId)),
+    where: (p, { and, eq, isNull }) =>
+      and(isNull(p.deletedAt), eq(p.id, pageId)),
     columns: {
       id: true,
       publishedAt: true,

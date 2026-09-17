@@ -16,7 +16,9 @@ function wrapQueryTiming(obj: any): void {
 
   const original = obj.query.bind(obj);
 
-  (obj as unknown as { query: unknown }).query = function(...args: unknown[]): any {
+  (obj as unknown as { query: unknown }).query = function (
+    ...args: unknown[]
+  ): any {
     const before = Date.now();
     const lastArg = args[args.length - 1];
     const hasCallback = typeof lastArg === 'function';
@@ -29,8 +31,13 @@ function wrapQueryTiming(obj: any): void {
         const duration = Date.now() - before;
         if (duration >= SLOW_QUERY_THRESHOLD_MS) {
           const first = queryArgs[0];
-          const text = typeof first === 'string' ? first : (first as { text?: string })?.text;
-          console.log(`Slow query took ${duration}ms: ${(text ?? '').slice(0, 120)}`);
+          const text =
+            typeof first === 'string'
+              ? first
+              : (first as { text?: string })?.text;
+          console.log(
+            `Slow query took ${duration}ms: ${(text ?? '').slice(0, 120)}`
+          );
         }
         callback(err, result);
       });
@@ -42,8 +49,13 @@ function wrapQueryTiming(obj: any): void {
           const duration = Date.now() - before;
           if (duration >= SLOW_QUERY_THRESHOLD_MS) {
             const first = args[0];
-            const text = typeof first === 'string' ? first : (first as { text?: string })?.text;
-            console.log(`Slow query took ${duration}ms: ${(text ?? '').slice(0, 120)}`);
+            const text =
+              typeof first === 'string'
+                ? first
+                : (first as { text?: string })?.text;
+            console.log(
+              `Slow query took ${duration}ms: ${(text ?? '').slice(0, 120)}`
+            );
           }
         });
       }
@@ -67,7 +79,9 @@ function timedPool(connectionString: string): Pool {
   // call goes through pool.connect, and transactions check out clients via
   // pool.connect as well, so this is the single point to wrap queries.
   const originalConnect = (pool.connect as any).bind(pool);
-  (pool as unknown as { connect: unknown }).connect = function(callback?: any): any {
+  (pool as unknown as { connect: unknown }).connect = function (
+    callback?: any
+  ): any {
     // Promise form - used by Drizzle for transactions
     if (!callback) {
       return originalConnect().then((client: any) => {

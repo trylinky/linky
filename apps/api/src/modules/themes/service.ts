@@ -19,7 +19,8 @@ const themeFields = {
 
 export async function getThemesForOrganization(orgId: string) {
   const themes = await db.query.theme.findMany({
-    where: (t, { and, eq }) => and(eq(t.organizationId, orgId), eq(t.isDefault, false)),
+    where: (t, { and, eq }) =>
+      and(eq(t.organizationId, orgId), eq(t.isDefault, false)),
     columns: themeFields,
   });
 

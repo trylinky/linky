@@ -47,7 +47,10 @@ beforeAll(async () => {
     })
   ).id;
 
-  const testPage = await createTestPage({ organizationId, suffix: `blocks-svc-${suffix}` });
+  const testPage = await createTestPage({
+    organizationId,
+    suffix: `blocks-svc-${suffix}`,
+  });
   pageId = testPage.id;
   pageIds.push(pageId);
 
@@ -87,7 +90,10 @@ describe('createBlock', () => {
 
   it('throws for an unknown slug', async () => {
     await expect(
-      createBlock({ type: 'content', id: randomUUID() }, `no-such-slug-${suffix}`)
+      createBlock(
+        { type: 'content', id: randomUUID() },
+        `no-such-slug-${suffix}`
+      )
     ).rejects.toThrow();
   });
 });
@@ -98,7 +104,9 @@ describe('checkUserHasAccessToBlock', () => {
   });
 
   it('returns false for a user with no organizations at all', async () => {
-    expect(await checkUserHasAccessToBlock(blockId, noAccessUserId)).toBe(false);
+    expect(await checkUserHasAccessToBlock(blockId, noAccessUserId)).toBe(
+      false
+    );
   });
 
   it('returns false for a stranger who owns a different page', async () => {
@@ -116,16 +124,16 @@ describe('deleteBlockById', () => {
     });
     pageIds.push(doomedPage.id);
 
-    const doomedBlock = await createTestBlock({ pageId: doomedPage.id, type: 'content' });
+    const doomedBlock = await createTestBlock({
+      pageId: doomedPage.id,
+      type: 'content',
+    });
     const survivingEntry = { i: 'unrelated-entry', x: 0, y: 1, w: 1, h: 1 };
 
     await db
       .update(page)
       .set({
-        config: [
-          { i: doomedBlock.id, x: 0, y: 0, w: 1, h: 1 },
-          survivingEntry,
-        ],
+        config: [{ i: doomedBlock.id, x: 0, y: 0, w: 1, h: 1 }, survivingEntry],
       })
       .where(eq(page.id, doomedPage.id));
 
@@ -149,7 +157,10 @@ describe('deleteBlockById', () => {
     });
     pageIds.push(doomedPage.id);
 
-    const doomedBlock = await createTestBlock({ pageId: doomedPage.id, type: 'content' });
+    const doomedBlock = await createTestBlock({
+      pageId: doomedPage.id,
+      type: 'content',
+    });
 
     await expect(deleteBlockById(doomedBlock.id, strangerId)).rejects.toThrow();
 
@@ -164,7 +175,9 @@ describe('updateBlockData', () => {
   it('validates the new data via the block schema and persists it', async () => {
     const contentBlock = await createTestBlock({ pageId, type: 'content' });
 
-    const updated = await updateBlockData(contentBlock.id, { content: 'Hello world' });
+    const updated = await updateBlockData(contentBlock.id, {
+      content: 'Hello world',
+    });
     expect(updated.data).toEqual({ content: 'Hello world' });
 
     const persisted = await db.query.block.findFirst({
@@ -189,6 +202,8 @@ describe('updateBlockData', () => {
   });
 
   it('throws for an unknown block id', async () => {
-    await expect(updateBlockData(randomUUID(), { content: 'x' })).rejects.toThrow();
+    await expect(
+      updateBlockData(randomUUID(), { content: 'x' })
+    ).rejects.toThrow();
   });
 });

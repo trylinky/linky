@@ -1,8 +1,8 @@
 import db from '@/lib/db';
 import { prices } from '@/lib/plans';
 import { stripeClient } from '@/lib/stripe';
-import { subscription } from '@trylinky/db/schema';
 import { captureException } from '@sentry/cloudflare';
+import { subscription } from '@trylinky/db/schema';
 import safeAwait from 'safe-await';
 
 export async function createNewSubscription({

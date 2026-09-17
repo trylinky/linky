@@ -6,8 +6,8 @@ import { createNewSubscription } from '@/modules/billing/utils/create-new-subscr
 import { sendSubscriptionUpgradedTeamEmail } from '@/modules/notifications/service';
 import { createNewOrganization } from '@/modules/organizations/utils';
 import { sendSlackMessage } from '@/modules/slack/service';
-import { organization } from '@trylinky/db/schema';
 import { captureMessage } from '@sentry/cloudflare';
+import { organization } from '@trylinky/db/schema';
 import safeAwait from 'safe-await';
 import Stripe from 'stripe';
 

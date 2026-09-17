@@ -43,9 +43,16 @@ export const getPageBySlugOrDomainHandlers = factory.createHandlers(
         where: (p, { and, eq, isNull }) =>
           and(
             isNull(p.deletedAt),
-            customDomain ? eq(p.customDomain, decodeURIComponent(domain)) : eq(p.slug, slug)
+            customDomain
+              ? eq(p.customDomain, decodeURIComponent(domain))
+              : eq(p.slug, slug)
           ),
-        columns: { id: true, organizationId: true, publishedAt: true, slug: true },
+        columns: {
+          id: true,
+          organizationId: true,
+          publishedAt: true,
+          slug: true,
+        },
       })
     );
 

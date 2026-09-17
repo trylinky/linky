@@ -136,7 +136,10 @@ const connectBlockHandlers = connectBlockFactory.createHandlers(
           eq(b.id, blockId),
           inArray(
             b.pageId,
-            db.select({ id: page.id }).from(page).where(eq(page.organizationId, session.activeOrganizationId))
+            db
+              .select({ id: page.id })
+              .from(page)
+              .where(eq(page.organizationId, session.activeOrganizationId))
           )
         ),
     });
@@ -153,7 +156,10 @@ const connectBlockHandlers = connectBlockFactory.createHandlers(
     }
 
     try {
-      await db.update(block).set({ integrationId }).where(eq(block.id, blockId));
+      await db
+        .update(block)
+        .set({ integrationId })
+        .where(eq(block.id, blockId));
 
       void revalidatePageCache([
         blockCacheTag(blockId),
@@ -183,7 +189,10 @@ const disconnectBlockHandlers = disconnectBlockFactory.createHandlers(
           eq(b.id, blockId),
           inArray(
             b.pageId,
-            db.select({ id: page.id }).from(page).where(eq(page.organizationId, session.activeOrganizationId))
+            db
+              .select({ id: page.id })
+              .from(page)
+              .where(eq(page.organizationId, session.activeOrganizationId))
           )
         ),
     });
@@ -192,7 +201,10 @@ const disconnectBlockHandlers = disconnectBlockFactory.createHandlers(
       return c.json({ error: 'Block not found' }, 400);
     }
 
-    await db.update(block).set({ integrationId: null }).where(eq(block.id, blockId));
+    await db
+      .update(block)
+      .set({ integrationId: null })
+      .where(eq(block.id, blockId));
 
     void revalidatePageCache([
       blockCacheTag(blockId),

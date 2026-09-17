@@ -71,7 +71,9 @@ export async function getOrganizationMemberEmails(
     .innerJoin(user, eq(user.id, member.userId))
     .where(eq(member.organizationId, organizationId));
 
-  return rows.map((row) => row.email).filter((email): email is string => Boolean(email));
+  return rows
+    .map((row) => row.email)
+    .filter((email): email is string => Boolean(email));
 }
 
 /**
@@ -98,7 +100,9 @@ export async function createNewOrganization({
       })
       .returning();
 
-    await tx.insert(member).values({ userId: ownerId, organizationId: org.id, role: 'owner' });
+    await tx
+      .insert(member)
+      .values({ userId: ownerId, organizationId: org.id, role: 'owner' });
 
     return org;
   });

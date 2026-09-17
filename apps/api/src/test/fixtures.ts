@@ -38,7 +38,9 @@ export async function createTestOrganization({
     .returning();
 
   if (ownerId) {
-    await db.insert(member).values({ userId: ownerId, organizationId: org.id, role: ownerRole });
+    await db
+      .insert(member)
+      .values({ userId: ownerId, organizationId: org.id, role: ownerRole });
   }
 
   return org;
@@ -55,7 +57,12 @@ export async function createTestPage({
 }) {
   const [row] = await db
     .insert(page)
-    .values({ slug: `test-page-${suffix}`, config: [], publishedAt, organizationId })
+    .values({
+      slug: `test-page-${suffix}`,
+      config: [],
+      publishedAt,
+      organizationId,
+    })
     .returning();
   return row;
 }
@@ -87,7 +94,10 @@ export async function createTestIntegration({
   organizationId: string;
   type: string;
 }) {
-  const [row] = await db.insert(integration).values({ organizationId, type }).returning();
+  const [row] = await db
+    .insert(integration)
+    .values({ organizationId, type })
+    .returning();
   return row;
 }
 
@@ -124,7 +134,9 @@ export async function cleanupTestData({
   subscriptionIds?: string[];
 }) {
   if (pageIds.length) {
-    await db.delete(formSubmission).where(inArray(formSubmission.pageId, pageIds));
+    await db
+      .delete(formSubmission)
+      .where(inArray(formSubmission.pageId, pageIds));
     await db.delete(block).where(inArray(block.pageId, pageIds));
     await db.delete(page).where(inArray(page.id, pageIds));
   }
@@ -135,11 +147,17 @@ export async function cleanupTestData({
     await db.delete(theme).where(inArray(theme.id, themeIds));
   }
   if (subscriptionIds.length) {
-    await db.delete(subscription).where(inArray(subscription.id, subscriptionIds));
+    await db
+      .delete(subscription)
+      .where(inArray(subscription.id, subscriptionIds));
   }
   if (organizationIds.length) {
-    await db.delete(member).where(inArray(member.organizationId, organizationIds));
-    await db.delete(organization).where(inArray(organization.id, organizationIds));
+    await db
+      .delete(member)
+      .where(inArray(member.organizationId, organizationIds));
+    await db
+      .delete(organization)
+      .where(inArray(organization.id, organizationIds));
   }
   if (userIds.length) {
     await db.delete(user).where(inArray(user.id, userIds));

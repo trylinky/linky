@@ -1,10 +1,10 @@
 import db from '@/lib/db';
-import { getOrganizationMemberEmails } from '@/modules/organizations/utils';
 import { sendSubscriptionDeletedEmail } from '@/modules/notifications/service';
+import { getOrganizationMemberEmails } from '@/modules/organizations/utils';
 import { sendSlackMessage } from '@/modules/slack/service';
+import { captureException, captureMessage } from '@sentry/cloudflare';
 import { subscription } from '@trylinky/db/schema';
 import { eq } from 'drizzle-orm';
-import { captureException, captureMessage } from '@sentry/cloudflare';
 import safeAwait from 'safe-await';
 import Stripe from 'stripe';
 

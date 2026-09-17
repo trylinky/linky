@@ -56,7 +56,12 @@ async function main() {
 
     await db
       .insert(organization)
-      .values({ id: INITIAL_TEAM_ID, name: 'Initial Team', isPersonal: true, slug: INITIAL_TEAM_SLUG })
+      .values({
+        id: INITIAL_TEAM_ID,
+        name: 'Initial Team',
+        isPersonal: true,
+        slug: INITIAL_TEAM_SLUG,
+      })
       .onConflictDoNothing();
 
     const initialOrganization = await db.query.organization.findFirst({
@@ -64,21 +69,31 @@ async function main() {
     });
 
     if (!initialOrganization) {
-      throw new Error(`Organization ${INITIAL_TEAM_SLUG} not found after insert`);
+      throw new Error(
+        `Organization ${INITIAL_TEAM_SLUG} not found after insert`
+      );
     }
 
     const existingMembership = await db.query.member.findFirst({
       where: (m, { and, eq }) =>
-        and(eq(m.userId, initialUser.id), eq(m.organizationId, initialOrganization.id)),
+        and(
+          eq(m.userId, initialUser.id),
+          eq(m.organizationId, initialOrganization.id)
+        ),
     });
 
     if (!existingMembership) {
-      await db
-        .insert(member)
-        .values({ userId: initialUser.id, organizationId: initialOrganization.id, role: 'admin' });
+      await db.insert(member).values({
+        userId: initialUser.id,
+        organizationId: initialOrganization.id,
+        role: 'admin',
+      });
     }
 
-    for (const [key, seed] of Object.entries(defaultThemeSeeds) as [DefaultThemeNames, any][]) {
+    for (const [key, seed] of Object.entries(defaultThemeSeeds) as [
+      DefaultThemeNames,
+      any,
+    ][]) {
       await db
         .insert(theme)
         .values({

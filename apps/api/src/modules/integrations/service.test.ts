@@ -1,4 +1,8 @@
-import { disconnectIntegration, getIntegrationsForOrganizationId, linkIntegrationToBlock } from './service';
+import {
+  disconnectIntegration,
+  getIntegrationsForOrganizationId,
+  linkIntegrationToBlock,
+} from './service';
 import db from '@/lib/db';
 import {
   cleanupTestData,
@@ -34,10 +38,15 @@ const extraIntegrationIds: string[] = [];
 beforeAll(async () => {
   userId = (await createTestUser(`int-${suffix}`)).id;
   strangerId = (await createTestUser(`int-stranger-${suffix}`)).id;
-  organizationId = (await createTestOrganization({ suffix: `int-${suffix}`, ownerId: userId })).id;
-  pageId = (await createTestPage({ organizationId, suffix: `int-${suffix}` })).id;
+  organizationId = (
+    await createTestOrganization({ suffix: `int-${suffix}`, ownerId: userId })
+  ).id;
+  pageId = (await createTestPage({ organizationId, suffix: `int-${suffix}` }))
+    .id;
   blockId = (await createTestBlock({ pageId, type: 'spotify-playing-now' })).id;
-  integrationId = (await createTestIntegration({ organizationId, type: 'spotify' })).id;
+  integrationId = (
+    await createTestIntegration({ organizationId, type: 'spotify' })
+  ).id;
 });
 
 afterAll(async () => {
@@ -59,7 +68,9 @@ const readIntegrationId = async () =>
 
 describe('linkIntegrationToBlock', () => {
   it('links the integration to a block the user can reach', async () => {
-    await expect(linkIntegrationToBlock({ blockId, integrationId, userId })).resolves.toBe(true);
+    await expect(
+      linkIntegrationToBlock({ blockId, integrationId, userId })
+    ).resolves.toBe(true);
     expect(await readIntegrationId()).toBe(integrationId);
   });
 
@@ -68,7 +79,10 @@ describe('linkIntegrationToBlock', () => {
     // originated in a caller-supplied query string, and block ids are
     // public. An unscoped update let any signed-in user attach their own
     // integration to another user's block.
-    await db.update(block).set({ integrationId: null }).where(eq(block.id, blockId));
+    await db
+      .update(block)
+      .set({ integrationId: null })
+      .where(eq(block.id, blockId));
 
     await expect(
       linkIntegrationToBlock({ blockId, integrationId, userId: strangerId })
@@ -79,10 +93,16 @@ describe('linkIntegrationToBlock', () => {
 
 describe('getIntegrationsForOrganizationId', () => {
   it('returns only non-deleted integrations for the organization, in the legacy shape', async () => {
-    const shapePage = await createTestPage({ organizationId, suffix: `int-shape-${suffix}` });
+    const shapePage = await createTestPage({
+      organizationId,
+      suffix: `int-shape-${suffix}`,
+    });
     extraPageIds.push(shapePage.id);
 
-    const activeIntegration = await createTestIntegration({ organizationId, type: 'threads' });
+    const activeIntegration = await createTestIntegration({
+      organizationId,
+      type: 'threads',
+    });
     extraIntegrationIds.push(activeIntegration.id);
 
     await createTestBlock({
@@ -91,7 +111,10 @@ describe('getIntegrationsForOrganizationId', () => {
       integrationId: activeIntegration.id,
     });
 
-    const deletedIntegration = await createTestIntegration({ organizationId, type: 'instagram' });
+    const deletedIntegration = await createTestIntegration({
+      organizationId,
+      type: 'instagram',
+    });
     extraIntegrationIds.push(deletedIntegration.id);
     await db
       .update(integration)
@@ -116,14 +139,20 @@ describe('getIntegrationsForOrganizationId', () => {
 
 describe('disconnectIntegration', () => {
   it('soft-deletes the integration, clears its config, and unlinks its blocks', async () => {
-    const targetIntegration = await createTestIntegration({ organizationId, type: 'spotify' });
+    const targetIntegration = await createTestIntegration({
+      organizationId,
+      type: 'spotify',
+    });
     extraIntegrationIds.push(targetIntegration.id);
     await db
       .update(integration)
       .set({ encryptedConfig: 'secret' })
       .where(eq(integration.id, targetIntegration.id));
 
-    const targetPage = await createTestPage({ organizationId, suffix: `int-disconnect-${suffix}` });
+    const targetPage = await createTestPage({
+      organizationId,
+      suffix: `int-disconnect-${suffix}`,
+    });
     extraPageIds.push(targetPage.id);
     const linkedBlock = await createTestBlock({
       pageId: targetPage.id,
@@ -131,7 +160,9 @@ describe('disconnectIntegration', () => {
       integrationId: targetIntegration.id,
     });
 
-    await expect(disconnectIntegration(targetIntegration.id)).resolves.toEqual({ sucess: true });
+    await expect(disconnectIntegration(targetIntegration.id)).resolves.toEqual({
+      sucess: true,
+    });
 
     const updatedIntegration = await db.query.integration.findFirst({
       where: (i, { eq }) => eq(i.id, targetIntegration.id),

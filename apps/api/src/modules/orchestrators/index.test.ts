@@ -2,7 +2,15 @@ import { createApp } from '@/app';
 import db from '@/lib/db';
 import { orchestration } from '@trylinky/db/schema';
 import { eq, inArray } from 'drizzle-orm';
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 
 // Route-level tests for the orchestrator create/validate endpoints. These
 // only cover create/validate — `/orchestrators/tiktok/create` calls out to
@@ -31,7 +39,9 @@ afterEach(() => {
 
 afterAll(async () => {
   if (createdOrchestrationIds.length) {
-    await db.delete(orchestration).where(inArray(orchestration.id, createdOrchestrationIds));
+    await db
+      .delete(orchestration)
+      .where(inArray(orchestration.id, createdOrchestrationIds));
   }
 });
 
@@ -78,7 +88,10 @@ describe('POST /orchestrators/validate', () => {
 
     const [created] = await db
       .insert(orchestration)
-      .values({ expiresAt: new Date(Date.now() + 1000 * 60 * 30), type: 'TIKTOK' })
+      .values({
+        expiresAt: new Date(Date.now() + 1000 * 60 * 30),
+        type: 'TIKTOK',
+      })
       .returning({ id: orchestration.id });
     createdOrchestrationIds.push(created.id);
 
@@ -104,7 +117,10 @@ describe('POST /orchestrators/validate', () => {
 
     const [created] = await db
       .insert(orchestration)
-      .values({ expiresAt: new Date(Date.now() + 1000 * 60 * 30), type: 'TIKTOK' })
+      .values({
+        expiresAt: new Date(Date.now() + 1000 * 60 * 30),
+        type: 'TIKTOK',
+      })
       .returning({ id: orchestration.id });
     createdOrchestrationIds.push(created.id);
 
@@ -127,7 +143,9 @@ describe('POST /orchestrators/validate', () => {
     );
 
     expect(response.status).toBe(400);
-    await expect(response.json()).resolves.toEqual({ error: 'Orchestration not found' });
+    await expect(response.json()).resolves.toEqual({
+      error: 'Orchestration not found',
+    });
   });
 
   it('returns 400 for an orchestration that already generated a page', async () => {
@@ -135,7 +153,10 @@ describe('POST /orchestrators/validate', () => {
 
     const [created] = await db
       .insert(orchestration)
-      .values({ expiresAt: new Date(Date.now() + 1000 * 60 * 30), type: 'TIKTOK' })
+      .values({
+        expiresAt: new Date(Date.now() + 1000 * 60 * 30),
+        type: 'TIKTOK',
+      })
       .returning({ id: orchestration.id });
     createdOrchestrationIds.push(created.id);
 
@@ -158,6 +179,8 @@ describe('POST /orchestrators/validate', () => {
     );
 
     expect(response.status).toBe(400);
-    await expect(response.json()).resolves.toEqual({ error: 'Orchestration not found' });
+    await expect(response.json()).resolves.toEqual({
+      error: 'Orchestration not found',
+    });
   });
 });

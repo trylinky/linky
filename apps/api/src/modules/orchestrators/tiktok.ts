@@ -2,7 +2,13 @@ import db from '@/lib/db';
 import { encrypt } from '@/lib/encrypt';
 import { uploadAsset } from '@/modules/assets/service';
 import { captureException, captureMessage } from '@sentry/cloudflare';
-import { account, block, integration, orchestration, page } from '@trylinky/db/schema';
+import {
+  account,
+  block,
+  integration,
+  orchestration,
+  page,
+} from '@trylinky/db/schema';
 import { and, eq } from 'drizzle-orm';
 import safeAwait from 'safe-await';
 
@@ -182,7 +188,10 @@ const createTikTokFollowersBlock = async ({
       })
       .returning();
 
-    await db.update(block).set({ integrationId }).where(eq(block.id, created.id));
+    await db
+      .update(block)
+      .set({ integrationId })
+      .where(eq(block.id, created.id));
 
     return created;
   } catch (error) {
@@ -215,7 +224,10 @@ const createTikTokLatestVideoBlock = async ({
       })
       .returning();
 
-    await db.update(block).set({ integrationId }).where(eq(block.id, created.id));
+    await db
+      .update(block)
+      .set({ integrationId })
+      .where(eq(block.id, created.id));
 
     return created;
   } catch (error) {
@@ -335,8 +347,13 @@ const fetchTikTokProfile = async ({
       // Update the stored tokens in database
       await db
         .update(account)
-        .set({ accessToken: newTokens.accessToken, refreshToken: newTokens.refreshToken })
-        .where(and(eq(account.userId, userId), eq(account.providerId, 'tiktok')));
+        .set({
+          accessToken: newTokens.accessToken,
+          refreshToken: newTokens.refreshToken,
+        })
+        .where(
+          and(eq(account.userId, userId), eq(account.providerId, 'tiktok'))
+        );
 
       // Retry with new token
       const retryResult = await makeRequest(newTokens.accessToken);
@@ -513,13 +530,18 @@ const setPageConfig = async ({
 
   await db
     .update(page)
-    .set({ config, mobileConfig, themeId: '14fc9bdf-f363-4404-b05e-856670722fda' })
+    .set({
+      config,
+      mobileConfig,
+      themeId: '14fc9bdf-f363-4404-b05e-856670722fda',
+    })
     .where(eq(page.id, pageId));
 };
 
 const getTikTokAccessToken = async ({ userId }: { userId: string }) => {
   const tiktokAccount = await db.query.account.findFirst({
-    where: (a, { and, eq }) => and(eq(a.userId, userId), eq(a.providerId, 'tiktok')),
+    where: (a, { and, eq }) =>
+      and(eq(a.userId, userId), eq(a.providerId, 'tiktok')),
   });
 
   if (!tiktokAccount) {
@@ -577,7 +599,8 @@ export async function orchestrateTikTok({
   userId: string;
 }) {
   const current = await db.query.orchestration.findFirst({
-    where: (o, { and, eq, isNull }) => and(eq(o.id, orchestrationId), isNull(o.pageGeneratedAt)),
+    where: (o, { and, eq, isNull }) =>
+      and(eq(o.id, orchestrationId), isNull(o.pageGeneratedAt)),
   });
 
   if (!current) {

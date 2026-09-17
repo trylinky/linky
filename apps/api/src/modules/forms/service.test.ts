@@ -50,14 +50,27 @@ let nonFormBlockId: string;
 beforeAll(async () => {
   userId = (await createTestUser(`form-${suffix}`)).id;
   otherUserId = (await createTestUser(`form-other-${suffix}`)).id;
-  organizationId = (await createTestOrganization({ suffix: `form-${suffix}`, ownerId: userId })).id;
-  pageId = (await createTestPage({ organizationId, suffix: `form-${suffix}` })).id;
-  unpublishedPageId = (
-    await createTestPage({ organizationId, suffix: `form-unpub-${suffix}`, publishedAt: null })
+  organizationId = (
+    await createTestOrganization({ suffix: `form-${suffix}`, ownerId: userId })
   ).id;
-  blockId = (await createTestBlock({ pageId, type: 'form', data: testFormConfig })).id;
+  pageId = (await createTestPage({ organizationId, suffix: `form-${suffix}` }))
+    .id;
+  unpublishedPageId = (
+    await createTestPage({
+      organizationId,
+      suffix: `form-unpub-${suffix}`,
+      publishedAt: null,
+    })
+  ).id;
+  blockId = (
+    await createTestBlock({ pageId, type: 'form', data: testFormConfig })
+  ).id;
   unpublishedBlockId = (
-    await createTestBlock({ pageId: unpublishedPageId, type: 'form', data: testFormConfig })
+    await createTestBlock({
+      pageId: unpublishedPageId,
+      type: 'form',
+      data: testFormConfig,
+    })
   ).id;
   nonFormBlockId = (await createTestBlock({ pageId, type: 'content' })).id;
 });
@@ -149,7 +162,11 @@ describe('submitFormResponse', () => {
 
   it('rate limits the 6th submission from one IP within an hour', async () => {
     // Use a dedicated block so submissions from other tests don't count.
-    const rateLimitBlock = await createTestBlock({ pageId, type: 'form', data: testFormConfig });
+    const rateLimitBlock = await createTestBlock({
+      pageId,
+      type: 'form',
+      data: testFormConfig,
+    });
     const rateLimitIp = '203.0.113.9';
 
     for (let i = 0; i < 5; i++) {
@@ -243,7 +260,9 @@ describe('getFormGroupsForPage', () => {
     expect(liveGroup!.submissionCount).toBeGreaterThanOrEqual(1);
     expect(liveGroup!.latestSubmissionAt).toBeInstanceOf(Date);
 
-    const orphanGroup = groups.find((group) => group.blockId === doomedBlock.id);
+    const orphanGroup = groups.find(
+      (group) => group.blockId === doomedBlock.id
+    );
     expect(orphanGroup).toMatchObject({
       title: 'Doomed form',
       isDeleted: true,
@@ -255,7 +274,11 @@ describe('getFormGroupsForPage', () => {
 
 describe('listSubmissions', () => {
   it('returns newest-first pages with a working cursor', async () => {
-    const paginationBlock = await createTestBlock({ pageId, type: 'form', data: testFormConfig });
+    const paginationBlock = await createTestBlock({
+      pageId,
+      type: 'form',
+      data: testFormConfig,
+    });
 
     // Insert directly so we control timestamps deterministically.
     const base = Date.now();
@@ -273,14 +296,24 @@ describe('listSubmissions', () => {
       });
     }
 
-    const firstPage = await listSubmissions(pageId, paginationBlock.id, undefined, 2);
+    const firstPage = await listSubmissions(
+      pageId,
+      paginationBlock.id,
+      undefined,
+      2
+    );
     expect(firstPage.submissions).toHaveLength(2);
     expect(firstPage.nextCursor).toBeTruthy();
     expect(firstPage.submissions[0].answers).toMatchObject({
       'f-email': 'p0@example.com',
     });
 
-    const secondPage = await listSubmissions(pageId, paginationBlock.id, firstPage.nextCursor!, 2);
+    const secondPage = await listSubmissions(
+      pageId,
+      paginationBlock.id,
+      firstPage.nextCursor!,
+      2
+    );
     expect(secondPage.submissions).toHaveLength(1);
     expect(secondPage.nextCursor).toBeNull();
     expect(secondPage.submissions[0].answers).toMatchObject({
@@ -298,22 +331,44 @@ describe('listSubmissions', () => {
     });
     expect(foreignSubmission).toBeTruthy();
 
-    const otherBlock = await createTestBlock({ pageId, type: 'form', data: testFormConfig });
+    const otherBlock = await createTestBlock({
+      pageId,
+      type: 'form',
+      data: testFormConfig,
+    });
 
-    const result = await listSubmissions(pageId, otherBlock.id, foreignSubmission!.id, 2);
+    const result = await listSubmissions(
+      pageId,
+      otherBlock.id,
+      foreignSubmission!.id,
+      2
+    );
     expect(result.submissions).toHaveLength(0);
     expect(result.nextCursor).toBeNull();
   });
 
   it('returns an empty page for a cursor that does not exist at all', async () => {
-    const otherBlock = await createTestBlock({ pageId, type: 'form', data: testFormConfig });
+    const otherBlock = await createTestBlock({
+      pageId,
+      type: 'form',
+      data: testFormConfig,
+    });
 
-    const result = await listSubmissions(pageId, otherBlock.id, randomUUID(), 2);
+    const result = await listSubmissions(
+      pageId,
+      otherBlock.id,
+      randomUUID(),
+      2
+    );
     expect(result).toEqual({ submissions: [], nextCursor: null });
   });
 
   it('skips and duplicates no rows when two submissions share the same createdAt', async () => {
-    const tieBlock = await createTestBlock({ pageId, type: 'form', data: testFormConfig });
+    const tieBlock = await createTestBlock({
+      pageId,
+      type: 'form',
+      data: testFormConfig,
+    });
 
     // Two rows with an identical createdAt, walked one at a time (pageSize
     // 1) across the page boundary between them.
@@ -339,17 +394,28 @@ describe('listSubmissions', () => {
     expect(firstPage.submissions).toHaveLength(1);
     expect(firstPage.nextCursor).toBeTruthy();
 
-    const secondPage = await listSubmissions(pageId, tieBlock.id, firstPage.nextCursor!, 1);
+    const secondPage = await listSubmissions(
+      pageId,
+      tieBlock.id,
+      firstPage.nextCursor!,
+      1
+    );
     expect(secondPage.submissions).toHaveLength(1);
     expect(secondPage.nextCursor).toBeNull();
 
     const seenIds = [firstPage.submissions[0].id, secondPage.submissions[0].id];
     expect(new Set(seenIds).size).toBe(2);
 
-    const seenEmails = [firstPage.submissions[0], secondPage.submissions[0]].map(
+    const seenEmails = [
+      firstPage.submissions[0],
+      secondPage.submissions[0],
+    ].map(
       (submission) => (submission.answers as Record<string, unknown>)['f-email']
     );
-    expect(seenEmails.sort()).toEqual(['tie-a@example.com', 'tie-b@example.com']);
+    expect(seenEmails.sort()).toEqual([
+      'tie-a@example.com',
+      'tie-b@example.com',
+    ]);
   });
 });
 
@@ -369,12 +435,16 @@ describe('deleteSubmissionById', () => {
     // otherUserId is not a member of organizationId.
     expect(await deleteSubmissionById(submission.id, otherUserId)).toBe(false);
     expect(
-      await db.query.formSubmission.findFirst({ where: (s, { eq }) => eq(s.id, submission.id) })
+      await db.query.formSubmission.findFirst({
+        where: (s, { eq }) => eq(s.id, submission.id),
+      })
     ).toBeTruthy();
 
     expect(await deleteSubmissionById(submission.id, userId)).toBe(true);
     expect(
-      await db.query.formSubmission.findFirst({ where: (s, { eq }) => eq(s.id, submission.id) })
+      await db.query.formSubmission.findFirst({
+        where: (s, { eq }) => eq(s.id, submission.id),
+      })
     ).toBeUndefined();
   });
 });

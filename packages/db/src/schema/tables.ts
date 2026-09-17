@@ -72,7 +72,10 @@ export const account = pgTable(
     updatedAt: updatedAt(),
   },
   (t) => [
-    uniqueIndex('Account_providerId_accountId_key').on(t.providerId, t.accountId),
+    uniqueIndex('Account_providerId_accountId_key').on(
+      t.providerId,
+      t.accountId
+    ),
     index('Account_userId_idx').on(t.userId),
     foreignKey({
       columns: [t.userId],
@@ -278,7 +281,10 @@ export const page = pgTable(
     uniqueIndex('Page_slug_key').on(t.slug),
     uniqueIndex('Page_customDomain_key').on(t.customDomain),
     index('Page_organizationId_idx').on(t.organizationId),
-    index('Page_organizationId_deletedAt_idx').on(t.organizationId, t.deletedAt),
+    index('Page_organizationId_deletedAt_idx').on(
+      t.organizationId,
+      t.deletedAt
+    ),
     index('Page_slug_deletedAt_idx').on(t.slug, t.deletedAt),
     index('Page_customDomain_deletedAt_idx').on(t.customDomain, t.deletedAt),
     index('Page_themeId_idx').on(t.themeId),
@@ -314,7 +320,10 @@ export const integration = pgTable(
   (t) => [
     index('Integration_type_idx').on(t.type),
     index('Integration_organizationId_idx').on(t.organizationId),
-    index('Integration_organizationId_deletedAt_idx').on(t.organizationId, t.deletedAt),
+    index('Integration_organizationId_deletedAt_idx').on(
+      t.organizationId,
+      t.deletedAt
+    ),
     foreignKey({
       columns: [t.organizationId],
       foreignColumns: [organization.id],
@@ -373,8 +382,16 @@ export const formSubmission = pgTable(
   },
   (t) => [
     index('FormSubmission_blockId_createdAt_idx').on(t.blockId, t.createdAt),
-    index('FormSubmission_blockId_visitorIp_createdAt_idx').on(t.blockId, t.visitorIp, t.createdAt),
-    index('FormSubmission_pageId_blockId_createdAt_idx').on(t.pageId, t.blockId, t.createdAt),
+    index('FormSubmission_blockId_visitorIp_createdAt_idx').on(
+      t.blockId,
+      t.visitorIp,
+      t.createdAt
+    ),
+    index('FormSubmission_pageId_blockId_createdAt_idx').on(
+      t.pageId,
+      t.blockId,
+      t.createdAt
+    ),
     foreignKey({
       columns: [t.pageId],
       foreignColumns: [page.id],

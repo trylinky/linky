@@ -52,7 +52,9 @@ export function pageOwnedByUser(
       .where(
         and(
           eq(ownedPage.id, pageId),
-          organizationId !== undefined ? eq(ownedPage.organizationId, organizationId) : undefined,
+          organizationId !== undefined
+            ? eq(ownedPage.organizationId, organizationId)
+            : undefined,
           userIsMemberOfOrg(ownedPage.organizationId, userId)
         )
       )
@@ -69,7 +71,10 @@ export function blockOwnedByUser(
       .select({ one: sql`1` })
       .from(ownedBlock)
       .where(
-        and(eq(ownedBlock.id, blockId), pageOwnedByUser(ownedBlock.pageId, userId, organizationId))
+        and(
+          eq(ownedBlock.id, blockId),
+          pageOwnedByUser(ownedBlock.pageId, userId, organizationId)
+        )
       )
   );
 }

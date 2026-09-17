@@ -1,7 +1,7 @@
 import db from '@/lib/db';
+import { captureMessage } from '@sentry/cloudflare';
 import { subscription } from '@trylinky/db/schema';
 import { eq } from 'drizzle-orm';
-import { captureMessage } from '@sentry/cloudflare';
 import Stripe from 'stripe';
 
 /**

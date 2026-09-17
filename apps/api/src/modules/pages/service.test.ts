@@ -61,7 +61,10 @@ describe('createNewPage', () => {
     expect(result).toEqual({ slug });
     expect('error' in result).toBe(false);
 
-    const [createdPage] = await db.select().from(page).where(eq(page.slug, slug));
+    const [createdPage] = await db
+      .select()
+      .from(page)
+      .where(eq(page.slug, slug));
     expect(createdPage).toBeTruthy();
     pageIds.push(createdPage.id);
 
@@ -70,13 +73,18 @@ describe('createNewPage', () => {
 
     const headerBlockId = layout[0].i;
 
-    const blocks = await db.select().from(block).where(eq(block.pageId, createdPage.id));
+    const blocks = await db
+      .select()
+      .from(block)
+      .where(eq(block.pageId, createdPage.id));
     expect(blocks).toHaveLength(1);
     expect(blocks[0].id).toBe(headerBlockId);
     expect(blocks[0].type).toBe('header');
 
     // The mobile layout carries the same header entry.
-    expect((createdPage.mobileConfig as Array<{ i: string }>)[0].i).toBe(headerBlockId);
+    expect((createdPage.mobileConfig as Array<{ i: string }>)[0].i).toBe(
+      headerBlockId
+    );
   });
 
   it('returns an error object for a slug that already exists', async () => {
@@ -85,13 +93,19 @@ describe('createNewPage', () => {
     const first = await createNewPage({ slug, themeId, organizationId });
     expect('error' in first).toBe(false);
     if (!('error' in first)) {
-      const [createdPage] = await db.select().from(page).where(eq(page.slug, slug));
+      const [createdPage] = await db
+        .select()
+        .from(page)
+        .where(eq(page.slug, slug));
       pageIds.push(createdPage.id);
     }
 
     const second = await createNewPage({ slug, themeId, organizationId });
     expect(second).toEqual({
-      error: { message: 'Page with this slug already exists', field: 'pageSlug' },
+      error: {
+        message: 'Page with this slug already exists',
+        field: 'pageSlug',
+      },
     });
   });
 });
@@ -103,17 +117,26 @@ describe('deletePage', () => {
       suffix: `pages-svc-delete-${suffix}`,
     });
     pageIds.push(testPage.id);
-    const testBlock = await createTestBlock({ pageId: testPage.id, type: 'content' });
+    const testBlock = await createTestBlock({
+      pageId: testPage.id,
+      type: 'content',
+    });
 
     const result = await deletePage(testPage.id);
     expect(result).toBe(true);
 
-    const [updated] = await db.select().from(page).where(eq(page.id, testPage.id));
+    const [updated] = await db
+      .select()
+      .from(page)
+      .where(eq(page.id, testPage.id));
     expect(updated.deletedAt).not.toBeNull();
     expect(updated.slug.startsWith('DELETED-')).toBe(true);
     expect(updated.slug.endsWith(testPage.slug)).toBe(true);
 
-    const remainingBlocks = await db.select().from(block).where(eq(block.id, testBlock.id));
+    const remainingBlocks = await db
+      .select()
+      .from(block)
+      .where(eq(block.id, testBlock.id));
     expect(remainingBlocks).toHaveLength(0);
   });
 
@@ -150,14 +173,27 @@ describe('getPageBlocks', () => {
     });
     pageIds.push(testPage.id);
 
-    const first = await createTestBlock({ pageId: testPage.id, type: 'content' });
-    const second = await createTestBlock({ pageId: testPage.id, type: 'content' });
-    const third = await createTestBlock({ pageId: testPage.id, type: 'content' });
+    const first = await createTestBlock({
+      pageId: testPage.id,
+      type: 'content',
+    });
+    const second = await createTestBlock({
+      pageId: testPage.id,
+      type: 'content',
+    });
+    const third = await createTestBlock({
+      pageId: testPage.id,
+      type: 'content',
+    });
 
     const result = await getPageBlocks(testPage.id);
 
     expect(result).toBeTruthy();
-    expect(result!.blocks.map((b) => b.id)).toEqual([first.id, second.id, third.id]);
+    expect(result!.blocks.map((b) => b.id)).toEqual([
+      first.id,
+      second.id,
+      third.id,
+    ]);
   });
 
   it('returns null for a deleted page', async () => {
@@ -180,7 +216,10 @@ describe('updatePageLayout', () => {
     });
     pageIds.push(testPage.id);
 
-    const realBlock = await createTestBlock({ pageId: testPage.id, type: 'content' });
+    const realBlock = await createTestBlock({
+      pageId: testPage.id,
+      type: 'content',
+    });
 
     const newLayout = {
       sm: [
@@ -200,7 +239,9 @@ describe('updatePageLayout', () => {
       .select()
       .from(page)
       .where(and(eq(page.id, testPage.id), isNull(page.deletedAt)));
-    expect(stored.config).toEqual([{ i: realBlock.id, x: 0, y: 0, w: 12, h: 6 }]);
+    expect(stored.config).toEqual([
+      { i: realBlock.id, x: 0, y: 0, w: 12, h: 6 },
+    ]);
     expect(stored.mobileConfig).toEqual([]);
   });
 });

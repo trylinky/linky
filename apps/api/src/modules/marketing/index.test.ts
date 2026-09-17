@@ -1,6 +1,11 @@
 import { createApp } from '@/app';
 import db from '@/lib/db';
-import { cleanupTestData, createTestBlock, createTestOrganization, createTestPage } from '@/test/fixtures';
+import {
+  cleanupTestData,
+  createTestBlock,
+  createTestOrganization,
+  createTestPage,
+} from '@/test/fixtures';
 import { page } from '@trylinky/db/schema';
 import { eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
@@ -18,8 +23,13 @@ let pageId: string;
 let pageSlug: string;
 
 beforeAll(async () => {
-  organizationId = (await createTestOrganization({ suffix: `marketing-${suffix}` })).id;
-  const testPage = await createTestPage({ organizationId, suffix: `marketing-${suffix}` });
+  organizationId = (
+    await createTestOrganization({ suffix: `marketing-${suffix}` })
+  ).id;
+  const testPage = await createTestPage({
+    organizationId,
+    suffix: `marketing-${suffix}`,
+  });
   pageId = testPage.id;
   pageSlug = testPage.slug;
 
@@ -28,14 +38,20 @@ beforeAll(async () => {
   await createTestBlock({
     pageId,
     type: 'header',
-    data: { title: 'A featured headline', description: 'A featured description' },
+    data: {
+      title: 'A featured headline',
+      description: 'A featured description',
+    },
   });
 
   app = createApp();
 });
 
 afterAll(async () => {
-  await cleanupTestData({ pageIds: [pageId], organizationIds: [organizationId] });
+  await cleanupTestData({
+    pageIds: [pageId],
+    organizationIds: [organizationId],
+  });
 });
 
 describe('GET /marketing/featured-pages', () => {

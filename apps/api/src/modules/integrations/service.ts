@@ -32,7 +32,8 @@ export async function linkIntegrationToBlock({
   userId: string;
 }): Promise<boolean> {
   const target = await db.query.block.findFirst({
-    where: (b, { and, eq }) => and(eq(b.id, blockId), pageOwnedByUser(b.pageId, userId)),
+    where: (b, { and, eq }) =>
+      and(eq(b.id, blockId), pageOwnedByUser(b.pageId, userId)),
     columns: { id: true, pageId: true },
   });
 
@@ -52,7 +53,8 @@ export async function linkIntegrationToBlock({
 
 export async function getIntegrationsForOrganizationId(organizationId: string) {
   const rows = await db.query.integration.findMany({
-    where: (i, { and, eq, isNull }) => and(eq(i.organizationId, organizationId), isNull(i.deletedAt)),
+    where: (i, { and, eq, isNull }) =>
+      and(eq(i.organizationId, organizationId), isNull(i.deletedAt)),
     columns: { id: true, createdAt: true, type: true, displayName: true },
     with: {
       blocks: {
@@ -72,7 +74,10 @@ export async function disconnectIntegration(integrationId: string) {
       .set({ deletedAt: new Date(), encryptedConfig: null })
       .where(eq(integration.id, integrationId));
 
-    await tx.update(block).set({ integrationId: null }).where(eq(block.integrationId, integrationId));
+    await tx
+      .update(block)
+      .set({ integrationId: null })
+      .where(eq(block.integrationId, integrationId));
   });
 
   return {

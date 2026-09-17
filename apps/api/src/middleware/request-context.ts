@@ -24,7 +24,10 @@ export function getAuth(): Auth {
 }
 
 /** Must be the first middleware registered — everything downstream needs it. */
-export const requestContext: MiddlewareHandler<AppBindings> = async (c, next) => {
+export const requestContext: MiddlewareHandler<AppBindings> = async (
+  c,
+  next
+) => {
   const { db, close } = createDb(c.env);
 
   try {

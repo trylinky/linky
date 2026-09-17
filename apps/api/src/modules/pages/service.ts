@@ -3,23 +3,36 @@ import { userIsMemberOfOrg } from '@/lib/db-predicates';
 import { makeId } from '@/modules/pages/utils';
 import { captureException } from '@sentry/cloudflare';
 import { headerBlockDefaults } from '@trylinky/blocks';
-import { isForbiddenSlug, isReservedSlug, regexSlug } from '@trylinky/common/slugs';
+import {
+  isForbiddenSlug,
+  isReservedSlug,
+  regexSlug,
+} from '@trylinky/common/slugs';
 import { block, page } from '@trylinky/db/schema';
-import { and, count, desc, eq, inArray, isNull } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
+import { and, count, desc, eq, inArray, isNull } from 'drizzle-orm';
 
 type LayoutEntry = { i: string; [key: string]: unknown };
 
-function filterLayoutToBlockIds(layout: unknown, validIds: Set<string>): LayoutEntry[] {
+function filterLayoutToBlockIds(
+  layout: unknown,
+  validIds: Set<string>
+): LayoutEntry[] {
   if (!Array.isArray(layout)) return [];
   return (layout as LayoutEntry[]).filter(
     (entry) =>
-      entry && typeof entry === 'object' && typeof entry.i === 'string' && validIds.has(entry.i)
+      entry &&
+      typeof entry === 'object' &&
+      typeof entry.i === 'string' &&
+      validIds.has(entry.i)
   );
 }
 
 async function getValidBlockIds(pageId: string): Promise<Set<string>> {
-  const blocks = await db.select({ id: block.id }).from(block).where(eq(block.pageId, pageId));
+  const blocks = await db
+    .select({ id: block.id })
+    .from(block)
+    .where(eq(block.pageId, pageId));
   return new Set(blocks.map((b) => b.id));
 }
 
@@ -27,7 +40,12 @@ export async function getPageLayoutById(pageId: string) {
   const [row, validIds] = await Promise.all([
     db.query.page.findFirst({
       where: (p, { eq }) => eq(p.id, pageId),
-      columns: { config: true, mobileConfig: true, publishedAt: true, organizationId: true },
+      columns: {
+        config: true,
+        mobileConfig: true,
+        publishedAt: true,
+        organizationId: true,
+      },
     }),
     getValidBlockIds(pageId),
   ]);
@@ -43,7 +61,8 @@ export async function getPageLayoutById(pageId: string) {
 
 export async function getPageThemeById(pageId: string) {
   const row = await db.query.page.findFirst({
-    where: (p, { and, eq, isNull }) => and(eq(p.id, pageId), isNull(p.deletedAt)),
+    where: (p, { and, eq, isNull }) =>
+      and(eq(p.id, pageId), isNull(p.deletedAt)),
     columns: { publishedAt: true, organizationId: true },
     with: { theme: true },
   });
@@ -71,11 +90,18 @@ export async function getPageIdBySlugOrDomain(slug: string, domain: string) {
 
 export async function getPageBlocks(pageId: string) {
   const row = await db.query.page.findFirst({
-    where: (p, { and, eq, isNull }) => and(eq(p.id, pageId), isNull(p.deletedAt)),
+    where: (p, { and, eq, isNull }) =>
+      and(eq(p.id, pageId), isNull(p.deletedAt)),
     columns: { organizationId: true, publishedAt: true },
     with: {
       blocks: {
-        columns: { id: true, data: true, type: true, config: true, integrationId: true },
+        columns: {
+          id: true,
+          data: true,
+          type: true,
+          config: true,
+          integrationId: true,
+        },
         orderBy: (b, { asc }) => [asc(b.createdAt)],
       },
     },
@@ -94,7 +120,8 @@ export async function getPagesForOrganizationId(organizationId: string) {
 
 export async function getPageSettings(pageId: string) {
   const row = await db.query.page.findFirst({
-    where: (p, { and, eq, isNull }) => and(eq(p.id, pageId), isNull(p.deletedAt)),
+    where: (p, { and, eq, isNull }) =>
+      and(eq(p.id, pageId), isNull(p.deletedAt)),
     columns: {
       organizationId: true,
       id: true,
@@ -111,7 +138,10 @@ export async function getPageSettings(pageId: string) {
   return row ?? null;
 }
 
-export async function updatePageLayout(pageId: string, newLayout: { sm: any; xxs: any }) {
+export async function updatePageLayout(
+  pageId: string,
+  newLayout: { sm: any; xxs: any }
+) {
   const validIds = await getValidBlockIds(pageId);
 
   const sm = filterLayoutToBlockIds(newLayout.sm, validIds);
@@ -121,16 +151,26 @@ export async function updatePageLayout(pageId: string, newLayout: { sm: any; xxs
     .update(page)
     .set({ config: sm, mobileConfig: xxs })
     .where(eq(page.id, pageId))
-    .returning({ id: page.id, config: page.config, mobileConfig: page.mobileConfig });
+    .returning({
+      id: page.id,
+      config: page.config,
+      mobileConfig: page.mobileConfig,
+    });
 
-  return { id: updatedPage.id, sm: updatedPage.config, xxs: updatedPage.mobileConfig };
+  return {
+    id: updatedPage.id,
+    sm: updatedPage.config,
+    xxs: updatedPage.mobileConfig,
+  };
 }
 
 export async function checkUserHasAccessToPage(pageId: string, userId: string) {
   const [{ count: pages }] = await db
     .select({ count: count() })
     .from(page)
-    .where(and(eq(page.id, pageId), userIsMemberOfOrg(page.organizationId, userId)));
+    .where(
+      and(eq(page.id, pageId), userIsMemberOfOrg(page.organizationId, userId))
+    );
 
   return pages > 0;
 }
@@ -145,7 +185,8 @@ export async function createNewPage({
   organizationId: string;
 }) {
   const existingPage = await db.query.page.findFirst({
-    where: (p, { and, eq, isNull }) => and(eq(p.slug, slug), isNull(p.deletedAt)),
+    where: (p, { and, eq, isNull }) =>
+      and(eq(p.slug, slug), isNull(p.deletedAt)),
     columns: { id: true },
   });
 
@@ -167,11 +208,26 @@ export async function createNewPage({
   }
 
   if (existingPage) {
-    return { error: { message: 'Page with this slug already exists', field: 'pageSlug' } };
+    return {
+      error: {
+        message: 'Page with this slug already exists',
+        field: 'pageSlug',
+      },
+    };
   }
 
   const headerSectionId = randomUUID();
-  const layout = [{ h: 6, i: headerSectionId, w: 12, x: 0, y: 0, moved: false, static: false }];
+  const layout = [
+    {
+      h: 6,
+      i: headerSectionId,
+      w: 12,
+      x: 0,
+      y: 0,
+      moved: false,
+      static: false,
+    },
+  ];
 
   try {
     // Page and its header block land together or not at all.
@@ -210,7 +266,8 @@ export async function createNewPage({
 
 export async function deletePage(pageId: string) {
   const row = await db.query.page.findFirst({
-    where: (p, { and, eq, isNull }) => and(eq(p.id, pageId), isNull(p.deletedAt)),
+    where: (p, { and, eq, isNull }) =>
+      and(eq(p.id, pageId), isNull(p.deletedAt)),
     columns: { id: true, slug: true },
     with: { blocks: { columns: { id: true } } },
   });
@@ -223,7 +280,10 @@ export async function deletePage(pageId: string) {
     await db.transaction(async (tx) => {
       await tx
         .update(page)
-        .set({ deletedAt: new Date(), slug: `DELETED-${makeId(4)}-${row.slug}` })
+        .set({
+          deletedAt: new Date(),
+          slug: `DELETED-${makeId(4)}-${row.slug}`,
+        })
         .where(eq(page.id, pageId));
 
       const blockIds = row.blocks.map((b) => b.id);

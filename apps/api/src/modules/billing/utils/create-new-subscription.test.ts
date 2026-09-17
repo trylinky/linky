@@ -49,7 +49,9 @@ describe('createNewSubscription', () => {
   it('inserts a 1-seat active row for a premium plan when a stripe subscription id is supplied', async () => {
     vi.stubEnv('NODE_ENV', 'development');
 
-    const org = await createTestOrganization({ suffix: `sub-premium-${suffix}` });
+    const org = await createTestOrganization({
+      suffix: `sub-premium-${suffix}`,
+    });
     organizationIds.push(org.id);
 
     const created = await createNewSubscription({

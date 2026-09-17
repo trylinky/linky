@@ -4,7 +4,11 @@ import {
   hasAvailableSeat,
 } from './utils';
 import db from '@/lib/db';
-import { cleanupTestData, createTestOrganization, createTestUser } from '@/test/fixtures';
+import {
+  cleanupTestData,
+  createTestOrganization,
+  createTestUser,
+} from '@/test/fixtures';
 import { member, subscription } from '@trylinky/db/schema';
 import { eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
@@ -24,7 +28,10 @@ describe('hasAvailableSeat', () => {
   it('is true when the organization has no subscription', async () => {
     const owner = await createTestUser(`seat-none-${suffix}`);
     userIds.push(owner.id);
-    const org = await createTestOrganization({ suffix: `seat-none-${suffix}`, ownerId: owner.id });
+    const org = await createTestOrganization({
+      suffix: `seat-none-${suffix}`,
+      ownerId: owner.id,
+    });
     organizationIds.push(org.id);
 
     await expect(hasAvailableSeat(org.id)).resolves.toBe(true);
@@ -33,7 +40,10 @@ describe('hasAvailableSeat', () => {
   it('is true when seats exceed the current member count', async () => {
     const owner = await createTestUser(`seat-2-${suffix}`);
     userIds.push(owner.id);
-    const org = await createTestOrganization({ suffix: `seat-2-${suffix}`, ownerId: owner.id });
+    const org = await createTestOrganization({
+      suffix: `seat-2-${suffix}`,
+      ownerId: owner.id,
+    });
     organizationIds.push(org.id);
 
     const [sub] = await db
@@ -54,7 +64,10 @@ describe('hasAvailableSeat', () => {
   it('is false when the member count has reached the seat limit', async () => {
     const owner = await createTestUser(`seat-1-${suffix}`);
     userIds.push(owner.id);
-    const org = await createTestOrganization({ suffix: `seat-1-${suffix}`, ownerId: owner.id });
+    const org = await createTestOrganization({
+      suffix: `seat-1-${suffix}`,
+      ownerId: owner.id,
+    });
     organizationIds.push(org.id);
 
     const [sub] = await db
@@ -80,9 +93,16 @@ describe('canManageBilling', () => {
     const stranger = await createTestUser(`bill-stranger-${suffix}`);
     userIds.push(owner.id, teamMember.id, stranger.id);
 
-    const org = await createTestOrganization({ suffix: `bill-${suffix}`, ownerId: owner.id });
+    const org = await createTestOrganization({
+      suffix: `bill-${suffix}`,
+      ownerId: owner.id,
+    });
     organizationIds.push(org.id);
-    await db.insert(member).values({ userId: teamMember.id, organizationId: org.id, role: 'member' });
+    await db.insert(member).values({
+      userId: teamMember.id,
+      organizationId: org.id,
+      role: 'member',
+    });
 
     await expect(canManageBilling(org.id, owner.id)).resolves.toBe(true);
     await expect(canManageBilling(org.id, teamMember.id)).resolves.toBe(false);
@@ -98,12 +118,18 @@ describe('createNewOrganization', () => {
     const owner = await createTestUser(`new-org-personal-${suffix}`);
     userIds.push(owner.id);
 
-    const org = await createNewOrganization({ ownerId: owner.id, type: 'personal' });
+    const org = await createNewOrganization({
+      ownerId: owner.id,
+      type: 'personal',
+    });
     organizationIds.push(org.id);
 
     expect(org.isPersonal).toBe(true);
 
-    const members = await db.select().from(member).where(eq(member.organizationId, org.id));
+    const members = await db
+      .select()
+      .from(member)
+      .where(eq(member.organizationId, org.id));
     expect(members).toHaveLength(1);
     expect(members[0]).toMatchObject({ userId: owner.id, role: 'owner' });
   });
@@ -112,12 +138,18 @@ describe('createNewOrganization', () => {
     const owner = await createTestUser(`new-org-team-${suffix}`);
     userIds.push(owner.id);
 
-    const org = await createNewOrganization({ ownerId: owner.id, type: 'team' });
+    const org = await createNewOrganization({
+      ownerId: owner.id,
+      type: 'team',
+    });
     organizationIds.push(org.id);
 
     expect(org.isPersonal).toBe(false);
 
-    const members = await db.select().from(member).where(eq(member.organizationId, org.id));
+    const members = await db
+      .select()
+      .from(member)
+      .where(eq(member.organizationId, org.id));
     expect(members).toHaveLength(1);
     expect(members[0]).toMatchObject({ userId: owner.id, role: 'owner' });
   });

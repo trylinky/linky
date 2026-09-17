@@ -1,7 +1,7 @@
 import type { AppBindings } from '@/env';
 import db from '@/lib/db';
-import { page } from '@trylinky/db/schema';
 import { tbValidator } from '@hono/typebox-validator';
+import { page } from '@trylinky/db/schema';
 import { and, count, eq, isNull } from 'drizzle-orm';
 import { createFactory } from 'hono/factory';
 // Built with `typebox`, NOT `@sinclair/typebox`: @hono/typebox-validator

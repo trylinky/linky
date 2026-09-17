@@ -1,7 +1,7 @@
 import db from '@/lib/db';
 import { stripeClient } from '@/lib/stripe';
-import { getOrganizationMemberEmails } from '@/modules/organizations/utils';
 import { sendTrialEndedEmail } from '@/modules/notifications/service';
+import { getOrganizationMemberEmails } from '@/modules/organizations/utils';
 import { sendSlackMessage } from '@/modules/slack/service';
 import { captureException } from '@sentry/cloudflare';
 import safeAwait from 'safe-await';

@@ -51,7 +51,9 @@ describe('request-scoped db', () => {
     delete process.env.DATABASE_URL;
 
     try {
-      expect(() => resolveClient()).toThrow(/accessed outside a request context/);
+      expect(() => resolveClient()).toThrow(
+        /accessed outside a request context/
+      );
     } finally {
       process.env.DATABASE_URL = original;
     }

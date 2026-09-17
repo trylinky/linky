@@ -1,16 +1,21 @@
 import { handleSubscriptionDeleted } from './handle-subscription-deleted';
 import db from '@/lib/db';
-import { cleanupTestData, createTestOrganization, createTestUser } from '@/test/fixtures';
+import {
+  cleanupTestData,
+  createTestOrganization,
+  createTestUser,
+} from '@/test/fixtures';
 import { member, subscription } from '@trylinky/db/schema';
 import { randomUUID } from 'node:crypto';
-import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type Stripe from 'stripe';
+import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const sendSubscriptionDeletedEmail = vi.fn();
 const sendSlackMessage = vi.fn();
 
 vi.mock('@/modules/notifications/service', () => ({
-  sendSubscriptionDeletedEmail: (...args: unknown[]) => sendSubscriptionDeletedEmail(...args),
+  sendSubscriptionDeletedEmail: (...args: unknown[]) =>
+    sendSubscriptionDeletedEmail(...args),
 }));
 
 vi.mock('@/modules/slack/service', () => ({
@@ -55,12 +60,21 @@ afterAll(async () => {
 describe('handleSubscriptionDeleted', () => {
   it('cancels the subscription and emails only members with an email', async () => {
     const withEmail = await createTestUser(`del-with-email-${suffix}`);
-    const withoutEmail = await createTestUser(`del-without-email-${suffix}`, { email: null });
+    const withoutEmail = await createTestUser(`del-without-email-${suffix}`, {
+      email: null,
+    });
     userIds.push(withEmail.id, withoutEmail.id);
 
-    const org = await createTestOrganization({ suffix: `del-${suffix}`, ownerId: withEmail.id });
+    const org = await createTestOrganization({
+      suffix: `del-${suffix}`,
+      ownerId: withEmail.id,
+    });
     organizationIds.push(org.id);
-    await db.insert(member).values({ userId: withoutEmail.id, organizationId: org.id, role: 'member' });
+    await db.insert(member).values({
+      userId: withoutEmail.id,
+      organizationId: org.id,
+      role: 'member',
+    });
 
     const stripeSubscriptionId = `sub_${suffix}_del`;
     const stripeCustomerId = `cus_${suffix}_del`;
@@ -78,7 +92,11 @@ describe('handleSubscriptionDeleted', () => {
     subscriptionIds.push(sub.id);
 
     await handleSubscriptionDeleted(
-      fakeEvent({ id: stripeSubscriptionId, customer: stripeCustomerId, comment: null })
+      fakeEvent({
+        id: stripeSubscriptionId,
+        customer: stripeCustomerId,
+        comment: null,
+      })
     );
 
     const updated = await db.query.subscription.findFirst({
@@ -96,7 +114,10 @@ describe('handleSubscriptionDeleted', () => {
     const owner = await createTestUser(`del-upgraded-${suffix}`);
     userIds.push(owner.id);
 
-    const org = await createTestOrganization({ suffix: `del-upgraded-${suffix}`, ownerId: owner.id });
+    const org = await createTestOrganization({
+      suffix: `del-upgraded-${suffix}`,
+      ownerId: owner.id,
+    });
     organizationIds.push(org.id);
 
     const stripeSubscriptionId = `sub_${suffix}_upgraded`;

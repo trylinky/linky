@@ -49,5 +49,7 @@ export async function handleUserCreated({ userId }: { userId: string }) {
 }
 
 export const createUserInitialFlags = async (userId: string) => {
-  await db.insert(userFlag).values({ userId, key: 'showOnboardingTour', value: true });
+  await db
+    .insert(userFlag)
+    .values({ userId, key: 'showOnboardingTour', value: true });
 };

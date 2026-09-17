@@ -35,17 +35,20 @@ export const sessionRelations = relations(session, ({ one }) => ({
   user: one(user, { fields: [session.userId], references: [user.id] }),
 }));
 
-export const organizationRelations = relations(organization, ({ one, many }) => ({
-  integrations: many(integration),
-  themes: many(theme),
-  pages: many(page),
-  invitations: many(invitation),
-  members: many(member),
-  subscription: one(subscription, {
-    fields: [organization.id],
-    references: [subscription.referenceId],
-  }),
-}));
+export const organizationRelations = relations(
+  organization,
+  ({ one, many }) => ({
+    integrations: many(integration),
+    themes: many(theme),
+    pages: many(page),
+    invitations: many(invitation),
+    members: many(member),
+    subscription: one(subscription, {
+      fields: [organization.id],
+      references: [subscription.referenceId],
+    }),
+  })
+);
 
 export const invitationRelations = relations(invitation, ({ one }) => ({
   inviter: one(user, { fields: [invitation.inviterId], references: [user.id] }),
@@ -111,13 +114,19 @@ export const themeRelations = relations(theme, ({ one, many }) => ({
   }),
 }));
 
-export const verificationRequestRelations = relations(verificationRequest, ({ one }) => ({
-  page: one(page, { fields: [verificationRequest.pageId], references: [page.id] }),
-  requestedBy: one(user, {
-    fields: [verificationRequest.requestedByUserId],
-    references: [user.id],
-  }),
-}));
+export const verificationRequestRelations = relations(
+  verificationRequest,
+  ({ one }) => ({
+    page: one(page, {
+      fields: [verificationRequest.pageId],
+      references: [page.id],
+    }),
+    requestedBy: one(user, {
+      fields: [verificationRequest.requestedByUserId],
+      references: [user.id],
+    }),
+  })
+);
 
 export const orchestrationRelations = relations(orchestration, ({ one }) => ({
   page: one(page, { fields: [orchestration.pageId], references: [page.id] }),

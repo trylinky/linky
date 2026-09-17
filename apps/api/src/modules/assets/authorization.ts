@@ -55,7 +55,12 @@ export async function canUploadAsset({
       const [{ count: themeCount }] = await db
         .select({ count: count() })
         .from(theme)
-        .where(and(eq(theme.id, referenceId), eq(theme.organizationId, organizationId)));
+        .where(
+          and(
+            eq(theme.id, referenceId),
+            eq(theme.organizationId, organizationId)
+          )
+        );
 
       return themeCount > 0;
     }

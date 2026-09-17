@@ -22,7 +22,9 @@ vi.mock('@/modules/notifications/service', () => ({
   sendWelcomeEmail: vi.fn(),
   sendWelcomeFollowUpEmail: vi.fn(),
 }));
-vi.mock('@/modules/slack/service', () => ({ sendNewUserSlackMessage: vi.fn() }));
+vi.mock('@/modules/slack/service', () => ({
+  sendNewUserSlackMessage: vi.fn(),
+}));
 vi.mock('@/modules/billing/utils/create-new-stripe-customer', () => ({
   createNewStripeCustomer: vi.fn(async () => ({ id: 'cus_auth_test' })),
 }));
@@ -38,7 +40,9 @@ const organizationIds: string[] = [];
 
 afterAll(async () => {
   if (organizationIds.length) {
-    await db.delete(invitation).where(inArray(invitation.organizationId, organizationIds));
+    await db
+      .delete(invitation)
+      .where(inArray(invitation.organizationId, organizationIds));
   }
   if (userIds.length) {
     await db.delete(invitation).where(inArray(invitation.inviterId, userIds));
@@ -47,9 +51,15 @@ afterAll(async () => {
     await db.delete(userFlag).where(inArray(userFlag.userId, userIds));
   }
   if (organizationIds.length) {
-    await db.delete(subscription).where(inArray(subscription.referenceId, organizationIds));
-    await db.delete(member).where(inArray(member.organizationId, organizationIds));
-    await db.delete(organization).where(inArray(organization.id, organizationIds));
+    await db
+      .delete(subscription)
+      .where(inArray(subscription.referenceId, organizationIds));
+    await db
+      .delete(member)
+      .where(inArray(member.organizationId, organizationIds));
+    await db
+      .delete(organization)
+      .where(inArray(organization.id, organizationIds));
   }
   if (userIds.length) {
     await db.delete(member).where(inArray(member.userId, userIds));
@@ -92,7 +102,9 @@ describe('better-auth database adapter', () => {
     const flags = await db
       .select()
       .from(userFlag)
-      .where(and(eq(userFlag.userId, userId), eq(userFlag.key, 'showOnboardingTour')));
+      .where(
+        and(eq(userFlag.userId, userId), eq(userFlag.key, 'showOnboardingTour'))
+      );
     expect(flags).toHaveLength(1);
   });
 
@@ -102,9 +114,15 @@ describe('better-auth database adapter', () => {
     const created = await internalAdapter.createSession(userId);
     sessionToken = created.token;
 
-    expect(created).toMatchObject({ userId, activeOrganizationId: organizationId });
+    expect(created).toMatchObject({
+      userId,
+      activeOrganizationId: organizationId,
+    });
 
-    const [row] = await db.select().from(session).where(eq(session.token, sessionToken));
+    const [row] = await db
+      .select()
+      .from(session)
+      .where(eq(session.token, sessionToken));
     expect(row).toMatchObject({ userId, activeOrganizationId: organizationId });
   });
 
@@ -121,14 +139,25 @@ describe('better-auth database adapter', () => {
   it('reads plugin models through the adapter', async () => {
     const { adapter } = await auth.$context;
 
-    const foundMember = await adapter.findOne<{ userId: string; organizationId: string; role: string }>({
+    const foundMember = await adapter.findOne<{
+      userId: string;
+      organizationId: string;
+      role: string;
+    }>({
       model: 'member',
       where: [{ field: 'userId', value: userId }],
     });
-    expect(foundMember).toMatchObject({ userId, organizationId, role: 'owner' });
+    expect(foundMember).toMatchObject({
+      userId,
+      organizationId,
+      role: 'owner',
+    });
 
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
-    const createdInvitation = await adapter.create<Record<string, unknown>, { id: string }>({
+    const createdInvitation = await adapter.create<
+      Record<string, unknown>,
+      { id: string }
+    >({
       model: 'invitation',
       data: {
         email: `auth-adapter-invitee-${suffix}@example.com`,
@@ -151,9 +180,14 @@ describe('better-auth database adapter', () => {
       organizationId,
       status: 'pending',
     });
-    expect((foundInvitation?.expiresAt as Date).getTime()).toBe(expiresAt.getTime());
+    expect((foundInvitation?.expiresAt as Date).getTime()).toBe(
+      expiresAt.getTime()
+    );
 
-    const [row] = await db.select().from(invitation).where(eq(invitation.id, createdInvitation.id));
+    const [row] = await db
+      .select()
+      .from(invitation)
+      .where(eq(invitation.id, createdInvitation.id));
     expect(row).toMatchObject({ organizationId, role: 'member' });
   });
 });

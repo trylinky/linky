@@ -43,15 +43,24 @@ let pageId: string;
 let blockId: string;
 
 beforeAll(async () => {
-  organizationId = (await createTestOrganization({ suffix: `form-routes-${suffix}` })).id;
-  pageId = (await createTestPage({ organizationId, suffix: `form-routes-${suffix}` })).id;
-  blockId = (await createTestBlock({ pageId, type: 'form', data: testFormConfig })).id;
+  organizationId = (
+    await createTestOrganization({ suffix: `form-routes-${suffix}` })
+  ).id;
+  pageId = (
+    await createTestPage({ organizationId, suffix: `form-routes-${suffix}` })
+  ).id;
+  blockId = (
+    await createTestBlock({ pageId, type: 'form', data: testFormConfig })
+  ).id;
 
   app = createApp();
 });
 
 afterAll(async () => {
-  await cleanupTestData({ pageIds: [pageId], organizationIds: [organizationId] });
+  await cleanupTestData({
+    pageIds: [pageId],
+    organizationIds: [organizationId],
+  });
 });
 
 describe('POST /forms/:blockId/submissions', () => {

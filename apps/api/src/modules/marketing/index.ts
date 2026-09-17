@@ -12,7 +12,11 @@ marketingRoutes.get('/featured-pages', getFeaturedPagesHandler);
 async function getFeaturedPagesHandler(c: Context<AppBindings>) {
   const pages = await db.query.page.findMany({
     where: (p, { and, isNull, isNotNull, eq }) =>
-      and(isNull(p.deletedAt), isNotNull(p.publishedAt), eq(p.isFeatured, true)),
+      and(
+        isNull(p.deletedAt),
+        isNotNull(p.publishedAt),
+        eq(p.isFeatured, true)
+      ),
     orderBy: (p, { desc }) => [desc(p.updatedAt)],
     columns: { id: true, slug: true },
     with: { blocks: { where: (b, { eq }) => eq(b.type, 'header') } },

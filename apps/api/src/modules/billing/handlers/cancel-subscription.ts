@@ -17,11 +17,7 @@ export async function cancelSubscriptionHandler(c: Context<AppBindings>) {
       ),
   });
 
-  if (
-    !current ||
-    !current.stripeCustomerId ||
-    !current.stripeSubscriptionId
-  ) {
+  if (!current || !current.stripeCustomerId || !current.stripeSubscriptionId) {
     // Matches @fastify/sensible's response.notFound() body exactly — no
     // response schema was ever declared for 404 on this route, so nothing
     // stripped it on the way out.

@@ -1,6 +1,19 @@
-import { cleanupTestData, createTestOrganization, createTestTheme, createTestUser } from '@/test/fixtures';
+import {
+  cleanupTestData,
+  createTestOrganization,
+  createTestTheme,
+  createTestUser,
+} from '@/test/fixtures';
 import { randomUUID } from 'node:crypto';
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 
 const checkUserHasAccessToBlock = vi.fn();
 const checkUserHasAccessToPage = vi.fn();
@@ -27,10 +40,21 @@ let otherThemeId: string;
 
 beforeAll(async () => {
   userId = (await createTestUser(`assets-${suffix}`)).id;
-  ORG_ID = (await createTestOrganization({ suffix: `assets-${suffix}`, ownerId: userId })).id;
-  otherOrgId = (await createTestOrganization({ suffix: `assets-other-${suffix}` })).id;
-  ownThemeId = (await createTestTheme({ createdById: userId, organizationId: ORG_ID })).id;
-  otherThemeId = (await createTestTheme({ createdById: userId, organizationId: otherOrgId })).id;
+  ORG_ID = (
+    await createTestOrganization({
+      suffix: `assets-${suffix}`,
+      ownerId: userId,
+    })
+  ).id;
+  otherOrgId = (
+    await createTestOrganization({ suffix: `assets-other-${suffix}` })
+  ).id;
+  ownThemeId = (
+    await createTestTheme({ createdById: userId, organizationId: ORG_ID })
+  ).id;
+  otherThemeId = (
+    await createTestTheme({ createdById: userId, organizationId: otherOrgId })
+  ).id;
 });
 
 afterAll(async () => {

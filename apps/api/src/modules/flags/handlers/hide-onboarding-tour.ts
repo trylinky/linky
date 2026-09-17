@@ -11,7 +11,12 @@ export async function hideOnboardingTourHandler(c: Context<AppBindings>) {
   await db
     .update(userFlag)
     .set({ value: false })
-    .where(and(eq(userFlag.userId, session.user.id), eq(userFlag.key, 'showOnboardingTour')));
+    .where(
+      and(
+        eq(userFlag.userId, session.user.id),
+        eq(userFlag.key, 'showOnboardingTour')
+      )
+    );
 
   return c.json({ success: true }, 200);
 }

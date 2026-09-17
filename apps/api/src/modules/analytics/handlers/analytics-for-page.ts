@@ -24,7 +24,8 @@ export async function getPageAnalyticsHandler(
   }
 
   const row = await db.query.page.findFirst({
-    where: (p, { and, eq, isNull }) => and(eq(p.id, pageId), isNull(p.deletedAt)),
+    where: (p, { and, eq, isNull }) =>
+      and(eq(p.id, pageId), isNull(p.deletedAt)),
     columns: { createdAt: true },
   });
 

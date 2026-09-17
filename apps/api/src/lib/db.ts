@@ -60,7 +60,10 @@ export default new Proxy({} as Db, {
   has: (_target, property) => Reflect.has(resolveClient(), property),
   ownKeys: () => Reflect.ownKeys(resolveClient()),
   getOwnPropertyDescriptor: (_target, property) => {
-    const descriptor = Reflect.getOwnPropertyDescriptor(resolveClient(), property);
+    const descriptor = Reflect.getOwnPropertyDescriptor(
+      resolveClient(),
+      property
+    );
 
     // ownKeys must agree with a configurable descriptor, or V8's proxy
     // invariant check throws when something walks the keys.

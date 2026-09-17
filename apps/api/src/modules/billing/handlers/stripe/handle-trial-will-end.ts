@@ -1,6 +1,6 @@
 import db from '@/lib/db';
-import { getOrganizationMemberEmails } from '@/modules/organizations/utils';
 import { sendTrialReminderEmail } from '@/modules/notifications/service';
+import { getOrganizationMemberEmails } from '@/modules/organizations/utils';
 import { sendSlackMessage } from '@/modules/slack/service';
 import Stripe from 'stripe';
 
