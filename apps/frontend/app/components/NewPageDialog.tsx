@@ -289,11 +289,15 @@ export function NewPageDialog({ open, onOpenChange, onClose }: Props) {
       });
 
       if (error) {
-        toast({
-          variant: 'error',
-          title: error.message,
-          description: error.label,
-        });
+        // 402 UPGRADE_REQUIRED opens the UpgradeDialog via InternalApi's
+        // listener; don't stack a toast on top of it.
+        if (error.code !== 'UPGRADE_REQUIRED') {
+          toast({
+            variant: 'error',
+            title: error.message,
+            description: error.label,
+          });
+        }
         if (error.field === 'slug' || error.field === 'pageSlug') {
           setFieldError('pageSlug', error.message);
           setCurrentStep(isFreshOnboarding ? 2 : 1);

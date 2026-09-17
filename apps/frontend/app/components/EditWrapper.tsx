@@ -173,11 +173,15 @@ export function EditWrapper({ children, layoutProps }: Props) {
       });
 
       if (blockResponse.error) {
-        toast({
-          variant: 'error',
-          title: 'Something went wrong',
-          description: blockResponse.error.message,
-        });
+        // 402 UPGRADE_REQUIRED opens the UpgradeDialog via InternalApi's
+        // listener; don't stack a toast on top of it.
+        if (blockResponse.error.code !== 'UPGRADE_REQUIRED') {
+          toast({
+            variant: 'error',
+            title: 'Something went wrong',
+            description: blockResponse.error.message,
+          });
+        }
         // Roll back optimistic state so the ghost block doesn't linger.
         mutateLayout(layout, { revalidate: false });
         setPendingAdds((prev) => {
