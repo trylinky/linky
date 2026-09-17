@@ -142,9 +142,10 @@ export async function getFormGroupsForPage(
       group.blockId,
       {
         submissionCount: group.submissionCount,
-        // drizzle's `max()` on a timestamp column comes back as a string
-        // over the pg driver; coerce it back to a Date to match Prisma's
-        // `_max.createdAt` shape.
+        // drizzle's `max()` on a timestamp column is mapped through the
+        // column and already comes back as a Date; wrapping it in `new
+        // Date()` is defensive, to keep this resilient if that mapping
+        // ever changes, and to match Prisma's `_max.createdAt` shape.
         latestSubmissionAt:
           group.latestSubmissionAt === null
             ? null

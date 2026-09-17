@@ -17,9 +17,12 @@ writing a migration file.
 ## The baseline
 
 `0000_baseline.sql` reproduces the schema Prisma had built up over 70
-migrations. Production already had that schema, so the baseline was never
-executed there. Instead its journal row was inserted by hand so that
-`drizzle-kit migrate` treats it as applied:
+migrations. Production already has that schema, so the baseline must never
+be executed there. Instead, once — before the first deploy that runs
+`drizzle-kit migrate` against production (see the Task 15 runbook in
+`docs/superpowers/plans/2026-09-17-prisma-to-drizzle-phase-1.md`) — its
+journal row is inserted by hand so that `drizzle-kit migrate` treats it as
+already applied:
 
     CREATE SCHEMA IF NOT EXISTS drizzle;
     CREATE TABLE IF NOT EXISTS drizzle.__drizzle_migrations (

@@ -25,28 +25,30 @@ export async function createBlock(
 ) {
   const defaultData = blocks[newBlock.type as Blocks].defaults;
 
-  // Prisma's `connect: { slug }` did this lookup implicitly.
-  const target = await db.query.page.findFirst({
-    where: (p, { eq }) => eq(p.slug, pageSlug),
-    columns: { id: true },
+  return db.transaction(async (tx) => {
+    // Prisma's `connect: { slug }` did this lookup implicitly.
+    const target = await tx.query.page.findFirst({
+      where: (p, { eq }) => eq(p.slug, pageSlug),
+      columns: { id: true },
+    });
+
+    if (!target) {
+      throw new Error('Page not found');
+    }
+
+    const [created] = await tx
+      .insert(block)
+      .values({
+        type: newBlock.type,
+        id: newBlock.id,
+        config: {},
+        data: defaultData,
+        pageId: target.id,
+      })
+      .returning();
+
+    return created;
   });
-
-  if (!target) {
-    throw new Error('Page not found');
-  }
-
-  const [created] = await db
-    .insert(block)
-    .values({
-      type: newBlock.type,
-      id: newBlock.id,
-      config: {},
-      data: defaultData,
-      pageId: target.id,
-    })
-    .returning();
-
-  return created;
 }
 
 export async function getEnabledBlocks(user: Pick<User, 'role'>) {

@@ -32,7 +32,7 @@ export function createApp() {
   const app = new Hono<AppBindings>();
 
   // Order matters: requestContext must be first, because everything below it
-  // (including session resolution) reads the per-request Prisma client and
+  // (including session resolution) reads the per-request database client and
   // better-auth instance out of the AsyncLocalStorage scope it establishes.
   app.use('*', requestContext);
   app.use('*', corsMiddleware);
