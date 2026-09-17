@@ -104,11 +104,21 @@ Frontend:
 turbo run build:frontend --filter=@trylinky/frontend
 ```
 
-API:
+API (a Cloudflare Worker, deployed with Wrangler):
 
 ```bash
-turbo run prisma:migrate prisma:generate --filter=@trylinky/prisma && turbo run build:api --filter=@trylinky/api
+turbo run prisma:migrate prisma:generate --filter=@trylinky/prisma
+cd apps/api && pnpm wrangler deploy
 ```
+
+Before the first deploy, edit `apps/api/wrangler.jsonc`: set `name`, the
+`vars` (`APP_FRONTEND_URL`, `API_BASE_URL`, `NEXT_PUBLIC_BASE_URL`), the
+`hyperdrive` binding id for a [Hyperdrive](https://developers.cloudflare.com/hyperdrive/)
+config pointing at your Postgres, and the `routes` entry for your API
+hostname. Load the remaining values as secrets with
+`pnpm wrangler secret bulk <file.json>`; `apps/api/.dev.vars.example` lists
+every name. The Worker needs the Workers Paid plan (image resizing and the
+TikTok orchestrator exceed the free CPU limit).
 
 ## Security Considerations
 

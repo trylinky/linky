@@ -1,7 +1,7 @@
 # API Migration: Render + Fastify → Cloudflare Workers + Hono — Design Spec
 
 **Date:** 2026-08-04
-**Status:** Approved (brainstorm validated)
+**Status:** Shipped — merged in #24 and cut over on 2026-09-17 (`api.lin.ky` → Workers Custom Domain on `linky-api-production`; `lin.ky` DNS moved from Vercel to Cloudflare first). Render remains only as a rollback until decommissioned.
 
 ## Summary
 

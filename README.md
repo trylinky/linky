@@ -27,9 +27,10 @@ https://github.com/user-attachments/assets/d2c04b21-eb96-459b-8751-0c2bcb904da8
 - [Next.js](https://nextjs.org/) – framework
 - [TypeScript](https://www.typescriptlang.org/) – language
 - [Tailwind](https://tailwindcss.com/) – CSS
-- [NextAuth.js](https://next-auth.js.org/) – auth
+- [better-auth](https://www.better-auth.com/) – auth
+- [Hono](https://hono.dev/) on [Cloudflare Workers](https://workers.cloudflare.com/) – API
 - [Resend](https://resend.com/) – emails
-- [Vercel](https://vercel.com/) – deployments
+- [Vercel](https://vercel.com/) – frontend deployments
 
 ## Self-Hosting
 

@@ -128,6 +128,19 @@ Turbo will start the API and the frontend application on the following ports:
 - Frontend: http://localhost:3000
 - API: http://localhost:3001
 
+The API runs under `wrangler dev`, Cloudflare's local Workers runtime. It
+reads its variables from `apps/api/.dev.vars` (gitignored), not from
+`.env.local`, so create that file once:
+
+```bash
+cp apps/api/.dev.vars.example apps/api/.dev.vars
+```
+
+and fill in the values you need. `DATABASE_URL` there is only used by the
+tests; `wrangler dev` reaches Postgres through the `HYPERDRIVE` binding's
+`localConnectionString` in `apps/api/wrangler.jsonc`, which already points at
+the docker-compose database.
+
 ## Step 6: Running the checks
 
 The same four checks run in CI on every pull request:

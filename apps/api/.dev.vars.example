@@ -81,6 +81,6 @@ TIKTOK_CLIENT_KEY=
 TIKTOK_CLIENT_SECRET=
 TIKTOK_CALLBACK_URL=
 
-# Wrangler dev points the HYPERDRIVE binding at local Postgres via this env var.
-# (The WRANGLER_-prefixed form still works but is deprecated.)
-CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=postgresql://glow_user:KGfUZosCOm@localhost:5432/glow_development
+# The HYPERDRIVE binding's local Postgres connection string is set with
+# `localConnectionString` in wrangler.jsonc; wrangler does not read it from
+# this file.
