@@ -1,5 +1,5 @@
 import type { AppBindings } from '@/env';
-import prisma from '@/lib/prisma';
+import db from '@/lib/db';
 import { requireSession } from '@/middleware/authenticate';
 import { fetchStats, fetchTopLocations } from '@/modules/analytics/service';
 import { checkUserHasAccessToPage } from '@/modules/pages/service';
@@ -23,18 +23,12 @@ export async function getPageAnalyticsHandler(
     return c.json({}, 403);
   }
 
-  const page = await prisma.page.findFirst({
-    where: {
-      id: pageId,
-      deletedAt: null,
-    },
-    select: {
-      createdAt: true,
-    },
-    take: 1,
+  const row = await db.query.page.findFirst({
+    where: (p, { and, eq, isNull }) => and(eq(p.id, pageId), isNull(p.deletedAt)),
+    columns: { createdAt: true },
   });
 
-  if (!page) {
+  if (!row) {
     return c.json({}, 404);
   }
 
@@ -42,7 +36,7 @@ export async function getPageAnalyticsHandler(
   // 7 days while the code used 3; 3 is the behaviour that shipped.
   const minimumAgeMs = MINIMUM_PAGE_AGE_DAYS * 24 * 60 * 60 * 1000;
 
-  if (new Date(page.createdAt).getTime() > Date.now() - minimumAgeMs) {
+  if (new Date(row.createdAt).getTime() > Date.now() - minimumAgeMs) {
     return c.json(
       {
         error: {

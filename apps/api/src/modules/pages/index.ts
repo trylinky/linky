@@ -11,8 +11,9 @@ import {
   updatePageLayout,
 } from './service';
 import type { AppBindings } from '@/env';
+import db from '@/lib/db';
+import { userIsMemberOfOrg } from '@/lib/db-predicates';
 import { createPosthogClient } from '@/lib/posthog';
-import prisma from '@/lib/prisma';
 import {
   pageIdCacheTag,
   pageSlugCacheTag,
@@ -24,8 +25,10 @@ import { requireApiKey } from '@/middleware/authenticate-api-key';
 import { getPageLoadHandler } from '@/modules/pages/handlers/get-page-load';
 import { getPageBySlugOrDomainHandlers } from '@/modules/pages/handlers/get-page-slug-or-domain';
 import { getSlugAvailabilityHandlers } from '@/modules/pages/handlers/get-slug-availability';
+import { page } from '@trylinky/db/schema';
 import { tbValidator } from '@hono/typebox-validator';
 import { captureException } from '@sentry/cloudflare';
+import { and, count, eq, isNull } from 'drizzle-orm';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 import { createFactory } from 'hono/factory';
@@ -93,33 +96,26 @@ const createPageHandlers = createPageFactory.createHandlers(
       return c.json({ error: { message: 'Missing required fields' } }, 400);
     }
 
-    const teamPageCount = await prisma.page.count({
-      where: {
-        deletedAt: null,
-        organization: {
-          id: session.activeOrganizationId,
-          members: {
-            some: {
-              userId: session.user.id,
-            },
-          },
-        },
-      },
-    });
+    const [{ count: teamPageCount }] = await db
+      .select({ count: count() })
+      .from(page)
+      .where(
+        and(
+          isNull(page.deletedAt),
+          eq(page.organizationId, session.activeOrganizationId),
+          userIsMemberOfOrg(page.organizationId, session.user.id)
+        )
+      );
 
     const maxNumberOfPages = 100;
 
     if (teamPageCount >= maxNumberOfPages) {
-      const user = await prisma.user.findUnique({
-        where: {
-          id: session.user.id,
-        },
-        select: {
-          role: true,
-        },
+      const dbUser = await db.query.user.findFirst({
+        where: (u, { eq }) => eq(u.id, session.user.id),
+        columns: { role: true },
       });
 
-      if (!isAdminUser(user)) {
+      if (!isAdminUser(dbUser)) {
         return c.json(
           {
             error: {

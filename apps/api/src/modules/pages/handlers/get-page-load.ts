@@ -1,5 +1,5 @@
 import type { AppBindings } from '@/env';
-import prisma from '@/lib/prisma';
+import db from '@/lib/db';
 import type { Context } from 'hono';
 
 // Bound to the route's literal mount path (`/:pageId/internal/load` in
@@ -16,12 +16,9 @@ export async function getPageLoadHandler(
 ) {
   const pageId = c.req.param('pageId');
 
-  const page = await prisma.page.findUnique({
-    where: {
-      deletedAt: null,
-      id: pageId,
-    },
-    select: {
+  const row = await db.query.page.findFirst({
+    where: (p, { and, eq, isNull }) => and(isNull(p.deletedAt), eq(p.id, pageId)),
+    columns: {
       id: true,
       publishedAt: true,
       organizationId: true,
@@ -31,38 +28,28 @@ export async function getPageLoadHandler(
       metaDescription: true,
       isFeatured: true,
       verifiedAt: true,
-      // Explicit field select, not `blocks: true` — the old Fastify response
-      // schema only ever declared id/type/config/data, silently stripping
-      // the rest (pageId, integrationId, createdAt, updatedAt) off every
-      // block on the way out. Hono has no such trimming step, so an
-      // unscoped `true` here would newly leak those columns to whichever
-      // internal caller hits this route.
-      blocks: {
-        select: {
-          id: true,
-          type: true,
-          config: true,
-          data: true,
-        },
+    },
+    with: {
+      // Explicit column list: the old Fastify response schema stripped
+      // pageId/integrationId/createdAt/updatedAt off every block, and Hono
+      // has no such trimming step.
+      blocks: { columns: { id: true, type: true, config: true, data: true } },
+      organization: {
+        columns: { id: true },
+        with: { subscription: { columns: { plan: true } } },
       },
-      organization: { select: { subscription: { select: { plan: true } } } },
     },
   });
 
-  if (!page) {
+  if (!row) {
     return c.json({}, 404);
   }
 
-  const plan = page.organization?.subscription?.plan;
+  const plan = row.organization?.subscription?.plan;
   const isPaid = plan === 'premium' || plan === 'team';
 
   // `_organization` is destructured only to keep it out of `rest`.
-  const {
-    organization: _organization,
-    publishedAt,
-    verifiedAt,
-    ...rest
-  } = page;
+  const { organization: _organization, publishedAt, verifiedAt, ...rest } = row;
 
   return c.json(
     {

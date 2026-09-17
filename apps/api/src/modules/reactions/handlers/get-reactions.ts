@@ -1,5 +1,5 @@
 import type { AppBindings } from '@/env';
-import prisma from '@/lib/prisma';
+import db from '@/lib/db';
 import { getIpAddress } from '@/modules/analytics/utils';
 import { getReactionsForPageId } from '@/modules/reactions/service';
 import { tbValidator } from '@hono/typebox-validator';
@@ -27,13 +27,13 @@ export const getReactionsHandlers = factory.createHandlers(
   async (c) => {
     const { pageId } = c.req.valid('query');
 
-    const page = await prisma.page.findUnique({
-      where: { id: pageId },
+    const row = await db.query.page.findFirst({
+      where: (p, { eq }) => eq(p.id, pageId),
       // Existence check only — the full row drags large JSON columns along.
-      select: { id: true },
+      columns: { id: true },
     });
 
-    if (!page) {
+    if (!row) {
       return c.json({ error: { message: 'Page not found' } }, 404);
     }
 

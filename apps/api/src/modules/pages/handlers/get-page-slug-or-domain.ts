@@ -1,5 +1,5 @@
 import type { AppBindings } from '@/env';
-import prisma from '@/lib/prisma';
+import db from '@/lib/db';
 import { tbValidator } from '@hono/typebox-validator';
 import { captureException } from '@sentry/cloudflare';
 import { createFactory } from 'hono/factory';
@@ -38,19 +38,14 @@ export const getPageBySlugOrDomainHandlers = factory.createHandlers(
 
     const customDomain = decodeURIComponent(domain) !== rootDomain;
 
-    const [error, page] = await safeAwait(
-      prisma.page.findFirst({
-        where: {
-          deletedAt: null,
-          slug: customDomain ? undefined : slug,
-          customDomain: customDomain ? decodeURIComponent(domain) : undefined,
-        },
-        select: {
-          id: true,
-          organizationId: true,
-          publishedAt: true,
-          slug: true,
-        },
+    const [error, row] = await safeAwait(
+      db.query.page.findFirst({
+        where: (p, { and, eq, isNull }) =>
+          and(
+            isNull(p.deletedAt),
+            customDomain ? eq(p.customDomain, decodeURIComponent(domain)) : eq(p.slug, slug)
+          ),
+        columns: { id: true, organizationId: true, publishedAt: true, slug: true },
       })
     );
 
@@ -60,10 +55,10 @@ export const getPageBySlugOrDomainHandlers = factory.createHandlers(
       return c.json({ error: 'Internal Server Error' }, 500);
     }
 
-    if (!page) {
+    if (!row) {
       return c.json({}, 404);
     }
 
-    return c.json(page, 200);
+    return c.json(row, 200);
   }
 );

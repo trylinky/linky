@@ -1,6 +1,8 @@
 import type { AppBindings } from '@/env';
-import prisma from '@/lib/prisma';
+import db from '@/lib/db';
+import { page } from '@trylinky/db/schema';
 import { tbValidator } from '@hono/typebox-validator';
+import { and, count, eq, isNull } from 'drizzle-orm';
 import { createFactory } from 'hono/factory';
 // Built with `typebox`, NOT `@sinclair/typebox`: @hono/typebox-validator
 // peer-depends on `typebox`, and feeding it a `@sinclair/typebox` schema
@@ -25,13 +27,11 @@ export const getSlugAvailabilityHandlers = factory.createHandlers(
   async (c) => {
     const { slug } = c.req.valid('query');
 
-    const count = await prisma.page.count({
-      where: {
-        deletedAt: null,
-        slug,
-      },
-    });
+    const [{ count: existing }] = await db
+      .select({ count: count() })
+      .from(page)
+      .where(and(isNull(page.deletedAt), eq(page.slug, slug)));
 
-    return c.json({ isAvailable: count === 0 }, 200);
+    return c.json({ isAvailable: existing === 0 }, 200);
   }
 );

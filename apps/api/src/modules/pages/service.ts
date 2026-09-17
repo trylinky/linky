@@ -1,76 +1,54 @@
-import prisma from '../../lib/prisma';
+import db from '@/lib/db';
+import { userIsMemberOfOrg } from '@/lib/db-predicates';
 import { makeId } from '@/modules/pages/utils';
 import { captureException } from '@sentry/cloudflare';
 import { headerBlockDefaults } from '@trylinky/blocks';
-import {
-  isForbiddenSlug,
-  isReservedSlug,
-  regexSlug,
-} from '@trylinky/common/slugs';
-import { Prisma } from '@trylinky/prisma';
+import { isForbiddenSlug, isReservedSlug, regexSlug } from '@trylinky/common/slugs';
+import { block, page } from '@trylinky/db/schema';
+import { and, count, desc, eq, inArray, isNull } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
 
 type LayoutEntry = { i: string; [key: string]: unknown };
 
-function filterLayoutToBlockIds(
-  layout: unknown,
-  validIds: Set<string>
-): LayoutEntry[] {
+function filterLayoutToBlockIds(layout: unknown, validIds: Set<string>): LayoutEntry[] {
   if (!Array.isArray(layout)) return [];
   return (layout as LayoutEntry[]).filter(
     (entry) =>
-      entry &&
-      typeof entry === 'object' &&
-      typeof entry.i === 'string' &&
-      validIds.has(entry.i)
+      entry && typeof entry === 'object' && typeof entry.i === 'string' && validIds.has(entry.i)
   );
 }
 
 async function getValidBlockIds(pageId: string): Promise<Set<string>> {
-  const blocks = await prisma.block.findMany({
-    where: { pageId },
-    select: { id: true },
-  });
+  const blocks = await db.select({ id: block.id }).from(block).where(eq(block.pageId, pageId));
   return new Set(blocks.map((b) => b.id));
 }
 
 export async function getPageLayoutById(pageId: string) {
-  const [page, validIds] = await Promise.all([
-    prisma.page.findUnique({
-      where: { id: pageId },
-      select: {
-        config: true,
-        mobileConfig: true,
-        publishedAt: true,
-        organizationId: true,
-      },
+  const [row, validIds] = await Promise.all([
+    db.query.page.findFirst({
+      where: (p, { eq }) => eq(p.id, pageId),
+      columns: { config: true, mobileConfig: true, publishedAt: true, organizationId: true },
     }),
     getValidBlockIds(pageId),
   ]);
 
-  if (!page) return null;
+  if (!row) return null;
 
   return {
-    ...page,
-    config: filterLayoutToBlockIds(page.config, validIds),
-    mobileConfig: filterLayoutToBlockIds(page.mobileConfig, validIds),
+    ...row,
+    config: filterLayoutToBlockIds(row.config, validIds),
+    mobileConfig: filterLayoutToBlockIds(row.mobileConfig, validIds),
   };
 }
 
 export async function getPageThemeById(pageId: string) {
-  const page = await prisma.page.findUnique({
-    where: {
-      deletedAt: null,
-      id: pageId,
-    },
-    select: {
-      theme: true,
-      publishedAt: true,
-      organizationId: true,
-    },
+  const row = await db.query.page.findFirst({
+    where: (p, { and, eq, isNull }) => and(eq(p.id, pageId), isNull(p.deletedAt)),
+    columns: { publishedAt: true, organizationId: true },
+    with: { theme: true },
   });
 
-  return page;
+  return row ?? null;
 }
 
 export async function getPageIdBySlugOrDomain(slug: string, domain: string) {
@@ -78,72 +56,46 @@ export async function getPageIdBySlugOrDomain(slug: string, domain: string) {
     return null;
   }
 
-  const page = await prisma.page.findFirst({
-    where: {
-      slug,
-      customDomain: domain ? decodeURIComponent(domain) : undefined,
-      deletedAt: null,
-    },
-    select: {
-      id: true,
-    },
+  const row = await db.query.page.findFirst({
+    where: (p, { and, eq, isNull }) =>
+      and(
+        eq(p.slug, slug),
+        domain ? eq(p.customDomain, decodeURIComponent(domain)) : undefined,
+        isNull(p.deletedAt)
+      ),
+    columns: { id: true },
   });
 
-  return page?.id;
+  return row?.id;
 }
 
 export async function getPageBlocks(pageId: string) {
-  const page = await prisma.page.findUnique({
-    where: {
-      id: pageId,
-      deletedAt: null,
-    },
-    select: {
-      organizationId: true,
-      publishedAt: true,
+  const row = await db.query.page.findFirst({
+    where: (p, { and, eq, isNull }) => and(eq(p.id, pageId), isNull(p.deletedAt)),
+    columns: { organizationId: true, publishedAt: true },
+    with: {
       blocks: {
-        select: {
-          id: true,
-          data: true,
-          type: true,
-          config: true,
-          integrationId: true,
-        },
-        orderBy: {
-          createdAt: 'asc',
-        },
+        columns: { id: true, data: true, type: true, config: true, integrationId: true },
+        orderBy: (b, { asc }) => [asc(b.createdAt)],
       },
     },
   });
 
-  return page;
+  return row ?? null;
 }
 
 export async function getPagesForOrganizationId(organizationId: string) {
-  const pages = await prisma.page.findMany({
-    where: {
-      organizationId,
-      deletedAt: null,
-    },
-    select: {
-      id: true,
-      slug: true,
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
-
-  return pages;
+  return db
+    .select({ id: page.id, slug: page.slug })
+    .from(page)
+    .where(and(eq(page.organizationId, organizationId), isNull(page.deletedAt)))
+    .orderBy(desc(page.createdAt));
 }
 
 export async function getPageSettings(pageId: string) {
-  const page = await prisma.page.findUnique({
-    where: {
-      deletedAt: null,
-      id: pageId,
-    },
-    select: {
+  const row = await db.query.page.findFirst({
+    where: (p, { and, eq, isNull }) => and(eq(p.id, pageId), isNull(p.deletedAt)),
+    columns: {
       organizationId: true,
       id: true,
       publishedAt: true,
@@ -156,62 +108,31 @@ export async function getPageSettings(pageId: string) {
     },
   });
 
-  return page;
+  return row ?? null;
 }
 
-export async function updatePageLayout(
-  pageId: string,
-  newLayout: {
-    sm: any;
-    xxs: any;
-  }
-) {
+export async function updatePageLayout(pageId: string, newLayout: { sm: any; xxs: any }) {
   const validIds = await getValidBlockIds(pageId);
 
   const sm = filterLayoutToBlockIds(newLayout.sm, validIds);
   const xxs = filterLayoutToBlockIds(newLayout.xxs, validIds);
 
-  const updatedPage = await prisma.page.update({
-    where: {
-      id: pageId,
-    },
-    data: {
-      config: sm as unknown as Prisma.InputJsonValue,
-      mobileConfig: xxs as unknown as Prisma.InputJsonValue,
-    },
-    select: {
-      id: true,
-      config: true,
-      mobileConfig: true,
-    },
-  });
+  const [updatedPage] = await db
+    .update(page)
+    .set({ config: sm, mobileConfig: xxs })
+    .where(eq(page.id, pageId))
+    .returning({ id: page.id, config: page.config, mobileConfig: page.mobileConfig });
 
-  return {
-    id: updatedPage.id,
-    sm: updatedPage.config,
-    xxs: updatedPage.mobileConfig,
-  };
+  return { id: updatedPage.id, sm: updatedPage.config, xxs: updatedPage.mobileConfig };
 }
 
 export async function checkUserHasAccessToPage(pageId: string, userId: string) {
-  const page = await prisma.page.count({
-    where: {
-      id: pageId,
-      organization: {
-        members: {
-          some: {
-            userId,
-          },
-        },
-      },
-    },
-  });
+  const [{ count: pages }] = await db
+    .select({ count: count() })
+    .from(page)
+    .where(and(eq(page.id, pageId), userIsMemberOfOrg(page.organizationId, userId)));
 
-  if (page > 0) {
-    return true;
-  }
-
-  return false;
+  return pages > 0;
 }
 
 export async function createNewPage({
@@ -223,29 +144,17 @@ export async function createNewPage({
   themeId: string;
   organizationId: string;
 }) {
-  const existingPage = await prisma.page.findUnique({
-    where: {
-      deletedAt: null,
-      slug,
-    },
+  const existingPage = await db.query.page.findFirst({
+    where: (p, { and, eq, isNull }) => and(eq(p.slug, slug), isNull(p.deletedAt)),
+    columns: { id: true },
   });
 
   if (!slug.match(regexSlug)) {
-    return {
-      error: {
-        message: 'Slug is invalid',
-        field: 'pageSlug',
-      },
-    };
+    return { error: { message: 'Slug is invalid', field: 'pageSlug' } };
   }
 
   if (isForbiddenSlug(slug)) {
-    return {
-      error: {
-        message: 'Slug is forbidden',
-        field: 'pageSlug',
-      },
-    };
+    return { error: { message: 'Slug is forbidden', field: 'pageSlug' } };
   }
 
   if (isReservedSlug(slug)) {
@@ -258,107 +167,69 @@ export async function createNewPage({
   }
 
   if (existingPage) {
-    return {
-      error: {
-        message: 'Page with this slug already exists',
-        field: 'pageSlug',
-      },
-    };
+    return { error: { message: 'Page with this slug already exists', field: 'pageSlug' } };
   }
 
   const headerSectionId = randomUUID();
+  const layout = [{ h: 6, i: headerSectionId, w: 12, x: 0, y: 0, moved: false, static: false }];
 
   try {
-    const newPage = await prisma.page.create({
-      data: {
-        organizationId,
-        slug,
-        publishedAt: new Date(),
-        themeId,
-        metaTitle: `@${slug}`,
-        config: [
-          {
-            h: 6,
-            i: headerSectionId,
-            w: 12,
-            x: 0,
-            y: 0,
-            moved: false,
-            static: false,
-          },
-        ],
-        mobileConfig: [
-          {
-            h: 6,
-            i: headerSectionId,
-            w: 12,
-            x: 0,
-            y: 0,
-            moved: false,
-            static: false,
-          },
-        ],
-        blocks: {
-          create: {
-            id: headerSectionId,
-            type: 'header',
-            config: {},
-            data: {
-              ...headerBlockDefaults,
-              title: `@${slug}`,
-            },
-          },
-        },
-      },
-      select: {
-        slug: true,
-      },
+    // Page and its header block land together or not at all.
+    const newPage = await db.transaction(async (tx) => {
+      const [created] = await tx
+        .insert(page)
+        .values({
+          organizationId,
+          slug,
+          publishedAt: new Date(),
+          themeId,
+          metaTitle: `@${slug}`,
+          config: layout,
+          mobileConfig: layout,
+        })
+        .returning({ id: page.id, slug: page.slug });
+
+      await tx.insert(block).values({
+        id: headerSectionId,
+        pageId: created.id,
+        type: 'header',
+        config: {},
+        data: { ...headerBlockDefaults, title: `@${slug}` },
+      });
+
+      return { slug: created.slug };
     });
 
     return newPage;
   } catch (error) {
     captureException(error);
     console.log('error', error);
-    return {
-      error: {
-        message: 'Error creating page',
-      },
-    };
+    return { error: { message: 'Error creating page' } };
   }
 }
 
 export async function deletePage(pageId: string) {
-  const page = await prisma.page.findUnique({
-    where: {
-      id: pageId,
-      deletedAt: null,
-    },
-    include: {
-      blocks: true,
-    },
+  const row = await db.query.page.findFirst({
+    where: (p, { and, eq, isNull }) => and(eq(p.id, pageId), isNull(p.deletedAt)),
+    columns: { id: true, slug: true },
+    with: { blocks: { columns: { id: true } } },
   });
 
-  if (!page) {
+  if (!row) {
     return false;
   }
 
-  await prisma.page.update({
-    where: {
-      id: pageId,
-    },
-    data: {
-      deletedAt: new Date(),
-      slug: `DELETED-${makeId(4)}-${page.slug}`,
-    },
-  });
-
   try {
-    await prisma.block.deleteMany({
-      where: {
-        id: {
-          in: page.blocks.map((block) => block.id),
-        },
-      },
+    await db.transaction(async (tx) => {
+      await tx
+        .update(page)
+        .set({ deletedAt: new Date(), slug: `DELETED-${makeId(4)}-${row.slug}` })
+        .where(eq(page.id, pageId));
+
+      const blockIds = row.blocks.map((b) => b.id);
+      if (blockIds.length > 0) {
+        await tx.delete(block).where(inArray(block.id, blockIds));
+      }
     });
   } catch (error) {
     captureException(error);
