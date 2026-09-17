@@ -369,6 +369,57 @@ describe('listSubmissions', () => {
     expect(result.submissions).toHaveLength(0);
     expect(result.nextCursor).toBeNull();
   });
+
+  it('skips and duplicates no rows when two submissions share the same createdAt', async () => {
+    const tieBlock = await prisma.block.create({
+      data: { type: 'form', config: {}, data: testFormConfig, pageId },
+    });
+
+    // Two rows with an identical createdAt, walked one at a time (pageSize
+    // 1) across the page boundary between them.
+    const tieTimestamp = new Date(Date.now() - 5000);
+    await prisma.formSubmission.create({
+      data: {
+        pageId,
+        blockId: tieBlock.id,
+        answers: { 'f-email': 'tie-a@example.com' },
+        fieldsSnapshot: { title: 'Contact me', fields: testFormConfig.fields },
+        visitorIp: IP,
+        createdAt: tieTimestamp,
+      },
+    });
+    await prisma.formSubmission.create({
+      data: {
+        pageId,
+        blockId: tieBlock.id,
+        answers: { 'f-email': 'tie-b@example.com' },
+        fieldsSnapshot: { title: 'Contact me', fields: testFormConfig.fields },
+        visitorIp: IP,
+        createdAt: tieTimestamp,
+      },
+    });
+
+    const firstPage = await listSubmissions(pageId, tieBlock.id, undefined, 1);
+    expect(firstPage.submissions).toHaveLength(1);
+    expect(firstPage.nextCursor).toBeTruthy();
+
+    const secondPage = await listSubmissions(
+      pageId,
+      tieBlock.id,
+      firstPage.nextCursor!,
+      1
+    );
+    expect(secondPage.submissions).toHaveLength(1);
+    expect(secondPage.nextCursor).toBeNull();
+
+    const seenIds = [firstPage.submissions[0].id, secondPage.submissions[0].id];
+    expect(new Set(seenIds).size).toBe(2);
+
+    const seenEmails = [firstPage.submissions[0], secondPage.submissions[0]].map(
+      (submission) => (submission.answers as Record<string, unknown>)['f-email']
+    );
+    expect(seenEmails.sort()).toEqual(['tie-a@example.com', 'tie-b@example.com']);
+  });
 });
 
 describe('deleteSubmissionById', () => {
