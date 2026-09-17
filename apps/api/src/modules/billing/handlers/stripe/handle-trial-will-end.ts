@@ -1,4 +1,5 @@
-import prisma from '@/lib/prisma';
+import db from '@/lib/db';
+import { getOrganizationMemberEmails } from '@/modules/organizations/utils';
 import { sendTrialReminderEmail } from '@/modules/notifications/service';
 import { sendSlackMessage } from '@/modules/slack/service';
 import Stripe from 'stripe';
@@ -10,48 +11,24 @@ export async function handleTrialWillEnd(event: Stripe.Event) {
 
   const stripeCustomerId = event.data.object.customer as string;
 
-  const subscription = await prisma.subscription.findFirst({
-    where: {
-      stripeCustomerId: stripeCustomerId,
-      status: 'trialing',
-    },
-    select: {
-      id: true,
-      organization: {
-        select: {
-          id: true,
-          members: {
-            select: {
-              user: {
-                select: {
-                  email: true,
-                },
-              },
-            },
-          },
-        },
-      },
-    },
+  const current = await db.query.subscription.findFirst({
+    where: (s, { and, eq }) =>
+      and(eq(s.stripeCustomerId, stripeCustomerId), eq(s.status, 'trialing')),
+    columns: { id: true, referenceId: true },
   });
 
-  if (!subscription) {
+  if (!current) {
     return;
   }
 
-  const users = subscription.organization?.members.map((member) => member.user);
+  const emails = await getOrganizationMemberEmails(current.referenceId);
 
-  if (!users) {
-    return;
-  }
-
-  users.forEach(async (user) => {
-    if (user.email) {
-      await sendTrialReminderEmail(user.email);
-    }
+  emails.forEach(async (email) => {
+    await sendTrialReminderEmail(email);
   });
 
   await sendSlackMessage({
-    text: `Trial will end for ${subscription.organization?.id} (Subscription: ${subscription.id})`,
+    text: `Trial will end for ${current.referenceId} (Subscription: ${current.id})`,
   });
 
   return {

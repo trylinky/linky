@@ -1,9 +1,11 @@
 import type { AppBindings } from '@/env';
+import db from '@/lib/db';
+import { userIsMemberOfOrg } from '@/lib/db-predicates';
 import { prices } from '@/lib/plans';
-import prisma from '@/lib/prisma';
 import { stripeClient } from '@/lib/stripe';
 import { requireSession } from '@/middleware/authenticate';
 import { sendSubscriptionUpgradedPremiumEmail } from '@/modules/notifications/service';
+import { subscription } from '@trylinky/db/schema';
 import type { Context } from 'hono';
 import safeAwait from 'safe-await';
 
@@ -11,10 +13,8 @@ export async function upgradeToPremiumHandler(c: Context<AppBindings>) {
   const session = requireSession(c);
 
   const [currentUserError, currentUser] = await safeAwait(
-    prisma.user.findUnique({
-      where: {
-        id: session.user.id,
-      },
+    db.query.user.findFirst({
+      where: (u, { eq }) => eq(u.id, session.user.id),
     })
   );
 
@@ -23,26 +23,27 @@ export async function upgradeToPremiumHandler(c: Context<AppBindings>) {
   }
 
   const [currentPersonalOrgError, currentPersonalOrg] = await safeAwait(
-    prisma.organization.findFirst({
-      where: {
-        isPersonal: true,
-        members: {
-          some: {
-            userId: currentUser.id,
-          },
-        },
+    db.query.organization.findFirst({
+      where: (o, { and, eq, exists, inArray, sql }) =>
+        and(
+          eq(o.isPersonal, true),
+          userIsMemberOfOrg(o.id, currentUser.id),
+          exists(
+            db
+              .select({ one: sql`1` })
+              .from(subscription)
+              .where(
+                and(
+                  eq(subscription.referenceId, o.id),
+                  inArray(subscription.plan, ['freeLegacy'])
+                )
+              )
+          )
+        ),
+      columns: { id: true },
+      with: {
         subscription: {
-          plan: {
-            in: ['freeLegacy'],
-          },
-        },
-      },
-      select: {
-        subscription: {
-          select: {
-            id: true,
-            stripeSubscriptionId: true,
-          },
+          columns: { id: true, stripeSubscriptionId: true },
         },
       },
     })

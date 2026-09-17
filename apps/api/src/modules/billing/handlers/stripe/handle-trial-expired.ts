@@ -1,5 +1,6 @@
-import prisma from '@/lib/prisma';
+import db from '@/lib/db';
 import { stripeClient } from '@/lib/stripe';
+import { getOrganizationMemberEmails } from '@/modules/organizations/utils';
 import { sendTrialEndedEmail } from '@/modules/notifications/service';
 import { sendSlackMessage } from '@/modules/slack/service';
 import { captureException } from '@sentry/cloudflare';
@@ -25,58 +26,35 @@ export async function handleTrialExpired(event: Stripe.Event) {
     return;
   }
 
-  const [error, subscription] = await safeAwait(
-    prisma.subscription.findFirst({
-      where: {
-        stripeCustomerId: stripeSubscription.customer as string,
-        stripeSubscriptionId: stripeSubscription.id,
-      },
-      select: {
-        id: true,
-        organization: {
-          select: {
-            id: true,
-            members: {
-              select: {
-                user: {
-                  select: {
-                    email: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
+  const [error, current] = await safeAwait(
+    db.query.subscription.findFirst({
+      where: (s, { and, eq }) =>
+        and(
+          eq(s.stripeCustomerId, stripeSubscription.customer as string),
+          eq(s.stripeSubscriptionId, stripeSubscription.id)
+        ),
+      columns: { id: true, referenceId: true },
     })
   );
 
-  if (error || !subscription) {
+  if (error || !current) {
     captureException('Error retrieving subscription', {
       extra: {
         error,
-        subscription,
+        current,
       },
     });
     return;
   }
 
-  const orgUsers = subscription.organization?.members.map(
-    (member) => member.user
-  );
+  const emails = await getOrganizationMemberEmails(current.referenceId);
 
-  if (!orgUsers) {
-    return;
-  }
-
-  orgUsers.forEach(async (user) => {
-    if (user.email) {
-      await sendTrialEndedEmail(user.email);
-    }
+  emails.forEach(async (email) => {
+    await sendTrialEndedEmail(email);
   });
 
   await sendSlackMessage({
-    text: `Trial expired for ${subscription.organization?.id} (Subscription: ${subscription.id})`,
+    text: `Trial expired for ${current.referenceId} (Subscription: ${current.id})`,
   });
 
   return {

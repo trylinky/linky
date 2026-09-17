@@ -1,10 +1,12 @@
+import db from '@/lib/db';
+import { userIsMemberOfOrg } from '@/lib/db-predicates';
 import { prices } from '@/lib/plans';
-import prisma from '@/lib/prisma';
 import { stripeClient } from '@/lib/stripe';
 import { createNewSubscription } from '@/modules/billing/utils/create-new-subscription';
 import { sendSubscriptionUpgradedTeamEmail } from '@/modules/notifications/service';
 import { createNewOrganization } from '@/modules/organizations/utils';
 import { sendSlackMessage } from '@/modules/slack/service';
+import { organization } from '@trylinky/db/schema';
 import { captureMessage } from '@sentry/cloudflare';
 import safeAwait from 'safe-await';
 import Stripe from 'stripe';
@@ -13,12 +15,12 @@ import Stripe from 'stripe';
  * Handle subscription created events
  */
 export async function handleSubscriptionCreated(event: Stripe.Event) {
-  const subscription = event.data.object as Stripe.Subscription;
+  const stripeSubscription = event.data.object as Stripe.Subscription;
 
-  const lineItems = subscription.items.data;
+  const lineItems = stripeSubscription.items.data;
   if (lineItems.length === 0) {
     captureMessage(
-      `Subscription created but no line items found with Stripe Subscription ID: ${subscription.id}`
+      `Subscription created but no line items found with Stripe Subscription ID: ${stripeSubscription.id}`
     );
     return;
   }
@@ -45,11 +47,11 @@ export async function handleSubscriptionCreated(event: Stripe.Event) {
 
   // Handle team plan creation separately
   if (plan === 'team') {
-    const createdByUserId = subscription.metadata?.createdByUserId;
+    const createdByUserId = stripeSubscription.metadata?.createdByUserId;
 
     if (!createdByUserId) {
       captureMessage(
-        `Team subscription created but no createdByUserId found in metadata for Stripe Subscription ID: ${subscription.id}`
+        `Team subscription created but no createdByUserId found in metadata for Stripe Subscription ID: ${stripeSubscription.id}`
       );
 
       return;
@@ -63,22 +65,18 @@ export async function handleSubscriptionCreated(event: Stripe.Event) {
 
     await createNewSubscription({
       plan: 'team',
-      stripeCustomerId: subscription.customer as string,
-      stripeSubscriptionId: subscription.id,
+      stripeCustomerId: stripeSubscription.customer as string,
+      stripeSubscriptionId: stripeSubscription.id,
       referenceId: newTeamOrg.id,
-      periodStart: new Date(subscription.current_period_start * 1000),
-      periodEnd: new Date(subscription.current_period_end * 1000),
+      periodStart: new Date(stripeSubscription.current_period_start * 1000),
+      periodEnd: new Date(stripeSubscription.current_period_end * 1000),
     });
 
     await cancelOwnerPremiumSubscription(createdByUserId);
 
-    const owner = await prisma.user.findUnique({
-      where: {
-        id: createdByUserId,
-      },
-      select: {
-        email: true,
-      },
+    const owner = await db.query.user.findFirst({
+      where: (u, { eq }) => eq(u.id, createdByUserId),
+      columns: { email: true },
     });
 
     if (owner?.email) {
@@ -88,7 +86,7 @@ export async function handleSubscriptionCreated(event: Stripe.Event) {
     }
 
     await sendSlackMessage({
-      text: `Team subscription created for ${newTeamOrg.id} (Subscription: ${subscription.id})`,
+      text: `Team subscription created for ${newTeamOrg.id} (Subscription: ${stripeSubscription.id})`,
     });
 
     return {
@@ -100,7 +98,7 @@ export async function handleSubscriptionCreated(event: Stripe.Event) {
     // Nothing to do here
 
     await sendSlackMessage({
-      text: `Free legacy subscription created for ${subscription.id}`,
+      text: `Free legacy subscription created for ${stripeSubscription.id}`,
     });
 
     return {
@@ -112,7 +110,7 @@ export async function handleSubscriptionCreated(event: Stripe.Event) {
     // Nothing to do here
 
     await sendSlackMessage({
-      text: `Premium subscription created for ${subscription.id}`,
+      text: `Premium subscription created for ${stripeSubscription.id}`,
     });
 
     return {
@@ -122,21 +120,23 @@ export async function handleSubscriptionCreated(event: Stripe.Event) {
 }
 
 const cancelOwnerPremiumSubscription = async (ownerId: string) => {
-  const ownerSubscription = await prisma.subscription.findFirst({
-    where: {
-      status: {
-        in: ['active', 'trialing'],
-      },
-      organization: {
-        isPersonal: true,
-        members: {
-          some: {
-            userId: ownerId,
-            role: 'owner',
-          },
-        },
-      },
-    },
+  const ownerSubscription = await db.query.subscription.findFirst({
+    where: (s, { and, eq, exists, inArray, sql }) =>
+      and(
+        inArray(s.status, ['active', 'trialing']),
+        exists(
+          db
+            .select({ one: sql`1` })
+            .from(organization)
+            .where(
+              and(
+                eq(organization.id, s.referenceId),
+                eq(organization.isPersonal, true),
+                userIsMemberOfOrg(organization.id, ownerId, 'owner')
+              )
+            )
+        )
+      ),
   });
 
   if (!ownerSubscription || !ownerSubscription.stripeSubscriptionId) {

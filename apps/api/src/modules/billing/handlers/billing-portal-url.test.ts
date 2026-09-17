@@ -1,7 +1,6 @@
 import { safeReturnUrl } from './billing-portal-url';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/lib/prisma', () => ({ default: {} }));
 vi.mock('@/lib/stripe', () => ({ stripeClient: {} }));
 
 const APP = 'https://lin.ky';

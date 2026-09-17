@@ -1,17 +1,16 @@
+import db from '@/lib/db';
 import { validateEmail } from '@/lib/email';
-import prisma from '@/lib/prisma';
 import { createNewStripeCustomer } from '@/modules/billing/utils/create-new-stripe-customer';
 import { createNewSubscription } from '@/modules/billing/utils/create-new-subscription';
 import { createNewOrganization } from '@/modules/organizations/utils';
+import { userFlag } from '@trylinky/db/schema';
 
 export async function handleUserCreated({ userId }: { userId: string }) {
-  const user = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
+  const currentUser = await db.query.user.findFirst({
+    where: (u, { eq }) => eq(u.id, userId),
   });
 
-  if (!user) {
+  if (!currentUser) {
     throw Error('User not found');
   }
 
@@ -20,17 +19,17 @@ export async function handleUserCreated({ userId }: { userId: string }) {
     type: 'personal',
   });
 
-  const isValidEmail = validateEmail(user.email);
+  const isValidEmail = validateEmail(currentUser.email);
 
   const customer = await createNewStripeCustomer({
-    email: isValidEmail ? (user.email as string) : '',
-    name: user.name ?? '',
-    userId: user.id,
+    email: isValidEmail ? (currentUser.email as string) : '',
+    name: currentUser.name ?? '',
+    userId: currentUser.id,
     organizationId: newOrg.id,
   });
 
   if (!customer) {
-    throw Error(`Error creating Stripe customer for user ${user.id}`);
+    throw Error(`Error creating Stripe customer for user ${currentUser.id}`);
   }
 
   const newSubscription = await createNewSubscription({
@@ -50,11 +49,5 @@ export async function handleUserCreated({ userId }: { userId: string }) {
 }
 
 export const createUserInitialFlags = async (userId: string) => {
-  await prisma.userFlag.create({
-    data: {
-      userId,
-      key: 'showOnboardingTour',
-      value: true,
-    },
-  });
+  await db.insert(userFlag).values({ userId, key: 'showOnboardingTour', value: true });
 };

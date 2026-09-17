@@ -1,6 +1,7 @@
+import db from '@/lib/db';
 import { prices } from '@/lib/plans';
-import prisma from '@/lib/prisma';
 import { stripeClient } from '@/lib/stripe';
+import { subscription } from '@trylinky/db/schema';
 import { captureException } from '@sentry/cloudflare';
 import safeAwait from 'safe-await';
 
@@ -70,9 +71,10 @@ export async function createNewSubscription({
 
   const DEFAULT_SEATS = plan === 'team' ? 5 : 1;
 
-  const [subscriptionError, subscription] = await safeAwait(
-    prisma.subscription.create({
-      data: {
+  const [subscriptionError, created] = await safeAwait(
+    db
+      .insert(subscription)
+      .values({
         plan,
         stripeCustomerId: stripeCustomerId,
         stripeSubscriptionId: subscriptionId,
@@ -83,8 +85,8 @@ export async function createNewSubscription({
         seats: DEFAULT_SEATS,
         trialStart: isTrialing ? trialStart : undefined,
         trialEnd: isTrialing ? trialEnd : undefined,
-      },
-    })
+      })
+      .returning()
   );
 
   if (subscriptionError) {
@@ -92,5 +94,5 @@ export async function createNewSubscription({
     return;
   }
 
-  return subscription;
+  return created[0];
 }

@@ -1,5 +1,6 @@
 import type { AppBindings } from '@/env';
-import prisma from '@/lib/prisma';
+import db from '@/lib/db';
+import { userIsMemberOfOrg } from '@/lib/db-predicates';
 import { requireSession } from '@/middleware/authenticate';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
@@ -11,15 +12,9 @@ organizationsRoutes.get('/me', getOrgsForCurrentUserHandler);
 async function getOrgsForCurrentUserHandler(c: Context<AppBindings>) {
   const session = requireSession(c);
 
-  const orgs = await prisma.organization.findMany({
-    where: {
-      members: {
-        some: {
-          userId: session.user.id,
-        },
-      },
-    },
-    select: {
+  const orgs = await db.query.organization.findMany({
+    where: (o) => userIsMemberOfOrg(o.id, session.user.id),
+    columns: {
       id: true,
       name: true,
       isPersonal: true,

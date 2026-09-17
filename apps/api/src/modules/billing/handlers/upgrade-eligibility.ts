@@ -1,5 +1,5 @@
 import type { AppBindings } from '@/env';
-import prisma from '@/lib/prisma';
+import db from '@/lib/db';
 import { stripeClient } from '@/lib/stripe';
 import { requireSession } from '@/middleware/authenticate';
 import type { Context } from 'hono';
@@ -7,13 +7,11 @@ import type { Context } from 'hono';
 export async function getUpgradeEligibilityHandler(c: Context<AppBindings>) {
   const session = requireSession(c);
 
-  const subscription = await prisma.subscription.findFirst({
-    where: {
-      referenceId: session.activeOrganizationId,
-    },
+  const current = await db.query.subscription.findFirst({
+    where: (s, { eq }) => eq(s.referenceId, session.activeOrganizationId),
   });
 
-  if (!subscription) {
+  if (!current) {
     // The old Fastify response schema for 404 was
     // `{ type: 'object', properties: {}, additionalProperties: false }` —
     // fast-json-stringify serialises *any* object against that to `{}`, so
@@ -31,7 +29,7 @@ export async function getUpgradeEligibilityHandler(c: Context<AppBindings>) {
       'canceled',
       'unpaid',
       'past_due',
-    ].includes(subscription.status)
+    ].includes(current.status)
   ) {
     return c.json(
       {
@@ -39,28 +37,28 @@ export async function getUpgradeEligibilityHandler(c: Context<AppBindings>) {
         nextPlan: null,
         message: 'Subscription is in a failed state',
         nextStep: 'createSubscription',
-        currentPlan: subscription.plan,
+        currentPlan: current.plan,
       },
       200
     );
   }
 
-  if (subscription.plan === 'team') {
+  if (current.plan === 'team') {
     return c.json(
       {
         canUpgrade: false,
         nextPlan: null,
         message: 'Team plan cannot be upgraded',
         nextStep: null,
-        currentPlan: subscription.plan,
+        currentPlan: current.plan,
       },
       200
     );
   }
 
-  if (['premium', 'freeLegacy'].includes(subscription.plan)) {
+  if (['premium', 'freeLegacy'].includes(current.plan)) {
     const customer = await stripeClient.customers.retrieve(
-      subscription.stripeCustomerId
+      current.stripeCustomerId
     );
 
     if (
@@ -71,7 +69,7 @@ export async function getUpgradeEligibilityHandler(c: Context<AppBindings>) {
         {
           canUpgrade: false,
           nextStep: 'addPaymentMethod',
-          currentPlan: subscription.plan,
+          currentPlan: current.plan,
         },
         200
       );
@@ -80,7 +78,7 @@ export async function getUpgradeEligibilityHandler(c: Context<AppBindings>) {
     return c.json(
       {
         nextStep: 'completeTrial',
-        currentPlan: subscription.plan,
+        currentPlan: current.plan,
       },
       200
     );
@@ -91,7 +89,7 @@ export async function getUpgradeEligibilityHandler(c: Context<AppBindings>) {
       canUpgrade: false,
       nextPlan: null,
       nextStep: null,
-      currentPlan: subscription.plan,
+      currentPlan: current.plan,
     },
     200
   );

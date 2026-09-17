@@ -1,8 +1,10 @@
 import type { AppBindings } from '@/env';
-import prisma from '@/lib/prisma';
+import db from '@/lib/db';
 import { stripeClient } from '@/lib/stripe';
 import { requireSession } from '@/middleware/authenticate';
 import { sendSubscriptionUpgradedPremiumEmail } from '@/modules/notifications/service';
+import { subscription } from '@trylinky/db/schema';
+import { eq } from 'drizzle-orm';
 import type { Context } from 'hono';
 import safeAwait from 'safe-await';
 
@@ -10,13 +12,9 @@ export async function upgradeTrialHandler(c: Context<AppBindings>) {
   const session = requireSession(c);
 
   const [currentUserError, currentUser] = await safeAwait(
-    prisma.user.findUnique({
-      where: {
-        id: session.user.id,
-      },
-      select: {
-        email: true,
-      },
+    db.query.user.findFirst({
+      where: (u, { eq }) => eq(u.id, session.user.id),
+      columns: { email: true },
     })
   );
 
@@ -24,39 +22,35 @@ export async function upgradeTrialHandler(c: Context<AppBindings>) {
     return c.json({ error: 'Failed to get current user' }, 400);
   }
 
-  const subscription = await prisma.subscription.findFirst({
-    where: {
-      referenceId: session.activeOrganizationId,
-    },
+  const current = await db.query.subscription.findFirst({
+    where: (s, { eq }) => eq(s.referenceId, session.activeOrganizationId),
   });
 
-  if (!subscription || !subscription.stripeSubscriptionId) {
+  if (!current || !current.stripeSubscriptionId) {
     return c.json({ error: 'No subscription found' }, 404);
   }
 
-  if (subscription.status !== 'trialing') {
+  if (current.status !== 'trialing') {
     return c.json({ error: 'Subscription is not currently trialing' }, 400);
   }
 
   try {
     const updatedSubscription = await stripeClient.subscriptions.update(
-      subscription.stripeSubscriptionId,
+      current.stripeSubscriptionId,
       {
         trial_end: 'now',
       }
     );
 
     if (updatedSubscription.status === 'active') {
-      await prisma.subscription.update({
-        where: {
-          id: subscription.id,
-        },
-        data: {
+      await db
+        .update(subscription)
+        .set({
           status: 'active',
           trialStart: null,
           trialEnd: null,
-        },
-      });
+        })
+        .where(eq(subscription.id, current.id));
 
       if (currentUser.email) {
         await sendSubscriptionUpgradedPremiumEmail({

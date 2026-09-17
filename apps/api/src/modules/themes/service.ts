@@ -1,4 +1,4 @@
-import prisma from '@/lib/prisma';
+import db from '@/lib/db';
 
 const themeFields = {
   id: true,
@@ -15,22 +15,17 @@ const themeFields = {
   colorLabelTertiary: true,
   colorTitlePrimary: true,
   colorTitleSecondary: true,
-};
+} as const;
 
 export async function getThemesForOrganization(orgId: string) {
-  const themes = await prisma.theme.findMany({
-    where: {
-      organizationId: orgId,
-      isDefault: false,
-    },
-    select: themeFields,
+  const themes = await db.query.theme.findMany({
+    where: (t, { and, eq }) => and(eq(t.organizationId, orgId), eq(t.isDefault, false)),
+    columns: themeFields,
   });
 
-  const defaultThemes = await prisma.theme.findMany({
-    where: {
-      isDefault: true,
-    },
-    select: themeFields,
+  const defaultThemes = await db.query.theme.findMany({
+    where: (t, { eq }) => eq(t.isDefault, true),
+    columns: themeFields,
   });
 
   return [...defaultThemes, ...themes];

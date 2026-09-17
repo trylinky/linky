@@ -1,5 +1,5 @@
 import type { AppBindings } from '@/env';
-import prisma from '@/lib/prisma';
+import db from '@/lib/db';
 import { stripeClient } from '@/lib/stripe';
 import { requireSession } from '@/middleware/authenticate';
 import { canManageBilling } from '@/modules/organizations/utils';
@@ -44,18 +44,16 @@ export async function getBillingPortalUrlHandler(c: Context<AppBindings>) {
     );
   }
 
-  const subscription = await prisma.subscription.findFirst({
-    where: {
-      referenceId: session.activeOrganizationId,
-    },
+  const current = await db.query.subscription.findFirst({
+    where: (s, { eq }) => eq(s.referenceId, session.activeOrganizationId),
   });
 
-  if (!subscription) {
+  if (!current) {
     return c.json({ error: 'No subscription found' }, 404);
   }
 
   const customer = await stripeClient.customers.retrieve(
-    subscription.stripeCustomerId
+    current.stripeCustomerId
   );
 
   // No schema.body was ever registered for this route on Fastify, so this

@@ -1,4 +1,6 @@
-import prisma from '@/lib/prisma';
+import db from '@/lib/db';
+import { member, organization, user } from '@trylinky/db/schema';
+import { count, eq } from 'drizzle-orm';
 
 /**
  * Whether the organization has room for another member under its plan.
@@ -9,26 +11,22 @@ import prisma from '@/lib/prisma';
 export async function hasAvailableSeat(
   organizationId: string
 ): Promise<boolean> {
-  const organization = await prisma.organization.findUnique({
-    where: { id: organizationId },
-    select: {
-      subscription: {
-        select: {
-          seats: true,
-        },
-      },
-    },
+  const org = await db.query.organization.findFirst({
+    where: (o, { eq }) => eq(o.id, organizationId),
+    columns: { id: true },
+    with: { subscription: { columns: { seats: true } } },
   });
 
-  const seats = organization?.subscription?.seats;
+  const seats = org?.subscription?.seats;
 
   if (!seats) {
     return true;
   }
 
-  const memberCount = await prisma.member.count({
-    where: { organizationId },
-  });
+  const [{ count: memberCount }] = await db
+    .select({ count: count() })
+    .from(member)
+    .where(eq(member.organizationId, organizationId));
 
   return memberCount < seats;
 }
@@ -50,16 +48,30 @@ export async function canManageBilling(
     return false;
   }
 
-  const membership = await prisma.member.findFirst({
-    where: {
-      organizationId,
-      userId,
-      role: { in: BILLING_ROLES },
-    },
-    select: { id: true },
+  const membership = await db.query.member.findFirst({
+    where: (m, { and, eq, inArray }) =>
+      and(
+        eq(m.organizationId, organizationId),
+        eq(m.userId, userId),
+        inArray(m.role, BILLING_ROLES)
+      ),
+    columns: { id: true },
   });
 
-  return membership !== null;
+  return membership !== undefined;
+}
+
+/** Emails of every member of the organization, for billing notifications. */
+export async function getOrganizationMemberEmails(
+  organizationId: string
+): Promise<string[]> {
+  const rows = await db
+    .select({ email: user.email })
+    .from(member)
+    .innerJoin(user, eq(user.id, member.userId))
+    .where(eq(member.organizationId, organizationId));
+
+  return rows.map((row) => row.email).filter((email): email is string => Boolean(email));
 }
 
 /**
@@ -75,17 +87,19 @@ export async function createNewOrganization({
   const randomNumber = Math.floor(Math.random() * 1000000);
   const newOrgSlug = `${type}-${randomNumber}`;
 
-  return await prisma.organization.create({
-    data: {
-      name: type === 'personal' ? 'Personal' : 'My Team',
-      slug: newOrgSlug,
-      isPersonal: type === 'personal',
-      members: {
-        create: {
-          userId: ownerId,
-          role: 'owner',
-        },
-      },
-    },
+  // Organization and its owner membership land together or not at all.
+  return db.transaction(async (tx) => {
+    const [org] = await tx
+      .insert(organization)
+      .values({
+        name: type === 'personal' ? 'Personal' : 'My Team',
+        slug: newOrgSlug,
+        isPersonal: type === 'personal',
+      })
+      .returning();
+
+    await tx.insert(member).values({ userId: ownerId, organizationId: org.id, role: 'owner' });
+
+    return org;
   });
 }

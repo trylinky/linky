@@ -1,17 +1,17 @@
 import type { AppBindings } from '@/env';
+import db from '@/lib/db';
+import { userIsMemberOfOrg } from '@/lib/db-predicates';
 import { prices } from '@/lib/plans';
-import prisma from '@/lib/prisma';
 import { stripeClient } from '@/lib/stripe';
 import { requireSession } from '@/middleware/authenticate';
+import { subscription } from '@trylinky/db/schema';
 import type { Context } from 'hono';
 
 export async function upgradeToTeamHandler(c: Context<AppBindings>) {
   const session = requireSession(c);
 
-  const currentUser = await prisma.user.findUnique({
-    where: {
-      id: session.user.id,
-    },
+  const currentUser = await db.query.user.findFirst({
+    where: (u, { eq }) => eq(u.id, session.user.id),
   });
 
   if (!currentUser) {
@@ -30,26 +30,26 @@ export async function upgradeToTeamHandler(c: Context<AppBindings>) {
     throw Error('Error creating customer');
   }
 
-  const personalOrg = await prisma.organization.findFirst({
-    where: {
-      isPersonal: true,
-      members: {
-        some: {
-          userId: currentUser.id,
-        },
-      },
-      subscription: {
-        plan: {
-          in: ['premium', 'freeLegacy'],
-        },
-      },
-    },
-    select: {
-      subscription: {
-        select: {
-          id: true,
-        },
-      },
+  const personalOrg = await db.query.organization.findFirst({
+    where: (o, { and, eq, exists, inArray, sql }) =>
+      and(
+        eq(o.isPersonal, true),
+        userIsMemberOfOrg(o.id, currentUser.id),
+        exists(
+          db
+            .select({ one: sql`1` })
+            .from(subscription)
+            .where(
+              and(
+                eq(subscription.referenceId, o.id),
+                inArray(subscription.plan, ['premium', 'freeLegacy'])
+              )
+            )
+        )
+      ),
+    columns: { id: true },
+    with: {
+      subscription: { columns: { id: true } },
     },
   });
 

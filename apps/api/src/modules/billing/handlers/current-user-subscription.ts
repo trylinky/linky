@@ -1,6 +1,8 @@
 import type { AppBindings } from '@/env';
-import prisma from '@/lib/prisma';
+import db from '@/lib/db';
+import { userIsMemberOfOrg } from '@/lib/db-predicates';
 import { requireSession } from '@/middleware/authenticate';
+import { subscription } from '@trylinky/db/schema';
 import type { Context } from 'hono';
 
 export async function getCurrentUserSubscriptionHandler(
@@ -8,24 +10,27 @@ export async function getCurrentUserSubscriptionHandler(
 ) {
   const session = requireSession(c);
 
-  const usersOrganizations = await prisma.organization.findMany({
-    where: {
-      members: {
-        some: {
-          userId: session.user.id,
-        },
-      },
-      subscription: {
-        status: {
-          in: ['active', 'trialing'],
-        },
-      },
-    },
-    select: {
+  const usersOrganizations = await db.query.organization.findMany({
+    where: (o, { and, eq, exists, inArray, sql }) =>
+      and(
+        userIsMemberOfOrg(o.id, session.user.id),
+        exists(
+          db
+            .select({ one: sql`1` })
+            .from(subscription)
+            .where(
+              and(
+                eq(subscription.referenceId, o.id),
+                inArray(subscription.status, ['active', 'trialing'])
+              )
+            )
+        )
+      ),
+    columns: {
       isPersonal: true,
       id: true,
-      subscription: true,
     },
+    with: { subscription: true },
   });
 
   const currentOrganization = usersOrganizations.find(

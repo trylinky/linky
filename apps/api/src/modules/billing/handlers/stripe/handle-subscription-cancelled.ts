@@ -1,4 +1,6 @@
-import prisma from '@/lib/prisma';
+import db from '@/lib/db';
+import { subscription } from '@trylinky/db/schema';
+import { eq } from 'drizzle-orm';
 import { captureMessage } from '@sentry/cloudflare';
 import Stripe from 'stripe';
 
@@ -7,30 +9,24 @@ import Stripe from 'stripe';
  * subscription is still active until period end)
  */
 export async function handleSubscriptionCancelled(event: Stripe.Event) {
-  const subscription = event.data.object as Stripe.Subscription;
+  const stripeSubscription = event.data.object as Stripe.Subscription;
 
-  const dbSubscription = await prisma.subscription.findFirst({
-    where: {
-      stripeSubscriptionId: subscription.id,
-    },
+  const current = await db.query.subscription.findFirst({
+    where: (s, { eq }) => eq(s.stripeSubscriptionId, stripeSubscription.id),
   });
 
-  if (!dbSubscription) {
+  if (!current) {
     captureMessage(
-      `Subscription cancelled but not found in database: ${subscription.id}`
+      `Subscription cancelled but not found in database: ${stripeSubscription.id}`
     );
     return;
   }
 
   // Update the subscription to reflect cancellation at period end
-  await prisma.subscription.update({
-    where: {
-      id: dbSubscription.id,
-    },
-    data: {
-      cancelAtPeriodEnd: true,
-    },
-  });
+  await db
+    .update(subscription)
+    .set({ cancelAtPeriodEnd: true })
+    .where(eq(subscription.id, current.id));
 
   return {
     success: true,
