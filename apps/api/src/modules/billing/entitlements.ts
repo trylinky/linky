@@ -1,6 +1,8 @@
 import db from '@/lib/db';
 import { isAdminUser } from '@/lib/roles';
 import type { Entitlements, Tier } from '@trylinky/common/billing';
+import { member, subscription } from '@trylinky/db/schema';
+import { and, eq, inArray } from 'drizzle-orm';
 
 export type SubscriptionLike = {
   plan: string;
@@ -95,5 +97,40 @@ export async function getEntitlementsForOrganization(
       : Promise.resolve(null),
   ]);
 
-  return resolveEntitlements(sub ?? null, { isAdmin: isAdminUser(dbUser) });
+  const isAdmin = isAdminUser(dbUser);
+  const entitlements = resolveEntitlements(sub ?? null, { isAdmin });
+
+  if (entitlements.tier !== 'free' || !userId) {
+    return entitlements;
+  }
+
+  // Premium via team membership; mirrors current-user-subscription's
+  // isTeamPremium. A member of a Team organisation is told everywhere else
+  // that they are premium, so their other organisations must be entitled
+  // too — otherwise the flag flip locks Team customers out of their own
+  // personal pages.
+  const teamMembership = await db
+    .select({ id: member.id })
+    .from(member)
+    .innerJoin(
+      subscription,
+      eq(subscription.referenceId, member.organizationId)
+    )
+    .where(
+      and(
+        eq(member.userId, userId),
+        eq(subscription.plan, 'team'),
+        inArray(subscription.status, [...ENTITLED_STATUSES])
+      )
+    )
+    .limit(1);
+
+  if (teamMembership.length === 0) {
+    return entitlements;
+  }
+
+  return resolveEntitlements(
+    { plan: 'premium', status: 'active', trialEnd: null },
+    { isAdmin }
+  );
 }
