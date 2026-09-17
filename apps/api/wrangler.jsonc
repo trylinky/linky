@@ -4,6 +4,11 @@
   // No workers.dev URL and no route yet: the Worker is unreachable until the
   // cutover adds the api.lin.ky route. Secrets and vars can still be loaded.
   "workers_dev": false,
+  // api.lin.ky is a Workers Custom Domain (Cloudflare provisions the DNS
+  // record and certificate). It was first attached in the dashboard at the
+  // 2026-09-17 cutover; declaring it here makes this file the source of truth
+  // so a deploy can never silently drop it.
+  "routes": [{ "pattern": "api.lin.ky", "custom_domain": true }],
   // 20 non-secret values (client IDs, callback URLs, region, DSNs) were
   // entered as plain-text variables in the dashboard on 2026-09-16. Without
   // this flag wrangler treats `vars` below as the whole truth and deletes
@@ -22,7 +27,15 @@
     "NEXT_PUBLIC_BASE_URL": "https://lin.ky",
   },
   "hyperdrive": [
-    { "binding": "HYPERDRIVE", "id": "962b7339d781499985faa016771f2c6a" },
+    {
+      "binding": "HYPERDRIVE",
+      "id": "962b7339d781499985faa016771f2c6a",
+      // `wrangler dev` only; ignored on deploy. These are the docker-compose
+      // credentials from the repo root, not a secret. Wrangler refuses to
+      // start without a local connection string for a Hyperdrive binding, and
+      // it does not read this from .dev.vars.
+      "localConnectionString": "postgresql://glow_user:KGfUZosCOm@localhost:5432/glow_development",
+    },
   ],
   // Cloudflare's native Rate Limiting binding, not KV: KV enforces a 60s
   // minimum expirationTtl, which is incompatible with better-auth's 10s

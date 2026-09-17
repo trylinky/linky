@@ -41,16 +41,24 @@ harder.
 - **Lint is enforced.** `@typescript-eslint/no-unused-vars` is an error. If a
   binding is deliberately unused — a key destructured only to keep it out of a
   rest object, say — prefix it with `_`.
-- **Don't weaken the types.** `apps/api/types/auth.d.ts` describes the
-  `authenticate` decorator. It once referenced types it never imported, which
+- **Don't weaken the types.** The session a route handler sees comes from
+  `apps/api/src/middleware/authenticate.ts` via Hono's typed `Variables`. A
+  previous version of this typing referenced types it never imported, which
   `skipLibCheck` quietly turned into `any` and disabled type checking on
   `session` in every route handler. If you change it, check with
   `tsc --noEmit --skipLibCheck false` and confirm nothing in `src/` or `types/`
   errors.
-- **The API bundle inlines `process.env` at build time.** Avoid branching on
-  `NODE_ENV` in `apps/api` — the value gets baked in at build and can be wrong
-  at runtime. Key behaviour off an explicit variable instead. There are
-  comments marking the places this has already bitten.
+- **The API is a Cloudflare Worker.** `apps/api` runs on workerd via Hono, so
+  Node-only APIs and modules are not available; `nodejs_compat` covers
+  `Buffer`, `process.env`, `AsyncLocalStorage` and friends, not `sharp`,
+  `http` or the AWS SDK. Configuration is read from `process.env` at request
+  time (Wrangler populates it from `vars` and secrets), with one exception:
+  Wrangler defines `NODE_ENV` at build time, so avoid branching on it. Clients
+  that hold a socket (Prisma, better-auth) are constructed per request, see
+  `apps/api/src/lib/prisma.ts`; anything else must be constructed lazily,
+  never at module scope, because Cloudflare executes the top level when it
+  validates an upload, before any secret exists (`apps/api/src/lib/stripe.ts`
+  shows the pattern).
 - **CORS is deliberate.** Only first-party origins get credentialed requests.
   Published pages run on user custom domains and may only call session-free
   endpoints. See `apps/api/src/lib/origins.ts` before changing it.

@@ -1,5 +1,12 @@
 # API cutover runbook: Render + Fastify → Cloudflare Workers + Hono
 
+> **Done — 2026-09-17.** `api.lin.ky` is served by the Worker `linky-api-production`
+> through a Workers Custom Domain, and the `lin.ky` zone lives on Cloudflare. The
+> cutover happened at the nameserver switch rather than by adding a route, so
+> Steps 1–3 and 5 were not followed as written (see Prerequisites below). The
+> remaining live items are Step 7's decommission list: delete the Render service
+> once the Worker has run clean for about a week. Kept for the record.
+
 This is the hand-run runbook for Task 18 of `docs/superpowers/plans/2026-08-04-api-cloudflare-hono-migration.md`
 (brief: `.superpowers/sdd/2026-08-04-api-cloudflare-hono-migration/task-18-brief.md`). Everything
 in this document reaches outside the repo — Cloudflare DNS, Stripe, three OAuth consoles, Render —
