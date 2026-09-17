@@ -2,6 +2,7 @@ import type { AppBindings } from '@/env';
 import { getBillingPortalUrlHandler } from '@/modules/billing/handlers/billing-portal-url';
 import { cancelSubscriptionHandler } from '@/modules/billing/handlers/cancel-subscription';
 import { getCurrentUserSubscriptionHandler } from '@/modules/billing/handlers/current-user-subscription';
+import { getEntitlementsHandler } from '@/modules/billing/handlers/entitlements';
 import { stripeWebhookHandler } from '@/modules/billing/handlers/stripe';
 import { getUpgradeEligibilityHandler } from '@/modules/billing/handlers/upgrade-eligibility';
 import { upgradeToPremiumHandler } from '@/modules/billing/handlers/upgrade-to-premium';
@@ -14,6 +15,8 @@ const billingRoutes = new Hono<AppBindings>();
 billingRoutes.post('/stripe-webhook', stripeWebhookHandler);
 
 billingRoutes.get('/subscription/me', getCurrentUserSubscriptionHandler);
+
+billingRoutes.get('/entitlements', getEntitlementsHandler);
 
 billingRoutes.get('/upgrade-eligibility', getUpgradeEligibilityHandler);
 
