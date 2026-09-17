@@ -1,8 +1,6 @@
-export const plansToNames: Record<string, string> = {
-  legacyFree: 'Free',
-  premium: 'Premium',
-  team: 'Team',
-};
+import { plansToNames } from '@trylinky/common';
+
+export { plansToNames };
 
 export const getNextPlan = (planId?: string | null) => {
   if (!planId) {
@@ -10,7 +8,7 @@ export const getNextPlan = (planId?: string | null) => {
   }
 
   switch (planId) {
-    case 'legacyFree':
+    case 'freeLegacy':
       return 'premium';
     case 'premium':
       return 'team';

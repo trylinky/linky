@@ -5,3 +5,4 @@ export * from './api/internal-api';
 export * from './billing/pricing-table';
 export * from './api/fetch';
 export * from './api/internal-api';
+export * from './billing/plans';
