@@ -63,7 +63,7 @@ describe('GET /pages/:pageId/internal/load isPaid', () => {
   it('is true for a past_due premium subscription (Stripe still retrying)', async () => {
     vi.stubEnv('INTERNAL_API_KEY', API_KEY);
 
-    const body = await (await load()).json();
+    const body = (await (await load()).json()) as Record<string, any>;
 
     expect(body.isPaid).toBe(true);
   });
@@ -75,7 +75,7 @@ describe('GET /pages/:pageId/internal/load isPaid', () => {
       .set({ status: 'canceled' })
       .where(eq(subscription.id, subscriptionId));
 
-    const body = await (await load()).json();
+    const body = (await (await load()).json()) as Record<string, any>;
 
     expect(body.isPaid).toBe(false);
   });

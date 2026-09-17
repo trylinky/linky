@@ -75,7 +75,7 @@ describe('GET /billing/entitlements', () => {
     );
 
     expect(response.status).toBe(200);
-    const body = await response.json();
+    const body = (await response.json()) as Record<string, any>;
     expect(body.tier).toBe('premium');
     expect(body.trial.active).toBe(true);
     expect(body.trial.daysLeft).toBe(5);

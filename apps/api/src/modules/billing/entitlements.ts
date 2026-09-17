@@ -1,6 +1,6 @@
 import db from '@/lib/db';
 import { isAdminUser } from '@/lib/roles';
-import type { Entitlements, Tier } from '@trylinky/common';
+import type { Entitlements, Tier } from '@trylinky/common/billing';
 
 export type SubscriptionLike = {
   plan: string;

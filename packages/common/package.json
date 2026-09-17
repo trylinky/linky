@@ -33,6 +33,10 @@
     "./slugs": {
       "types": "./src/slugs/index.ts",
       "default": "./src/slugs/index.ts"
+    },
+    "./billing": {
+      "types": "./src/billing/plans.ts",
+      "default": "./src/billing/plans.ts"
     }
   }
 }
