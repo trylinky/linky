@@ -1,5 +1,7 @@
 import { RenderPageTheme } from '@/app/[domain]/[slug]/render-page-theme';
+import { FreeDowngradeDialog } from '@/app/components/FreeDowngradeDialog';
 import { LinkyProviders } from '@/app/components/LinkyProviders';
+import { TrialBanner } from '@/app/components/TrialBanner';
 import { UpgradeDialogProvider } from '@/app/components/UpgradeDialog';
 import { EditModeContextProvider } from '@/app/contexts/Edit';
 import { EditorMobileSidebar } from '@/app/e/[slug]/editor-mobile-sidebar';
@@ -83,6 +85,8 @@ export default async function EditorLayout(props: {
       <UpgradeDialogProvider>
         <EditModeContextProvider>
           <RenderPageTheme pageId={page.id} />
+          <FreeDowngradeDialog />
+          <TrialBanner />
           <Catalyst.StackedLayout
             navbar={<EditorNavbar slug={slug} />}
             sidebar={<EditorMobileSidebar slug={slug} />}
