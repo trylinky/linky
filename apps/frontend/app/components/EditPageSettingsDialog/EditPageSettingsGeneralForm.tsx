@@ -197,12 +197,12 @@ export function EditPageSettingsGeneral({ initialValues, pageId }: Props) {
                       <Catalyst.Description>
                         Disabling this will turn your page into a draft and only
                         you will be able to see it.
+                        {!canUnpublish && (
+                          <span className="ml-2 inline-flex items-center rounded-full bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-700">
+                            Premium
+                          </span>
+                        )}
                       </Catalyst.Description>
-                      {!canUnpublish && (
-                        <span className="mt-1 inline-flex items-center rounded-full bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-700">
-                          Premium
-                        </span>
-                      )}
                       <Catalyst.Switch
                         name="published"
                         checked={values.published}

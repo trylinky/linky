@@ -21,6 +21,7 @@ import { useEntitlements } from '@/lib/hooks/use-entitlements';
 import { LockClosedIcon } from '@heroicons/react/24/outline';
 import { Blocks } from '@trylinky/blocks';
 import { internalApiFetcher } from '@trylinky/common';
+import { cn } from '@trylinky/ui';
 import Image from 'next/image';
 import useSWR, { useSWRConfig } from 'swr';
 
@@ -266,7 +267,10 @@ export function DraggableBlockButton({ type }: Props) {
       <button
         id="hello"
         type="button"
-        className="hidden md:flex w-full bg-[var(--glass-card)] backdrop-blur-sm rounded-md shadow-[0_0_0_1px_#2000241c,0_2px_2px_#2000240d] hover:shadow-[0_0_0_1px_#2000241c,0_10px_20px_-8px_#0000001f] dark:shadow-[0_0_0_1px_#ffffff1f,0_2px_2px_#00000040] dark:hover:shadow-[0_0_0_1px_#ffffff2e,0_10px_20px_-8px_#00000066] items-center justify-start text-left px-3 py-3 hover:translate-y-[-2px] transition-[box-shadow,transform] cursor-move"
+        className={cn(
+          'hidden md:flex w-full bg-[var(--glass-card)] backdrop-blur-sm rounded-md shadow-[0_0_0_1px_#2000241c,0_2px_2px_#2000240d] hover:shadow-[0_0_0_1px_#2000241c,0_10px_20px_-8px_#0000001f] dark:shadow-[0_0_0_1px_#ffffff1f,0_2px_2px_#00000040] dark:hover:shadow-[0_0_0_1px_#ffffff2e,0_10px_20px_-8px_#00000066] items-center justify-start text-left px-3 py-3 hover:translate-y-[-2px] transition-[box-shadow,transform]',
+          atLimit ? 'cursor-not-allowed' : 'cursor-move'
+        )}
         draggable={!atLimit}
         unselectable="on"
         onClick={() => {
