@@ -15,7 +15,9 @@ import {
   pageIdCacheTag,
   revalidatePageCache,
 } from '@/lib/revalidate';
+import { upgradeRequired } from '@/lib/upgrade-required';
 import { optionalSession, requireSession } from '@/middleware/authenticate';
+import { getEntitlementsForOrganization } from '@/modules/billing/entitlements';
 import { tbValidator } from '@hono/typebox-validator';
 import { blocks } from '@trylinky/blocks';
 import type { Context } from 'hono';
@@ -114,16 +116,17 @@ const postCreateBlockHandlers = addBlockFactory.createHandlers(
       return c.json({ error: { message: 'Page not found' } }, 400);
     }
 
-    const maxNumberOfBlocks = 100;
-    if (target.blocks.length >= maxNumberOfBlocks) {
-      return c.json(
-        {
-          error: {
-            message: 'You have reached the maximum number of blocks per page',
-          },
-        },
-        400
-      );
+    const entitlements = await getEntitlementsForOrganization(
+      session.activeOrganizationId,
+      session.user.id
+    );
+
+    if (target.blocks.length >= entitlements.limits.blocksPerPage) {
+      return upgradeRequired(c, 'blocks', {
+        organizationId: session.activeOrganizationId,
+        userId: session.user.id,
+        tier: entitlements.tier,
+      });
     }
 
     const newBlock = await createBlock(block, pageSlug);

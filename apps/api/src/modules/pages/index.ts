@@ -19,9 +19,10 @@ import {
   pageSlugCacheTag,
   revalidatePageCache,
 } from '@/lib/revalidate';
-import { isAdminUser } from '@/lib/roles';
+import { upgradeRequired } from '@/lib/upgrade-required';
 import { optionalSession, requireSession } from '@/middleware/authenticate';
 import { requireApiKey } from '@/middleware/authenticate-api-key';
+import { getEntitlementsForOrganization } from '@/modules/billing/entitlements';
 import { getPageLoadHandler } from '@/modules/pages/handlers/get-page-load';
 import { getPageBySlugOrDomainHandlers } from '@/modules/pages/handlers/get-page-slug-or-domain';
 import { getSlugAvailabilityHandlers } from '@/modules/pages/handlers/get-slug-availability';
@@ -107,25 +108,17 @@ const createPageHandlers = createPageFactory.createHandlers(
         )
       );
 
-    const maxNumberOfPages = 100;
+    const entitlements = await getEntitlementsForOrganization(
+      session.activeOrganizationId,
+      session.user.id
+    );
 
-    if (teamPageCount >= maxNumberOfPages) {
-      const dbUser = await db.query.user.findFirst({
-        where: (u, { eq }) => eq(u.id, session.user.id),
-        columns: { role: true },
+    if (teamPageCount >= entitlements.limits.pages) {
+      return upgradeRequired(c, 'pages', {
+        organizationId: session.activeOrganizationId,
+        userId: session.user.id,
+        tier: entitlements.tier,
       });
-
-      if (!isAdminUser(dbUser)) {
-        return c.json(
-          {
-            error: {
-              message: 'You have reached the maximum number of pages',
-              label: 'Please upgrade your plan to create more pages',
-            },
-          },
-          400
-        );
-      }
     }
 
     try {
