@@ -1,5 +1,6 @@
 import { RenderPageTheme } from '@/app/[domain]/[slug]/render-page-theme';
 import { LinkyProviders } from '@/app/components/LinkyProviders';
+import { UpgradeDialogProvider } from '@/app/components/UpgradeDialog';
 import { EditModeContextProvider } from '@/app/contexts/Edit';
 import { EditorMobileSidebar } from '@/app/e/[slug]/editor-mobile-sidebar';
 import { EditorNavbar } from '@/app/e/[slug]/editor-navbar';
@@ -79,15 +80,17 @@ export default async function EditorLayout(props: {
       pageId={page.id}
       value={{ fallback: initialData }}
     >
-      <EditModeContextProvider>
-        <RenderPageTheme pageId={page.id} />
-        <Catalyst.StackedLayout
-          navbar={<EditorNavbar slug={slug} />}
-          sidebar={<EditorMobileSidebar slug={slug} />}
-        >
-          {props.children}
-        </Catalyst.StackedLayout>
-      </EditModeContextProvider>
+      <UpgradeDialogProvider>
+        <EditModeContextProvider>
+          <RenderPageTheme pageId={page.id} />
+          <Catalyst.StackedLayout
+            navbar={<EditorNavbar slug={slug} />}
+            sidebar={<EditorMobileSidebar slug={slug} />}
+          >
+            {props.children}
+          </Catalyst.StackedLayout>
+        </EditModeContextProvider>
+      </UpgradeDialogProvider>
     </LinkyProviders>
   );
 }
