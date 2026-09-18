@@ -1,50 +1,9 @@
 'use client';
 
 import { useActiveHeading } from '@/app/blog/[blogPostSlug]/rich-text-hooks';
-import slugify from '@sindresorhus/slugify';
 import { cn } from '@trylinky/ui';
 import Link from 'next/link';
-import { JSX, ReactNode } from 'react';
-
-type HeadingProps = {
-  as: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
-  children: any;
-};
-
-export function Heading({ as, children }: HeadingProps) {
-  const Component = `${as}` as keyof JSX.IntrinsicElements;
-
-  console.log('Child', children);
-
-  let title = '';
-
-  if (Array.isArray(children)) {
-    title = children
-      .map((child: any) => {
-        if (typeof child === 'string') {
-          return child;
-        }
-
-        if (child?.props?.children) {
-          return child.props.children;
-        }
-
-        return '';
-      })
-      .join('')
-      .trim();
-  } else {
-    title = children?.props?.children;
-  }
-
-  const slug = slugify(title);
-
-  return (
-    <Component id={slug} className="toc-anchor">
-      {children}
-    </Component>
-  );
-}
+import { ReactNode } from 'react';
 
 type LabelProps = {
   children: ReactNode;

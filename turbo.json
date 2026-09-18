@@ -60,9 +60,14 @@
         "NEXT_PUBLIC_APP_URL",
         "NEXT_PUBLIC_BASE_URL",
         "NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION",
-        "HYGRAPH_TOKEN",
-        "HYGRAPH_ENDPOINT"
+        "BLOG_CONTENT_DIR",
+        "BLOG_CONTENT_REPO",
+        "BLOG_CONTENT_TOKEN",
+        "VERCEL_ENV"
       ],
+      // Blog posts are cloned from a separate repo during the build, so turbo
+      // can't tell when they change. Always rebuild.
+      "cache": false,
       "inputs": ["$TURBO_DEFAULT$", ".env"],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },

@@ -1,21 +1,20 @@
 import { MarketingContainer } from '@/components/marketing-container';
 import { MinimalHubHero } from '@/components/pseo/minimal-hub';
-import { authors } from '@/lib/cms/authors';
-import { getBlogPosts } from '@/lib/cms/get-blog-posts';
+import { authors } from '@/lib/blog/authors';
+import { getBlogPosts } from '@/lib/blog/posts';
 import { Button } from '@trylinky/ui';
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
 export const metadata: Metadata = {
   title: 'Blog | Linky',
 };
 
-export const revalidate = 300;
-
 export default async function ArticlesLandingPage() {
   const blogPosts = await getBlogPosts();
-  if (!blogPosts.length) return null;
+  if (!blogPosts.length) notFound();
 
   const [featuredPost, ...otherPosts] = blogPosts;
   const featuredAuthor = authors.find(
@@ -40,12 +39,13 @@ export default async function ArticlesLandingPage() {
           </p>
           <div className="flex flex-col items-stretch gap-0 overflow-hidden rounded-3xl bg-white ring-1 ring-zinc-950/5 md:flex-row md:gap-8 md:p-8">
             <div className="relative flex min-h-[280px] w-full shrink-0 items-center justify-center overflow-hidden rounded-xl bg-zinc-100 md:w-1/2">
-              {featuredPost.featuredImage?.url && (
+              {featuredPost.featuredImage && (
                 <Image
-                  src={featuredPost.featuredImage.url}
+                  src={featuredPost.featuredImage}
                   alt={featuredPost.title}
                   className="absolute left-0 top-0 w-full object-cover object-center"
                   fill
+                  sizes="(min-width: 768px) 50vw, 100vw"
                   priority
                 />
               )}
@@ -63,13 +63,13 @@ export default async function ArticlesLandingPage() {
                 <span className="text-zinc-300">·</span>
                 <time
                   className="text-zinc-500"
-                  dateTime={featuredPost.displayedPublishedAt}
+                  dateTime={featuredPost.publishedAt}
                 >
                   {Intl.DateTimeFormat('en-US', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
-                  }).format(new Date(featuredPost.displayedPublishedAt))}
+                  }).format(new Date(featuredPost.publishedAt))}
                 </time>
               </div>
               <p className="mb-5 max-w-2xl text-base text-zinc-500 md:text-lg">
@@ -105,13 +105,14 @@ export default async function ArticlesLandingPage() {
                   href={`/i/blog/${post.slug}`}
                   className="flex h-full flex-col rounded-2xl bg-white p-5 ring-1 ring-zinc-950/5 transition-shadow hover:shadow-sm"
                 >
-                  {post.featuredImage?.url && (
+                  {post.featuredImage && (
                     <div className="relative mb-4 h-48 w-full overflow-hidden rounded-xl bg-zinc-100">
                       <Image
-                        src={post.featuredImage.url}
+                        src={post.featuredImage}
                         alt={post.title}
                         className="object-cover"
                         fill
+                        sizes="(min-width: 1024px) 320px, (min-width: 640px) 50vw, 100vw"
                       />
                     </div>
                   )}
@@ -122,13 +123,13 @@ export default async function ArticlesLandingPage() {
                     <span className="font-medium text-zinc-700">
                       {author?.name}
                     </span>{' '}
-                    <time dateTime={post.displayedPublishedAt}>
+                    <time dateTime={post.publishedAt}>
                       on{' '}
                       {Intl.DateTimeFormat('en-US', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
-                      }).format(new Date(post.displayedPublishedAt))}
+                      }).format(new Date(post.publishedAt))}
                     </time>
                   </div>
                   <p className="flex-1 text-sm leading-relaxed text-zinc-500">

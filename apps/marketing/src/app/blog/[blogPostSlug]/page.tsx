@@ -1,51 +1,24 @@
-import {
-  Heading,
-  TableOfContents,
-} from '@/app/blog/[blogPostSlug]/rich-text-components';
+import { PostContent } from '@/app/blog/[blogPostSlug]/post-content';
+import { TableOfContents } from '@/app/blog/[blogPostSlug]/rich-text-components';
 import { MarketingContainer } from '@/components/marketing-container';
 import { MinimalCta } from '@/components/pseo/pseo-minimal-cta';
-import { authors } from '@/lib/cms/authors';
-import { getBlogPost } from '@/lib/cms/get-blog-post-by-slug';
-import { getBlogPosts } from '@/lib/cms/get-blog-posts';
-import { RichText } from '@graphcms/rich-text-react-renderer';
-import { ElementNode } from '@graphcms/rich-text-types';
-import slugify from '@sindresorhus/slugify';
+import { authors } from '@/lib/blog/authors';
+import { getTableOfContents } from '@/lib/blog/markdown';
+import { getBlogPost, getBlogPosts } from '@/lib/blog/posts';
 import { buildBreadcrumbSchema, serializeJsonLd } from '@trylinky/seo';
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
-function buildTocFromRaw(raw: {
-  children: Array<ElementNode>;
-}): { level: number; title: string; id: string }[] {
-  const levels = {
-    'heading-one': 1,
-    'heading-two': 2,
-    'heading-three': 3,
-    'heading-four': 4,
-    'heading-five': 5,
-    'heading-six': 6,
-  };
+// Posts only change when the content repo is rebuilt, so every page is
+// generated at build time and unknown slugs 404.
+export const dynamicParams = false;
 
-  const toc = raw.children
-    .filter((child) => child.type.startsWith('heading-'))
-    .map((child) => {
-      const title = child.children
-        .map((child) => child.text)
-        .join('')
-        .trim();
-
-      return {
-        level: levels[child.type as keyof typeof levels],
-        title,
-        id: slugify(title),
-      };
-    });
-
-  return toc;
+export async function generateStaticParams() {
+  const posts = await getBlogPosts();
+  return posts.map((post) => ({ blogPostSlug: post.slug }));
 }
-
-export const revalidate = 300;
 
 export const generateMetadata = async ({
   params,
@@ -54,6 +27,7 @@ export const generateMetadata = async ({
 }): Promise<Metadata> => {
   const { blogPostSlug } = await params;
   const blogPost = await getBlogPost(blogPostSlug);
+  if (!blogPost) notFound();
 
   return {
     title: blogPost.title + ' | Linky - The delightful link in bio',
@@ -64,9 +38,9 @@ export const generateMetadata = async ({
       description: blogPost.description,
       images: [
         {
-          url: blogPost.featuredImage?.url ?? 'https://lin.ky/assets/og.png',
-          width: 1200,
-          height: 630,
+          url: blogPost.featuredImage
+            ? new URL(blogPost.featuredImage, 'https://lin.ky').toString()
+            : 'https://lin.ky/assets/og.png',
         },
       ],
     },
@@ -80,15 +54,15 @@ export default async function BlogPostPage({
 }) {
   const { blogPostSlug } = await params;
   const blogPost = await getBlogPost(blogPostSlug);
+  if (!blogPost) notFound();
+
   const author = authors.find((author) => author.id === blogPost.author);
   const allPosts = await getBlogPosts();
   const otherPosts = allPosts.filter((p) => p.slug !== blogPostSlug);
 
   const shuffled = [...otherPosts].sort(() => 0.5 - Math.random());
   const readMorePosts = shuffled.slice(0, 3);
-  const toc = buildTocFromRaw(
-    blogPost.content.raw as { children: Array<ElementNode> }
-  );
+  const toc = getTableOfContents(blogPost.content);
 
   const articleJsonLd = {
     '@context': 'https://schema.org',
@@ -107,8 +81,8 @@ export default async function BlogPostPage({
         url: 'https://lin.ky/assets/logo.png',
       },
     },
-    datePublished: blogPost.displayedPublishedAt,
-    dateModified: blogPost.displayedPublishedAt,
+    datePublished: blogPost.publishedAt,
+    dateModified: blogPost.publishedAt,
   };
 
   // Social share icons (black)
@@ -176,23 +150,23 @@ export default async function BlogPostPage({
                 </span>
                 <span className="text-zinc-300">·</span>
                 <time
-                  dateTime={blogPost.displayedPublishedAt}
+                  dateTime={blogPost.publishedAt}
                   className="text-sm text-zinc-500"
                 >
                   {Intl.DateTimeFormat('en-US', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
-                  }).format(new Date(blogPost.displayedPublishedAt))}
+                  }).format(new Date(blogPost.publishedAt))}
                 </time>
               </div>
               <p className="mt-2 mb-6 max-w-2xl text-center text-lg text-zinc-500">
                 {blogPost.description}
               </p>
-              {blogPost.featuredImage?.url && (
+              {blogPost.featuredImage && (
                 <div className="relative mb-2 aspect-2/1 w-full overflow-hidden rounded-2xl bg-zinc-100 ring-1 ring-zinc-950/5">
                   <Image
-                    src={blogPost.featuredImage.url}
+                    src={blogPost.featuredImage}
                     alt={blogPost.title}
                     width={800}
                     height={400}
@@ -232,49 +206,7 @@ export default async function BlogPostPage({
             <div className="flex flex-col lg:flex-row gap-8 mx-auto w-full justify-between">
               <div className="flex-1 min-w-0 max-w-3xl">
                 <div className="prose prose-lg prose-zinc max-w-3xl py-16 mx-auto">
-                  <RichText
-                    content={blogPost.content.raw}
-                    renderers={{
-                      h1: ({ children }) => (
-                        <Heading as="h1">{children}</Heading>
-                      ),
-                      h2: ({ children }) => (
-                        <Heading as="h2">{children}</Heading>
-                      ),
-                      h3: ({ children }) => (
-                        <Heading as="h3">{children}</Heading>
-                      ),
-                      h4: ({ children }) => (
-                        <Heading as="h4">{children}</Heading>
-                      ),
-                      h5: ({ children }) => (
-                        <Heading as="h5">{children}</Heading>
-                      ),
-                      h6: ({ children }) => (
-                        <Heading as="h6">{children}</Heading>
-                      ),
-                      a: ({ children, openInNewTab, href, rel, ...rest }) => {
-                        if (href?.match(/^https?:\/\/|^\/\//i)) {
-                          return (
-                            <a
-                              href={href}
-                              target={openInNewTab ? '_blank' : '_self'}
-                              rel={rel || 'noopener'}
-                              {...rest}
-                            >
-                              {children}
-                            </a>
-                          );
-                        }
-
-                        return (
-                          <Link href={href ?? ''}>
-                            <a {...rest}>{children}</a>
-                          </Link>
-                        );
-                      },
-                    }}
-                  />
+                  <PostContent content={blogPost.content} />
                 </div>
 
                 <div className="flex gap-2 justify-center mt-8 mb-8 lg:hidden">
@@ -338,12 +270,13 @@ export default async function BlogPostPage({
                 href={`/i/blog/${post.slug}`}
                 className="flex h-full flex-col rounded-2xl bg-white p-5 ring-1 ring-zinc-950/5 transition-shadow hover:shadow-sm"
               >
-                {post.featuredImage?.url && (
+                {post.featuredImage && (
                   <div className="relative mb-4 h-40 w-full overflow-hidden rounded-xl bg-zinc-100">
                     <Image
-                      src={post.featuredImage.url}
+                      src={post.featuredImage}
                       alt={post.title}
                       fill
+                      sizes="(min-width: 1024px) 320px, (min-width: 640px) 50vw, 100vw"
                       className="h-full w-full object-cover"
                     />
                   </div>

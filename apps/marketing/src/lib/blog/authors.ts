@@ -1,4 +1,4 @@
-import { Author } from '@/lib/cms/types';
+import { Author } from '@/lib/blog/types';
 
 export const authors: Author[] = [
   {

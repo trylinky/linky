@@ -3,7 +3,7 @@ import { alternatives } from '@/content/alternatives';
 import { integrations } from '@/content/integrations';
 import { niches } from '@/content/niches';
 import { templates } from '@/content/templates';
-import { getBlogPosts } from '@/lib/cms/get-blog-posts';
+import { getBlogPosts } from '@/lib/blog/posts';
 import { MetadataRoute } from 'next';
 
 const baseUrl = `https://lin.ky`;
@@ -118,10 +118,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
 const generateBlogSitemap = async (baseUrl: string) => {
   const blogPosts = await getBlogPosts();
+  if (!blogPosts.length) return [];
 
   const blogSitemap = blogPosts.map((post) => ({
     url: `${baseUrl}/i/blog/${post.slug}`,
-    lastModified: new Date(post.displayedPublishedAt),
+    lastModified: new Date(post.publishedAt),
     changeFrequency: 'monthly',
     priority: 0.5,
   }));

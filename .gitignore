@@ -55,4 +55,8 @@ docs/superpowers/baselines/
 .gstack/
 
 apps/api/.dev.vars
+
+# Blog content, synced from the private content repo
+apps/marketing/.blog-content
+apps/marketing/public/blog-assets
 .wrangler
