@@ -1,0 +1,570 @@
+/* ---------------------------------------------------------------------------
+   Blog — the Aside look: warm near-black ink, a soft purple wash behind the
+   page header, and cards lifted by a 1px ring plus a whisper of shadow rather
+   than a border. Everything is scoped to .blog so the rest of the marketing
+   site is untouched.
+--------------------------------------------------------------------------- */
+
+/* In the components layer so Tailwind utilities on the elements win. */
+@layer components {
+  .blog {
+    --ink: #1f1d1a;
+    --ink-soft: #57534c;
+    --ink-muted: #7d786f;
+    --ink-body: #2e2b27; /* article copy: close to ink so long reads have contrast */
+
+    --line: rgba(60, 45, 20, 0.14);
+    --line-strong: rgba(60, 45, 20, 0.24);
+    --line-soft: #e3dfe3;
+
+    --accent: #9672ff;
+    --accent-deep: #6336d6;
+    --tint: #f5f3ff;
+    --tint-strong: #ece6ff;
+    --wash: color-mix(in oklab, #f5f3ff 65%, transparent);
+    --wash-mid: color-mix(in oklab, #f5f3ff 25%, transparent);
+
+    --warn-bg: #fffbeb;
+    --warn-border: #fcd34d;
+    --warn-text: #78350f;
+
+    --focus: #3b82f6;
+    --card: #ffffff;
+    --shadow-card: 0 0 0 1px #2000241c, 0 2px 2px #2000240d;
+    --shadow-card-hover: 0 0 0 1px #2000242a, 0 6px 16px -4px #20002418;
+    --code-bg: #1c1b22;
+
+    --radius: 1rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+    --measure: 42rem;
+
+    position: relative;
+    isolation: isolate;
+    color: var(--ink);
+  }
+
+  .blog ::selection {
+    background: var(--tint-strong);
+    color: var(--ink);
+  }
+
+  /* purple tint at the top of the page, fading into the paper */
+  .blog-wash {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 28rem;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      var(--wash) 0%,
+      var(--wash-mid) 60%,
+      transparent 100%
+    );
+  }
+
+  .blog-wrap {
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-inline: clamp(1.25rem, 4vw, 2.5rem);
+    padding-top: clamp(7.5rem, 14vw, 9.5rem); /* clears the fixed navigation */
+  }
+
+  /* lines up with the navigation and the rest of the marketing site */
+  .blog-wrap-narrow {
+    max-width: 64rem;
+    padding-inline: 1rem;
+  }
+
+  /* uppercase label: section markers, card metadata */
+  .blog-eyebrow {
+    margin: 0;
+    font-size: 0.6875rem;
+    font-variation-settings: 'wght' 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  .blog-sep {
+    color: var(--line-strong);
+  }
+
+  .blog-desc {
+    max-width: 60ch;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    text-wrap: pretty;
+  }
+
+  .blog-surface {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+  }
+
+  a.blog-surface,
+  .blog-surface:has(a) {
+    transition: box-shadow 160ms ease;
+  }
+
+  a.blog-surface:hover,
+  .blog-surface:has(a):hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .blog-surface:has(a:focus-visible) {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  .blog-badge-warn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.125rem 0.5rem;
+    border: 1px solid var(--warn-border);
+    border-radius: 999px;
+    background: var(--warn-bg);
+    color: var(--warn-text);
+    font-size: 0.6875rem;
+    font-variation-settings: 'wght' 600;
+    letter-spacing: 0;
+    line-height: 1.5;
+    text-transform: none;
+  }
+
+  /* ---------------------------------------------------------------------------
+     Buttons — ink on paper, with a hairline inset highlight
+  --------------------------------------------------------------------------- */
+  .blog-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    height: 2.25rem;
+    padding: 0 0.875rem;
+    border-radius: var(--radius-lg);
+    font-size: 0.8125rem;
+    font-variation-settings: 'wght' 500;
+    line-height: 1;
+    white-space: nowrap;
+    text-decoration: none;
+    transition:
+      background-color 140ms ease,
+      box-shadow 140ms ease;
+  }
+
+  .blog-btn-primary {
+    background: var(--ink);
+    color: #fff;
+    font-variation-settings: 'wght' 600;
+    box-shadow:
+      inset 0 1px rgba(255, 255, 255, 0.15),
+      0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+
+  .blog-btn-primary:hover {
+    background: #36332f;
+  }
+
+  .blog-btn-secondary {
+    background: var(--card);
+    color: var(--ink);
+    box-shadow:
+      0 0 0 1px var(--line),
+      0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+
+  .blog-btn-secondary:hover {
+    box-shadow:
+      0 0 0 1px var(--line-strong),
+      0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+
+  .blog-btn-sm {
+    height: 1.875rem;
+    padding: 0 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  /* ---------------------------------------------------------------------------
+     Search field
+  --------------------------------------------------------------------------- */
+  .blog-field {
+    position: relative;
+    display: block;
+  }
+
+  .blog-field > svg {
+    pointer-events: none;
+    position: absolute;
+    top: 0.625rem;
+    left: 0.625rem;
+    width: 1rem;
+    height: 1rem;
+    color: var(--ink-muted);
+  }
+
+  .blog-field > input {
+    display: block;
+    width: 100%;
+    margin: 0;
+    appearance: none;
+    border: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+    border-radius: var(--radius-lg);
+    padding: calc(0.375rem - 1px) calc(0.75rem - 1px) calc(0.375rem - 1px) 2rem;
+    background: var(--card);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    color: var(--ink);
+    font-size: 0.875rem;
+    line-height: 1.5rem;
+    outline: none;
+    transition: border-color 140ms ease;
+  }
+
+  .blog-field > input:hover {
+    border-color: color-mix(in srgb, var(--ink) 20%, transparent);
+  }
+
+  .blog-field > input:focus {
+    border-color: var(--focus);
+    box-shadow: 0 0 0 1px var(--focus);
+  }
+
+  .blog-field > input::placeholder {
+    color: var(--ink-muted);
+  }
+
+  .blog-field > input::-webkit-search-decoration,
+  .blog-field > input::-webkit-search-cancel-button {
+    appearance: none;
+  }
+
+  /* ---------------------------------------------------------------------------
+     Article index table
+  --------------------------------------------------------------------------- */
+  .blog-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .blog-table th {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--line-soft);
+    text-align: left;
+    font-variation-settings: 'wght' 600;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  .blog-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--line-soft);
+    color: var(--ink-soft);
+    vertical-align: middle;
+  }
+
+  .blog-table th:first-child,
+  .blog-table td:first-child {
+    padding-left: 0;
+  }
+
+  .blog-table th:last-child,
+  .blog-table td:last-child {
+    padding-right: 0;
+  }
+
+  .blog-table .num {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .blog-table tbody tr {
+    /* containing block for the title link's stretched ::after */
+    position: relative;
+    transition: background-color 140ms ease;
+  }
+
+  .blog-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.7);
+  }
+
+  .blog-table tbody tr:has(a:focus-visible) {
+    outline: 2px solid var(--focus);
+    outline-offset: -2px;
+  }
+
+  .blog-table a:focus-visible {
+    outline: none;
+  }
+
+  .blog-empty {
+    padding: 4rem 1.5rem;
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--card);
+    text-align: center;
+  }
+
+  /* ---------------------------------------------------------------------------
+     Post page: a centred text column with an author rail on the left and the
+     adjacent posts on the right, once there is room for them.
+  --------------------------------------------------------------------------- */
+  .blog-post-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .blog-post-grid > article,
+  .blog-post-nav-bottom {
+    width: 100%;
+    max-width: var(--measure);
+    margin-inline: auto;
+    min-width: 0;
+  }
+
+  .blog-rail {
+    display: none;
+  }
+
+  .blog-post-nav-bottom {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  @media (min-width: 78rem) {
+    .blog-post-grid {
+      grid-template-columns: 1fr min(var(--measure), 100%) 1fr;
+      column-gap: clamp(2rem, 4vw, 4rem);
+    }
+
+    .blog-post-grid > article {
+      grid-column: 2;
+    }
+
+    .blog-rail {
+      display: flex;
+      padding-top: 2.6rem; /* aligns the rail tops with the title */
+    }
+
+    /* author and share buttons stay in view while reading */
+    .blog-rail-author {
+      grid-column: 1;
+      grid-row: 1;
+      flex-direction: column;
+      gap: 1.75rem;
+      position: sticky;
+      top: 6rem;
+      align-self: start;
+    }
+
+    .blog-rail-nav {
+      grid-column: 3;
+      grid-row: 1;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .blog-post-nav-bottom {
+      display: none;
+    }
+
+    /* The cover bleeds a little past the text column. The bleed grows with the
+       viewport from zero at the rail breakpoint, so it never eats the gap
+       between the article and the rails. */
+    .blog-cover {
+      --bleed: clamp(0rem, (100vw - 78rem) / 8, 3.5rem);
+      width: calc(100% + var(--bleed) * 2);
+      margin-inline: calc(var(--bleed) * -1);
+      max-width: none;
+    }
+  }
+
+  /* ---------------------------------------------------------------------------
+     Article typography
+  --------------------------------------------------------------------------- */
+  .blog-prose {
+    margin-top: 2.5rem;
+  }
+
+  .blog-prose p,
+  .blog-prose li {
+    font-size: 1.0625rem;
+    font-variation-settings: 'wght' 420;
+    line-height: 1.7;
+    color: var(--ink-body);
+    text-wrap: pretty;
+  }
+
+  .blog-prose p {
+    margin: 0 0 1.5rem;
+  }
+
+  .blog-prose ul,
+  .blog-prose ol {
+    margin: 0 0 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .blog-prose ul {
+    list-style: disc;
+  }
+
+  .blog-prose ol {
+    list-style: decimal;
+  }
+
+  .blog-prose li {
+    margin-bottom: 0.5rem;
+    padding-left: 0.25rem;
+  }
+
+  .blog-prose li::marker {
+    color: var(--ink-soft);
+  }
+
+  .blog-prose li > p {
+    margin-bottom: 0.5rem;
+  }
+
+  .blog-prose :is(h2, h3, h4, h5, h6) {
+    font-variation-settings: 'wght' 650;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    text-wrap: pretty;
+    scroll-margin-top: 6rem;
+  }
+
+  .blog-prose h2 {
+    margin: 3.5rem 0 1rem;
+    font-size: 1.875rem;
+    letter-spacing: -0.025em;
+  }
+
+  .blog-prose h3 {
+    margin: 2.75rem 0 0.85rem;
+    font-size: 1.4375rem;
+  }
+
+  .blog-prose h4 {
+    margin: 2.25rem 0 0.7rem;
+    font-size: 1.1875rem;
+    letter-spacing: -0.01em;
+  }
+
+  .blog-prose :is(h5, h6) {
+    margin: 1.75rem 0 0.6rem;
+    font-size: 1rem;
+    letter-spacing: 0;
+  }
+
+  /* a heading directly under another heading shouldn't double the gap */
+  .blog-prose :is(h2, h3, h4, h5, h6) + :is(h2, h3, h4, h5, h6) {
+    margin-top: 0.5rem;
+  }
+
+  .blog-prose strong {
+    font-variation-settings: 'wght' 650;
+    color: var(--ink);
+  }
+
+  .blog-prose a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+    text-decoration-color: color-mix(in srgb, var(--ink) 35%, transparent);
+  }
+
+  .blog-prose a:hover {
+    text-decoration-color: currentColor;
+  }
+
+  .blog-prose blockquote {
+    margin: 2rem 0;
+    padding-left: 1.25rem;
+    border-left: 3px solid var(--accent);
+    font-style: italic;
+    color: var(--ink-soft);
+  }
+
+  .blog-prose blockquote p {
+    color: inherit;
+  }
+
+  .blog-prose code {
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+      'Courier New', monospace;
+    font-size: 0.86em;
+  }
+
+  .blog-prose :not(pre) > code {
+    padding: 0.12em 0.4em;
+    border-radius: 0.375rem;
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
+    color: var(--ink);
+  }
+
+  .blog-prose pre {
+    margin: 2rem 0;
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--radius-xl);
+    background: var(--code-bg);
+    color: #e8e6f0;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    overflow-x: auto;
+  }
+
+  .blog-prose hr {
+    margin: 3rem 0;
+    border: 0;
+    border-top: 1px solid var(--line-soft);
+  }
+
+  .blog-prose img {
+    max-width: 100%;
+    height: auto;
+    margin: 2rem 0;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-card);
+  }
+
+  .blog-prose table {
+    width: 100%;
+    margin: 2rem 0;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .blog-prose th {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--line-soft);
+    text-align: left;
+    font-variation-settings: 'wght' 600;
+    color: var(--ink);
+  }
+
+  .blog-prose td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--line-soft);
+    color: var(--ink-soft);
+  }
+
+  .blog-prose :is(th, td):first-child {
+    padding-left: 0;
+  }
+
+  .blog-prose :is(th, td):last-child {
+    padding-right: 0;
+  }
+}

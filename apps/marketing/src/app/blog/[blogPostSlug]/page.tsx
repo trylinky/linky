@@ -1,10 +1,16 @@
+import '../blog.css';
 import { PostContent } from '@/app/blog/[blogPostSlug]/post-content';
-import { TableOfContents } from '@/app/blog/[blogPostSlug]/rich-text-components';
-import { MarketingContainer } from '@/components/marketing-container';
+import { PostCover } from '@/components/blog/post-cover';
+import { ShareButtons } from '@/components/blog/share-buttons';
 import { MinimalCta } from '@/components/pseo/pseo-minimal-cta';
 import { authors } from '@/lib/blog/authors';
-import { getTableOfContents } from '@/lib/blog/markdown';
-import { getBlogPost, getBlogPosts } from '@/lib/blog/posts';
+import {
+  formatPostDate,
+  getBlogPost,
+  getBlogPosts,
+  readingMinutes,
+} from '@/lib/blog/posts';
+import { Author, BlogPost } from '@/lib/blog/types';
 import { buildBreadcrumbSchema, serializeJsonLd } from '@trylinky/seo';
 import { Metadata } from 'next';
 import Image from 'next/image';
@@ -47,6 +53,101 @@ export const generateMetadata = async ({
   };
 };
 
+// "https://lin.ky/jack" -> "lin.ky/jack"
+const displayUrl = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '');
+
+function AuthorByline({ author }: { author?: Author }) {
+  if (!author) return null;
+
+  return (
+    <>
+      <Image
+        src={author.avatar}
+        alt=""
+        width={40}
+        height={40}
+        className="size-10 flex-none rounded-[0.625rem] object-cover shadow-[0_0_0_1px_var(--line)]"
+      />
+      <div>
+        <p className="leading-[1.35] font-semibold">{author.name}</p>
+        <p className="text-[13px] leading-[1.35] text-(--ink-soft)">
+          <a href={author.linkyLink} className="hover:text-(--ink)">
+            {displayUrl(author.linkyLink)}
+          </a>
+        </p>
+      </div>
+    </>
+  );
+}
+
+type Direction = 'next' | 'previous';
+
+// Posts are listed newest first, so the next (newer) post points up and the
+// previous (older) one points down.
+function AdjacentLabel({ direction }: { direction: Direction }) {
+  return (
+    <span className="blog-eyebrow flex items-center gap-1.5">
+      <svg
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+        className="size-3.5"
+      >
+        <path
+          d={
+            direction === 'next' ? 'M8 13V3M4 7l4-4 4 4' : 'M8 3v10M4 9l4 4 4-4'
+          }
+        />
+      </svg>
+      {direction === 'next' ? 'Next post' : 'Previous post'}
+    </span>
+  );
+}
+
+function AdjacentRailLink({
+  direction,
+  post,
+}: {
+  direction: Direction;
+  post: BlogPost;
+}) {
+  return (
+    <Link
+      href={`/i/blog/${post.slug}`}
+      className="group -mx-3 flex flex-col gap-1.5 rounded-xl px-3 py-2.5 transition-colors hover:bg-white/80"
+    >
+      <AdjacentLabel direction={direction} />
+      <span className="text-sm leading-[1.45] font-medium text-(--ink) group-hover:underline">
+        {post.title}
+      </span>
+    </Link>
+  );
+}
+
+function AdjacentPostCard({
+  direction,
+  post,
+}: {
+  direction: Direction;
+  post: BlogPost;
+}) {
+  return (
+    <Link
+      href={`/i/blog/${post.slug}`}
+      className="blog-surface flex flex-col gap-1.5 px-5 py-4"
+    >
+      <AdjacentLabel direction={direction} />
+      <span className="text-[15px] font-semibold text-(--ink)">
+        {post.title}
+      </span>
+    </Link>
+  );
+}
+
 export default async function BlogPostPage({
   params,
 }: {
@@ -57,17 +158,33 @@ export default async function BlogPostPage({
   if (!blogPost) notFound();
 
   const author = authors.find((author) => author.id === blogPost.author);
+
+  // Posts are sorted newest first.
   const allPosts = await getBlogPosts();
-  const otherPosts = allPosts.filter((p) => p.slug !== blogPostSlug);
+  const index = allPosts.findIndex((post) => post.slug === blogPost.slug);
+  const newer = allPosts[index - 1];
+  const older = allPosts[index + 1];
 
-  const shuffled = [...otherPosts].sort(() => 0.5 - Math.random());
-  const readMorePosts = shuffled.slice(0, 3);
-  const toc = getTableOfContents(blogPost.content);
+  const authorLinks = author
+    ? [
+        { label: displayUrl(author.linkyLink), href: author.linkyLink },
+        ...(author.link !== author.linkyLink
+          ? [{ label: displayUrl(author.link), href: author.link }]
+          : []),
+      ]
+    : [];
 
+  const postUrl = `https://lin.ky/i/blog/${blogPost.slug}`;
   const articleJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
     headline: blogPost.title,
+    description: blogPost.description,
+    url: postUrl,
+    mainEntityOfPage: postUrl,
+    ...(blogPost.featuredImage && {
+      image: new URL(blogPost.featuredImage, 'https://lin.ky').toString(),
+    }),
     author: {
       '@type': 'Person',
       name: author?.name,
@@ -85,217 +202,123 @@ export default async function BlogPostPage({
     dateModified: blogPost.publishedAt,
   };
 
-  // Social share icons (black)
-  const shareIcons = [
-    {
-      name: 'X / Twitter',
-      href: `https://twitter.com/intent/tweet?url=${encodeURIComponent(`https://lin.ky/i/blog/${blogPost.slug}`)}&text=${encodeURIComponent(blogPost.title)}`,
-      icon: 'https://cdn.lin.ky/default-data/icons/twitter-x.svg',
-    },
-    {
-      name: 'Facebook',
-      href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://lin.ky/i/blog/${blogPost.slug}`)}`,
-      icon: 'https://cdn.lin.ky/default-data/icons/facebook.svg',
-    },
-    {
-      name: 'LinkedIn',
-      href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://lin.ky/i/blog/${blogPost.slug}`)}`,
-      icon: 'https://cdn.lin.ky/default-data/icons/linkedin.svg',
-    },
-    {
-      name: 'Reddit',
-      href: `https://www.reddit.com/submit?url=${encodeURIComponent(`https://lin.ky/i/blog/${blogPost.slug}`)}&title=${encodeURIComponent(blogPost.title)}`,
-      icon: 'https://cdn.lin.ky/default-data/icons/reddit.svg',
-    },
-    {
-      name: 'WhatsApp',
-      href: `https://api.whatsapp.com/send?text=${encodeURIComponent(blogPost.title + ' https://lin.ky/i/blog/' + blogPost.slug)}`,
-      icon: 'https://cdn.lin.ky/default-data/icons/whatsapp.svg',
-    },
-  ];
-
   return (
     <>
-      <article>
-        <div className="border-b border-zinc-950/5 bg-linear-to-b from-white to-[#F5F5F3] pt-32 md:pt-40">
-          <MarketingContainer>
-            <header className="mx-auto flex max-w-2xl flex-col items-center pb-8 text-center">
-              <p className="flex items-center gap-2 text-sm font-medium text-zinc-500">
-                <span className="inline-block h-px w-6 bg-zinc-300" />
-                Blog
+      <div className="blog">
+        <div className="blog-wash" aria-hidden="true" />
+        <div className="blog-wrap blog-post-grid pb-16 md:pb-20">
+          <aside className="blog-rail blog-rail-author" aria-label="Author">
+            <div className="flex items-center gap-3">
+              <AuthorByline author={author} />
+            </div>
+            <div className="flex flex-col gap-2.5">
+              <p className="blog-eyebrow">Share</p>
+              <ShareButtons url={postUrl} title={blogPost.title} />
+            </div>
+          </aside>
+
+          <article>
+            <header>
+              <p className="blog-eyebrow flex flex-wrap items-center gap-2">
+                {blogPost.draft && (
+                  <span className="blog-badge-warn">Draft</span>
+                )}
+                <Link href="/i/blog" className="hover:text-(--ink)">
+                  Blog
+                </Link>
+                <span className="blog-sep" aria-hidden="true">
+                  ·
+                </span>
+                <time dateTime={blogPost.publishedAt}>
+                  {formatPostDate(blogPost.publishedAt, 'long')}
+                </time>
+                <span className="blog-sep" aria-hidden="true">
+                  ·
+                </span>
+                <span>{readingMinutes(blogPost)} min read</span>
               </p>
-              <h1 className="mt-4 text-pretty text-4xl font-semibold tracking-tight text-zinc-900 lg:text-5xl">
+              <h1 className="mt-4 text-[clamp(2.125rem,5vw,3rem)] leading-[1.1] font-semibold tracking-tight text-pretty">
                 {blogPost.title}
               </h1>
-              <div className="mt-6 mb-2 flex items-center gap-3">
-                {author?.avatar && (
-                  <Image
-                    src={author.avatar}
-                    alt={author.name}
-                    width={36}
-                    height={36}
-                    className="rounded-full ring-1 ring-zinc-950/10"
-                  />
-                )}
-                <span className="text-sm font-medium text-zinc-700">
-                  by{' '}
-                  <a
-                    href={author?.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-zinc-900 underline underline-offset-2 hover:text-zinc-600"
-                  >
-                    {author?.name}
-                  </a>
-                </span>
-                <span className="text-zinc-300">·</span>
-                <time
-                  dateTime={blogPost.publishedAt}
-                  className="text-sm text-zinc-500"
-                >
-                  {Intl.DateTimeFormat('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  }).format(new Date(blogPost.publishedAt))}
-                </time>
-              </div>
-              <p className="mt-2 mb-6 max-w-2xl text-center text-lg text-zinc-500">
+              <p className="blog-desc mt-4 max-w-none text-lg leading-normal md:text-xl">
                 {blogPost.description}
               </p>
-              {blogPost.featuredImage && (
-                <div className="relative mb-2 aspect-2/1 w-full overflow-hidden rounded-2xl bg-zinc-100 ring-1 ring-zinc-950/5">
-                  <Image
-                    src={blogPost.featuredImage}
-                    alt={blogPost.title}
-                    width={800}
-                    height={400}
-                    className="h-full w-full object-cover"
-                    style={{
-                      objectFit: 'cover',
-                      width: '100%',
-                      height: '100%',
-                    }}
-                    priority
-                  />
-                </div>
-              )}
-              {/* Social Share Buttons (top, mobile only) */}
-              <div className="flex gap-2 justify-center mt-2 mb-2">
-                {shareIcons.map((icon) => (
-                  <a
-                    key={icon.name}
-                    href={icon.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded-full bg-black/5 hover:bg-black/10 transition-colors w-10 h-10 flex items-center justify-center"
-                    title={`Share on ${icon.name}`}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={icon.icon}
-                      alt={icon.name}
-                      className="w-5 h-5 opacity-70 group-hover:opacity-100"
-                      style={{ filter: 'invert(0)' }}
-                    />
-                  </a>
-                ))}
+              <div className="mt-6 flex items-center gap-3 min-[78rem]:hidden">
+                <AuthorByline author={author} />
               </div>
+              {blogPost.featuredImage && (
+                <PostCover
+                  src={blogPost.featuredImage}
+                  // The text column is 42rem plus up to 3.5rem of bleed per side.
+                  sizes="(min-width: 78rem) 784px, 100vw"
+                  priority
+                  className="blog-cover blog-surface mt-8 aspect-video"
+                />
+              )}
             </header>
 
-            <div className="flex flex-col lg:flex-row gap-8 mx-auto w-full justify-between">
-              <div className="flex-1 min-w-0 max-w-3xl">
-                <div className="prose prose-lg prose-zinc max-w-3xl py-16 mx-auto">
-                  <PostContent content={blogPost.content} />
-                </div>
+            <div className="blog-prose">
+              <PostContent content={blogPost.content} />
+            </div>
 
-                <div className="flex gap-2 justify-center mt-8 mb-8 lg:hidden">
-                  {shareIcons.map((icon) => (
-                    <a
-                      key={icon.name}
-                      href={icon.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="rounded-full bg-slate-100 hover:bg-slate-200 transition-colors w-10 h-10 flex items-center justify-center"
-                      title={`Share on ${icon.name}`}
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={icon.icon}
-                        alt={icon.name}
-                        className="w-5 h-5 opacity-70 group-hover:opacity-100"
-                        style={{ filter: 'invert(0)' }}
-                      />
-                    </a>
-                  ))}
-                </div>
-              </div>
+            <div className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-(--line-soft) pt-6 min-[78rem]:hidden">
+              <p className="text-sm font-medium text-(--ink)">
+                Share this article
+              </p>
+              <ShareButtons url={postUrl} title={blogPost.title} />
+            </div>
 
-              {toc.length > 1 && (
-                <aside className="hidden lg:flex flex-col gap-8 w-72 max-w-xs sticky top-8 pt-16 pb-8 self-start">
-                  <TableOfContents links={toc} />
-                  <div className="flex gap-2 flex-wrap justify-start">
-                    {shareIcons.map((icon) => (
+            {author && (
+              <footer className="blog-surface mt-14 flex flex-wrap items-center gap-5 p-6">
+                <Image
+                  src={author.avatar}
+                  alt=""
+                  width={56}
+                  height={56}
+                  className="size-14 flex-none rounded-[0.875rem] object-cover shadow-[0_0_0_1px_var(--line)]"
+                />
+                <div className="flex-[1_1_18rem]">
+                  <p className="blog-eyebrow mb-1">Written by</p>
+                  <p className="text-xl leading-tight font-semibold tracking-tight">
+                    {author.name}
+                  </p>
+                  <p className="mt-1.5 text-sm leading-[1.55] text-(--ink-soft)">
+                    {author.position} at Linky.
+                  </p>
+                </div>
+                <ul className="flex flex-wrap gap-2">
+                  {authorLinks.map((link) => (
+                    <li key={link.href}>
                       <a
-                        key={icon.name}
-                        href={icon.href}
+                        href={link.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="rounded-full bg-black/5 hover:bg-black/10 transition-colors w-10 h-10 flex items-center justify-center"
-                        title={`Share on ${icon.name}`}
+                        className="blog-btn blog-btn-secondary blog-btn-sm"
                       >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={icon.icon}
-                          alt={icon.name}
-                          className="w-5 h-5 opacity-70 group-hover:opacity-100"
-                          style={{ filter: 'invert(0)' }}
-                        />
+                        {link.label}
                       </a>
-                    ))}
-                  </div>
-                </aside>
-              )}
-            </div>
-          </MarketingContainer>
+                    </li>
+                  ))}
+                </ul>
+              </footer>
+            )}
+          </article>
+
+          <aside
+            className="blog-rail blog-rail-nav"
+            aria-label="Adjacent posts"
+          >
+            {newer && <AdjacentRailLink direction="next" post={newer} />}
+            {older && <AdjacentRailLink direction="previous" post={older} />}
+          </aside>
+
+          <nav className="blog-post-nav-bottom" aria-label="Adjacent posts">
+            {newer && <AdjacentPostCard direction="next" post={newer} />}
+            {older && <AdjacentPostCard direction="previous" post={older} />}
+          </nav>
         </div>
-        <MarketingContainer className="mt-8 mb-20">
-          <h2 className="mb-8 text-2xl font-semibold tracking-tight text-zinc-900">
-            Read more
-          </h2>
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {readMorePosts.map((post) => (
-              <Link
-                key={post.slug}
-                href={`/i/blog/${post.slug}`}
-                className="flex h-full flex-col rounded-2xl bg-white p-5 ring-1 ring-zinc-950/5 transition-shadow hover:shadow-sm"
-              >
-                {post.featuredImage && (
-                  <div className="relative mb-4 h-40 w-full overflow-hidden rounded-xl bg-zinc-100">
-                    <Image
-                      src={post.featuredImage}
-                      alt={post.title}
-                      fill
-                      sizes="(min-width: 1024px) 320px, (min-width: 640px) 50vw, 100vw"
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                )}
-                <h3 className="mb-2 text-lg font-semibold tracking-tight text-zinc-900">
-                  {post.title}
-                </h3>
-                <p className="mb-4 flex-1 text-sm leading-relaxed text-zinc-500 line-clamp-3">
-                  {post.description}
-                </p>
-                <span className="mt-auto text-sm font-medium text-zinc-900">
-                  Read more →
-                </span>
-              </Link>
-            ))}
-          </div>
-        </MarketingContainer>
-        <MinimalCta />
-      </article>
+      </div>
+      <MinimalCta />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -309,10 +332,7 @@ export default async function BlogPostPage({
             buildBreadcrumbSchema([
               { name: 'Home', url: 'https://lin.ky' },
               { name: 'Blog', url: 'https://lin.ky/i/blog' },
-              {
-                name: blogPost.title,
-                url: `https://lin.ky/i/blog/${blogPost.slug}`,
-              },
+              { name: blogPost.title, url: postUrl },
             ])
           ),
         }}

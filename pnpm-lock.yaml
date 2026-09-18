@@ -355,7 +355,7 @@ importers:
         version: link:../../packages/ui
       '@vercel/analytics':
         specifier: ^1.5.0
-        version: 1.5.0(next@16.2.4(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.2))(react@19.0.0)
+        version: 1.5.0(next@16.2.4(@opentelemetry/api@1.9.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.2))(react@19.0.0)
       better-auth:
         specifier: ^1.6.25
         version: 1.6.25(r3id4tflfijfo346uhpfwrqdje)
@@ -370,7 +370,7 @@ importers:
         version: 4.0.0
       next:
         specifier: 16.2.4
-        version: 16.2.4(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.2)
+        version: 16.2.4(@opentelemetry/api@1.9.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.2)
       react:
         specifier: ^19.0.0
         version: 19.0.0
@@ -383,15 +383,9 @@ importers:
       remark-gfm:
         specifier: ^4.0.0
         version: 4.0.1
-      remark-parse:
-        specifier: ^11
-        version: 11.0.0
       sass:
         specifier: ^1.85.0
         version: 1.94.2
-      unified:
-        specifier: ^11
-        version: 11.0.5
       unist-util-visit:
         specifier: ^5
         version: 5.0.0
@@ -11417,6 +11411,11 @@ snapshots:
       next: 16.2.4(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.2)
       react: 19.0.0
 
+  '@vercel/analytics@1.5.0(next@16.2.4(@opentelemetry/api@1.9.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.2))(react@19.0.0)':
+    optionalDependencies:
+      next: 16.2.4(@opentelemetry/api@1.9.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.2)
+      react: 19.0.0
+
   '@vercel/functions@2.2.13(@aws-sdk/credential-provider-web-identity@3.972.67)':
     dependencies:
       '@vercel/oidc': 2.0.2
@@ -11824,7 +11823,7 @@ snapshots:
       drizzle-kit: 0.31.10
       drizzle-orm: 0.45.2(@cloudflare/workers-types@5.20260804.1)(@electric-sql/pglite@0.3.2)(@opentelemetry/api@1.9.1)(@prisma/client@7.0.1(prisma@7.0.1(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3))(typescript@5.6.3))(@types/pg@8.15.6)(kysely@0.29.4)(mysql2@3.15.3)(pg@8.23.0)(postgres@3.4.7)(prisma@7.0.1(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3))
       mysql2: 3.15.3
-      next: 16.2.4(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.2)
+      next: 16.2.4(@opentelemetry/api@1.9.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.2)
       pg: 8.23.0
       prisma: 7.0.1(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.3)
       react: 19.0.0
@@ -13305,7 +13304,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 20.19.25
+      '@types/node': 22.8.7
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -14094,6 +14093,32 @@ snapshots:
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
       styled-jsx: 5.1.6(@babel/core@7.28.5)(react@19.0.0)
+    optionalDependencies:
+      '@next/swc-darwin-arm64': 16.2.4
+      '@next/swc-darwin-x64': 16.2.4
+      '@next/swc-linux-arm64-gnu': 16.2.4
+      '@next/swc-linux-arm64-musl': 16.2.4
+      '@next/swc-linux-x64-gnu': 16.2.4
+      '@next/swc-linux-x64-musl': 16.2.4
+      '@next/swc-win32-arm64-msvc': 16.2.4
+      '@next/swc-win32-x64-msvc': 16.2.4
+      '@opentelemetry/api': 1.9.1
+      sass: 1.94.2
+      sharp: 0.34.5
+    transitivePeerDependencies:
+      - '@babel/core'
+      - babel-plugin-macros
+
+  next@16.2.4(@opentelemetry/api@1.9.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.94.2):
+    dependencies:
+      '@next/env': 16.2.4
+      '@swc/helpers': 0.5.15
+      baseline-browser-mapping: 2.10.24
+      caniuse-lite: 1.0.30001757
+      postcss: 8.4.31
+      react: 19.0.0
+      react-dom: 19.0.0(react@19.0.0)
+      styled-jsx: 5.1.6(react@19.0.0)
     optionalDependencies:
       '@next/swc-darwin-arm64': 16.2.4
       '@next/swc-darwin-x64': 16.2.4
@@ -15206,6 +15231,11 @@ snapshots:
       react: 19.0.0
     optionalDependencies:
       '@babel/core': 7.28.5
+
+  styled-jsx@5.1.6(react@19.0.0):
+    dependencies:
+      client-only: 0.0.1
+      react: 19.0.0
 
   sucrase@3.35.1:
     dependencies:

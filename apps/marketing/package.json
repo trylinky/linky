@@ -32,9 +32,7 @@
     "react-dom": "^19.0.0",
     "react-markdown": "^10",
     "remark-gfm": "^4.0.0",
-    "remark-parse": "^11",
     "sass": "^1.85.0",
-    "unified": "^11",
     "unist-util-visit": "^5"
   },
   "devDependencies": {

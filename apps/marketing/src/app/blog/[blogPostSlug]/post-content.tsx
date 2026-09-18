@@ -45,12 +45,15 @@ export function PostContent({ content }: { content: string }) {
       remarkPlugins={[remarkGfm, remarkHeadingIds]}
       urlTransform={(url) => defaultUrlTransform(resolveBlogAssetUrl(url))}
       components={{
+        // The page header already renders the title as the only h1; some
+        // posts repeat it as a top-level heading.
+        h1: () => null,
         p: ({ node, children }) => {
           const embedUrl = youTubeEmbedUrl(node);
           if (!embedUrl) return <p>{children}</p>;
 
           return (
-            <div className="not-prose my-8 aspect-video">
+            <div className="my-8 aspect-video">
               <iframe
                 src={embedUrl}
                 title="YouTube video"

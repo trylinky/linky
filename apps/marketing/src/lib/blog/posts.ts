@@ -92,3 +92,20 @@ export async function getBlogPost(slug: string): Promise<BlogPost | null> {
   const posts = await getBlogPosts();
   return posts.find((post) => post.slug === slug) ?? null;
 }
+
+export function readingMinutes(post: BlogPost): number {
+  const words = post.content.split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / 220));
+}
+
+export function formatPostDate(
+  publishedAt: string,
+  month: 'short' | 'long' = 'short'
+): string {
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month,
+    day: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(publishedAt));
+}
