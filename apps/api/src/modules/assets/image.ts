@@ -156,6 +156,19 @@ function crop(
   return { data: output, width: sWidth, height: sHeight, colorSpace: 'srgb' };
 }
 
+/** True when any pixel is less than fully opaque. */
+export function hasTransparency(image: ImageData): boolean {
+  const { data } = image;
+
+  for (let i = 3; i < data.length; i += 4) {
+    if (data[i] !== 255) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 /** Produces the webp and png variants the CDN serves, from one source buffer. */
 export async function encodeVariants(
   source: Uint8Array,
@@ -175,9 +188,19 @@ export async function encodeVariants(
   // cropping above is what does sharp's "cover" framing; this step is a
   // plain scale, matching sharp's lack of withoutEnlargement (small sources
   // get upscaled here rather than left small).
+  //
+  // `linearRGB` and `premultiply` both default to true, and either one sends
+  // the resize through a float32 copy of the image: about 13MB extra per
+  // megapixel, which on its own pushed ordinary photos past the Worker's
+  // 128MB memory limit (the wasm traps when it cannot grow its memory).
+  // sharp resized in sRGB, so linearRGB stays off. Premultiplying is what
+  // stops dark fringes around transparent edges, so it is kept, but only for
+  // images that have any transparency — photos never do.
   const resized = await resize(cropped, {
     width: config.width,
     height: config.height,
+    linearRGB: false,
+    premultiply: hasTransparency(cropped),
   });
 
   // png() has no quality knob in jsquash — sharp's `quality` there drove

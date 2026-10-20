@@ -1,4 +1,4 @@
-import { coverCrop } from './image';
+import { coverCrop, hasTransparency } from './image';
 import { describe, expect, it } from 'vitest';
 
 // sharp's .resize(w, h) defaults to fit:cover, position:centre — it crops the
@@ -43,5 +43,21 @@ describe('coverCrop', () => {
       sWidth: 100,
       sHeight: 100,
     });
+  });
+});
+
+describe('hasTransparency', () => {
+  function image(alphas: number[]): ImageData {
+    const data = new Uint8ClampedArray(alphas.length * 4);
+    alphas.forEach((alpha, i) => (data[i * 4 + 3] = alpha));
+    return { data, width: alphas.length, height: 1, colorSpace: 'srgb' };
+  }
+
+  it('is false when every pixel is opaque', () => {
+    expect(hasTransparency(image([255, 255, 255]))).toBe(false);
+  });
+
+  it('is true when any pixel is not fully opaque', () => {
+    expect(hasTransparency(image([255, 254, 255]))).toBe(true);
   });
 });
