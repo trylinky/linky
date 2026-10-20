@@ -1,19 +1,24 @@
 /**
  * The API decodes and resizes uploads inside a Cloudflare Worker, which has a
- * 128MB memory limit. A full-size phone photo decodes to 50-200MB of raw
- * pixels and kills the Worker, so images are shrunk here first.
+ * 128MB memory limit, and its pipeline needs roughly 20MB per megapixel of
+ * source image. Anything much over a couple of megapixels fails, so images
+ * are shrunk here to the smallest size that still covers the API's output.
  *
- * 4 megapixels is still well above the largest size the API produces
- * (1200x800 page backgrounds), so nothing visible is lost.
+ * MAX_PIXELS is a backstop for extreme aspect ratios (a panorama would
+ * otherwise stay very wide to cover the target height); those get upscaled
+ * slightly by the API instead.
  */
-const MAX_PIXELS = 4_000_000;
+const MAX_PIXELS = 2_000_000;
 
 /**
- * Returns a copy of `file` scaled down to at most MAX_PIXELS, or `file`
- * itself when it is already small enough or the browser cannot decode it
- * (the API then reports the problem, as before).
+ * Returns a copy of `file` scaled down so it just covers `target` (the size
+ * the API crops to), or `file` itself when it is already small enough or the
+ * browser cannot decode it (the API then reports the problem, as before).
  */
-export async function downscaleImage(file: File): Promise<File> {
+export async function downscaleImage(
+  file: File,
+  target: { width: number; height: number }
+): Promise<File> {
   let bitmap: ImageBitmap;
 
   try {
@@ -26,11 +31,18 @@ export async function downscaleImage(file: File): Promise<File> {
   try {
     const pixels = bitmap.width * bitmap.height;
 
-    if (pixels <= MAX_PIXELS) {
+    // The smallest scale at which the image still covers the target in both
+    // dimensions, i.e. what the API's cover-crop needs.
+    const coverScale = Math.max(
+      target.width / bitmap.width,
+      target.height / bitmap.height
+    );
+    const scale = Math.min(1, coverScale, Math.sqrt(MAX_PIXELS / pixels));
+
+    if (scale >= 1) {
       return file;
     }
 
-    const scale = Math.sqrt(MAX_PIXELS / pixels);
     const width = Math.round(bitmap.width * scale);
     const height = Math.round(bitmap.height * scale);
 

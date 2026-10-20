@@ -1,6 +1,6 @@
 'use client';
 
-import { AssetContexts } from '@/lib/asset';
+import { AssetContexts, assetOutputSizes } from '@/lib/asset';
 import { downscaleImage } from '@/lib/downscale-image';
 import { PhotoIcon } from '@heroicons/react/24/solid';
 import { captureException } from '@sentry/nextjs';
@@ -71,7 +71,10 @@ export function FormFileUpload({
   };
 
   const uploadFile = async (selectedFile: File) => {
-    const firstFile = await downscaleImage(selectedFile);
+    const firstFile = await downscaleImage(
+      selectedFile,
+      assetOutputSizes[assetContext]
+    );
 
     if (firstFile.size > 10 * 1024 * 1024) {
       alert('File too large. Please upload a file smaller than 10MB.');
