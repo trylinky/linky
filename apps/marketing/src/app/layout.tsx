@@ -93,8 +93,8 @@ export default async function RootLayout({
         <MarketingFooter />
 
         <Script
-          src="https://api.aside.so/s.js"
-          data-site="site_01m23zhjqr3ny2csns0xxg71xd"
+          src="https://aside.so/s.js"
+          data-id="5c0xpxpjkfdf"
           strategy="afterInteractive"
         />
       </body>
