@@ -28,8 +28,11 @@ describe('putObject', () => {
     const request = fetchMock.mock.calls[0][0] as Request;
 
     expect(request.method).toBe('PUT');
+    // Path-style, not virtual-hosted: the bucket names contain dots, which
+    // S3's wildcard certificate (*.s3.<region>.amazonaws.com) can't match,
+    // so a virtual-hosted URL fails the TLS handshake.
     expect(request.url).toBe(
-      'https://test.glow.user-uploads.s3.us-east-1.amazonaws.com/pg-bg-abc/def.webp'
+      'https://s3.us-east-1.amazonaws.com/test.glow.user-uploads/pg-bg-abc/def.webp'
     );
     expect(request.headers.get('content-type')).toBe('image/webp');
     // SigV4 signing is the whole point — an unsigned PUT would 403 in prod.
