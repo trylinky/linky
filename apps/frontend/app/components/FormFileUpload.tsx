@@ -1,8 +1,10 @@
 'use client';
 
 import { AssetContexts } from '@/lib/asset';
+import { downscaleImage } from '@/lib/downscale-image';
 import { PhotoIcon } from '@heroicons/react/24/solid';
-import { Button, cn } from '@trylinky/ui';
+import { captureException } from '@sentry/nextjs';
+import { Button, cn, toast } from '@trylinky/ui';
 import { ChangeEvent, useEffect, useState } from 'react';
 
 interface Props {
@@ -25,6 +27,7 @@ export function FormFileUpload({
   htmlFor,
 }: Props) {
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     if (initialValue) {
@@ -35,20 +38,44 @@ export function FormFileUpload({
   const handleUpload = async (ev: ChangeEvent<HTMLInputElement>) => {
     ev.preventDefault();
 
-    const firstFile = ev.target?.files?.[0];
+    const input = ev.target;
+    const selectedFile = input?.files?.[0];
 
-    if (!firstFile || !referenceId) {
+    // Clear the input so choosing the same file again (e.g. after a failed
+    // upload) still fires onChange.
+    if (input) {
+      input.value = '';
+    }
+
+    if (!selectedFile || !referenceId) {
       return;
     }
+
+    if (!selectedFile.type.startsWith('image/')) {
+      alert('Please upload an image file.');
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const url = await uploadFile(selectedFile);
+
+      if (url) {
+        onUploaded(url);
+        setUploadedFileUrl(url);
+      }
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const uploadFile = async (selectedFile: File) => {
+    const firstFile = await downscaleImage(selectedFile);
 
     if (firstFile.size > 10 * 1024 * 1024) {
       alert('File too large. Please upload a file smaller than 10MB.');
-      return;
-    }
-
-    if (!firstFile.type.startsWith('image/')) {
-      alert('Please upload an image file.');
-      return;
+      return null;
     }
 
     const body = new FormData();
@@ -59,24 +86,38 @@ export function FormFileUpload({
     body.append('assetContext', assetContext);
     body.append('file', firstFile, firstFile.name);
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/assets/upload`,
-      {
-        method: 'POST',
-        credentials: 'include',
-        body,
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/assets/upload`,
+        {
+          method: 'POST',
+          credentials: 'include',
+          body,
+        }
+      );
+
+      // Error responses are not always JSON (a 401 is plain text, and a
+      // Worker that crashed returns Cloudflare's HTML error page).
+      const responseData = await response.json().catch(() => null);
+
+      if (!response.ok || !responseData?.url) {
+        throw new Error(
+          responseData?.error?.message ??
+            `Upload failed with status ${response.status}`
+        );
       }
-    );
 
-    const responseData = await response.json();
-
-    if (!response.ok) {
-      console.error(responseData.message);
-      return;
+      return responseData.url as string;
+    } catch (error) {
+      captureException(error);
+      toast({
+        title: 'Upload failed',
+        description:
+          'We could not upload that image. Please try again, or try a smaller image.',
+        variant: 'error',
+      });
+      return null;
     }
-
-    onUploaded(responseData.url);
-    setUploadedFileUrl(responseData.url);
   };
 
   const onRemoveFile = () => {
@@ -121,13 +162,15 @@ export function FormFileUpload({
               htmlFor={htmlFor}
               className="relative text-center cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
             >
-              <span>Select a file</span>
+              <span>{isUploading ? 'Uploading…' : 'Select a file'}</span>
               <input
                 id={htmlFor}
                 name={htmlFor}
                 type="file"
+                accept="image/png,image/jpeg,image/webp"
                 className="sr-only"
                 onChange={handleUpload}
+                disabled={isUploading}
               />
             </label>
           </div>
