@@ -77,11 +77,16 @@ describe('better-auth database adapter', () => {
   it('creates a user and runs the user.create.after hook', async () => {
     const { internalAdapter } = await auth.$context;
 
-    const created = await internalAdapter.createUser({
-      email,
-      name: 'Auth Adapter Test',
-      emailVerified: false,
-    });
+    const created = await internalAdapter.createUser(
+      {
+        email,
+        name: 'Auth Adapter Test',
+        emailVerified: false,
+      },
+      // better-auth 1.7 requires the provisioning source; this test creates
+      // the user directly rather than through a sign-in path.
+      { method: 'email-password' }
+    );
     userId = created.id;
     userIds.push(userId);
 

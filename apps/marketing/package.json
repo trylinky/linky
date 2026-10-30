@@ -23,7 +23,7 @@
     "@trylinky/seo": "workspace:*",
     "@trylinky/ui": "workspace:*",
     "@vercel/analytics": "^1.5.0",
-    "better-auth": "^1.6.25",
+    "better-auth": "^1.7.14",
     "framer-motion": "^12.0.0-alpha.1",
     "gray-matter": "^4",
     "mdast-util-to-string": "^4",
